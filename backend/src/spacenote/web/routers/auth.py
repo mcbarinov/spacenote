@@ -1,8 +1,7 @@
-from multiprocessing import AuthenticationError
-
 from fastapi import APIRouter, Request
 from pydantic import BaseModel
 
+from spacenote.core.errors import AuthenticationError
 from spacenote.web.deps import AppDep, SessionIdDep
 
 router = APIRouter()

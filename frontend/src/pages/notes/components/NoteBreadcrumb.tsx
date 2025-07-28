@@ -22,7 +22,7 @@ export function NoteBreadcrumb({ spaceId, spaceName, noteId, currentPage, showNo
       <BreadcrumbList>
         <BreadcrumbItem>
           <BreadcrumbLink asChild>
-            <Link to={`/notes/${spaceId}`}>Notes / {spaceName}</Link>
+            <Link to={`/notes/${spaceId}`}>{spaceName}</Link>
           </BreadcrumbLink>
         </BreadcrumbItem>
         {noteId && showNoteAsLink && (

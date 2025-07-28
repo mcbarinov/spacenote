@@ -2,22 +2,17 @@ import { useState } from "react"
 import { useNavigate } from "react-router"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Input } from "@/components/ui/input"
-import { Upload, AlertCircle } from "lucide-react"
-import { spacesApi, type ImportResult, type Space } from "@/lib/api/spaces"
+import { spacesApi, type Space } from "@/lib/api/spaces"
 import { useSpacesStore } from "@/stores/spacesStore"
 import type { BaseDialogProps } from "@/lib/dialog/types"
-
-type ImportStatus = "idle" | "loading" | "success" | "error"
+import { toast } from "sonner"
 
 export default function ImportSpaceDialog({ onClose }: BaseDialogProps) {
   const navigate = useNavigate()
   const { loadSpaces } = useSpacesStore()
-  const [status, setStatus] = useState<ImportStatus>("idle")
-  const [message, setMessage] = useState<string>("")
   const [fileData, setFileData] = useState<{ space: Space; notes?: unknown[]; comments?: unknown[] } | null>(null)
-  const [importResult, setImportResult] = useState<ImportResult | null>(null)
+  const [isImporting, setIsImporting] = useState(false)
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -29,48 +24,37 @@ export default function ImportSpaceDialog({ onClose }: BaseDialogProps) {
 
       if (data && typeof data === "object" && "space" in data) {
         setFileData(data as { space: Space; notes?: unknown[]; comments?: unknown[] })
-        setStatus("idle")
-        setMessage("")
       } else {
-        setStatus("error")
-        setMessage("Invalid file format: missing space data")
+        toast.error("Invalid file format: missing space data")
         setFileData(null)
+        e.target.value = "" // Reset file input
       }
     } catch (err) {
-      setStatus("error")
-      setMessage("Failed to read file: " + (err instanceof Error ? err.message : "Unknown error"))
+      toast.error("Failed to read file: " + (err instanceof Error ? err.message : "Unknown error"))
       setFileData(null)
+      e.target.value = "" // Reset file input
     }
   }
 
   const handleImport = async () => {
     if (!fileData) return
 
-    setStatus("loading")
+    setIsImporting(true)
 
     try {
       const result = await spacesApi.importSpace(fileData)
-      setImportResult(result)
-      setStatus("success")
       await loadSpaces()
+      toast.success(`Space imported successfully! ${result.notes_imported} notes imported.`)
       onClose()
       navigate(`/notes/${result.space_id}`)
-    } catch (err) {
-      setStatus("error")
-      setMessage(err instanceof Error ? err.message : "Import failed")
+    } catch {
+      // Error is handled by global error handler
+      setIsImporting(false)
     }
   }
 
-  const handleClose = () => {
-    setFileData(null)
-    setImportResult(null)
-    setStatus("idle")
-    setMessage("")
-    onClose()
-  }
-
   return (
-    <Dialog open={true} onOpenChange={handleClose}>
+    <Dialog open={true} onOpenChange={() => !isImporting && onClose()}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>Import Space</DialogTitle>
@@ -79,15 +63,8 @@ export default function ImportSpaceDialog({ onClose }: BaseDialogProps) {
 
         <div className="space-y-4">
           <div>
-            <Input type="file" accept=".json" onChange={handleFileChange} className="cursor-pointer" />
+            <Input type="file" accept=".json" onChange={handleFileChange} className="cursor-pointer" disabled={isImporting} />
           </div>
-
-          {status === "error" && (
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{message}</AlertDescription>
-            </Alert>
-          )}
 
           {fileData && (
             <div className="border rounded-lg p-4 space-y-2">
@@ -118,43 +95,15 @@ export default function ImportSpaceDialog({ onClose }: BaseDialogProps) {
               </div>
             </div>
           )}
-
-          {status === "success" && importResult && (
-            <Alert>
-              <Upload className="h-4 w-4" />
-              <AlertDescription>
-                <div className="space-y-1">
-                  <p className="font-semibold">Import successful!</p>
-                  <p>Space ID: {importResult.space_id}</p>
-                  <p>Notes imported: {importResult.notes_imported}</p>
-                  <p>Comments imported: {importResult.comments_imported}</p>
-                  {importResult.warnings.length > 0 && (
-                    <div className="mt-2">
-                      <p className="font-semibold">Warnings:</p>
-                      <ul className="list-disc list-inside text-sm">
-                        {importResult.warnings.map((warning, i) => (
-                          <li key={i}>{warning}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              </AlertDescription>
-            </Alert>
-          )}
         </div>
 
         <DialogFooter>
-          {status !== "success" && (
-            <>
-              <Button variant="outline" onClick={handleClose}>
-                Cancel
-              </Button>
-              <Button onClick={handleImport} disabled={!fileData || status === "loading"}>
-                {status === "loading" ? "Importing..." : "Import"}
-              </Button>
-            </>
-          )}
+          <Button variant="outline" onClick={onClose} disabled={isImporting}>
+            Cancel
+          </Button>
+          <Button onClick={handleImport} disabled={!fileData || isImporting}>
+            {isImporting ? "Importing..." : "Import"}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -1,6 +1,6 @@
 import { createBrowserRouter } from "react-router"
 import Layout from "./components/layout/Layout"
-import LoginPage from "./pages/login"
+import LoginPage from "./pages/LoginPage"
 import IndexPage from "./pages/IndexPage"
 import SpaceNotes from "./pages/notes/SpaceNotes"
 import CreateNote from "./pages/notes/CreateNote"

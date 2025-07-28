@@ -2,9 +2,9 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form"
 import type { BaseDialogProps } from "@/lib/dialog"
 import { authApi } from "@/lib/api/auth"
 import { toast } from "sonner"
@@ -36,8 +36,7 @@ export function ChangePasswordDialog({ onClose, onSuccess }: BaseDialogProps) {
       newPassword: data.newPassword,
     })
     toast.success("Password changed successfully")
-    onSuccess?.("Password changed successfully")
-    onClose()
+    onSuccess?.(true) // Signal that password was changed
   }
 
   return (
@@ -45,7 +44,6 @@ export function ChangePasswordDialog({ onClose, onSuccess }: BaseDialogProps) {
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Change Password</DialogTitle>
-          <DialogDescription>Enter your current password and choose a new one.</DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
@@ -55,7 +53,6 @@ export function ChangePasswordDialog({ onClose, onSuccess }: BaseDialogProps) {
               name="currentPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Current Password</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
@@ -74,7 +71,6 @@ export function ChangePasswordDialog({ onClose, onSuccess }: BaseDialogProps) {
               name="newPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>New Password</FormLabel>
                   <FormControl>
                     <Input {...field} type="password" placeholder="Enter new password" disabled={form.formState.isSubmitting} />
                   </FormControl>
@@ -88,7 +84,6 @@ export function ChangePasswordDialog({ onClose, onSuccess }: BaseDialogProps) {
               name="confirmPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Confirm New Password</FormLabel>
                   <FormControl>
                     <Input {...field} type="password" placeholder="Confirm new password" disabled={form.formState.isSubmitting} />
                   </FormControl>

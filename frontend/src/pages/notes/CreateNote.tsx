@@ -31,9 +31,6 @@ export default function CreateNote() {
   return (
     <div>
       <NoteBreadcrumb spaceId={spaceId!} spaceName={space.name} currentPage="New Note" />
-
-      <h1 className="text-2xl font-bold my-4">Create New Note</h1>
-
       <div className="bg-white border border-gray-300 rounded-lg p-6">
         <NoteForm space={space} onSubmit={handleSubmit} onCancel={handleCancel} loading={loading} />
       </div>

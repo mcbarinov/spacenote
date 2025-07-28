@@ -21,12 +21,11 @@ export default function UserMenu() {
   }
 
   const handleChangePassword = async () => {
-    try {
-      await dialog.open("changePassword")
+    const result = await dialog.open("changePassword")
+    // Only logout if password was actually changed (dialog returns a result)
+    if (result) {
       logout()
       navigate("/login")
-    } catch {
-      // Dialog was cancelled, do nothing
     }
   }
 

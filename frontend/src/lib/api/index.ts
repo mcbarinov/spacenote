@@ -18,7 +18,8 @@ export const api = ky.create({
     ],
     afterResponse: [
       async (_request, _options, response) => {
-        if (response.status === 401) {
+        // Handle 401 responses - but don't prevent error handling on login page
+        if (response.status === 401 && window.location.pathname !== "/login") {
           useAuthStore.getState().logout()
           window.location.href = "/login"
           return

@@ -2,26 +2,15 @@ import { useSpacesStore } from "@/stores/spacesStore"
 import { Card } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
-import { Check, X, MoreHorizontal, Download, Upload } from "lucide-react"
+import { Check, X, MoreHorizontal, Upload, FileText, Trash2 } from "lucide-react"
 import { useDialog } from "@/lib/dialog"
 import { Link } from "react-router"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { spacesApi } from "@/lib/api/spaces"
-import { downloadJSON } from "@/lib/download"
 import { PageHeader } from "@/components/PageHeader"
 
 export default function SpacesPage() {
   const { spaces, isLoading, error } = useSpacesStore()
   const dialog = useDialog()
-
-  const handleExport = async (spaceId: string, includeContent: boolean) => {
-    try {
-      const data = await spacesApi.exportSpace(spaceId, includeContent)
-      downloadJSON(data, `${spaceId}-export.json`)
-    } catch (error) {
-      console.error("Export failed:", error)
-    }
-  }
 
   const handleImport = () => {
     dialog.open("importSpace")
@@ -89,13 +78,15 @@ export default function SpacesPage() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => handleExport(space.id, false)}>
-                        <Download className="mr-2 h-4 w-4" />
-                        Export (metadata only)
+                      <DropdownMenuItem asChild>
+                        <Link to={`/spaces/${space.id}/export`}>
+                          <FileText className="mr-2 h-4 w-4" />
+                          Export
+                        </Link>
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleExport(space.id, true)}>
-                        <Download className="mr-2 h-4 w-4" />
-                        Export with notes
+                      <DropdownMenuItem disabled className="text-red-600">
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Delete
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>

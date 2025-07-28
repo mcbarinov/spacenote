@@ -65,6 +65,9 @@ export default function SpaceFilters() {
             <Button asChild variant="outline">
               <Link to={`/spaces/${spaceId}/templates`}>Templates</Link>
             </Button>
+            <Button asChild variant="outline">
+              <Link to={`/spaces/${spaceId}/export`}>Export</Link>
+            </Button>
             <Button asChild>
               <Link to={`/spaces/${spaceId}/filters/create`}>Create</Link>
             </Button>

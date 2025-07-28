@@ -11,6 +11,7 @@ import SpaceFields from "./pages/spaces/SpaceFields"
 import SpaceTemplates from "./pages/spaces/SpaceTemplates"
 import SpaceFilters from "./pages/spaces/SpaceFilters"
 import CreateFilter from "./pages/spaces/CreateFilter"
+import SpaceExport from "./pages/spaces/SpaceExport"
 import { requireAuth } from "./lib/auth"
 
 export const router = createBrowserRouter([
@@ -46,6 +47,10 @@ export const router = createBrowserRouter([
       {
         path: "spaces/:spaceId/filters/create",
         Component: CreateFilter,
+      },
+      {
+        path: "spaces/:spaceId/export",
+        Component: SpaceExport,
       },
       {
         path: "notes/:spaceId",

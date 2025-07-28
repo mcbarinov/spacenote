@@ -27,6 +27,9 @@ export default function SpaceFields() {
             <Button asChild variant="outline">
               <Link to={`/spaces/${spaceId}/templates`}>Templates</Link>
             </Button>
+            <Button asChild variant="outline">
+              <Link to={`/spaces/${spaceId}/export`}>Export</Link>
+            </Button>
           </>
         }
       />

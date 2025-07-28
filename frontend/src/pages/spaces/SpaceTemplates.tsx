@@ -140,6 +140,9 @@ export default function SpaceTemplates() {
             <Button variant="outline" asChild>
               <Link to={`/spaces/${spaceId}/filters`}>Filters</Link>
             </Button>
+            <Button variant="outline" asChild>
+              <Link to={`/spaces/${spaceId}/export`}>Export</Link>
+            </Button>
           </>
         }
       />

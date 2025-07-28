@@ -8,6 +8,7 @@ import { Link } from "react-router"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { spacesApi } from "@/lib/api/spaces"
 import { downloadJSON } from "@/lib/download"
+import { PageHeader } from "@/components/PageHeader"
 
 export default function SpacesPage() {
   const { spaces, isLoading, error } = useSpacesStore()
@@ -31,16 +32,18 @@ export default function SpacesPage() {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Spaces</h1>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={handleImport}>
-            <Upload className="w-4 h-4 mr-2" />
-            Import
-          </Button>
-          <Button onClick={() => dialog.open("createSpace")}>Create</Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Spaces"
+        actions={
+          <>
+            <Button variant="outline" onClick={handleImport}>
+              <Upload className="w-4 h-4 mr-2" />
+              Import
+            </Button>
+            <Button onClick={() => dialog.open("createSpace")}>Create</Button>
+          </>
+        }
+      />
 
       <Card>
         <Table>

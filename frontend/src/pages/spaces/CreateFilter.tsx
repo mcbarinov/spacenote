@@ -12,6 +12,7 @@ import { toast } from "sonner"
 import { X, Plus } from "lucide-react"
 import type { Filter, FilterCondition } from "@/lib/api/notes"
 import type { FieldType } from "@/lib/api/spaces"
+import { PageHeader } from "@/components/PageHeader"
 
 interface FilterFormData {
   id: string
@@ -180,12 +181,15 @@ export default function CreateFilter() {
 
   return (
     <div>
-      <div className="flex justify-between items-center my-4">
-        <h1 className="text-2xl font-bold">Create Filter / {space.name}</h1>
-        <Button asChild variant="outline">
-          <Link to={`/spaces/${spaceId}/filters`}>Back to Filters</Link>
-        </Button>
-      </div>
+      <PageHeader
+        title="Create Filter"
+        subtitle={space.name}
+        actions={
+          <Button asChild variant="outline">
+            <Link to={`/spaces/${spaceId}/filters`}>Back to Filters</Link>
+          </Button>
+        }
+      />
 
       <Card>
         <CardHeader>

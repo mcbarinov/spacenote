@@ -3,7 +3,7 @@ import { useState } from "react"
 import { useSpacesStore } from "@/stores/spacesStore"
 import { notesApi } from "@/lib/api/notes"
 import { NoteForm } from "./components/NoteForm"
-import { NoteBreadcrumb } from "./components/NoteBreadcrumb"
+import { PageHeader } from "@/components/PageHeader"
 
 export default function CreateNote() {
   const { spaceId } = useParams<{ spaceId: string }>()
@@ -30,7 +30,7 @@ export default function CreateNote() {
 
   return (
     <div>
-      <NoteBreadcrumb spaceId={spaceId!} spaceName={space.name} currentPage="New Note" />
+      <PageHeader title="New Note" subtitle={space.name} />
       <div className="bg-white border border-gray-300 rounded-lg p-6">
         <NoteForm space={space} onSubmit={handleSubmit} onCancel={handleCancel} loading={loading} />
       </div>

@@ -8,6 +8,7 @@ import type { FilterCondition } from "@/lib/api/notes"
 import { Trash2 } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
+import { PageHeader } from "@/components/PageHeader"
 
 export default function SpaceFilters() {
   const { spaceId } = useParams<{ spaceId: string }>()
@@ -53,20 +54,23 @@ export default function SpaceFilters() {
 
   return (
     <div>
-      <div className="flex justify-between items-center my-4">
-        <h1 className="text-2xl font-bold">Filters / {space.name}</h1>
-        <div className="flex gap-2">
-          <Button asChild variant="outline">
-            <Link to={`/spaces/${spaceId}/fields`}>Fields</Link>
-          </Button>
-          <Button asChild variant="outline">
-            <Link to={`/spaces/${spaceId}/templates`}>Templates</Link>
-          </Button>
-          <Button asChild>
-            <Link to={`/spaces/${spaceId}/filters/create`}>Create</Link>
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Filters"
+        subtitle={space.name}
+        actions={
+          <>
+            <Button asChild variant="outline">
+              <Link to={`/spaces/${spaceId}/fields`}>Fields</Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link to={`/spaces/${spaceId}/templates`}>Templates</Link>
+            </Button>
+            <Button asChild>
+              <Link to={`/spaces/${spaceId}/filters/create`}>Create</Link>
+            </Button>
+          </>
+        }
+      />
 
       <Card>
         <Table>

@@ -4,6 +4,7 @@ import { FieldsTable } from "./components/FieldsTable"
 import { ListFieldsConfig } from "./components/ListFieldsConfig"
 import { HiddenFieldsConfig } from "./components/HiddenFieldsConfig"
 import { Button } from "@/components/ui/button"
+import { PageHeader } from "@/components/PageHeader"
 
 export default function SpaceFields() {
   const { spaceId } = useParams<{ spaceId: string }>()
@@ -15,17 +16,20 @@ export default function SpaceFields() {
 
   return (
     <div>
-      <div className="flex justify-between items-center my-4">
-        <h1 className="text-2xl font-bold">Fields / {space.name}</h1>
-        <div className="flex gap-2">
-          <Button asChild variant="outline">
-            <Link to={`/spaces/${spaceId}/filters`}>Filters</Link>
-          </Button>
-          <Button asChild variant="outline">
-            <Link to={`/spaces/${spaceId}/templates`}>Templates</Link>
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Fields"
+        subtitle={space.name}
+        actions={
+          <>
+            <Button asChild variant="outline">
+              <Link to={`/spaces/${spaceId}/filters`}>Filters</Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link to={`/spaces/${spaceId}/templates`}>Templates</Link>
+            </Button>
+          </>
+        }
+      />
 
       <FieldsTable fields={space.fields} />
 

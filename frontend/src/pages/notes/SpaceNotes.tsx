@@ -6,6 +6,7 @@ import { FilterDropdown } from "./components/FilterDropdown"
 import { PaginationControls } from "./components/PaginationControls"
 import { useSpacesStore } from "@/stores/spacesStore"
 import { Button } from "@/components/ui/button"
+import { PageHeader } from "@/components/PageHeader"
 
 export default function SpaceNotes() {
   const { spaceId } = useParams<{ spaceId: string }>()
@@ -80,15 +81,17 @@ export default function SpaceNotes() {
 
   return (
     <div>
-      <div className="flex justify-between items-center my-4">
-        <h1 className="text-2xl font-bold">Notes / {space.name}</h1>
-        <div className="flex items-center gap-3">
-          <Button asChild>
-            <Link to={`/notes/${spaceId}/new`}>New Note</Link>
-          </Button>
-          <FilterDropdown filters={space.filters} selectedFilter={selectedFilter} onFilterSelect={handleFilterSelect} />
-        </div>
-      </div>
+      <PageHeader
+        title={space.name}
+        actions={
+          <>
+            <Button asChild>
+              <Link to={`/notes/${spaceId}/new`}>New Note</Link>
+            </Button>
+            <FilterDropdown filters={space.filters} selectedFilter={selectedFilter} onFilterSelect={handleFilterSelect} />
+          </>
+        }
+      />
 
       <div className="text-sm text-gray-600 mb-4">
         Showing {(currentPage - 1) * notesData.page_size + 1}-{Math.min(currentPage * notesData.page_size, notesData.total_count)}{" "}

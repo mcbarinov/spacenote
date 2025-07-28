@@ -4,11 +4,11 @@ import { notesApi, type Note } from "../../lib/api"
 import { useSpacesStore } from "@/stores/spacesStore"
 import { formatFieldValue, formatDateTime } from "../../lib/formatters"
 import { Button } from "@/components/ui/button"
-import { NoteBreadcrumb } from "./components/NoteBreadcrumb"
 import { Comments } from "./components/Comments"
 import { Markdown } from "@/components/Markdown"
 import { renderLiquidTemplate } from "@/lib/liquidRenderer"
 import { TemplatedNoteContent } from "./components/TemplatedNoteContent"
+import { PageHeader } from "@/components/PageHeader"
 
 export default function NoteDetail() {
   const { spaceId, noteId } = useParams<{ spaceId: string; noteId: string }>()
@@ -70,14 +70,15 @@ export default function NoteDetail() {
 
   return (
     <div>
-      <NoteBreadcrumb spaceId={spaceId!} spaceName={space.name} currentPage={`Note #${note.id}`} showNoteAsLink={false} />
-
-      <div className="flex justify-between items-center my-4">
-        <h1 className="text-2xl font-bold">Note #{note.id}</h1>
-        <Button asChild>
-          <Link to={`/notes/${spaceId}/${noteId}/edit`}>Edit</Link>
-        </Button>
-      </div>
+      <PageHeader
+        title={`Note #${note.id}`}
+        subtitle={space.name}
+        actions={
+          <Button asChild>
+            <Link to={`/notes/${spaceId}/${noteId}/edit`}>Edit</Link>
+          </Button>
+        }
+      />
 
       {renderedTemplate ? (
         <div className="bg-white border border-gray-300 rounded-lg p-6 mt-4">

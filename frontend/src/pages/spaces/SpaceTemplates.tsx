@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { NoteBreadcrumb } from "@/pages/notes/components/NoteBreadcrumb"
+import { PageHeader } from "@/components/PageHeader"
 import { toast } from "sonner"
 import { spacesApi } from "@/lib/api/spaces"
 import { validateLiquidTemplate } from "@/lib/liquidRenderer"
@@ -129,9 +129,20 @@ export default function SpaceTemplates() {
 
   return (
     <div>
-      <NoteBreadcrumb spaceId={spaceId!} spaceName={space.name} currentPage="Templates" showNoteAsLink={false} />
-
-      <h1 className="text-2xl font-bold my-4">Space Templates</h1>
+      <PageHeader
+        title="Templates"
+        subtitle={space.name}
+        actions={
+          <>
+            <Button variant="outline" asChild>
+              <Link to={`/spaces/${spaceId}/fields`}>Fields</Link>
+            </Button>
+            <Button variant="outline" asChild>
+              <Link to={`/spaces/${spaceId}/filters`}>Filters</Link>
+            </Button>
+          </>
+        }
+      />
 
       <div className="space-y-6">
         <Card>
@@ -233,12 +244,6 @@ export default function SpaceTemplates() {
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => validateAllTemplates()}>
             Validate All Templates
-          </Button>
-          <Button variant="outline" asChild>
-            <Link to={`/spaces/${spaceId}/fields`}>Fields</Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <Link to={`/spaces/${spaceId}/filters`}>Filters</Link>
           </Button>
         </div>
       </div>

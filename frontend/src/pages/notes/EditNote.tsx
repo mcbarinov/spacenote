@@ -3,8 +3,8 @@ import { useEffect, useState } from "react"
 import { notesApi, type Note } from "@/lib/api/notes"
 import { useSpacesStore } from "@/stores/spacesStore"
 import { NoteForm } from "./components/NoteForm"
-import { NoteBreadcrumb } from "./components/NoteBreadcrumb"
 import { toast } from "sonner"
+import { PageHeader } from "@/components/PageHeader"
 
 export default function EditNote() {
   const { spaceId, noteId } = useParams<{ spaceId: string; noteId: string }>()
@@ -63,11 +63,9 @@ export default function EditNote() {
 
   return (
     <div>
-      <NoteBreadcrumb spaceId={spaceId!} spaceName={space.name} noteId={note.id} currentPage="Edit" />
+      <PageHeader title={`Edit Note #${note.id}`} subtitle={space.name} />
 
-      <h1 className="text-2xl font-bold my-4">Edit Note #{note.id}</h1>
-
-      <div className="bg-white border border-gray-300 rounded-lg p-6 mt-4">
+      <div className="bg-white border border-gray-300 rounded-lg p-6">
         <NoteForm
           space={space}
           onSubmit={handleSubmit}

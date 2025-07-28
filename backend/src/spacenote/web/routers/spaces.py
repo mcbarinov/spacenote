@@ -4,6 +4,7 @@ from fastapi import APIRouter, Body, Query
 from pydantic import BaseModel
 
 from spacenote.core.export.models import ImportResult
+from spacenote.core.field.models import SpaceField
 from spacenote.core.filter.models import Filter
 from spacenote.core.space.models import Space
 from spacenote.web.deps import AppDep, SessionIdDep
@@ -35,6 +36,12 @@ async def get_space(space_id: str, app: AppDep, session_id: SessionIdDep) -> Spa
 async def create_space(request: CreateSpaceRequest, app: AppDep, session_id: SessionIdDep) -> Space:
     """Create a new space."""
     return await app.create_space(session_id, request.id, request.name)
+
+
+@router.post("/spaces/{space_id}/fields")
+async def add_field(space_id: str, field: SpaceField, app: AppDep, session_id: SessionIdDep) -> None:
+    """Add a new field to the space."""
+    await app.add_field(session_id, space_id, field)
 
 
 @router.put("/spaces/{space_id}/list-fields")

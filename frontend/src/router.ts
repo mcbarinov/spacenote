@@ -6,8 +6,9 @@ import SpaceNotes from "./pages/notes/SpaceNotes"
 import CreateNote from "./pages/notes/CreateNote"
 import EditNote from "./pages/notes/EditNote"
 import NoteDetail from "./pages/notes/NoteDetail"
-import SpacesPage from "./pages/spaces"
+import SpacesPage from "./pages/spaces/SpacesPage"
 import SpaceFields from "./pages/spaces/SpaceFields"
+import AddField from "./pages/spaces/AddField"
 import SpaceTemplates from "./pages/spaces/SpaceTemplates"
 import SpaceFilters from "./pages/spaces/SpaceFilters"
 import CreateFilter from "./pages/spaces/CreateFilter"
@@ -36,6 +37,10 @@ export const router = createBrowserRouter([
       {
         path: "spaces/:spaceId/fields",
         Component: SpaceFields,
+      },
+      {
+        path: "spaces/:spaceId/fields/new",
+        Component: AddField,
       },
       {
         path: "spaces/:spaceId/templates",

@@ -23,17 +23,6 @@ export function logout(): void {
   window.location.href = "/login"
 }
 
-export async function changePassword(currentPassword: string, newPassword: string): Promise<void> {
-  try {
-    await authApi.changePassword({ currentPassword, newPassword })
-    toast.success("Password changed successfully")
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to change password"
-    toast.error(message)
-    throw error
-  }
-}
-
 // Handle 401 errors globally
 export function handleUnauthorized(): void {
   // Only handle if not already on login page

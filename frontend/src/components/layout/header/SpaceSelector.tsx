@@ -7,7 +7,7 @@ import { ChevronDown } from "lucide-react"
 export default function SpaceSelector() {
   const navigate = useNavigate()
   const location = useLocation()
-  const { spaces } = useSpacesStore()
+  const { spaces, isLoading, error } = useSpacesStore()
 
   const currentSpaceId = location.pathname.split("/")[2]
   const currentSpace = spaces.find(space => space.id === currentSpaceId)
@@ -16,7 +16,7 @@ export default function SpaceSelector() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline">
-          {currentSpace?.name || "Select Space"}
+          {isLoading ? "Loading..." : error ? "Error" : currentSpace?.name || "Select Space"}
           <ChevronDown className="w-3 h-3 ml-2" />
         </Button>
       </DropdownMenuTrigger>

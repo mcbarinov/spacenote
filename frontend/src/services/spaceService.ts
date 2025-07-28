@@ -1,41 +1,10 @@
-import { spacesApi, type Space, type CreateSpaceRequest, type ImportResult } from "@/lib/api/spaces"
+import { spacesApi, type Space, type CreateSpaceRequest, type ImportResult, type SpaceField } from "@/lib/api/spaces"
 import { useSpacesStore } from "@/stores/spacesStore"
-import { toast } from "sonner"
 import type { Filter } from "@/lib/api/notes"
+import { executeWithToast, executeWithToastVoid, isHttpError } from "@/lib/serviceHelpers"
 import { handleUnauthorized } from "./authService"
 
-// Type guard for HTTP errors with response
-function isHttpError(error: unknown): error is { response: { status: number } } {
-  return (
-    error !== null &&
-    typeof error === "object" &&
-    "response" in error &&
-    error.response !== null &&
-    typeof error.response === "object" &&
-    "status" in error.response
-  )
-}
-
-// Helper function to reduce repetitive try-catch-toast pattern
-async function executeWithToast<T>(operation: () => Promise<T>, successMessage: string, errorMessage: string): Promise<T> {
-  try {
-    const result = await operation()
-    toast.success(successMessage)
-    return result
-  } catch (error) {
-    // Check for 401 Unauthorized
-    if (isHttpError(error) && error.response.status === 401) {
-      handleUnauthorized()
-      throw error
-    }
-
-    const message = error instanceof Error ? error.message : errorMessage
-    toast.error(message)
-    throw error
-  }
-}
-
-export async function createSpace(data: CreateSpaceRequest): Promise<Space> {
+export async function createSpace(data: CreateSpaceRequest): Promise<Space | null> {
   return executeWithToast(
     async () => {
       const space = await spacesApi.createSpace(data)
@@ -48,7 +17,7 @@ export async function createSpace(data: CreateSpaceRequest): Promise<Space> {
 }
 
 export async function deleteSpace(spaceId: string): Promise<void> {
-  return executeWithToast(
+  return executeWithToastVoid(
     async () => {
       await spacesApi.deleteSpace(spaceId)
       const store = useSpacesStore.getState()
@@ -70,21 +39,20 @@ export async function loadSpaces(force = false): Promise<void> {
   }
 
   store.isLoading = true
+  store.error = null
+
   try {
     const spaces = await spacesApi.listSpaces()
     store.spaces.length = 0
     store.spaces.push(...spaces)
-    store.error = null
   } catch (error) {
-    // Check for 401 Unauthorized
     if (isHttpError(error) && error.response.status === 401) {
       handleUnauthorized()
-      throw error
+      return
     }
 
     const message = error instanceof Error ? error.message : "Failed to load spaces"
     store.error = message
-    throw error
   } finally {
     store.isLoading = false
   }
@@ -105,7 +73,7 @@ async function refreshSpaceData(spaceId: string): Promise<void> {
 }
 
 export async function updateListFields(spaceId: string, fieldNames: string[]): Promise<void> {
-  return executeWithToast(
+  return executeWithToastVoid(
     async () => {
       await spacesApi.updateListFields(spaceId, fieldNames)
       await refreshSpaceData(spaceId)
@@ -116,7 +84,7 @@ export async function updateListFields(spaceId: string, fieldNames: string[]): P
 }
 
 export async function updateHiddenCreateFields(spaceId: string, fieldNames: string[]): Promise<void> {
-  return executeWithToast(
+  return executeWithToastVoid(
     async () => {
       await spacesApi.updateHiddenCreateFields(spaceId, fieldNames)
       await refreshSpaceData(spaceId)
@@ -127,7 +95,7 @@ export async function updateHiddenCreateFields(spaceId: string, fieldNames: stri
 }
 
 export async function updateNoteDetailTemplate(spaceId: string, template: string | null): Promise<void> {
-  return executeWithToast(
+  return executeWithToastVoid(
     async () => {
       await spacesApi.updateNoteDetailTemplate(spaceId, template)
       await refreshSpaceData(spaceId)
@@ -138,7 +106,7 @@ export async function updateNoteDetailTemplate(spaceId: string, template: string
 }
 
 export async function updateNoteListTemplate(spaceId: string, template: string | null): Promise<void> {
-  return executeWithToast(
+  return executeWithToastVoid(
     async () => {
       await spacesApi.updateNoteListTemplate(spaceId, template)
       await refreshSpaceData(spaceId)
@@ -149,7 +117,7 @@ export async function updateNoteListTemplate(spaceId: string, template: string |
 }
 
 export async function createFilter(spaceId: string, filter: Filter): Promise<void> {
-  return executeWithToast(
+  return executeWithToastVoid(
     async () => {
       await spacesApi.createFilter(spaceId, filter)
       await refreshSpaceData(spaceId)
@@ -160,7 +128,7 @@ export async function createFilter(spaceId: string, filter: Filter): Promise<voi
 }
 
 export async function deleteFilter(spaceId: string, filterId: string): Promise<void> {
-  return executeWithToast(
+  return executeWithToastVoid(
     async () => {
       await spacesApi.deleteFilter(spaceId, filterId)
       await refreshSpaceData(spaceId)
@@ -170,7 +138,7 @@ export async function deleteFilter(spaceId: string, filterId: string): Promise<v
   )
 }
 
-export async function exportSpace(spaceId: string, includeContent = false): Promise<unknown> {
+export async function exportSpace(spaceId: string, includeContent = false): Promise<unknown | null> {
   return executeWithToast(
     async () => {
       return await spacesApi.exportSpace(spaceId, includeContent)
@@ -180,7 +148,7 @@ export async function exportSpace(spaceId: string, includeContent = false): Prom
   )
 }
 
-export async function importSpace(data: unknown): Promise<ImportResult> {
+export async function importSpace(data: unknown): Promise<ImportResult | null> {
   return executeWithToast(
     async () => {
       const result = await spacesApi.importSpace(data)
@@ -189,6 +157,17 @@ export async function importSpace(data: unknown): Promise<ImportResult> {
     },
     "Space imported successfully",
     "Failed to import space"
+  )
+}
+
+export async function createField(spaceId: string, field: SpaceField): Promise<void> {
+  return executeWithToastVoid(
+    async () => {
+      await spacesApi.createField(spaceId, field)
+      await refreshSpaceData(spaceId)
+    },
+    "Field created successfully",
+    "Failed to create field"
   )
 }
 

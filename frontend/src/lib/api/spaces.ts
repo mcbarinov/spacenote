@@ -109,4 +109,8 @@ export const spacesApi = {
   deleteSpace: async (spaceId: string): Promise<void> => {
     await api.delete(`spaces/${spaceId}`)
   },
+
+  createField: async (spaceId: string, field: SpaceField): Promise<void> => {
+    await api.post(`spaces/${spaceId}/fields`, { json: field })
+  },
 }

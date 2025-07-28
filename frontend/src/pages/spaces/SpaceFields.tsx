@@ -21,6 +21,9 @@ export default function SpaceFields() {
         subtitle={space.name}
         actions={
           <>
+            <Button asChild>
+              <Link to={`/spaces/${spaceId}/fields/new`}>Add Field</Link>
+            </Button>
             <Button asChild variant="outline">
               <Link to={`/spaces/${spaceId}/filters`}>Filters</Link>
             </Button>

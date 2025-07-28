@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Input } from "@/components/ui/input"
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form"
 import type { BaseDialogProps } from "@/lib/dialog"
-import { changePassword } from "@/services/authService"
+import { changePassword } from "@/services/usersService"
 
 const formSchema = z
   .object({

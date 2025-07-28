@@ -6,9 +6,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input"
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import type { BaseDialogProps } from "@/lib/dialog"
-import { spacesApi } from "@/lib/api/spaces"
-import { useSpacesStore } from "@/stores/spacesStore"
-import { toast } from "sonner"
+import { createSpace } from "@/services/spaceService"
 
 const formSchema = z.object({
   id: z
@@ -19,8 +17,6 @@ const formSchema = z.object({
 })
 
 export function CreateSpaceDialog({ onClose, onSuccess }: BaseDialogProps) {
-  const refreshSpaces = useSpacesStore(state => state.refreshSpaces)
-
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -30,11 +26,14 @@ export function CreateSpaceDialog({ onClose, onSuccess }: BaseDialogProps) {
   })
 
   const handleSubmit = async (data: z.infer<typeof formSchema>) => {
-    await spacesApi.createSpace(data)
-    await refreshSpaces()
-    toast.success("Space created successfully")
-    onSuccess?.("Space created successfully")
-    onClose()
+    try {
+      await createSpace(data)
+      onSuccess?.("Space created successfully")
+      onClose()
+    } catch (error) {
+      // Error handling is done in the service
+      console.error("Failed to create space:", error)
+    }
   }
 
   return (

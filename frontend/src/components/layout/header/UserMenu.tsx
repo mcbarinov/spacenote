@@ -1,5 +1,6 @@
-import { useNavigate, Link } from "react-router"
+import { Link } from "react-router"
 import { useAuthStore } from "@/stores/authStore"
+import { logout } from "@/services/authService"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,13 +12,11 @@ import { ChevronDown, User } from "lucide-react"
 import { useDialog } from "@/lib/dialog"
 
 export default function UserMenu() {
-  const navigate = useNavigate()
-  const { userId, logout } = useAuthStore()
+  const { userId } = useAuthStore()
   const dialog = useDialog()
 
   const handleLogout = () => {
     logout()
-    navigate("/login")
   }
 
   const handleChangePassword = async () => {
@@ -25,7 +24,6 @@ export default function UserMenu() {
     // Only logout if password was actually changed (dialog returns a result)
     if (result) {
       logout()
-      navigate("/login")
     }
   }
 

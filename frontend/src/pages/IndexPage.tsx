@@ -1,15 +1,16 @@
 import { useEffect } from "react"
 import { useNavigate } from "react-router"
 import { useSpacesStore } from "@/stores/spacesStore"
+import { loadSpaces } from "@/services/spaceService"
 import { PageHeader } from "@/components/PageHeader"
 
 export default function IndexPage() {
   const navigate = useNavigate()
-  const { spaces, isLoading, error, loadSpaces } = useSpacesStore()
+  const { spaces, isLoading, error } = useSpacesStore()
 
   useEffect(() => {
     loadSpaces()
-  }, [loadSpaces])
+  }, [])
 
   useEffect(() => {
     if (!isLoading && spaces.length > 0) {

@@ -6,8 +6,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Input } from "@/components/ui/input"
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form"
 import type { BaseDialogProps } from "@/lib/dialog"
-import { authApi } from "@/lib/api/auth"
-import { toast } from "sonner"
+import { changePassword } from "@/services/authService"
 
 const formSchema = z
   .object({
@@ -31,12 +30,14 @@ export function ChangePasswordDialog({ onClose, onSuccess }: BaseDialogProps) {
   })
 
   const handleSubmit = async (data: z.infer<typeof formSchema>) => {
-    await authApi.changePassword({
-      currentPassword: data.currentPassword,
-      newPassword: data.newPassword,
-    })
-    toast.success("Password changed successfully")
-    onSuccess?.(true) // Signal that password was changed
+    try {
+      await changePassword(data.currentPassword, data.newPassword)
+      onSuccess?.(true) // Signal that password was changed
+      onClose()
+    } catch (error) {
+      // Error is already handled by authService with toast
+      console.error("Failed to change password:", error)
+    }
   }
 
   return (

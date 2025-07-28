@@ -2,9 +2,8 @@ import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { spacesApi, type SpaceField } from "@/lib/api/spaces"
-import { useSpacesStore } from "@/stores/spacesStore"
-import { toast } from "sonner"
+import type { SpaceField } from "@/lib/api/spaces"
+import { updateHiddenCreateFields } from "@/services/spaceService"
 
 interface HiddenFieldsConfigProps {
   spaceId: string
@@ -13,21 +12,23 @@ interface HiddenFieldsConfigProps {
 }
 
 export function HiddenFieldsConfig({ spaceId, initialFields, availableFields }: HiddenFieldsConfigProps) {
-  const refreshSpaces = useSpacesStore(state => state.refreshSpaces)
   const [hiddenFields, setHiddenFields] = useState(initialFields.join(", "))
   const [isUpdating, setIsUpdating] = useState(false)
 
   const handleUpdate = async () => {
     setIsUpdating(true)
-    const fieldNames = hiddenFields
-      .split(",")
-      .map(name => name.trim())
-      .filter(name => name.length > 0)
+    try {
+      const fieldNames = hiddenFields
+        .split(",")
+        .map(name => name.trim())
+        .filter(name => name.length > 0)
 
-    await spacesApi.updateHiddenCreateFields(spaceId, fieldNames)
-    await refreshSpaces()
-    toast.success("Hidden fields updated successfully!")
-    setIsUpdating(false)
+      await updateHiddenCreateFields(spaceId, fieldNames)
+    } catch (error) {
+      console.error("Failed to update hidden fields:", error)
+    } finally {
+      setIsUpdating(false)
+    }
   }
 
   return (

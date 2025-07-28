@@ -100,6 +100,205 @@ interface ApiResponse<T> {
 }
 ```
 
+## Service Layer Architecture
+
+SpaceNote uses a **three-layer architecture** that cleanly separates concerns between data fetching, business logic, and state management. This approach ensures maintainability, testability, and a clear flow of data through the application.
+
+### Architecture Overview
+
+```
+┌─────────────┐
+│  Component  │  ← UI logic only, calls services
+└──────┬──────┘
+       │
+┌──────▼──────┐
+│   Service   │  ← Business logic, side effects, orchestration
+└──────┬──────┘
+       │
+┌──────▼──────┐
+│     API     │  ← Pure HTTP communication
+└──────┬──────┘
+       │
+┌──────▼──────┐
+│    Store    │  ← Pure state management
+└─────────────┘
+```
+
+### Layer Responsibilities
+
+#### 1. API Layer (`lib/api/`)
+The API layer is responsible for **pure HTTP communication** with zero side effects.
+
+**Principles:**
+- Only handles HTTP requests and responses
+- No UI concerns (no toasts, alerts, or notifications)
+- No state management (no store updates)
+- No navigation or routing
+- Platform-agnostic (works in browser, Node.js, React Native)
+- Throws errors for the service layer to handle
+
+**Example:**
+```typescript
+// lib/api/spaces.ts
+export const spacesApi = {
+  listSpaces: async (): Promise<Space[]> => {
+    return await api.get("spaces").json()
+  },
+  
+  createSpace: async (data: CreateSpaceRequest): Promise<Space> => {
+    return await api.post("spaces", { json: data }).json()
+  }
+}
+```
+
+#### 2. Service Layer (`services/`)
+The service layer **orchestrates business logic** and handles all side effects.
+
+**Responsibilities:**
+- Calls API functions
+- Updates stores with results
+- Shows toast notifications
+- Handles navigation
+- Centralizes error handling
+- Manages complex workflows
+
+**Example:**
+```typescript
+// services/spaceService.ts
+export async function createSpace(data: CreateSpaceRequest): Promise<void> {
+  try {
+    const space = await spacesApi.createSpace(data)
+    useSpacesStore.getState().spaces.push(space)
+    toast.success("Space created successfully")
+    window.location.href = `/spaces/${space.id}`
+  } catch (error) {
+    toast.error(error instanceof Error ? error.message : "Failed to create space")
+    // Don't throw - error is handled with toast
+  }
+}
+```
+
+#### 3. Store Layer (`stores/`)
+Stores are **pure state containers** with minimal logic.
+
+**Principles:**
+- No async operations or API calls
+- No side effects
+- Direct state mutations are allowed (when called from services)
+- Minimal methods (mainly getters)
+- Persisted state when needed
+
+**Example:**
+```typescript
+// stores/spacesStore.ts
+export const useSpacesStore = create<SpacesState>()(
+  persist(
+    (set, get) => ({
+      spaces: [],
+      isLoading: false,
+      error: null,
+      
+      getSpace: (spaceId: string) => {
+        return get().spaces.find(space => space.id === spaceId)
+      },
+    }),
+    {
+      name: "spacenote-spaces",
+      partialize: state => ({ spaces: state.spaces }),
+    }
+  )
+)
+```
+
+### Component Integration
+
+Components become extremely simple by calling service functions directly:
+
+```typescript
+// pages/LoginPage.tsx
+export default function LoginPage() {
+  const form = useForm({ ... })
+  
+  const handleSubmit = async (data: FormData) => {
+    await login(data.username, data.password)
+    // That's it! Service handles everything else
+  }
+}
+
+// dialogs/CreateSpaceDialog.tsx
+const handleSubmit = async (data: FormData) => {
+  await createSpace(data)
+  onClose()
+}
+```
+
+**Benefits:**
+- No try-catch blocks needed (errors handled in services)
+- No manual navigation code
+- No direct store updates
+- Focus purely on UI logic
+
+### Error Handling Pattern
+
+Services use a helper function to reduce boilerplate:
+
+```typescript
+async function executeWithToast<T>(
+  operation: () => Promise<T>,
+  successMessage: string,
+  errorMessage: string
+): Promise<T> {
+  try {
+    const result = await operation()
+    toast.success(successMessage)
+    return result
+  } catch (error) {
+    if (isHttpError(error) && error.response.status === 401) {
+      handleUnauthorized()
+      throw error
+    }
+    toast.error(error instanceof Error ? error.message : errorMessage)
+    throw error
+  }
+}
+```
+
+### Benefits of This Architecture
+
+1. **Testability**
+   - API layer can be tested with simple HTTP mocks
+   - Services can be tested with mocked APIs and stores
+   - Stores are pure and easy to test
+   - Components need minimal testing (just UI behavior)
+
+2. **Reusability**
+   - API layer works in any JavaScript environment
+   - Services can be called from anywhere
+   - No coupling between layers
+
+3. **Maintainability**
+   - Clear separation of concerns
+   - Easy to understand data flow
+   - Consistent patterns across the codebase
+   - Single place to change business logic
+
+4. **Developer Experience**
+   - Components are simple and focused
+   - No boilerplate in components
+   - Errors handled consistently
+   - Easy to add new features
+
+### Adding New Features
+
+When adding a new feature, follow this pattern:
+
+1. **Add API functions** in `lib/api/` - pure HTTP calls
+2. **Create service functions** in `services/` - business logic
+3. **Update store if needed** in `stores/` - only state, no logic
+4. **Call service from component** - one line of code
+
+This architecture ensures that each layer has a single, clear responsibility, making the codebase easy to understand and maintain.
+
 ## File Organization Architecture
 
 ### Component Classification Strategy

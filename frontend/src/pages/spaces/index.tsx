@@ -1,6 +1,6 @@
 import { useSpacesStore } from "@/stores/spacesStore"
 import { useAuthStore } from "@/stores/authStore"
-import { Card } from "@/components/ui/card"
+import { deleteSpace } from "@/services/spaceService"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Upload, FileText, Trash2, Users, Layers, Filter, MessageSquare, Settings } from "lucide-react"
@@ -27,7 +27,7 @@ import { PageHeader } from "@/components/PageHeader"
 import { useState } from "react"
 
 export default function SpacesPage() {
-  const { spaces, isLoading, error, deleteSpace } = useSpacesStore()
+  const { spaces, isLoading, error } = useSpacesStore()
   const { userId } = useAuthStore()
   const dialog = useDialog()
   const navigate = useNavigate()

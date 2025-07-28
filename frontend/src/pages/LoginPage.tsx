@@ -1,9 +1,7 @@
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { useNavigate } from "react-router"
-import { authApi } from "../lib/api"
-import { useAuthStore } from "../stores/authStore"
+import { login } from "@/services/authService"
 import { Button } from "../components/ui/button"
 import { Input } from "../components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
@@ -16,9 +14,6 @@ const formSchema = z.object({
 })
 
 export default function LoginPage() {
-  const navigate = useNavigate()
-  const login = useAuthStore(state => state.login)
-
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -28,9 +23,7 @@ export default function LoginPage() {
   })
 
   const handleSubmit = async (data: z.infer<typeof formSchema>) => {
-    const response = await authApi.login(data)
-    login(response.session_id, response.user_id)
-    navigate("/")
+    await login(data.username, data.password)
   }
 
   return (

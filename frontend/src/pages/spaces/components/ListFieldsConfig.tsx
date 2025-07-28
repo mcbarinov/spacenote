@@ -2,9 +2,8 @@ import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { spacesApi, type SpaceField } from "@/lib/api/spaces"
-import { useSpacesStore } from "@/stores/spacesStore"
-import { toast } from "sonner"
+import type { SpaceField } from "@/lib/api/spaces"
+import { updateListFields } from "@/services/spaceService"
 
 interface ListFieldsConfigProps {
   spaceId: string
@@ -13,21 +12,23 @@ interface ListFieldsConfigProps {
 }
 
 export function ListFieldsConfig({ spaceId, initialFields, availableFields }: ListFieldsConfigProps) {
-  const refreshSpaces = useSpacesStore(state => state.refreshSpaces)
   const [listFields, setListFields] = useState(initialFields.join(", "))
   const [isUpdating, setIsUpdating] = useState(false)
 
   const handleUpdate = async () => {
     setIsUpdating(true)
-    const fieldNames = listFields
-      .split(",")
-      .map(name => name.trim())
-      .filter(name => name.length > 0)
+    try {
+      const fieldNames = listFields
+        .split(",")
+        .map(name => name.trim())
+        .filter(name => name.length > 0)
 
-    await spacesApi.updateListFields(spaceId, fieldNames)
-    await refreshSpaces()
-    toast.success("List fields updated successfully!")
-    setIsUpdating(false)
+      await updateListFields(spaceId, fieldNames)
+    } catch (error) {
+      console.error("Failed to update list fields:", error)
+    } finally {
+      setIsUpdating(false)
+    }
   }
 
   return (

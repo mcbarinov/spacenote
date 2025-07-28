@@ -188,18 +188,28 @@ class SpaceService(Service):
         return self.get_space(import_data.space_id)
 
     async def delete_space(self, space_id: str) -> None:
-        """Delete a space and update cache."""
+        """Delete a space and all its associated data (comments, attachments, notes)."""
         log = logger.bind(space_id=space_id, action="delete_space")
 
         if not self.space_exists(space_id):
             log.warning("space_not_found")
             raise NotFoundError(f"Space '{space_id}' not found")
 
+        # Delete from deepest to shallowest: comments -> attachments -> notes -> space
+        log.debug("deleting_comments")
+        await self.core.services.comment.drop_collection(space_id)
+
+        log.debug("deleting_attachments")
+        await self.core.services.attachment.drop_collection(space_id)
+
+        log.debug("deleting_notes")
+        await self.core.services.note.drop_collection(space_id)
+
+        log.debug("deleting_space")
         await self._collection.delete_one({"_id": space_id})
         del self._spaces[space_id]
-        # Note and Comment collections cleanup will be handled by the App layer
 
-        log.debug("space_deleted")
+        log.info("space_deleted_successfully")
 
     async def update_cache(self, id: str | None = None) -> None:
         """Reload spaces cache from database."""

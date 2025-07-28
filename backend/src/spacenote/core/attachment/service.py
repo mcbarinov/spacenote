@@ -289,7 +289,7 @@ class AttachmentService(Service):
     async def drop_collection(self, space_id: str) -> None:
         """Drop the entire collection for a space and cleanup files."""
         if space_id not in self._collections:
-            raise ValidationError(f"Collection for space '{space_id}' does not exist")
+            raise NotFoundError(f"Collection for space '{space_id}' does not exist")
 
         # Delete all files
         attachments_root = Path(self.core.config.attachments_path)

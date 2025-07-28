@@ -85,6 +85,12 @@ async def export_space(
     return await app.export_space_as_json(session_id, space_id, include_content)
 
 
+@router.delete("/spaces/{space_id}")
+async def delete_space(space_id: str, app: AppDep, session_id: SessionIdDep) -> None:
+    """Delete a space and all its associated data. Admin only."""
+    await app.delete_space(session_id, space_id)
+
+
 @router.post("/import", response_model_by_alias=False)
 async def import_space(app: AppDep, session_id: SessionIdDep, data: dict[str, Any]) -> ImportResult:
     """Import a space from JSON data."""

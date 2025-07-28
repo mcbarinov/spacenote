@@ -10,6 +10,7 @@ interface SpacesState {
   loadSpaces: () => Promise<void>
   refreshSpaces: () => Promise<void>
   getSpace: (spaceId: string) => Space | undefined
+  deleteSpace: (spaceId: string) => Promise<void>
 }
 
 export const useSpacesStore = create<SpacesState>()(
@@ -39,6 +40,20 @@ export const useSpacesStore = create<SpacesState>()(
         loadSpaces: () => fetchSpaces(false),
         refreshSpaces: () => fetchSpaces(true),
         getSpace: (spaceId: string) => get().spaces.find(space => space.id === spaceId),
+
+        deleteSpace: async (spaceId: string) => {
+          try {
+            await spacesApi.deleteSpace(spaceId)
+            set(state => ({
+              spaces: state.spaces.filter(space => space.id !== spaceId),
+            }))
+          } catch (error) {
+            set({
+              error: error instanceof Error ? error.message : "Failed to delete space",
+            })
+            throw error
+          }
+        },
       }
     },
     {

@@ -10,7 +10,6 @@ from spacenote.core.attachment.preview import get_preview_path
 from spacenote.core.comment.models import Comment
 from spacenote.core.config import CoreConfig
 from spacenote.core.core import Core
-from spacenote.core.errors import ValidationError
 from spacenote.core.export.models import ImportResult
 from spacenote.core.field.models import SpaceField
 from spacenote.core.filter.models import Filter
@@ -153,12 +152,7 @@ class App:
     async def delete_space(self, session_id: SessionId, space_id: str) -> None:
         """Delete a space and all its associated data (notes, comments). Admin only."""
         await self._core.services.access.ensure_admin(session_id)
-        if not self._core.services.space.space_exists(space_id):
-            raise ValidationError(f"Space '{space_id}' does not exist.")
         await self._core.services.space.delete_space(space_id)
-        await self._core.services.note.drop_collection(space_id)
-        await self._core.services.comment.drop_collection(space_id)
-        await self._core.services.attachment.drop_collection(space_id)
 
     async def count_space_notes(self, session_id: SessionId, space_id: str) -> int:
         """Count the number of notes in a space. Admin only."""

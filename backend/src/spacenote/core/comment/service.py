@@ -7,7 +7,7 @@ from pymongo.asynchronous.database import AsyncDatabase
 
 from spacenote.core.comment.models import Comment
 from spacenote.core.core import Service
-from spacenote.core.errors import ValidationError
+from spacenote.core.errors import NotFoundError, ValidationError
 
 logger = structlog.get_logger(__name__)
 
@@ -59,7 +59,7 @@ class CommentService(Service):
     async def drop_collection(self, space_id: str) -> None:
         """Drop the entire collection for a space."""
         if space_id not in self._collections:
-            raise ValidationError(f"Collection for space '{space_id}' does not exist")
+            raise NotFoundError(f"Collection for space '{space_id}' does not exist")
 
         await self._collections[space_id].drop()
         del self._collections[space_id]

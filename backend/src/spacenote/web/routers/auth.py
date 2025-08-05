@@ -35,6 +35,13 @@ async def login(request: Request, login_data: LoginRequest, app: AppDep) -> Logi
     return LoginResponse(session_id=session_id, user_id=login_data.username)
 
 
+@router.post("/auth/logout")
+async def logout(app: AppDep, session_id: SessionIdDep) -> dict[str, str]:
+    """Logout and invalidate session."""
+    await app.logout(session_id)
+    return {"message": "Logged out successfully"}
+
+
 @router.post("/auth/change-password")
 async def change_password(data: ChangePasswordRequest, app: AppDep, session_id: SessionIdDep) -> dict[str, str]:
     """Change password for current user."""

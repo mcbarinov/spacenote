@@ -13,8 +13,8 @@ export function NotFoundComponent() {
         </CardHeader>
         <CardContent>
           <p className="text-gray-600 mb-6">The page you're looking for doesn't exist or has been moved.</p>
-          <Link to="/forums">
-            <Button>Go to Forums</Button>
+          <Link to="/spaces">
+            <Button>Go to Spaces</Button>
           </Link>
         </CardContent>
       </Card>

@@ -11,6 +11,11 @@ export interface AuthContext {
   user: User | null
 }
 
+export interface AuthUserContext {
+  user: User
+  logout: () => Promise<void>
+}
+
 const AuthContext = React.createContext<AuthContext | null>(null)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -30,11 +35,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const isAuthenticated = !!user
 
   const logout = React.useCallback(async () => {
-    await api.logout()
+    try {
+      await api.logout()
+    } catch (error) {
+      // Even if logout API fails, we should clear local auth data
+      console.error("Logout API failed:", error)
+    }
     clearAuthData()
     setUser(null)
     // Emit logout event for navigation
     window.dispatchEvent(new CustomEvent("auth:logout"))
+    // Redirect to login page
+    window.location.href = "/login"
   }, [])
 
   const login = React.useCallback(async (username: string, password: string) => {
@@ -72,4 +84,21 @@ export function useAuth() {
     throw new Error("useAuth must be used within an AuthProvider")
   }
   return context
+}
+
+// Hook for protected routes - guarantees user is not null
+// eslint-disable-next-line react-refresh/only-export-components
+export function useAuthUser(): AuthUserContext {
+  const context = React.use(AuthContext)
+  if (!context) {
+    throw new Error("useAuthUser must be used within an AuthProvider")
+  }
+  if (!context.user) {
+    throw new Error("useAuthUser can only be used in authenticated routes")
+  }
+  
+  return {
+    user: context.user,
+    logout: context.logout,
+  }
 }

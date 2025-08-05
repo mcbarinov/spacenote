@@ -12,8 +12,8 @@ class WebConfig(BaseSettings):
     """Configuration for web layer functionality."""
 
     # Web server
-    host: str
-    port: int
+    backend_host: str
+    backend_port: int
     session_secret_key: str
 
     # Web-specific settings

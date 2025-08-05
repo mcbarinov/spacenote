@@ -11,7 +11,7 @@ def main() -> None:
     web_config = WebConfig()
     app = App(core_config)
     fastapi_app = create_fastapi_app(app, web_config)
-    uvicorn.run(fastapi_app, host=web_config.host, port=web_config.port)
+    uvicorn.run(fastapi_app, host=web_config.backend_host, port=web_config.backend_port)
 
 
 if __name__ == "__main__":

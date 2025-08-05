@@ -36,9 +36,9 @@ test:
 dev:
     uv run python -m watchfiles "python -m spacenote.main" src
 
-# Run backend on port 8001 for AI agent
+# Run backend on port 3101 for AI agent
 agent-start:
-    SPACENOTE_PORT=8001 uv run python -m spacenote.main > ../.agent.log 2>&1 & echo $! > ../.agent.pid
+    SPACENOTE_BACKEND_PORT=83101 uv run python -m spacenote.main > ../.agent.log 2>&1 & echo $! > ../.agent.pid
 
 agent-stop:
     -pkill -F ../.agent.pid 2>/dev/null || true

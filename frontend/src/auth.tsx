@@ -96,7 +96,7 @@ export function useAuthUser(): AuthUserContext {
   if (!context.user) {
     throw new Error("useAuthUser can only be used in authenticated routes")
   }
-  
+
   return {
     user: context.user,
     logout: context.logout,

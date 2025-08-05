@@ -1,6 +1,6 @@
-import { queryOptions } from "@tanstack/react-query"
+import { queryOptions, useMutation, useQueryClient } from "@tanstack/react-query"
 
-import { api } from "@/lib/api"
+import { api, type CreateSpaceRequest } from "@/lib/api"
 
 // Spaces queries
 export const spacesQueryOptions = () =>
@@ -31,3 +31,18 @@ export const noteQueryOptions = (noteId: string) =>
     queryFn: () => api.getNote(noteId),
     staleTime: 1000 * 30, // 30 seconds
   })
+
+// Spaces mutations
+export const useCreateSpaceMutation = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (request: CreateSpaceRequest) => api.createSpace(request),
+    onSuccess: () => {
+      // Invalidate spaces list to show the new space
+      void queryClient.invalidateQueries({
+        queryKey: ["spaces"],
+      })
+    },
+  })
+}

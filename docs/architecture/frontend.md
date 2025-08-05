@@ -103,15 +103,47 @@ src/
 ├── components/
 │   ├── ui/              # Reusable UI primitives (shadcn/ui)
 │   ├── layout/          # Layout components
-│   └── router/          # Router-specific components
+│   ├── router/          # Router-specific components
+│   └── navigation/      # Navigation components
 ├── lib/                 # Utilities and services
 │   ├── api.ts          # HTTP API methods
 │   ├── queries.ts      # TanStack Query configurations
 │   ├── http-client.ts  # HTTP client setup
 │   └── auth-storage.ts # Authentication storage utilities
 ├── routes/             # File-based routes
+│   └── [route]/
+│       └── -components/ # Route-local components
 └── types.ts           # Shared TypeScript interfaces
 ```
+
+#### Component Organization Rules
+
+**Global Components (`src/components/`):**
+- **ui/**: Reusable UI primitives (shadcn/ui components)
+- **layout/**: Layout components used across multiple routes
+- **router/**: Router-specific utilities (ErrorComponent, PendingComponent, etc.)
+- **navigation/**: Navigation components (breadcrumbs, menus, etc.)
+
+**Route-Local Components (`routes/[route]/-components/`):**
+- Components specific to a single route
+- Placed in `-components/` folder next to the route file
+- Example: `routes/spaces/-components/CreateSpaceDialog.tsx`
+- Can be imported by other routes if needed
+- Co-located with the routes that use them
+
+**Component Import Patterns:**
+```typescript
+// ✅ Route-local component (relative import)
+import { CreateSpaceDialog } from "./-components/CreateSpaceDialog"
+
+// ✅ Global component (path alias)
+import { Button } from "@/components/ui/button"
+import { AuthenticatedLayout } from "@/components/layout/AuthenticatedLayout"
+```
+
+**When to Use Each:**
+- **Route-local**: Dialog forms, route-specific UI components, business logic components used by one route
+- **Global**: Reusable UI primitives, layout components, utilities used across multiple routes
 
 ## Data Loading with TanStack Query
 

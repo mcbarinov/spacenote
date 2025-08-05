@@ -17,10 +17,7 @@ export function AuthenticatedLayout() {
             <h1 className="text-2xl font-bold text-gray-900">SpaceNote</h1>
             <nav className="flex items-center space-x-4">
               <span className="text-gray-600">Welcome, {user.username}</span>
-              <button 
-                onClick={handleLogout}
-                className="text-gray-600 hover:text-gray-900 font-medium"
-              >
+              <button onClick={handleLogout} className="text-gray-600 hover:text-gray-900 font-medium">
                 Logout
               </button>
             </nav>

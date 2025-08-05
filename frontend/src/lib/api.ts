@@ -1,5 +1,3 @@
-import { HTTPError } from "ky"
-
 import { httpClient } from "@/lib/http-client"
 import type { Space, Note } from "@/types"
 
@@ -13,17 +11,14 @@ export interface AuthResponse {
   user_id: string
 }
 
+export interface CreateSpaceRequest {
+  id: string
+  name: string
+}
 
 export const api = {
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
-    try {
-      return await httpClient.post("auth/login", { json: credentials }).json<AuthResponse>()
-    } catch (error) {
-      if (error instanceof HTTPError && error.response.status === 401) {
-        throw new Error("Invalid username or password")
-      }
-      throw new Error("Login failed. Please try again.")
-    }
+    return await httpClient.post("auth/login", { json: credentials }).json<AuthResponse>()
   },
 
   async logout(): Promise<void> {
@@ -37,6 +32,10 @@ export const api = {
 
   async getSpace(spaceId: string): Promise<Space> {
     return await httpClient.get(`spaces/${spaceId}`).json<Space>()
+  },
+
+  async createSpace(request: CreateSpaceRequest): Promise<Space> {
+    return await httpClient.post("spaces", { json: request }).json<Space>()
   },
 
   async getSpaceNotes(spaceId: string): Promise<Note[]> {

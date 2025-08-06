@@ -9,18 +9,16 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as NotesRouteImport } from './routes/notes'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SpacesIndexRouteImport } from './routes/spaces_/index'
+import { Route as NotesIndexRouteImport } from './routes/notes_/index'
+import { Route as NotesSpaceIdIndexRouteImport } from './routes/notes_/$spaceId_/index'
+import { Route as NotesSpaceIdNewRouteImport } from './routes/notes_/$spaceId_/new'
+import { Route as NotesSpaceIdNoteIdRouteImport } from './routes/notes_/$spaceId_/$noteId'
 import { Route as SpacesSpaceIdFieldsIndexRouteImport } from './routes/spaces_/$spaceId_/fields_/index'
 import { Route as SpacesSpaceIdFieldsNewRouteImport } from './routes/spaces_/$spaceId_/fields_/new'
 
-const NotesRoute = NotesRouteImport.update({
-  id: '/notes',
-  path: '/notes',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -34,6 +32,26 @@ const IndexRoute = IndexRouteImport.update({
 const SpacesIndexRoute = SpacesIndexRouteImport.update({
   id: '/spaces_/',
   path: '/spaces/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NotesIndexRoute = NotesIndexRouteImport.update({
+  id: '/notes_/',
+  path: '/notes/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NotesSpaceIdIndexRoute = NotesSpaceIdIndexRouteImport.update({
+  id: '/notes_/$spaceId_/',
+  path: '/notes/$spaceId/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NotesSpaceIdNewRoute = NotesSpaceIdNewRouteImport.update({
+  id: '/notes_/$spaceId_/new',
+  path: '/notes/$spaceId/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NotesSpaceIdNoteIdRoute = NotesSpaceIdNoteIdRouteImport.update({
+  id: '/notes_/$spaceId_/$noteId',
+  path: '/notes/$spaceId/$noteId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SpacesSpaceIdFieldsIndexRoute =
@@ -51,16 +69,22 @@ const SpacesSpaceIdFieldsNewRoute = SpacesSpaceIdFieldsNewRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
-  '/notes': typeof NotesRoute
+  '/notes': typeof NotesIndexRoute
   '/spaces': typeof SpacesIndexRoute
+  '/notes/$spaceId/$noteId': typeof NotesSpaceIdNoteIdRoute
+  '/notes/$spaceId/new': typeof NotesSpaceIdNewRoute
+  '/notes/$spaceId': typeof NotesSpaceIdIndexRoute
   '/spaces/$spaceId/fields/new': typeof SpacesSpaceIdFieldsNewRoute
   '/spaces/$spaceId/fields': typeof SpacesSpaceIdFieldsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
-  '/notes': typeof NotesRoute
+  '/notes': typeof NotesIndexRoute
   '/spaces': typeof SpacesIndexRoute
+  '/notes/$spaceId/$noteId': typeof NotesSpaceIdNoteIdRoute
+  '/notes/$spaceId/new': typeof NotesSpaceIdNewRoute
+  '/notes/$spaceId': typeof NotesSpaceIdIndexRoute
   '/spaces/$spaceId/fields/new': typeof SpacesSpaceIdFieldsNewRoute
   '/spaces/$spaceId/fields': typeof SpacesSpaceIdFieldsIndexRoute
 }
@@ -68,8 +92,11 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
-  '/notes': typeof NotesRoute
+  '/notes_/': typeof NotesIndexRoute
   '/spaces_/': typeof SpacesIndexRoute
+  '/notes_/$spaceId_/$noteId': typeof NotesSpaceIdNoteIdRoute
+  '/notes_/$spaceId_/new': typeof NotesSpaceIdNewRoute
+  '/notes_/$spaceId_/': typeof NotesSpaceIdIndexRoute
   '/spaces_/$spaceId_/fields_/new': typeof SpacesSpaceIdFieldsNewRoute
   '/spaces_/$spaceId_/fields_/': typeof SpacesSpaceIdFieldsIndexRoute
 }
@@ -80,6 +107,9 @@ export interface FileRouteTypes {
     | '/login'
     | '/notes'
     | '/spaces'
+    | '/notes/$spaceId/$noteId'
+    | '/notes/$spaceId/new'
+    | '/notes/$spaceId'
     | '/spaces/$spaceId/fields/new'
     | '/spaces/$spaceId/fields'
   fileRoutesByTo: FileRoutesByTo
@@ -88,14 +118,20 @@ export interface FileRouteTypes {
     | '/login'
     | '/notes'
     | '/spaces'
+    | '/notes/$spaceId/$noteId'
+    | '/notes/$spaceId/new'
+    | '/notes/$spaceId'
     | '/spaces/$spaceId/fields/new'
     | '/spaces/$spaceId/fields'
   id:
     | '__root__'
     | '/'
     | '/login'
-    | '/notes'
+    | '/notes_/'
     | '/spaces_/'
+    | '/notes_/$spaceId_/$noteId'
+    | '/notes_/$spaceId_/new'
+    | '/notes_/$spaceId_/'
     | '/spaces_/$spaceId_/fields_/new'
     | '/spaces_/$spaceId_/fields_/'
   fileRoutesById: FileRoutesById
@@ -103,21 +139,17 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LoginRoute: typeof LoginRoute
-  NotesRoute: typeof NotesRoute
+  NotesIndexRoute: typeof NotesIndexRoute
   SpacesIndexRoute: typeof SpacesIndexRoute
+  NotesSpaceIdNoteIdRoute: typeof NotesSpaceIdNoteIdRoute
+  NotesSpaceIdNewRoute: typeof NotesSpaceIdNewRoute
+  NotesSpaceIdIndexRoute: typeof NotesSpaceIdIndexRoute
   SpacesSpaceIdFieldsNewRoute: typeof SpacesSpaceIdFieldsNewRoute
   SpacesSpaceIdFieldsIndexRoute: typeof SpacesSpaceIdFieldsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/notes': {
-      id: '/notes'
-      path: '/notes'
-      fullPath: '/notes'
-      preLoaderRoute: typeof NotesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -137,6 +169,34 @@ declare module '@tanstack/react-router' {
       path: '/spaces'
       fullPath: '/spaces'
       preLoaderRoute: typeof SpacesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notes_/': {
+      id: '/notes_/'
+      path: '/notes'
+      fullPath: '/notes'
+      preLoaderRoute: typeof NotesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notes_/$spaceId_/': {
+      id: '/notes_/$spaceId_/'
+      path: '/notes/$spaceId'
+      fullPath: '/notes/$spaceId'
+      preLoaderRoute: typeof NotesSpaceIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notes_/$spaceId_/new': {
+      id: '/notes_/$spaceId_/new'
+      path: '/notes/$spaceId/new'
+      fullPath: '/notes/$spaceId/new'
+      preLoaderRoute: typeof NotesSpaceIdNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notes_/$spaceId_/$noteId': {
+      id: '/notes_/$spaceId_/$noteId'
+      path: '/notes/$spaceId/$noteId'
+      fullPath: '/notes/$spaceId/$noteId'
+      preLoaderRoute: typeof NotesSpaceIdNoteIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/spaces_/$spaceId_/fields_/': {
@@ -159,8 +219,11 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LoginRoute: LoginRoute,
-  NotesRoute: NotesRoute,
+  NotesIndexRoute: NotesIndexRoute,
   SpacesIndexRoute: SpacesIndexRoute,
+  NotesSpaceIdNoteIdRoute: NotesSpaceIdNoteIdRoute,
+  NotesSpaceIdNewRoute: NotesSpaceIdNewRoute,
+  NotesSpaceIdIndexRoute: NotesSpaceIdIndexRoute,
   SpacesSpaceIdFieldsNewRoute: SpacesSpaceIdFieldsNewRoute,
   SpacesSpaceIdFieldsIndexRoute: SpacesSpaceIdFieldsIndexRoute,
 }

@@ -1,7 +1,7 @@
 import ky, { HTTPError } from "ky"
 
 import { getStoredSessionId, clearAuthData } from "@/lib/auth-storage"
-import { APIError, type APIErrorResponse } from "@/lib/api-error"
+import { APIError, type APIErrorResponse } from "@/lib/errors"
 
 export const httpClient = ky.create({
   prefixUrl: "/api",

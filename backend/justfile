@@ -12,15 +12,15 @@ build: clean lint audit test
     uv build
 
 format:
-    uv run ruff check --select I --fix src tests scripts
-    uv run ruff format src tests scripts
+    uv run ruff check --select I --fix src scripts
+    uv run ruff format src scripts
 
 lint *args: format
     #!/usr/bin/env bash
     if [[ " {{args}} " == *" --fix "* ]]; then
-        uv run ruff check --fix src tests scripts
+        uv run ruff check --fix src scripts
     else
-        uv run ruff check src tests scripts
+        uv run ruff check src scripts
     fi
     uv run mypy src
 

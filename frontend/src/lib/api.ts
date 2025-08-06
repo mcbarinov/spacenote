@@ -30,10 +30,6 @@ export const api = {
     return await httpClient.get("spaces").json<Space[]>()
   },
 
-  async getSpace(spaceId: string): Promise<Space> {
-    return await httpClient.get(`spaces/${spaceId}`).json<Space>()
-  },
-
   async createSpace(request: CreateSpaceRequest): Promise<Space> {
     return await httpClient.post("spaces", { json: request }).json<Space>()
   },

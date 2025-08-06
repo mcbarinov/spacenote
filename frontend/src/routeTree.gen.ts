@@ -9,12 +9,18 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as NotesRouteImport } from './routes/notes'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SpacesIndexRouteImport } from './routes/spaces_/index'
 import { Route as SpacesSpaceIdFieldsIndexRouteImport } from './routes/spaces_/$spaceId_/fields_/index'
 import { Route as SpacesSpaceIdFieldsNewRouteImport } from './routes/spaces_/$spaceId_/fields_/new'
 
+const NotesRoute = NotesRouteImport.update({
+  id: '/notes',
+  path: '/notes',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -45,6 +51,7 @@ const SpacesSpaceIdFieldsNewRoute = SpacesSpaceIdFieldsNewRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/notes': typeof NotesRoute
   '/spaces': typeof SpacesIndexRoute
   '/spaces/$spaceId/fields/new': typeof SpacesSpaceIdFieldsNewRoute
   '/spaces/$spaceId/fields': typeof SpacesSpaceIdFieldsIndexRoute
@@ -52,6 +59,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/notes': typeof NotesRoute
   '/spaces': typeof SpacesIndexRoute
   '/spaces/$spaceId/fields/new': typeof SpacesSpaceIdFieldsNewRoute
   '/spaces/$spaceId/fields': typeof SpacesSpaceIdFieldsIndexRoute
@@ -60,6 +68,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/notes': typeof NotesRoute
   '/spaces_/': typeof SpacesIndexRoute
   '/spaces_/$spaceId_/fields_/new': typeof SpacesSpaceIdFieldsNewRoute
   '/spaces_/$spaceId_/fields_/': typeof SpacesSpaceIdFieldsIndexRoute
@@ -69,6 +78,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
+    | '/notes'
     | '/spaces'
     | '/spaces/$spaceId/fields/new'
     | '/spaces/$spaceId/fields'
@@ -76,6 +86,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/login'
+    | '/notes'
     | '/spaces'
     | '/spaces/$spaceId/fields/new'
     | '/spaces/$spaceId/fields'
@@ -83,6 +94,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/login'
+    | '/notes'
     | '/spaces_/'
     | '/spaces_/$spaceId_/fields_/new'
     | '/spaces_/$spaceId_/fields_/'
@@ -91,6 +103,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LoginRoute: typeof LoginRoute
+  NotesRoute: typeof NotesRoute
   SpacesIndexRoute: typeof SpacesIndexRoute
   SpacesSpaceIdFieldsNewRoute: typeof SpacesSpaceIdFieldsNewRoute
   SpacesSpaceIdFieldsIndexRoute: typeof SpacesSpaceIdFieldsIndexRoute
@@ -98,6 +111,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/notes': {
+      id: '/notes'
+      path: '/notes'
+      fullPath: '/notes'
+      preLoaderRoute: typeof NotesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -139,6 +159,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LoginRoute: LoginRoute,
+  NotesRoute: NotesRoute,
   SpacesIndexRoute: SpacesIndexRoute,
   SpacesSpaceIdFieldsNewRoute: SpacesSpaceIdFieldsNewRoute,
   SpacesSpaceIdFieldsIndexRoute: SpacesSpaceIdFieldsIndexRoute,

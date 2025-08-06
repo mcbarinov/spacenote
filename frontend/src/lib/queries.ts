@@ -8,14 +8,8 @@ export const spacesQueryOptions = () =>
   queryOptions({
     queryKey: ["spaces"],
     queryFn: () => api.getSpaces(),
-    staleTime: 1000 * 60 * 5, // 5 minutes - spaces don't change frequently
-  })
-
-export const spaceQueryOptions = (spaceId: string) =>
-  queryOptions({
-    queryKey: ["spaces", spaceId],
-    queryFn: () => api.getSpace(spaceId),
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: Infinity, // Never consider spaces data stale
+    gcTime: Infinity, // Never remove from memory - permanent cache
   })
 
 // Notes queries for a specific space
@@ -54,9 +48,21 @@ export const useCreateFieldMutation = (spaceId: string) => {
   return useMutation({
     mutationFn: (field: SpaceField) => api.createField(spaceId, field),
     onSuccess: () => {
-      // Invalidate space query to show the new field
+      // Invalidate all spaces to show the new field
       void queryClient.invalidateQueries({
-        queryKey: ["spaces", spaceId],
+        queryKey: ["spaces"],
+      })
+    },
+  })
+}
+
+export const useRefreshSpacesMutation = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async () => {
+      void queryClient.invalidateQueries({
+        queryKey: ["spaces"],
       })
     },
   })

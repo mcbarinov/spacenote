@@ -1,18 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router"
-import { useSuspenseQuery } from "@tanstack/react-query"
 
-import { spaceQueryOptions } from "@/lib/queries"
+import { useSpace } from "@/hooks/useSpace"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 
 export const Route = createFileRoute("/spaces_/$spaceId_/fields_/")({
-  loader: ({ context: { queryClient }, params: { spaceId } }) => queryClient.ensureQueryData(spaceQueryOptions(spaceId)),
   component: FieldsPage,
 })
 
 function FieldsPage() {
   const { spaceId } = Route.useParams()
-  const { data: space } = useSuspenseQuery(spaceQueryOptions(spaceId))
+  const space = useSpace(spaceId)
 
   return (
     <div className="container mx-auto p-8">

@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router"
+import { createFileRoute, Link } from "@tanstack/react-router"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { MoreHorizontalIcon } from "lucide-react"
 
@@ -7,9 +7,9 @@ import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
-import { CreateSpaceDialog } from "./spaces/-components/CreateSpaceDialog"
+import { CreateSpaceDialog } from "./-components/CreateSpaceDialog"
 
-export const Route = createFileRoute("/spaces")({
+export const Route = createFileRoute("/spaces_/")({
   loader: ({ context: { queryClient } }) => queryClient.ensureQueryData(spacesQueryOptions()),
   component: SpacesPage,
 })
@@ -53,6 +53,11 @@ function SpacesPage() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
+                        <DropdownMenuItem asChild>
+                          <Link to="/spaces/$spaceId/fields" params={{ spaceId: space.id }}>
+                            Fields ({space.fields?.length || 0})
+                          </Link>
+                        </DropdownMenuItem>
                         <DropdownMenuItem>Edit Space</DropdownMenuItem>
                         <DropdownMenuItem>Manage Members</DropdownMenuItem>
                         <DropdownMenuItem>View Settings</DropdownMenuItem>

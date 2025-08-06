@@ -13,7 +13,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SpacesIndexRouteImport } from './routes/spaces_/index'
 import { Route as SpacesSpaceIdFieldsIndexRouteImport } from './routes/spaces_/$spaceId_/fields_/index'
-import { Route as SpacesSpaceIdFieldsNewIndexRouteImport } from './routes/spaces_/$spaceId_/fields_/new_/index'
+import { Route as SpacesSpaceIdFieldsNewRouteImport } from './routes/spaces_/$spaceId_/fields_/new'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -36,34 +36,33 @@ const SpacesSpaceIdFieldsIndexRoute =
     path: '/spaces/$spaceId/fields/',
     getParentRoute: () => rootRouteImport,
   } as any)
-const SpacesSpaceIdFieldsNewIndexRoute =
-  SpacesSpaceIdFieldsNewIndexRouteImport.update({
-    id: '/spaces_/$spaceId_/fields_/new_/',
-    path: '/spaces/$spaceId/fields/new/',
-    getParentRoute: () => rootRouteImport,
-  } as any)
+const SpacesSpaceIdFieldsNewRoute = SpacesSpaceIdFieldsNewRouteImport.update({
+  id: '/spaces_/$spaceId_/fields_/new',
+  path: '/spaces/$spaceId/fields/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/spaces': typeof SpacesIndexRoute
+  '/spaces/$spaceId/fields/new': typeof SpacesSpaceIdFieldsNewRoute
   '/spaces/$spaceId/fields': typeof SpacesSpaceIdFieldsIndexRoute
-  '/spaces/$spaceId/fields/new': typeof SpacesSpaceIdFieldsNewIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/spaces': typeof SpacesIndexRoute
+  '/spaces/$spaceId/fields/new': typeof SpacesSpaceIdFieldsNewRoute
   '/spaces/$spaceId/fields': typeof SpacesSpaceIdFieldsIndexRoute
-  '/spaces/$spaceId/fields/new': typeof SpacesSpaceIdFieldsNewIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/spaces_/': typeof SpacesIndexRoute
+  '/spaces_/$spaceId_/fields_/new': typeof SpacesSpaceIdFieldsNewRoute
   '/spaces_/$spaceId_/fields_/': typeof SpacesSpaceIdFieldsIndexRoute
-  '/spaces_/$spaceId_/fields_/new_/': typeof SpacesSpaceIdFieldsNewIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -71,30 +70,30 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/spaces'
-    | '/spaces/$spaceId/fields'
     | '/spaces/$spaceId/fields/new'
+    | '/spaces/$spaceId/fields'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/login'
     | '/spaces'
-    | '/spaces/$spaceId/fields'
     | '/spaces/$spaceId/fields/new'
+    | '/spaces/$spaceId/fields'
   id:
     | '__root__'
     | '/'
     | '/login'
     | '/spaces_/'
+    | '/spaces_/$spaceId_/fields_/new'
     | '/spaces_/$spaceId_/fields_/'
-    | '/spaces_/$spaceId_/fields_/new_/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LoginRoute: typeof LoginRoute
   SpacesIndexRoute: typeof SpacesIndexRoute
+  SpacesSpaceIdFieldsNewRoute: typeof SpacesSpaceIdFieldsNewRoute
   SpacesSpaceIdFieldsIndexRoute: typeof SpacesSpaceIdFieldsIndexRoute
-  SpacesSpaceIdFieldsNewIndexRoute: typeof SpacesSpaceIdFieldsNewIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -127,11 +126,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SpacesSpaceIdFieldsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/spaces_/$spaceId_/fields_/new_/': {
-      id: '/spaces_/$spaceId_/fields_/new_/'
+    '/spaces_/$spaceId_/fields_/new': {
+      id: '/spaces_/$spaceId_/fields_/new'
       path: '/spaces/$spaceId/fields/new'
       fullPath: '/spaces/$spaceId/fields/new'
-      preLoaderRoute: typeof SpacesSpaceIdFieldsNewIndexRouteImport
+      preLoaderRoute: typeof SpacesSpaceIdFieldsNewRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -141,8 +140,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LoginRoute: LoginRoute,
   SpacesIndexRoute: SpacesIndexRoute,
+  SpacesSpaceIdFieldsNewRoute: SpacesSpaceIdFieldsNewRoute,
   SpacesSpaceIdFieldsIndexRoute: SpacesSpaceIdFieldsIndexRoute,
-  SpacesSpaceIdFieldsNewIndexRoute: SpacesSpaceIdFieldsNewIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

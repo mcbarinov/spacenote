@@ -17,11 +17,15 @@ export type FieldType = "string" | "markdown" | "boolean" | "choice" | "tags" | 
 
 export type FieldValue = string | boolean | string[] | number | null
 
+export type FieldOptionValue = string[] | number
+
+export type FieldOption = "values" | "min" | "max"
+
 export interface SpaceField {
   name: string
   type: FieldType
   required: boolean
-  options: Record<string, FieldValue | FieldValue[]>
+  options: Partial<Record<FieldOption, FieldOptionValue>>
   default: FieldValue
 }
 

@@ -90,6 +90,8 @@ from module.x import SomeClass
 
 ## Project Commands
 
+**Frontend uses pnpm as package manager**
+
 ### Human Development
 - `just dev` - Start backend development server (human use only)
 - `just dev-all` - Start backend and frontend servers

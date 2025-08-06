@@ -1,5 +1,5 @@
 import { httpClient } from "@/lib/http-client"
-import type { Space, Note } from "@/types"
+import type { Space, Note, SpaceField } from "@/types"
 
 export interface LoginCredentials {
   username: string
@@ -44,5 +44,9 @@ export const api = {
 
   async getNote(noteId: string): Promise<Note> {
     return await httpClient.get(`notes/${noteId}`).json<Note>()
+  },
+
+  async createField(spaceId: string, field: SpaceField): Promise<void> {
+    await httpClient.post(`spaces/${spaceId}/fields`, { json: field })
   },
 }

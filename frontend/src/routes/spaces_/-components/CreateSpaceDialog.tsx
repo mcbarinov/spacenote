@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { toast } from "sonner"
 import { useCreateSpaceMutation } from "@/lib/queries"
 import {
   Dialog,
@@ -28,11 +29,13 @@ export function CreateSpaceDialog({ trigger }: CreateSpaceDialogProps) {
 
     try {
       await createSpaceMutation.mutateAsync({ id, name })
+      toast.success("Space created successfully!")
       setOpen(false)
       setId("")
       setName("")
     } catch (error) {
       console.error("Failed to create space:", error)
+      toast.error(error instanceof Error ? error.message : "Failed to create space")
     }
   }
 

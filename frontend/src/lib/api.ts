@@ -45,4 +45,12 @@ export const api = {
   async createField(spaceId: string, field: SpaceField): Promise<void> {
     await httpClient.post(`spaces/${spaceId}/fields`, { json: field })
   },
+
+  async updateListFields(spaceId: string, listFields: string[]): Promise<void> {
+    await httpClient.put(`spaces/${spaceId}/list-fields`, { json: { field_names: listFields } })
+  },
+
+  async updateHiddenCreateFields(spaceId: string, hiddenCreateFields: string[]): Promise<void> {
+    await httpClient.put(`spaces/${spaceId}/hidden-create-fields`, { json: { field_names: hiddenCreateFields } })
+  },
 }

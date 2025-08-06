@@ -47,6 +47,7 @@ attachments/
 node_modules/
 frontend/dist/
 frontend/.vite/
+frontend/.tanstack/
 frontend/coverage/
 frontend/tsconfig.tsbuildinfo
 

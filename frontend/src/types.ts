@@ -9,6 +9,8 @@ export interface Space {
   name: string
   members: string[]
   fields: SpaceField[]
+  list_fields: string[]
+  hidden_create_fields: string[]
   created_at: string
   updated_at: string
 }

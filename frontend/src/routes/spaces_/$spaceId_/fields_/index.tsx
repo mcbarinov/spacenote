@@ -2,7 +2,9 @@ import { createFileRoute, Link } from "@tanstack/react-router"
 
 import { useSpace } from "@/hooks/useSpace"
 import { Button } from "@/components/ui/button"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { FieldsTable } from "./-components/FieldsTable"
+import { ListFieldsEditor } from "./-components/ListFieldsEditor"
+import { HiddenCreateFieldsEditor } from "./-components/HiddenCreateFieldsEditor"
 
 export const Route = createFileRoute("/spaces_/$spaceId_/fields_/")({
   component: FieldsPage,
@@ -24,43 +26,19 @@ function FieldsPage() {
         </Link>
       </div>
 
-      {!space.fields || space.fields.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-gray-600 mb-4">No fields defined yet.</p>
-          <p className="text-sm text-gray-500">Add fields to customize your space structure.</p>
-        </div>
-      ) : (
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Required</TableHead>
-                <TableHead>Default</TableHead>
-                <TableHead>Options</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {space.fields.map((field) => (
-                <TableRow key={field.name}>
-                  <TableCell className="font-medium">{field.name}</TableCell>
-                  <TableCell>
-                    <span className="px-2 py-1 bg-gray-100 rounded text-sm">{field.type}</span>
-                  </TableCell>
-                  <TableCell>{field.required ? "Yes" : "No"}</TableCell>
-                  <TableCell className="font-mono text-sm">
-                    {field.default !== null && field.default !== undefined ? JSON.stringify(field.default) : "-"}
-                  </TableCell>
-                  <TableCell className="font-mono text-sm">
-                    {field.options && Object.keys(field.options).length > 0 ? JSON.stringify(field.options) : "-"}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      )}
+      {/* Fields Table */}
+      <FieldsTable space={space} />
+
+      {/* Space Configuration Section */}
+      <div className="mt-12 space-y-8">
+        <h2 className="text-2xl font-semibold">Space Configuration</h2>
+
+        {/* List Fields Editor */}
+        <ListFieldsEditor space={space} spaceId={spaceId} />
+
+        {/* Hidden Create Fields Editor */}
+        <HiddenCreateFieldsEditor space={space} spaceId={spaceId} />
+      </div>
     </div>
   )
 }

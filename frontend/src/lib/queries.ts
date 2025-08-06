@@ -67,3 +67,29 @@ export const useRefreshSpacesMutation = () => {
     },
   })
 }
+
+export const useUpdateListFieldsMutation = (spaceId: string) => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (listFields: string[]) => api.updateListFields(spaceId, listFields),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: ["spaces"],
+      })
+    },
+  })
+}
+
+export const useUpdateHiddenCreateFieldsMutation = (spaceId: string) => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (hiddenCreateFields: string[]) => api.updateHiddenCreateFields(spaceId, hiddenCreateFields),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: ["spaces"],
+      })
+    },
+  })
+}

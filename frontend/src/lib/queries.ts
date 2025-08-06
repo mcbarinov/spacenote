@@ -20,10 +20,10 @@ export const spaceNotesQueryOptions = (spaceId: string) =>
     staleTime: 1000 * 30, // 30 seconds - notes change more frequently
   })
 
-export const noteQueryOptions = (noteId: string) =>
+export const noteQueryOptions = (noteId: string, spaceId: string) =>
   queryOptions({
     queryKey: ["notes", noteId],
-    queryFn: () => api.getNote(noteId),
+    queryFn: () => api.getNote(noteId, spaceId),
     staleTime: 1000 * 30, // 30 seconds
   })
 
@@ -89,6 +89,21 @@ export const useUpdateHiddenCreateFieldsMutation = (spaceId: string) => {
     onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: ["spaces"],
+      })
+    },
+  })
+}
+
+// Notes mutations
+export const useCreateNoteMutation = (spaceId: string) => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (fields: Record<string, string>) => api.createNote(spaceId, fields),
+    onSuccess: () => {
+      // Invalidate notes list to show the new note
+      void queryClient.invalidateQueries({
+        queryKey: ["spaces", spaceId, "notes"],
       })
     },
   })

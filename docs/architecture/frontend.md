@@ -173,9 +173,31 @@ export const spacesQueryOptions = () =>
   queryOptions({
     queryKey: ["spaces"],
     queryFn: () => api.getSpaces(),
-    staleTime: 1000 * 60 * 5, // Strategic caching based on data volatility
+    staleTime: Infinity, // Spaces data is cached permanently
+    gcTime: Infinity, // Never remove from memory
   })
 ```
+
+### Data Access Pattern: useSpace Hook
+
+**IMPORTANT**: For accessing individual space data, always use the `useSpace` hook instead of creating separate queries:
+
+```typescript
+// ✅ CORRECT: Use the useSpace hook
+import { useSpace } from "@/hooks/useSpace"
+
+function MyComponent() {
+  const space = useSpace(spaceId) // Gets space from cached data
+}
+
+// ❌ WRONG: Don't create separate space queries
+const spaceQueryOptions = (spaceId: string) => queryOptions({
+  queryKey: ["spaces", spaceId],
+  queryFn: () => api.getSpace(spaceId), // Unnecessary API call
+})
+```
+
+The `useSpace` hook efficiently retrieves a single space from the already-cached spaces list, avoiding unnecessary API calls. Since spaces data has infinite cache (`staleTime: Infinity`), this pattern ensures optimal performance.
 
 ### API Layer Separation
 

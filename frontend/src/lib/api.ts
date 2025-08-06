@@ -1,5 +1,5 @@
 import { httpClient } from "@/lib/http-client"
-import type { Space, Note, SpaceField } from "@/types"
+import type { Space, Note, SpaceField, PaginationResult } from "@/types"
 
 export interface LoginCredentials {
   username: string
@@ -34,12 +34,21 @@ export const api = {
     return await httpClient.post("spaces", { json: request }).json<Space>()
   },
 
-  async getSpaceNotes(spaceId: string): Promise<Note[]> {
-    return await httpClient.get(`spaces/${spaceId}/notes`).json<Note[]>()
+  async getSpaceNotes(spaceId: string): Promise<PaginationResult> {
+    return await httpClient.get("notes", { searchParams: { space_id: spaceId } }).json<PaginationResult>()
   },
 
-  async getNote(noteId: string): Promise<Note> {
-    return await httpClient.get(`notes/${noteId}`).json<Note>()
+  async getNote(noteId: string, spaceId: string): Promise<Note> {
+    return await httpClient.get(`notes/${noteId}`, { searchParams: { space_id: spaceId } }).json<Note>()
+  },
+
+  async createNote(spaceId: string, fields: Record<string, string>): Promise<Note> {
+    return await httpClient
+      .post("notes", {
+        json: fields,
+        searchParams: { space_id: spaceId },
+      })
+      .json<Note>()
   },
 
   async createField(spaceId: string, field: SpaceField): Promise<void> {

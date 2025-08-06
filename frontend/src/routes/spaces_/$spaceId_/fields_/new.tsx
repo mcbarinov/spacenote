@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import type { FieldType, FieldOption, FieldValue, FieldOptionValue, SpaceField } from "@/types"
+import { FIELD_TYPES } from "@/types"
 
 interface FormData {
   name: string
@@ -21,8 +22,6 @@ interface FormData {
   minValue: string
   maxValue: string
 }
-
-const FIELD_TYPES: FieldType[] = ["string", "markdown", "boolean", "choice", "tags", "user", "datetime", "int", "float", "image"]
 
 export const Route = createFileRoute("/spaces_/$spaceId_/fields_/new")({
   component: NewFieldPage,

@@ -9,7 +9,7 @@ from spacenote.core.app import App
 from spacenote.core.errors import UserError
 from spacenote.web.config import WebConfig
 from spacenote.web.error_handlers import general_exception_handler, user_error_handler
-from spacenote.web.routers import auth_router
+from spacenote.web.routers import auth_router, spaces_router
 
 
 def create_fastapi_app(app_instance: App, web_config: WebConfig) -> FastAPI:
@@ -47,6 +47,7 @@ def create_fastapi_app(app_instance: App, web_config: WebConfig) -> FastAPI:
         return {"status": "healthy"}
 
     app.include_router(auth_router, prefix="/api")
+    app.include_router(spaces_router, prefix="/api")
 
     # Register error handlers
     app.add_exception_handler(UserError, user_error_handler)

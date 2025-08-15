@@ -24,9 +24,7 @@ class SessionService(Service):
         await self._collection.insert_one(new_session.to_mongo_dict())
         return auth_token
 
-    async def get_authenticated_user(self, auth_token: AuthToken) -> User:
-        """Get authenticated user from auth_token."""
-
+    async def get_authenticated_user_or_none(self, auth_token: AuthToken) -> User | None:
         # Check cache first
         if auth_token in self._authenticated_users:
             return self._authenticated_users[auth_token]
@@ -34,9 +32,13 @@ class SessionService(Service):
         # Get session from database
         session = await self._collection.find_one({"auth_token": auth_token})
         if session is None:
+            return None
+
+        if self.core.services.user.has_user(session["user_id"]):
+            return self.core.services.user.get_user(session["user_id"])
+
+    async def get_authenticated_user(self, auth_token: AuthToken) -> User:
+        user = await self.get_authenticated_user_or_none(auth_token)
+        if user is None:
             raise AuthenticationError("Invalid or expired session")
-
-        user = self.core.services.user.get_user(session["user_id"])
-        self._authenticated_users[auth_token] = user
-
         return user

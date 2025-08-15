@@ -18,10 +18,18 @@ class App:
         async with self._core.lifespan():
             yield
 
+    async def is_auth_token_valid(self, auth_token: AuthToken) -> bool:
+        user = await self._core.services.session.get_authenticated_user_or_none(auth_token)
+        return user is not None
+
     async def login(self, username: str, password: str) -> AuthToken:
         if not self._core.services.user.verify_password(username, password):
             raise AuthenticationError
         return await self._core.services.session.create_session(username)
+
+    async def get_spaces_by_member(self, auth_token: AuthToken) -> list[Space]:
+        current_user = await self._core.services.session.get_authenticated_user(auth_token)
+        return self._core.services.space.get_spaces_by_member(current_user.id)
 
     async def create_space(self, auth_token: AuthToken, slug: str, title: str) -> Space:
         current_user = await self._core.services.session.get_authenticated_user(auth_token)

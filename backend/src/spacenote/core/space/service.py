@@ -42,6 +42,10 @@ class SpaceService(Service):
             raise NotFoundError(f"Space '{space_id}' not found")
         return self._spaces[space_id]
 
+    def get_spaces_by_member(self, member: ObjectId) -> list[Space]:
+        """Get all spaces where the user is a member."""
+        return [space for space in self._spaces.values() if member in space.members]
+
     def has_slug(self, slug: str) -> bool:
         """Check if a space exists by slug."""
         return any(space.slug == slug for space in self._spaces.values())

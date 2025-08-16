@@ -1,12 +1,29 @@
-from typing import Any, Self
+from typing import Annotated, Any, Self
 
 from bson import ObjectId
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import AfterValidator, BaseModel, ConfigDict, Field, PlainSerializer, WithJsonSchema
 from pymongo.asynchronous.cursor import AsyncCursor
 
 
+def validate_object_id(v: Any) -> ObjectId:  # noqa: ANN401
+    """Validate and convert value to ObjectId."""
+    if isinstance(v, ObjectId):
+        return v
+    if ObjectId.is_valid(v):
+        return ObjectId(v)
+    raise ValueError(f"Invalid ObjectId: {v}")
+
+
+PyObjectId = Annotated[
+    ObjectId,
+    AfterValidator(validate_object_id),
+    PlainSerializer(lambda x: str(x), return_type=str, when_used="json"),
+    WithJsonSchema({"type": "string"}, mode="serialization"),
+]
+
+
 class MongoModel(BaseModel):
-    id: ObjectId = Field(alias="_id", serialization_alias="id", default_factory=ObjectId)
+    id: PyObjectId = Field(alias="_id", serialization_alias="id", default_factory=ObjectId)
 
     model_config = ConfigDict(populate_by_name=True, arbitrary_types_allowed=True)
 

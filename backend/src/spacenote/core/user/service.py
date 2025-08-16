@@ -13,36 +13,29 @@ logger = structlog.get_logger(__name__)
 
 
 class UserService(Service):
-    """Service for managing users with in-memory caching."""
-
     def __init__(self, database: AsyncDatabase[dict[str, Any]]) -> None:
         super().__init__(database)
         self._collection = database.get_collection("users")
         self._users: dict[ObjectId, User] = {}
 
     def get_user(self, id: ObjectId) -> User:
-        """Get user by ID from cache."""
         if id not in self._users:
             raise NotFoundError(f"User '{id}' not found")
         return self._users[id]
 
     def get_user_by_username(self, username: str) -> User:
-        """Get user by username from cache."""
         user = next((u for u in self._users.values() if u.username == username), None)
         if user is None:
             raise NotFoundError(f"User '{username}' not found")
         return user
 
     def has_user(self, id: ObjectId) -> bool:
-        """Check if a user exists by ID."""
         return id in self._users
 
     def has_username(self, username: str) -> bool:
-        """Check if a user exists by username."""
         return any(user.username == username for user in self._users.values())
 
     async def create_user(self, username: str, password: str) -> User:
-        """Create a new user with hashed password."""
         if self.has_username(username):
             raise ValidationError(f"User '{username}' already exists")
 
@@ -53,7 +46,6 @@ class UserService(Service):
         return self.get_user(id)
 
     def verify_password(self, username: str, password: str) -> bool:
-        """Verify user password."""
         user = next((u for u in self._users.values() if u.username == username), None)
         if user is None:
             return False
@@ -75,7 +67,6 @@ class UserService(Service):
             self._users = {user.id: user for user in users}
 
     async def on_start(self) -> None:
-        """Initialize service on application startup."""
         await self.update_cache()
         await self.ensure_admin_user_exists()
         logger.debug("user_service_started", user_count=len(self._users))

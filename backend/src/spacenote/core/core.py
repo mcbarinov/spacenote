@@ -9,11 +9,11 @@ from urllib.parse import urlparse
 from pymongo import AsyncMongoClient
 from pymongo.asynchronous.database import AsyncDatabase
 
-from spacenote.core.access.service import AccessService
 from spacenote.core.config import CoreConfig
 from spacenote.core.logging import setup_logging
 
 if TYPE_CHECKING:
+    from spacenote.core.access.service import AccessService
     from spacenote.core.note.service import NoteService
     from spacenote.core.session.service import SessionService
     from spacenote.core.space.service import SpaceService

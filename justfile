@@ -58,6 +58,9 @@ f-format:
 f-lint: f-format
     cd {{FRONTEND_DIR}} && pnpm run lint
 
+f-dev:
+    cd {{FRONTEND_DIR}} && pnpm run dev
+
 
 # ==============================================================================
 # Deploy tasks

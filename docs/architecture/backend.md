@@ -17,6 +17,7 @@ Business logic layer organized by domain concepts:
 core/
 ├── user/            # User domain (models.py, service.py)
 ├── space/           # Space domain (models.py, service.py)  
+├── note/            # Note domain (models.py, service.py)
 ├── session/         # Session domain (models.py, service.py)
 ├── field/           # Field domain (models.py)
 ├── filter/          # Filter domain (models.py)
@@ -34,7 +35,7 @@ HTTP interface layer with FastAPI:
 
 ```
 web/
-├── routers/         # API endpoints (auth, spaces)
+├── routers/         # API endpoints (auth, spaces, notes)
 ├── deps.py          # FastAPI dependency injection
 ├── server.py        # FastAPI app configuration
 ├── config.py        # Web-specific configuration
@@ -106,6 +107,13 @@ Client Request → Web Router → App (access check) → Service (validation + l
 - `note_detail_template: str` - Optional Liquid template
 - `note_list_template: str` - Optional Liquid template
 
+### Note
+- `space_id: ObjectId` - Reference to the space containing this note
+- `author_id: ObjectId` - Reference to the user who created the note
+- `created_at: datetime` - When the note was created
+- `edited_at: datetime | None` - Last time note fields were edited
+- `fields: dict[str, FieldValueType]` - User-defined field values as defined in the Space
+
 ### Field System
 - **Types**: string, markdown, boolean, choice, tags, user, datetime, int, float
 - **Options**: min/max for numeric, values for choice fields  
@@ -136,6 +144,12 @@ Client Request → Web Router → App (access check) → Service (validation + l
 - In-memory space cache
 - Space field and filter management
 
+### NoteService
+- Note CRUD operations within spaces
+- Space-based note listing and filtering
+- Custom field data management
+- Note creation and editing tracking
+
 ### SessionService
 - Token-based authentication with secrets.token_urlsafe
 - Session persistence in MongoDB
@@ -146,6 +160,7 @@ Client Request → Web Router → App (access check) → Service (validation + l
 ### MongoDB Collections
 - `users` - User documents with password hashes
 - `spaces` - Space configurations with fields and filters  
+- `notes` - Note documents with custom field data and metadata
 - `sessions` - Authentication tokens with user references
 
 ### ObjectId Handling

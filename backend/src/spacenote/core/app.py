@@ -5,6 +5,7 @@ from spacenote.core.config import CoreConfig
 from spacenote.core.core import Core
 from spacenote.core.errors import AuthenticationError
 from spacenote.core.field.models import SpaceField
+from spacenote.core.note.models import Note
 from spacenote.core.session.models import AuthToken
 from spacenote.core.space.models import Space
 
@@ -41,3 +42,9 @@ class App:
         await self._core.services.access.ensure_space_member(auth_token, space.id)
 
         return await self._core.services.space.add_field(space.id, field)
+
+    async def get_notes_by_space(self, auth_token: AuthToken, space_slug: str) -> list[Note]:
+        space = self._core.services.space.get_space_by_slug(space_slug)
+        await self._core.services.access.ensure_space_member(auth_token, space.id)
+
+        return await self._core.services.note.list_notes(space.id)

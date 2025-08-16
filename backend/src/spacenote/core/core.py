@@ -14,6 +14,7 @@ from spacenote.core.config import CoreConfig
 from spacenote.core.logging import setup_logging
 
 if TYPE_CHECKING:
+    from spacenote.core.note.service import NoteService
     from spacenote.core.session.service import SessionService
     from spacenote.core.space.service import SpaceService
     from spacenote.core.user.service import UserService
@@ -51,6 +52,7 @@ class Services:
     space: SpaceService
     session: SessionService
     access: AccessService
+    note: NoteService
 
     def __init__(self, database: AsyncDatabase[dict[str, Any]]) -> None:
         """Initialize all services automatically using service configuration."""
@@ -64,6 +66,7 @@ class Services:
             ("space", "spacenote.core.space.service", "SpaceService"),
             ("session", "spacenote.core.session.service", "SessionService"),
             ("access", "spacenote.core.access.service", "AccessService"),
+            ("note", "spacenote.core.note.service", "NoteService"),
         ]
 
         # Dynamically import and instantiate services

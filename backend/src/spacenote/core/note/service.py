@@ -12,4 +12,7 @@ class NoteService(Service):
         super().__init__(database)
         self._collection = database.get_collection("notes")
 
-    async def list_notes(self, space_id: ObjectId) -> list[Note]: ...
+    async def list_notes(self, space_id: ObjectId) -> list[Note]:
+        cursor = self._collection.find({"space_id": space_id})
+        docs = await cursor.to_list(length=None)
+        return [Note.model_validate(doc) for doc in docs]

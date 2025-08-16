@@ -9,6 +9,7 @@ from urllib.parse import urlparse
 from pymongo import AsyncMongoClient
 from pymongo.asynchronous.database import AsyncDatabase
 
+from spacenote.core.access.service import AccessService
 from spacenote.core.config import CoreConfig
 from spacenote.core.logging import setup_logging
 
@@ -49,6 +50,7 @@ class Services:
     user: UserService
     space: SpaceService
     session: SessionService
+    access: AccessService
 
     def __init__(self, database: AsyncDatabase[dict[str, Any]]) -> None:
         """Initialize all services automatically using service configuration."""
@@ -61,6 +63,7 @@ class Services:
             ("user", "spacenote.core.user.service", "UserService"),
             ("space", "spacenote.core.space.service", "SpaceService"),
             ("session", "spacenote.core.session.service", "SessionService"),
+            ("access", "spacenote.core.access.service", "AccessService"),
         ]
 
         # Dynamically import and instantiate services

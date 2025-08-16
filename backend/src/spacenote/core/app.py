@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 from spacenote.core.config import CoreConfig
 from spacenote.core.core import Core
 from spacenote.core.errors import AuthenticationError
+from spacenote.core.field.models import SpaceField
 from spacenote.core.session.models import AuthToken
 from spacenote.core.space.models import Space
 
@@ -34,3 +35,9 @@ class App:
     async def create_space(self, auth_token: AuthToken, slug: str, title: str) -> Space:
         current_user = await self._core.services.session.get_authenticated_user(auth_token)
         return await self._core.services.space.create_space(slug, title, current_user.id)
+
+    async def add_field_to_space(self, auth_token: AuthToken, space_slug: str, field: SpaceField) -> Space:
+        space = self._core.services.space.get_space_by_slug(space_slug)
+        await self._core.services.access.ensure_space_member(auth_token, space.id)
+
+        return await self._core.services.space.add_field(space.id, field)

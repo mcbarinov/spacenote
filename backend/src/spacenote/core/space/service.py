@@ -7,6 +7,8 @@ from pymongo.asynchronous.database import AsyncDatabase
 from spacenote.core import utils
 from spacenote.core.core import Service
 from spacenote.core.errors import NotFoundError, ValidationError
+from spacenote.core.field.models import SpaceField
+from spacenote.core.field.validators import validate_space_field
 from spacenote.core.space.models import Space
 
 logger = structlog.get_logger(__name__)
@@ -42,6 +44,13 @@ class SpaceService(Service):
             raise NotFoundError(f"Space '{space_id}' not found")
         return self._spaces[space_id]
 
+    def get_space_by_slug(self, slug: str) -> Space:
+        """Get a space by slug."""
+        for space in self._spaces.values():
+            if space.slug == slug:
+                return space
+        raise NotFoundError(f"Space with slug '{slug}' not found")
+
     def get_spaces_by_member(self, member: ObjectId) -> list[Space]:
         """Get all spaces where the user is a member."""
         return [space for space in self._spaces.values() if member in space.members]
@@ -68,3 +77,28 @@ class SpaceService(Service):
 
         log.debug("space_created")
         return self.get_space(id)
+
+    async def add_field(self, space_id: ObjectId, field: SpaceField) -> Space:
+        """Add a field to a space with validation."""
+        log = logger.bind(space_id=space_id, field_name=field.name, action="add_field")
+        log.debug("adding_field")
+
+        # Get current space
+        space = self.get_space(space_id)
+
+        # Check field name uniqueness
+        if space.get_field(field.name) is not None:
+            log.warning("field_name_exists")
+            raise ValidationError(f"Field '{field.name}' already exists in space")
+
+        # Validate field
+        validated_field = validate_space_field(field)
+
+        # Update database - append field to fields array
+        await self._collection.update_one({"_id": space_id}, {"$push": {"fields": validated_field.model_dump()}})
+
+        # Refresh cache
+        await self.update_cache(space_id)
+
+        log.debug("field_added")
+        return self.get_space(space_id)

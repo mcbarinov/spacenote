@@ -6,9 +6,6 @@ from fastapi.openapi.utils import get_openapi
 
 def set_custom_openapi(app: FastAPI) -> None:
     def custom_openapi() -> dict[str, Any]:
-        if app.openapi_schema:
-            return app.openapi_schema
-
         openapi_schema = get_openapi(
             title="SpaceNote API",
             version="0.0.1",

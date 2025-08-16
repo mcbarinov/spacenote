@@ -31,6 +31,13 @@ All content must be in English:
 
 **ALWAYS communicate in English only**, regardless of the language used by the user. All responses must be in English.
 
+## Backend Commands
+
+**IMPORTANT**: When managing the backend, use these commands:
+- **Start backend**: `just b-agent-start`
+- **Stop backend**: `just b-agent-stop`
+- **NEVER use**: `just b-dev` (this is for human developers only)
+
 ## Current Project State
 
 **Phase**: Prototyping

@@ -1,7 +1,7 @@
 [project]
 name = "spacenote"
 version = "0.0.1"
-description = "SpaceNote is a flexible note-taking system"
+description = "Flexible note-taking system with customizable spaces"
 requires-python = ">=3.13"
 dependencies = [
     "bcrypt>=4.3.0",

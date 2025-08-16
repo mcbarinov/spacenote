@@ -9,6 +9,7 @@ from spacenote.core.app import App
 from spacenote.core.errors import UserError
 from spacenote.web.config import WebConfig
 from spacenote.web.error_handlers import general_exception_handler, user_error_handler
+from spacenote.web.openapi import set_custom_openapi
 from spacenote.web.routers import auth_router, spaces_router
 
 
@@ -28,6 +29,8 @@ def create_fastapi_app(app_instance: App, web_config: WebConfig) -> FastAPI:
         lifespan=lifespan,
         openapi_tags=[],  # Tags will be added by custom OpenAPI function
     )
+
+    
 
     app.add_middleware(SessionMiddleware, secret_key=web_config.session_secret_key)
 
@@ -52,5 +55,8 @@ def create_fastapi_app(app_instance: App, web_config: WebConfig) -> FastAPI:
     # Register error handlers
     app.add_exception_handler(UserError, user_error_handler)
     app.add_exception_handler(Exception, general_exception_handler)
+
+
+    set_custom_openapi(app)
 
     return app

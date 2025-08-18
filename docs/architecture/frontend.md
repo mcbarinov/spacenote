@@ -17,20 +17,22 @@ SpaceNote frontend is a single-page application built on:
 frontend/
 ├── src/
 │   ├── components/
-│   │   ├── pages/          # Route page components
+│   │   ├── layout/          # Layout components (AuthLayout)
+│   │   ├── pages/           # Page components (*Page.tsx)
 │   │   └── ui/              # Reusable UI components (shadcn/ui)
 │   ├── contexts/            # React Context providers
 │   │   └── auth/            # Authentication context
 │   ├── hooks/               # Custom React hooks
 │   ├── lib/                 # Core utilities
-│   │   ├── api.ts           # API client methods
+│   │   ├── api.ts           # API client with flat methods
 │   │   ├── http-client.ts   # HTTP client configuration
 │   │   ├── queries.ts       # TanStack Query hooks
 │   │   └── utils.ts         # Helper functions
 │   ├── types/               # TypeScript definitions
 │   │   ├── generated.ts     # OpenAPI generated types
 │   │   └── index.ts         # Type exports
-│   ├── App.tsx              # Root component with routing
+│   ├── App.tsx              # Root component with providers
+│   ├── router.tsx           # Route configuration
 │   └── main.tsx             # Application entry point
 ├── public/                  # Static assets
 └── scripts/                 # Build scripts
@@ -38,27 +40,29 @@ frontend/
 
 ## Routing
 
-Browser-based routing with protected route guards:
+Browser-based routing with authentication checks:
 
 ```typescript
 / (root)
-├── /login         # Public route (redirects if authenticated)
-└── / (protected)  # Private routes (redirects if not authenticated)
-    ├── /spaces
-    └── /spaces/:slug
+├── /login              # Public route with built-in auth check
+└── / (protected)       # Private routes wrapped in AuthLayout
+    ├── /                # Home page
+    ├── /spaces          # Spaces list
+    ├── /spaces/new      # Create new space
+    └── /change-password # Change password (TODO)
 ```
 
 **Route Protection:**
-- `ProtectedRoute` - Requires authentication
-- `PublicRoute` - Redirects authenticated users
-- Auth state checked via `useAuth` hook
+- `AuthLayout` - Wraps all protected routes, redirects to login if not authenticated
+- `LoginPage` - Contains built-in check, redirects to home if authenticated
+- Auth state managed via `useAuth` hook and `AuthContext`
 
 ## State Management
 
 ### Authentication State
 Context API manages auth state:
 - User session stored in localStorage (auth_token, username)
-- `AuthProvider` wraps application
+- `AuthProvider` wraps application in `App.tsx`
 - `useAuth` hook provides login/logout/isAuthenticated
 
 ### Server State
@@ -86,13 +90,22 @@ OpenAPI schema → TypeScript types:
 3. Types available in `types/generated.ts`
 
 ### API Structure
-Organized by domain in `lib/api.ts`:
+**Design Decision**: We use a consciously flat API structure with a single `api` object containing all methods. This provides:
+- Single entry point to backend API (`lib/api.ts`)
+- Simple, flat method access without nested namespaces
+- Clear and direct method naming
+- Easy to understand and use
+
 ```typescript
-api.auth.login()
-api.auth.logout()
-api.spaces.list()
-api.notes.create()
+// Single api object with flat methods
+api.login()
+api.logout()
+api.getCurrentUser()
+api.getSpaces()
+api.createSpace()
 ```
+
+All API methods are defined in one file for simplicity and maintainability.
 
 ## Component System
 
@@ -105,10 +118,17 @@ Pre-styled, accessible components:
 - Styled with Tailwind CSS
 
 ### Page Components
-Route-specific components in `pages/`:
-- `Login` - Authentication form
-- `Home` - Dashboard/landing
-- Space/Note pages (to be implemented)
+Route-specific components in `pages/` with `*Page` naming convention:
+- `LoginPage` - Authentication form with built-in auth check
+- `HomePage` - Dashboard/landing page
+- `SpacesPage` - List of all spaces
+- `SpaceNewPage` - Create new space form
+
+**Naming Convention**: All page components must use the `Page` suffix (e.g., `LoginPage.tsx`, `HomePage.tsx`) to distinguish them from future sub-components or modules that may be added to the `/pages/` folder.
+
+### Layout Components
+- `AuthLayout` - Main layout for authenticated pages with header, navigation, and footer
+- Toaster component configured globally in `App.tsx`
 
 ### Component Patterns
 - Controlled forms with react-hook-form

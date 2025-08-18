@@ -5,7 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
 
-export default function Spaces() {
+export default function SpacesPage() {
   const { data: spaces } = useSuspenseQuery(spacesQueryOptions())
 
   return (

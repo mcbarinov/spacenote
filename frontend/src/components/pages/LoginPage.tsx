@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useNavigate } from "react-router"
+import { Navigate, useNavigate } from "react-router"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -7,10 +7,14 @@ import { Label } from "@/components/ui/label"
 import { useAuth } from "@/hooks/useAuth"
 import { toast } from "sonner"
 
-export default function Login() {
+export default function LoginPage() {
   const navigate = useNavigate()
-  const { login } = useAuth()
+  const { login, isAuthenticated } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
+
+  if (isAuthenticated) {
+    return <Navigate to="/" replace />
+  }
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()

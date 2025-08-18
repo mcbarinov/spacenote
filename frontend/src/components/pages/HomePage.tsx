@@ -3,7 +3,7 @@ import { Link } from "react-router"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { spacesQueryOptions } from "@/lib/queries"
 
-export default function Home() {
+export default function HomePage() {
   const { data: spaces } = useSuspenseQuery(spacesQueryOptions())
 
   return (

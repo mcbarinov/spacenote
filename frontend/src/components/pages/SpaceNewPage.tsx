@@ -13,7 +13,7 @@ const createSpaceSchema = z.object({
 
 type CreateSpaceForm = z.infer<typeof createSpaceSchema>
 
-export default function SpaceNew() {
+export default function SpaceNewPage() {
   const createSpaceMutation = useCreateSpaceMutation()
 
   const {

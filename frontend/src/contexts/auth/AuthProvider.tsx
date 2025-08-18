@@ -1,11 +1,9 @@
 import { useEffect, useState } from "react"
 import type { ReactNode } from "react"
-import { useNavigate } from "react-router"
 import { api } from "@/lib/api"
 import { AuthContext } from "./AuthContext"
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const navigate = useNavigate()
   const [username, setUsername] = useState<string | null>(null)
 
   useEffect(() => {
@@ -30,7 +28,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem("auth_token")
     localStorage.removeItem("username")
     setUsername(null)
-    void navigate("/login")
   }
 
   return (

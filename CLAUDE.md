@@ -50,3 +50,12 @@ All content must be in English:
 - Breaking changes are acceptable
 - We are NOT writing tests at this stage
 - Focus is on rapid iteration and exploration
+
+## Design Philosophy
+
+**Minimalist Approach**: 
+- Keep UI and code as simple as possible
+- Minimal styling and components
+- Focus on functionality over aesthetics
+- Prototype-first development
+- Avoid unnecessary complexity

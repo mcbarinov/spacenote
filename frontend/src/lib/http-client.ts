@@ -1,6 +1,6 @@
 import ky from "ky"
 
-const API_BASE_URL = (import.meta.env.VITE_API_URL as string | undefined) ?? "http://localhost:3101"
+const API_BASE_URL = (import.meta.env.VITE_API_URL as string | undefined) ?? "http://localhost:3100"
 
 export const httpClient = ky.create({
   prefixUrl: API_BASE_URL,

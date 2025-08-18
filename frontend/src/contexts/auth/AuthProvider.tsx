@@ -18,7 +18,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const login = async (username: string, password: string) => {
-    const response = await api.auth.login({ username, password })
+    const response = await api.login({ username, password })
 
     localStorage.setItem("auth_token", response.auth_token)
     localStorage.setItem("username", username)
@@ -26,7 +26,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const logout = () => {
-    void api.auth.logout()
+    void api.logout()
     localStorage.removeItem("auth_token")
     localStorage.removeItem("username")
     setUsername(null)

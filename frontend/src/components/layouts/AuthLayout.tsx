@@ -1,4 +1,6 @@
+import { Suspense } from "react"
 import { Navigate, Outlet, useNavigate, Link } from "react-router"
+import { ErrorBoundary } from "react-error-boundary"
 import { useAuth } from "@/hooks/useAuth"
 import {
   DropdownMenu,
@@ -9,6 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import { ChevronDown } from "lucide-react"
+import { Loading } from "@/components/ui/loading"
 
 export default function AuthLayout() {
   const { isAuthenticated, username, logout } = useAuth()
@@ -63,7 +66,24 @@ export default function AuthLayout() {
 
       {/* Main Content */}
       <main className="flex-1 container mx-auto px-4 py-8">
-        <Outlet />
+        <ErrorBoundary
+          fallback={
+            <div className="text-center py-8">
+              <p className="text-destructive mb-4">Something went wrong!</p>
+              <Button
+                onClick={() => {
+                  window.location.reload()
+                }}
+              >
+                Reload page
+              </Button>
+            </div>
+          }
+        >
+          <Suspense fallback={<Loading />}>
+            <Outlet />
+          </Suspense>
+        </ErrorBoundary>
       </main>
 
       {/* Footer */}

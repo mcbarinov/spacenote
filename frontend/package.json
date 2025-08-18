@@ -9,7 +9,10 @@
     "build": "tsc -b && vite build",
     "format": "prettier --write .",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "generate:fetch": "node scripts/fetch-openapi.js",
+    "generate:types": "openapi-typescript ./openapi.json -o ./src/types/generated.ts",
+    "generate": "pnpm run generate:fetch && pnpm run generate:types"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",
@@ -44,6 +47,7 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^16.3.0",
+    "openapi-typescript": "^7.9.1",
     "prettier": "^3.6.2",
     "tailwindcss": "^4.1.12",
     "tw-animate-css": "^1.3.6",

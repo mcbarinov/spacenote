@@ -1,17 +1,5 @@
 import { httpClient } from "./http-client"
-
-export interface LoginRequest {
-  username: string
-  password: string
-}
-
-export interface LoginResponse {
-  user: {
-    id: string
-    username: string
-  }
-  auth_token: string
-}
+import type { LoginRequest, LoginResponse } from "../types"
 
 export const api = {
   auth: {

@@ -34,9 +34,14 @@ All content must be in English:
 ## Backend Commands
 
 **IMPORTANT**: When managing the backend, use these commands:
-- **Start backend**: `just b-agent-start`
+- **Start backend**: `just b-agent-start` (runs on port 3101)
 - **Stop backend**: `just b-agent-stop`
-- **NEVER use**: `just b-dev` (this is for human developers only)
+- **NEVER use**: `just b-dev` (this is for human developers only, runs on port 3100)
+
+**Port Configuration**:
+- Port 3100: Reserved for human developers using `just b-dev`
+- Port 3101: Used by AI agents with `just b-agent-start`
+- Frontend is configured to connect to port 3101 by default
 
 ## Current Project State
 

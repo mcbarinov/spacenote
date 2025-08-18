@@ -21,16 +21,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const response = await api.auth.login({ username, password })
 
     localStorage.setItem("auth_token", response.auth_token)
-    localStorage.setItem("username", response.user.username)
-    setUsername(response.user.username)
+    localStorage.setItem("username", username)
+    setUsername(username)
   }
 
   const logout = () => {
-    api.auth.logout()
+    void api.auth.logout()
     localStorage.removeItem("auth_token")
     localStorage.removeItem("username")
     setUsername(null)
-    navigate("/login")
+    void navigate("/login")
   }
 
   return (

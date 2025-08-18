@@ -12,7 +12,7 @@ export default function Login() {
   const { login } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setIsLoading(true)
 
@@ -20,15 +20,17 @@ export default function Login() {
     const username = formData.get("username") as string
     const password = formData.get("password") as string
 
-    try {
-      await login(username, password)
-      toast.success("Logged in successfully")
-      navigate("/")
-    } catch {
-      toast.error("Invalid username or password")
-    } finally {
-      setIsLoading(false)
-    }
+    void (async () => {
+      try {
+        await login(username, password)
+        toast.success("Logged in successfully")
+        void navigate("/")
+      } catch {
+        toast.error("Invalid username or password")
+      } finally {
+        setIsLoading(false)
+      }
+    })()
   }
 
   return (

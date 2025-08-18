@@ -65,3 +65,11 @@ All content must be in English:
 **After making changes**: Always run linters to ensure code quality
 - Frontend: `just lint` or `pnpm lint`
 - This will automatically fix formatting and catch potential issues
+
+## Package Management
+
+**Frontend Package Manager**: Always use `pnpm` for frontend dependencies
+- Install packages: `pnpm add <package>`
+- Install dev dependencies: `pnpm add -D <package>`
+- Install shadcn components: `pnpm dlx shadcn@latest add <component>`
+- Never use `npm` or `npx` for frontend tasks

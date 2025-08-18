@@ -1,5 +1,5 @@
 import { httpClient } from "./http-client"
-import type { LoginRequest, LoginResponse, Space, CreateSpaceRequest } from "../types"
+import type { LoginRequest, LoginResponse, Space, CreateSpaceRequest, AddFieldRequest } from "../types"
 
 export const api = {
   // Auth API
@@ -18,5 +18,9 @@ export const api = {
 
   async createSpace(data: CreateSpaceRequest): Promise<Space> {
     return await httpClient.post("api/spaces", { json: data }).json<Space>()
+  },
+
+  async addFieldToSpace(spaceSlug: string, data: AddFieldRequest): Promise<Space> {
+    return await httpClient.post(`api/spaces/${spaceSlug}/fields`, { json: data }).json<Space>()
   },
 }

@@ -3,7 +3,8 @@ import { spacesQueryOptions } from "@/lib/queries"
 import { Link } from "react-router"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
-import { Plus } from "lucide-react"
+import { Plus, Settings } from "lucide-react"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
 export default function SpacesPage() {
   const { data: spaces } = useSuspenseQuery(spacesQueryOptions())
@@ -25,6 +26,7 @@ export default function SpacesPage() {
           <TableRow>
             <TableHead>Slug</TableHead>
             <TableHead>Name</TableHead>
+            <TableHead>Settings</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -32,6 +34,20 @@ export default function SpacesPage() {
             <TableRow key={space.id}>
               <TableCell className="font-medium">{space.slug}</TableCell>
               <TableCell>{space.title}</TableCell>
+              <TableCell>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <Settings className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem asChild>
+                      <Link to={`/spaces/${space.slug}/fields`}>Fields ({space.fields.length})</Link>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>

@@ -93,23 +93,38 @@ OpenAPI schema → TypeScript types:
 2. `pnpm generate:types` - Generates TypeScript types
 3. Types available in `types/generated.ts`
 
-### API Structure
-**Design Decision**: We use a consciously flat API structure with a single `api` object containing all methods. This provides:
-- Single entry point to backend API (`lib/api.ts`)
-- Simple, flat method access without nested namespaces
-- Clear and direct method naming
-- Easy to understand and use
+### API Layer Architecture
+
+**Critical Architecture Rule**: Components NEVER import or use `api` directly. All data fetching goes through `lib/queries.ts`.
+
+#### Three-Layer Structure:
+1. **HTTP Client** (`lib/http-client.ts`) - Raw HTTP configuration
+2. **API Client** (`lib/api.ts`) - Typed API methods, flat structure
+3. **Query Layer** (`lib/queries.ts`) - TanStack Query hooks used by components
+
+#### Design Principles:
+- **Components use only queries.ts** - Provides caching, error handling, and state management
+- **Queries use queryOptions** - Consistent caching configuration
+- **Mutations are custom hooks** - Built-in error handling, toasts, and navigation
+- **Single exception: Auth** - `AuthProvider` can use `api.login/logout` directly
 
 ```typescript
-// Single api object with flat methods
-api.login()
-api.logout()
-api.getCurrentUser()
-api.getSpaces()
-api.createSpace()
+// ✅ CORRECT: Component uses query hook
+import { spacesQueryOptions, useCreateSpaceMutation } from "@/lib/queries"
+const { data } = useSuspenseQuery(spacesQueryOptions())
+const mutation = useCreateSpaceMutation()
+
+// ❌ WRONG: Component imports api directly
+import { api } from "@/lib/api"
+await api.createSpace(data)
 ```
 
-All API methods are defined in one file for simplicity and maintainability.
+This architecture ensures:
+- Consistent error handling across the app
+- Centralized cache invalidation logic
+- Better TypeScript inference
+- Easier testing (mock only queries.ts)
+- Clear separation of concerns
 
 ## Component System
 

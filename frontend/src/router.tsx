@@ -4,6 +4,8 @@ import AuthLayout from "@/components/layouts/AuthLayout"
 import PublicRoute from "@/components/layouts/PublicRoute"
 import Home from "@/components/pages/Home"
 import Login from "@/components/pages/Login"
+import Spaces from "@/components/pages/Spaces"
+import SpaceNew from "@/components/pages/SpaceNew"
 
 export const router = createBrowserRouter([
   {
@@ -14,7 +16,8 @@ export const router = createBrowserRouter([
         element: <AuthLayout />,
         children: [
           { path: "/", element: <Home /> },
-          { path: "/spaces", element: <div>Spaces Page (TODO)</div> },
+          { path: "/spaces", element: <Spaces /> },
+          { path: "/spaces/new", element: <SpaceNew /> },
           { path: "/change-password", element: <div>Change Password Page (TODO)</div> },
         ],
       },

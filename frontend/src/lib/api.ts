@@ -1,5 +1,5 @@
 import { httpClient } from "./http-client"
-import type { LoginRequest, LoginResponse, Space } from "../types"
+import type { LoginRequest, LoginResponse, Space, CreateSpaceRequest } from "../types"
 
 export const api = {
   async login(credentials: LoginRequest): Promise<LoginResponse> {
@@ -21,5 +21,9 @@ export const api = {
   // Spaces API
   async getSpaces(): Promise<Space[]> {
     return await httpClient.get("api/spaces").json<Space[]>()
+  },
+
+  async createSpace(data: CreateSpaceRequest): Promise<Space> {
+    return await httpClient.post("api/spaces", { json: data }).json<Space>()
   },
 }

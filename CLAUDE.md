@@ -59,3 +59,9 @@ All content must be in English:
 - Focus on functionality over aesthetics
 - Prototype-first development
 - Avoid unnecessary complexity
+
+## Code Quality
+
+**After making changes**: Always run linters to ensure code quality
+- Frontend: `just lint` or `pnpm lint`
+- This will automatically fix formatting and catch potential issues

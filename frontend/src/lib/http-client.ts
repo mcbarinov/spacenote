@@ -1,6 +1,7 @@
 import ky from "ky"
+import { APIError } from "./errors"
 
-const API_BASE_URL = (import.meta.env.VITE_API_URL as string | undefined) ?? "http://localhost:3100"
+const API_BASE_URL = (import.meta.env.VITE_API_URL as string | undefined) ?? "http://localhost:3101"
 
 export const httpClient = ky.create({
   prefixUrl: API_BASE_URL,
@@ -11,6 +12,14 @@ export const httpClient = ky.create({
         if (authToken) {
           request.headers.set("X-Auth-Token", authToken)
         }
+      },
+    ],
+    afterResponse: [
+      async (_request, _options, response) => {
+        if (!response.ok) {
+          throw await APIError.fromResponse(response)
+        }
+        return response
       },
     ],
   },

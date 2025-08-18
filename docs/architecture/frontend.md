@@ -38,6 +38,10 @@ frontend/
 └── scripts/                 # Build scripts
 ```
 
+### Architectural Decision: No Feature-Based Architecture
+
+We consciously avoid Feature-Based Architecture. We use simple type-based organization (components, hooks, lib) instead of feature folders. All API methods stay in `lib/api.ts`, all queries in `lib/queries.ts`. Keep it simple.
+
 ## Routing
 
 Browser-based routing with authentication checks:

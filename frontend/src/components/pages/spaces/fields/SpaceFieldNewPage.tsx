@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useParams } from "react-router"
+import { useParams, useNavigate } from "react-router"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { spacesQueryOptions, useAddFieldMutation } from "@/lib/queries"
 import { Button } from "@/components/ui/button"
@@ -7,12 +7,14 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
+import { toast } from "sonner"
 import type { AddFieldRequest, FieldType } from "@/types"
 
 const fieldTypes: FieldType[] = ["string", "markdown", "boolean", "string_choice", "tags", "user", "datetime", "int", "float"]
 
 export default function SpaceFieldNewPage() {
   const { slug } = useParams<{ slug: string }>()
+  const navigate = useNavigate()
   const { data: spaces } = useSuspenseQuery(spacesQueryOptions())
 
   const space = spaces.find((s) => s.slug === slug)
@@ -40,7 +42,12 @@ export default function SpaceFieldNewPage() {
       },
     }
 
-    mutation.mutate(fieldData)
+    mutation.mutate(fieldData, {
+      onSuccess: () => {
+        toast.success("Field added successfully")
+        void navigate(`/spaces/${slug ?? ""}/fields`)
+      },
+    })
   }
 
   const renderOptionsFields = () => {
@@ -163,7 +170,7 @@ export default function SpaceFieldNewPage() {
             type="button"
             variant="outline"
             onClick={() => {
-              window.location.href = `/spaces/${slug ?? ""}/fields`
+              void navigate(`/spaces/${slug ?? ""}/fields`)
             }}
           >
             Cancel

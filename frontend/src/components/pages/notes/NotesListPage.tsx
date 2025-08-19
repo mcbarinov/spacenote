@@ -4,11 +4,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 export default function NotesListPage() {
   const { slug } = useParams<{ slug: string }>()
-  
+
   if (!slug) {
     throw new Error("Slug is required")
   }
-  
+
   const space = useSpace(slug)
 
   return (
@@ -19,9 +19,7 @@ export default function NotesListPage() {
           <CardTitle>Notes</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground">
-            Notes for this space will be displayed here. This feature is coming soon.
-          </p>
+          <p className="text-muted-foreground">Notes for this space will be displayed here. This feature is coming soon.</p>
         </CardContent>
       </Card>
     </div>

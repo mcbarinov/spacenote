@@ -5,6 +5,8 @@ import { useCreateSpaceMutation } from "@/lib/queries"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { useNavigate } from "react-router"
+import { toast } from "sonner"
 
 const createSpaceSchema = z.object({
   slug: z.string().min(1, "Required"),
@@ -15,6 +17,7 @@ type CreateSpaceForm = z.infer<typeof createSpaceSchema>
 
 export default function SpaceNewPage() {
   const createSpaceMutation = useCreateSpaceMutation()
+  const navigate = useNavigate()
 
   const {
     register,
@@ -25,7 +28,12 @@ export default function SpaceNewPage() {
   })
 
   const onSubmit = (data: CreateSpaceForm) => {
-    createSpaceMutation.mutate(data)
+    createSpaceMutation.mutate(data, {
+      onSuccess: (space) => {
+        toast.success("Space created successfully")
+        void navigate(`/spaces/${space.slug}`)
+      },
+    })
   }
 
   return (

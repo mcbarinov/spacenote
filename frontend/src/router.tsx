@@ -8,6 +8,7 @@ import SpaceNewPage from "@/components/pages/spaces/SpaceNewPage"
 import SpaceFieldsPage from "@/components/pages/spaces/fields/SpaceFieldsPage"
 import SpaceFieldNewPage from "@/components/pages/spaces/fields/SpaceFieldNewPage"
 import NotesListPage from "@/components/pages/notes/NotesListPage"
+import NoteNewPage from "@/components/pages/notes/NoteNewPage"
 
 export const router = createBrowserRouter([
   {
@@ -24,6 +25,7 @@ export const router = createBrowserRouter([
         children: [
           { path: "/", element: <HomePage /> },
           { path: "/s/:slug", element: <NotesListPage /> },
+          { path: "/s/:slug/new", element: <NoteNewPage /> },
           { path: "/spaces", element: <SpacesPage /> },
           { path: "/spaces/new", element: <SpaceNewPage /> },
           { path: "/spaces/:slug/fields", element: <SpaceFieldsPage /> },

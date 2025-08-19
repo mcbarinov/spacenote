@@ -1,3 +1,4 @@
+from datetime import datetime
 from enum import StrEnum
 
 from pydantic import BaseModel
@@ -8,13 +9,14 @@ from pydantic import BaseModel
 FieldOptionValueType = list[str] | int | float
 
 # Possible values that can be stored in a field
-# - str: for STRING, MARKDOWN, USER, DATETIME fields
+# - str: for STRING, MARKDOWN, USER fields
 # - bool: for BOOLEAN fields
-# - list[str]: for STRING_CHOICE, TAGS fields
+# - list[str]: for TAGS fields
 # - int: for INT fields
 # - float: for FLOAT fields
+# - datetime: for DATETIME fields
 # - None: for empty/unset fields
-FieldValueType = str | bool | list[str] | int | float | None
+FieldValueType = str | bool | list[str] | int | float | datetime | None
 
 
 class FieldType(StrEnum):

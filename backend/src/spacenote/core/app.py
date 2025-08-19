@@ -48,3 +48,10 @@ class App:
         await self._core.services.access.ensure_space_member(auth_token, space.id)
 
         return await self._core.services.note.list_notes(space.id)
+
+    async def create_note(self, auth_token: AuthToken, space_slug: str, raw_fields: dict[str, str]) -> Note:
+        space = self._core.services.space.get_space_by_slug(space_slug)
+        await self._core.services.access.ensure_space_member(auth_token, space.id)
+
+        current_user = await self._core.services.session.get_authenticated_user(auth_token)
+        return await self._core.services.note.create_note(space.id, current_user.id, raw_fields)

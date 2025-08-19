@@ -18,3 +18,10 @@ export class APIError extends Error {
     return new APIError(message, response.status)
   }
 }
+
+export class NotFoundError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = "NotFoundError"
+  }
+}

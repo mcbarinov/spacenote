@@ -1,6 +1,6 @@
 /**
  * Centralized data fetching layer using TanStack Query.
- * 
+ *
  * Architecture Rules:
  * 1. Components MUST use hooks from this file, never import api directly
  * 2. All queries use queryOptions for consistent caching

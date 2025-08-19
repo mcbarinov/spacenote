@@ -1,16 +1,60 @@
-import { useState } from "react"
 import { useParams, useNavigate } from "react-router"
 import { useSuspenseQuery } from "@tanstack/react-query"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { z } from "zod"
 import { spacesQueryOptions, useAddFieldMutation } from "@/lib/queries"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { toast } from "sonner"
-import type { AddFieldRequest, FieldType } from "@/types"
+import type { FieldType } from "@/types"
 
 const fieldTypes: FieldType[] = ["string", "markdown", "boolean", "string_choice", "tags", "user", "datetime", "int", "float"]
+
+const createFieldSchema = z
+  .object({
+    name: z.string().min(1, "Field name is required"),
+    type: z.enum(fieldTypes as [FieldType, ...FieldType[]]),
+    required: z.boolean().default(false),
+    values: z.string().optional().default(""),
+    min: z.coerce
+      .number()
+      .optional()
+      .or(z.literal("").transform(() => undefined)),
+    max: z.coerce
+      .number()
+      .optional()
+      .or(z.literal("").transform(() => undefined)),
+  })
+  .refine(
+    (data) => {
+      if ((data.type === "string_choice" || data.type === "tags") && !data.values.trim()) {
+        return false
+      }
+      return true
+    },
+    {
+      message: "Values are required for choice and tags fields",
+      path: ["values"],
+    }
+  )
+  .refine(
+    (data) => {
+      if ((data.type === "int" || data.type === "float") && data.min !== undefined && data.max !== undefined) {
+        return data.min <= data.max
+      }
+      return true
+    },
+    {
+      message: "Min value must be less than or equal to max value",
+      path: ["min"],
+    }
+  )
+
+type CreateFieldForm = z.infer<typeof createFieldSchema>
 
 export default function SpaceFieldNewPage() {
   const { slug } = useParams<{ slug: string }>()
@@ -19,26 +63,47 @@ export default function SpaceFieldNewPage() {
 
   const space = spaces.find((s) => s.slug === slug)
 
-  const [fieldName, setFieldName] = useState("")
-  const [fieldType, setFieldType] = useState<FieldType>("string")
-  const [required, setRequired] = useState(false)
-  const [options, setOptions] = useState<Record<string, unknown>>({})
-
   const mutation = useAddFieldMutation(slug ?? "")
+
+  const form = useForm<CreateFieldForm>({
+    resolver: zodResolver(createFieldSchema),
+    defaultValues: {
+      name: "",
+      type: "string",
+      required: false,
+      values: "",
+      min: undefined,
+      max: undefined,
+    },
+  })
+
+  const watchType = form.watch("type")
 
   if (!space) {
     return <div>Space not found</div>
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+  const onSubmit = (data: CreateFieldForm) => {
+    const options: Record<string, string[] | number> = {}
 
-    const fieldData: AddFieldRequest = {
+    if ((data.type === "string_choice" || data.type === "tags") && data.values) {
+      options.values = data.values
+        .split(",")
+        .map((v) => v.trim())
+        .filter(Boolean)
+    }
+
+    if (data.type === "int" || data.type === "float") {
+      if (data.min !== undefined) options.min = data.min
+      if (data.max !== undefined) options.max = data.max
+    }
+
+    const fieldData = {
       field: {
-        name: fieldName,
-        type: fieldType,
-        required,
-        ...(Object.keys(options).length > 0 && { options }),
+        name: data.name,
+        type: data.type,
+        required: data.required,
+        options: Object.keys(options).length > 0 ? options : {},
       },
     }
 
@@ -50,63 +115,6 @@ export default function SpaceFieldNewPage() {
     })
   }
 
-  const renderOptionsFields = () => {
-    switch (fieldType) {
-      case "string_choice":
-      case "tags":
-        return (
-          <div className="space-y-2">
-            <Label htmlFor="values">Values (comma separated)</Label>
-            <Input
-              id="values"
-              value={(options.values as string[] | undefined)?.join(", ") ?? ""}
-              onChange={(e) => {
-                setOptions({
-                  values: e.target.value
-                    .split(",")
-                    .map((v) => v.trim())
-                    .filter(Boolean),
-                })
-              }}
-              placeholder="option1, option2, option3"
-            />
-          </div>
-        )
-      case "int":
-      case "float":
-        return (
-          <>
-            <div className="space-y-2">
-              <Label htmlFor="min">Min Value (optional)</Label>
-              <Input
-                id="min"
-                type="number"
-                value={(options.min as number | undefined) ?? ""}
-                onChange={(e) => {
-                  const val = e.target.value ? Number(e.target.value) : undefined
-                  setOptions((prev) => (val !== undefined ? { ...prev, min: val } : { ...prev }))
-                }}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="max">Max Value (optional)</Label>
-              <Input
-                id="max"
-                type="number"
-                value={(options.max as number | undefined) ?? ""}
-                onChange={(e) => {
-                  const val = e.target.value ? Number(e.target.value) : undefined
-                  setOptions((prev) => (val !== undefined ? { ...prev, max: val } : { ...prev }))
-                }}
-              />
-            </div>
-          </>
-        )
-      default:
-        return null
-    }
-  }
-
   return (
     <div className="container mx-auto p-6 max-w-2xl">
       <div className="mb-6">
@@ -114,69 +122,144 @@ export default function SpaceFieldNewPage() {
         <p className="text-muted-foreground">Add a new field to {space.title}</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="name">Field Name</Label>
-          <Input
-            id="name"
-            value={fieldName}
-            onChange={(e) => {
-              setFieldName(e.target.value)
-            }}
-            placeholder="Enter field name"
-            required
+      <Form {...form}>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault()
+            void form.handleSubmit(onSubmit)()
+          }}
+          className="space-y-4"
+        >
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Field Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter field name" {...field} disabled={mutation.isPending} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-        </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="type">Field Type</Label>
-          <Select
-            value={fieldType}
-            onValueChange={(value) => {
-              setFieldType(value as FieldType)
-            }}
-          >
-            <SelectTrigger id="type">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {fieldTypes.map((type) => (
-                <SelectItem key={type} value={type}>
-                  {type}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="flex items-center space-x-2">
-          <Checkbox
-            id="required"
-            checked={required}
-            onCheckedChange={(checked) => {
-              setRequired(checked as boolean)
-            }}
+          <FormField
+            control={form.control}
+            name="type"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Field Type</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value} disabled={mutation.isPending}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {fieldTypes.map((type) => (
+                      <SelectItem key={type} value={type}>
+                        {type}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-          <Label htmlFor="required">Required field</Label>
-        </div>
 
-        {renderOptionsFields()}
+          <FormField
+            control={form.control}
+            name="required"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                <FormControl>
+                  <Checkbox checked={field.value} onCheckedChange={field.onChange} disabled={mutation.isPending} />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel>Required field</FormLabel>
+                </div>
+              </FormItem>
+            )}
+          />
 
-        <div className="flex gap-4">
-          <Button type="submit" disabled={mutation.isPending}>
-            {mutation.isPending ? "Adding..." : "Add Field"}
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => {
-              void navigate(`/spaces/${slug ?? ""}/fields`)
-            }}
-          >
-            Cancel
-          </Button>
-        </div>
-      </form>
+          {(watchType === "string_choice" || watchType === "tags") && (
+            <FormField
+              control={form.control}
+              name="values"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Values (comma separated)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="option1, option2, option3" {...field} disabled={mutation.isPending} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
+
+          {(watchType === "int" || watchType === "float") && (
+            <>
+              <FormField
+                control={form.control}
+                name="min"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Min Value (optional)</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        step={watchType === "float" ? "any" : "1"}
+                        {...field}
+                        value={field.value ?? ""}
+                        disabled={mutation.isPending}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="max"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Max Value (optional)</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        step={watchType === "float" ? "any" : "1"}
+                        {...field}
+                        value={field.value ?? ""}
+                        disabled={mutation.isPending}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </>
+          )}
+
+          <div className="flex gap-4">
+            <Button type="submit" disabled={mutation.isPending}>
+              {mutation.isPending ? "Adding..." : "Add Field"}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                void navigate(`/spaces/${slug ?? ""}/fields`)
+              }}
+            >
+              Cancel
+            </Button>
+          </div>
+        </form>
+      </Form>
     </div>
   )
 }

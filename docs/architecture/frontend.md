@@ -150,8 +150,6 @@ Route-specific components in `pages/` with `*Page` naming convention:
 - Toaster component configured globally in `App.tsx`
 
 ### Component Patterns
-- Controlled forms with react-hook-form
-- Zod schema validation
 - CVA for variant styling
 - clsx for conditional classes
 
@@ -191,11 +189,92 @@ Route-specific components in `pages/` with `*Page` naming convention:
 
 ## Form Handling
 
-React Hook Form with Zod validation:
-- Type-safe form schemas
-- Automatic error messages
-- Field-level validation
-- Form state management
+### Architecture Pattern
+
+All forms in SpaceNote follow a consistent architecture using:
+- **react-hook-form** - Form state management and validation
+- **zod** - Schema validation with TypeScript inference
+- **@hookform/resolvers** - Integration between zod and react-hook-form
+- **shadcn Form components** - Consistent UI components with built-in accessibility
+
+### Standard Form Structure
+
+```typescript
+// 1. Define Zod schema for validation
+const formSchema = z.object({
+  field1: z.string().min(1, "Required"),
+  field2: z.boolean().default(false),
+  // Add refinements for complex validation
+}).refine(
+  (data) => customValidation(data),
+  { message: "Custom error", path: ["field1"] }
+)
+
+// 2. Infer TypeScript type from schema
+type FormData = z.infer<typeof formSchema>
+
+// 3. Initialize form with useForm hook
+const form = useForm<FormData>({
+  resolver: zodResolver(formSchema),
+  defaultValues: { /* ... */ }
+})
+
+// 4. Use shadcn Form components for rendering
+<Form {...form}>
+  <form onSubmit={form.handleSubmit(onSubmit)}>
+    <FormField
+      control={form.control}
+      name="field1"
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>Label</FormLabel>
+          <FormControl>
+            <Input {...field} />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  </form>
+</Form>
+```
+
+### Key Principles
+
+1. **Type Safety**: Zod schemas provide runtime validation and TypeScript types
+2. **Consistent UI**: Always use shadcn Form components for uniform styling and behavior
+3. **Error Handling**: FormMessage automatically displays validation errors
+4. **Accessibility**: Form components include proper ARIA attributes
+5. **Dynamic Fields**: Use `form.watch()` to conditionally render fields based on other values
+
+### Advanced Patterns
+
+#### Dynamic Validation
+```typescript
+const schema = z.object({
+  type: z.enum(["A", "B"]),
+  value: z.string().optional(),
+}).refine(
+  (data) => data.type === "A" ? !!data.value : true,
+  { message: "Value required for type A", path: ["value"] }
+)
+```
+
+#### Conditional Fields
+```typescript
+const watchType = form.watch("type")
+return (
+  <>
+    {watchType === "special" && (
+      <FormField name="conditionalField" />
+    )}
+  </>
+)
+```
+
+### Examples in Codebase
+- **Simple form**: `SpaceNewPage` - Basic form with text inputs
+- **Complex form**: `SpaceFieldNewPage` - Dynamic fields, conditional validation, multiple field types
 
 ## Error Handling
 

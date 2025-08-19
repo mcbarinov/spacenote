@@ -3,12 +3,7 @@ import { useSpace } from "@/hooks/useSpace"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 export default function NotesListPage() {
-  const { slug } = useParams<{ slug: string }>()
-
-  if (!slug) {
-    throw new Error("Slug is required")
-  }
-
+  const { slug } = useParams() as { slug: string }
   const space = useSpace(slug)
 
   return (

@@ -1,9 +1,9 @@
 import { useParams, useNavigate } from "react-router"
-import { useSuspenseQuery } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { spacesQueryOptions, useAddFieldMutation } from "@/lib/queries"
+import { useAddFieldMutation } from "@/lib/queries"
+import { useSpace } from "@/hooks/useSpace"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -57,13 +57,10 @@ const createFieldSchema = z
 type CreateFieldForm = z.infer<typeof createFieldSchema>
 
 export default function SpaceFieldNewPage() {
-  const { slug } = useParams<{ slug: string }>()
+  const { slug } = useParams() as { slug: string }
   const navigate = useNavigate()
-  const { data: spaces } = useSuspenseQuery(spacesQueryOptions())
-
-  const space = spaces.find((s) => s.slug === slug)
-
-  const mutation = useAddFieldMutation(slug ?? "")
+  const space = useSpace(slug)
+  const mutation = useAddFieldMutation(slug)
 
   const form = useForm<CreateFieldForm>({
     resolver: zodResolver(createFieldSchema),
@@ -78,10 +75,6 @@ export default function SpaceFieldNewPage() {
   })
 
   const watchType = form.watch("type")
-
-  if (!space) {
-    return <div>Space not found</div>
-  }
 
   const onSubmit = (data: CreateFieldForm) => {
     const options: Record<string, string[] | number> = {}
@@ -110,7 +103,7 @@ export default function SpaceFieldNewPage() {
     mutation.mutate(fieldData, {
       onSuccess: () => {
         toast.success("Field added successfully")
-        void navigate(`/spaces/${slug ?? ""}/fields`)
+        void navigate(`/spaces/${slug}/fields`)
       },
     })
   }
@@ -252,7 +245,7 @@ export default function SpaceFieldNewPage() {
               type="button"
               variant="outline"
               onClick={() => {
-                void navigate(`/spaces/${slug ?? ""}/fields`)
+                void navigate(`/spaces/${slug}/fields`)
               }}
             >
               Cancel

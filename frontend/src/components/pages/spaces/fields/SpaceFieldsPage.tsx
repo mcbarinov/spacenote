@@ -1,20 +1,13 @@
-import { useSuspenseQuery } from "@tanstack/react-query"
-import { spacesQueryOptions } from "@/lib/queries"
 import { Link, useParams } from "react-router"
+import { useSpace } from "@/hooks/useSpace"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 
 export default function SpaceFieldsPage() {
-  const { slug } = useParams<{ slug: string }>()
-  const { data: spaces } = useSuspenseQuery(spacesQueryOptions())
-
-  const space = spaces.find((s) => s.slug === slug)
-
-  if (!space) {
-    return <div>Space not found</div>
-  }
+  const { slug } = useParams() as { slug: string }
+  const space = useSpace(slug)
 
   return (
     <div className="container mx-auto p-6">
@@ -24,7 +17,7 @@ export default function SpaceFieldsPage() {
           <p className="text-muted-foreground">Manage fields for this space</p>
         </div>
         <Button asChild>
-          <Link to={`/spaces/${slug ?? ""}/fields/new`}>
+          <Link to={`/spaces/${slug}/fields/new`}>
             <Plus className="h-4 w-4 mr-2" />
             New Field
           </Link>

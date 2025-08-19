@@ -18,20 +18,14 @@ const createFieldSchema = z
   .object({
     name: z.string().min(1, "Field name is required"),
     type: z.enum(fieldTypes as [FieldType, ...FieldType[]]),
-    required: z.boolean().default(false),
-    values: z.string().optional().default(""),
-    min: z.coerce
-      .number()
-      .optional()
-      .or(z.literal("").transform(() => undefined)),
-    max: z.coerce
-      .number()
-      .optional()
-      .or(z.literal("").transform(() => undefined)),
+    required: z.boolean(),
+    values: z.string().optional(),
+    min: z.number().optional(),
+    max: z.number().optional(),
   })
   .refine(
     (data) => {
-      if ((data.type === "string_choice" || data.type === "tags") && !data.values.trim()) {
+      if ((data.type === "string_choice" || data.type === "tags") && !data.values?.trim()) {
         return false
       }
       return true
@@ -68,7 +62,7 @@ export default function SpaceFieldNewPage() {
       name: "",
       type: "string",
       required: false,
-      values: "",
+      values: undefined,
       min: undefined,
       max: undefined,
     },

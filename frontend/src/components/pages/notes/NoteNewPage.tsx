@@ -1,7 +1,5 @@
 import { useParams, useNavigate } from "react-router"
 import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { z } from "zod"
 import { useCreateNoteMutation } from "@/lib/queries"
 import { useSpace } from "@/hooks/useSpace"
 import { Button } from "@/components/ui/button"
@@ -13,20 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { toast } from "sonner"
 import type { SpaceField } from "@/types"
 
-// Create dynamic schema based on space fields
-const createNoteSchema = (fields: SpaceField[]) => {
-  const shape: Record<string, z.ZodString> = {}
-
-  fields.forEach((field) => {
-    if (field.required) {
-      shape[field.name] = z.string().min(1, `${field.name} is required`)
-    } else {
-      shape[field.name] = z.string().optional().default("")
-    }
-  })
-
-  return z.object(shape)
-}
+type FormData = Record<string, string>
 
 export default function NoteNewPage() {
   const { slug } = useParams() as { slug: string }
@@ -34,23 +19,26 @@ export default function NoteNewPage() {
   const space = useSpace(slug)
   const mutation = useCreateNoteMutation(slug)
 
-  // Create form schema based on space fields
-  const formSchema = createNoteSchema(space.fields)
-  type FormData = z.infer<typeof formSchema>
-
   const form = useForm<FormData>({
-    resolver: zodResolver(formSchema),
-    defaultValues: space.fields.reduce<Record<string, string>>((acc, field) => {
+    defaultValues: space.fields.reduce<FormData>((acc, field) => {
       acc[field.name] = field.default?.toString() ?? ""
       return acc
     }, {}),
   })
 
   const onSubmit = (data: FormData) => {
-    // Convert all values to strings for raw_fields
+    // Validate required fields
+    for (const field of space.fields) {
+      if (field.required && !data[field.name].trim()) {
+        form.setError(field.name, { message: `${field.name} is required` })
+        return
+      }
+    }
+
+    // Filter out empty values
     const raw_fields: Record<string, string> = {}
     Object.entries(data).forEach(([key, value]) => {
-      if (value && value !== "") {
+      if (value.trim()) {
         raw_fields[key] = value
       }
     })
@@ -61,10 +49,6 @@ export default function NoteNewPage() {
         onSuccess: () => {
           toast.success("Note created successfully")
           void navigate(`/s/${slug}`)
-        },
-        onError: (error) => {
-          const message = error instanceof Error ? error.message : "Failed to create note"
-          toast.error(message)
         },
       }
     )

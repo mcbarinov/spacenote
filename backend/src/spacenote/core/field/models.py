@@ -11,7 +11,7 @@ FieldOptionValueType = list[str] | int | float
 # Possible values that can be stored in a field
 # - str: for STRING, MARKDOWN, USER fields
 # - bool: for BOOLEAN fields
-# - list[str]: for TAGS fields
+# - list[str]: for STRING_CHOICE, TAGS fields
 # - int: for INT fields
 # - float: for FLOAT fields
 # - datetime: for DATETIME fields

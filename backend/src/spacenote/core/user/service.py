@@ -41,7 +41,7 @@ class UserService(Service):
 
         password_hash = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
         new_user = User(username=username, password_hash=password_hash)
-        id = (await self._collection.insert_one(new_user.to_mongo_dict())).inserted_id
+        id = (await self._collection.insert_one(new_user.to_mongo())).inserted_id
         await self.update_cache(id)
         return self.get_user(id)
 

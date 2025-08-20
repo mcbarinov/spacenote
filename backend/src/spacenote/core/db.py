@@ -27,7 +27,7 @@ class MongoModel(BaseModel):
 
     model_config = ConfigDict(populate_by_name=True, arbitrary_types_allowed=True)
 
-    def to_mongo_dict(self) -> dict[str, Any]:
+    def to_mongo(self) -> dict[str, Any]:
         """Convert the model to a dictionary for MongoDB storage with _id field."""
         data = self.model_dump()
         if "id" in data:

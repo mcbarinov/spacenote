@@ -21,7 +21,7 @@ class SessionService(Service):
         user = self.core.services.user.get_user_by_username(username)
         auth_token = AuthToken(secrets.token_urlsafe(32))
         new_session = Session(user_id=user.id, auth_token=auth_token)
-        await self._collection.insert_one(new_session.to_mongo_dict())
+        await self._collection.insert_one(new_session.to_mongo())
         return auth_token
 
     async def get_authenticated_user_or_none(self, auth_token: AuthToken) -> User | None:

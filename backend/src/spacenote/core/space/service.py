@@ -72,11 +72,11 @@ class SpaceService(Service):
             log.warning("invalid_slug_format")
             raise ValidationError(f"Invalid slug format: '{slug}'")
 
-        id = (await self._collection.insert_one(Space(slug=slug, title=title, members=[member]).to_mongo_dict())).inserted_id
-        await self.update_cache(id)
+        res = await self._collection.insert_one(Space(slug=slug, title=title, members=[member]).to_mongo())
+        await self.update_cache(res.inserted_id)
 
         log.debug("space_created")
-        return self.get_space(id)
+        return self.get_space(res.inserted_id)
 
     async def add_field(self, space_id: ObjectId, field: SpaceField) -> Space:
         """Add a field to a space with validation."""

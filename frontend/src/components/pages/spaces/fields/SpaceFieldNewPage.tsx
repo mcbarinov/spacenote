@@ -86,12 +86,10 @@ export default function SpaceFieldNewPage() {
     }
 
     const fieldData = {
-      field: {
-        name: data.name,
-        type: data.type,
-        required: data.required,
-        options: Object.keys(options).length > 0 ? options : {},
-      },
+      name: data.name,
+      type: data.type,
+      required: data.required,
+      options: Object.keys(options).length > 0 ? options : {},
     }
 
     mutation.mutate(fieldData, {

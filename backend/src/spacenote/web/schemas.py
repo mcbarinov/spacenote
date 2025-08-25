@@ -8,46 +8,15 @@ from typing import TYPE_CHECKING
 
 from pydantic import BaseModel
 
-from spacenote.core.field.models import FieldOption, FieldType, FieldValueType
-from spacenote.core.filter.models import FilterCondition
+# Type aliases for pure Pydantic models from core
+from spacenote.core.field.models import FieldValueType
+from spacenote.core.field.models import SpaceField as SpaceField
+from spacenote.core.filter.models import Filter as Filter
 
 if TYPE_CHECKING:
-    from spacenote.core.field.models import SpaceField as SpaceFieldModel
-    from spacenote.core.filter.models import Filter as FilterModel
     from spacenote.core.note.models import Note as NoteModel
     from spacenote.core.space.models import Space as SpaceModel
     from spacenote.core.user.models import User as UserModel
-
-
-class SpaceField(BaseModel):
-    """Field definition in a space schema."""
-
-    name: str
-    type: FieldType
-    required: bool = False
-    options: dict[FieldOption, list[str] | int | float] = {}
-    default: FieldValueType | None = None
-
-    @classmethod
-    def from_core(cls, field: "SpaceFieldModel") -> "SpaceField":
-        """Create from core SpaceField model."""
-        return cls.model_validate(field.model_dump(mode="json"))
-
-
-class Filter(BaseModel):
-    """Saved filter configuration for a space."""
-
-    name: str
-    title: str
-    description: str = ""
-    conditions: list[FilterCondition] = []
-    sort: list[str] = []
-    list_fields: list[str] = []
-
-    @classmethod
-    def from_core(cls, filter_model: "FilterModel") -> "Filter":
-        """Create from core Filter model."""
-        return cls.model_validate(filter_model.model_dump(mode="json"))
 
 
 class Space(BaseModel):

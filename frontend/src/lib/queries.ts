@@ -16,7 +16,7 @@
 
 import { queryOptions, useMutation, useQueryClient } from "@tanstack/react-query"
 import { api } from "./api"
-import type { CreateSpaceRequest, AddFieldRequest, CreateNoteRequest } from "../types"
+import type { CreateSpaceRequest, SpaceField, CreateNoteRequest } from "../types"
 
 export const spacesQueryOptions = () =>
   queryOptions({
@@ -41,7 +41,7 @@ export const useAddFieldMutation = (spaceSlug: string) => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (data: AddFieldRequest) => api.addFieldToSpace(spaceSlug, data),
+    mutationFn: (data: SpaceField) => api.addFieldToSpace(spaceSlug, data),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["spaces"] })
     },

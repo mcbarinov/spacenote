@@ -61,6 +61,8 @@ f-lint: f-format
 f-dev:
     cd {{FRONTEND_DIR}} && pnpm run dev
 
+f-generate-types:
+    cd {{FRONTEND_DIR}} && pnpm run generate
 
 # ==============================================================================
 # Deploy tasks

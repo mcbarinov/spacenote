@@ -36,9 +36,11 @@ HTTP interface layer with FastAPI:
 ```
 web/
 ├── routers/         # API endpoints (auth, spaces, notes)
+├── schemas.py       # API response/request models
 ├── deps.py          # FastAPI dependency injection
 ├── server.py        # FastAPI app configuration
 ├── config.py        # Web-specific configuration
+├── openapi.py       # OpenAPI customization
 └── error_handlers.py # HTTP error mapping
 ```
 
@@ -81,14 +83,55 @@ Stateless business logic organized as pure functions:
 - No service dependencies or database access
 - Same input always produces same output
 
+### API Schema Pattern
+**Critical Rule**: API endpoints NEVER return core domain models directly.
+
+All API responses use schema models defined in `web/schemas.py`:
+- **Clean names**: API schemas use simple names (`Note`, `Space`, `User`)
+- **Conversion method**: Each schema has `from_core()` class method for converting domain models
+- **Type safety**: Full type checking from database to API response
+- **API contract**: Schemas define the public API contract, separate from internal models
+
+Example:
+```python
+# In web/schemas.py
+class Note(BaseModel):
+    @classmethod
+    def from_core(cls, note: "NoteModel") -> "Note":
+        return cls.model_validate(note.model_dump(mode="json"))
+
+# In routers
+@router.get("/notes")
+async def list_notes(...) -> list[Note]:
+    notes = await app.get_notes(...)
+    return [Note.from_core(note) for note in notes]
+```
+
+This separation allows:
+- API evolution without changing domain models
+- Different representations for different endpoints
+- Clean OpenAPI documentation
+- Hiding internal implementation details
+
 ## Request Flow
 
 **Standard Flow:**
-Client Request → Web Router → App (access check) → Service (validation + logic) → Database
+```
+Client Request 
+  → Web Router (parse request)
+  → App (access control check)
+  → Service (business logic + validation)
+  → Database (data persistence)
+  → Service (return domain model)
+  → Router (convert to API schema via from_core())
+  → Client (JSON response)
+```
 
-**Design Principle:**
-- **App layer**: Only access control, then delegate
+**Design Principles:**
+- **Web layer**: Request parsing, schema conversion, response formatting
+- **App layer**: Only access control, then delegate to services
 - **Service layer**: All business logic, validation, and data operations
+- **Schema layer**: Clean API contract, separate from domain models
 
 ## Domain Models
 

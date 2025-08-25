@@ -43,6 +43,12 @@ All content must be in English:
 - Port 3101: Used by AI agents with `just b-agent-start`
 - Frontend is configured to connect to port 3101 by default
 
+## Network Requests
+
+**IMPORTANT**: Never use the `curl` command directly
+- **Always use**: `curl_local` instead of `curl`
+- This applies to all HTTP requests and API calls
+
 ## Current Project State
 
 **Phase**: Prototyping

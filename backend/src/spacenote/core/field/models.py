@@ -1,43 +1,42 @@
+"""Field system for custom note schemas."""
+
 from datetime import datetime
 from enum import StrEnum
 
 from pydantic import BaseModel
 
-# Available values for field options
-# - list[str]: for STRING_CHOICE field VALUES option (strictly strings)
-# - int | float: for numeric field MIN/MAX options
+# Type for field option values (VALUES, MIN, MAX)
 FieldOptionValueType = list[str] | int | float
 
-# Possible values that can be stored in a field
-# - str: for STRING, MARKDOWN, USER fields
-# - bool: for BOOLEAN fields
-# - list[str]: for STRING_CHOICE, TAGS fields
-# - int: for INT fields
-# - float: for FLOAT fields
-# - datetime: for DATETIME fields
-# - None: for empty/unset fields
+# Type for actual field values in notes
 FieldValueType = str | bool | list[str] | int | float | datetime | None
 
 
 class FieldType(StrEnum):
+    """Available field types for space schemas."""
+
     STRING = "string"
-    MARKDOWN = "markdown"  # Markdown text with validation and rendering
-    BOOLEAN = "boolean"  # True/false values
-    STRING_CHOICE = "string_choice"  # Predefined string options
-    TAGS = "tags"  # List of strings for categorization
-    USER = "user"  # User selection from space members
-    DATETIME = "datetime"  # Date and time selection
-    INT = "int"  # Integer numeric values
-    FLOAT = "float"  # Floating-point numeric values
+    MARKDOWN = "markdown"
+    BOOLEAN = "boolean"
+    STRING_CHOICE = "string_choice"  # Single select from predefined values
+    TAGS = "tags"  # Free-form tags
+    USER = "user"  # Reference to space member
+    DATETIME = "datetime"
+    INT = "int"
+    FLOAT = "float"
 
 
 class FieldOption(StrEnum):
-    VALUES = "values"  # For STRING_CHOICE type, list of string options (strictly list[str])
-    MIN = "min"  # Minimum value for INT/FLOAT fields (int for INT, int|float for FLOAT)
-    MAX = "max"  # Maximum value for INT/FLOAT fields (int for INT, int|float for FLOAT)
+    """Configuration options for field types."""
+
+    VALUES = "values"  # list[str] for STRING_CHOICE
+    MIN = "min"  # int/float for numeric types
+    MAX = "max"  # int/float for numeric types
 
 
 class SpaceField(BaseModel):
+    """Field definition in a space schema."""
+
     name: str
     type: FieldType
     required: bool = False

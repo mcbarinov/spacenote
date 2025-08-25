@@ -1,3 +1,5 @@
+"""Filter system for querying notes."""
+
 from enum import StrEnum
 
 from pydantic import BaseModel
@@ -6,23 +8,23 @@ from spacenote.core.field.models import FieldValueType
 
 
 class FilterOperator(StrEnum):
-    """Enumeration of all available filter operators."""
+    """Query operators for filtering notes."""
 
-    # Comparison operators
+    # Comparison
     EQ = "eq"  # equals
     NE = "ne"  # not equals
 
-    # Text operators
-    CONTAINS = "contains"  # substring search
-    STARTSWITH = "startswith"  # starts with text
-    ENDSWITH = "endswith"  # ends with text
+    # Text
+    CONTAINS = "contains"
+    STARTSWITH = "startswith"
+    ENDSWITH = "endswith"
 
-    # List/Set operators
-    IN = "in"  # value in list/has any of
-    NIN = "nin"  # not in list/has none of
-    ALL = "all"  # has all values
+    # List/Set
+    IN = "in"  # has any of
+    NIN = "nin"  # has none of
+    ALL = "all"  # has all
 
-    # Numeric/Date comparison operators
+    # Numeric/Date
     GT = "gt"  # greater than
     GTE = "gte"  # greater than or equal
     LT = "lt"  # less than
@@ -30,15 +32,19 @@ class FilterOperator(StrEnum):
 
 
 class FilterCondition(BaseModel):
-    field: str  # field name to filter on
-    operator: FilterOperator  # eq, ne, gt, lt, contains, in, etc.
-    value: FieldValueType  # value to compare against
+    """Single filter condition."""
+
+    field: str
+    operator: FilterOperator
+    value: FieldValueType
 
 
 class Filter(BaseModel):
-    name: str  # unique identifier within space: "urgent-tasks", "my-drafts"
-    title: str  # human-readable title: "Urgent Tasks", "My Drafts"
-    description: str = ""  # optional description/comment
-    conditions: list[FilterCondition]  # filter conditions
-    sort: list[str] = []  # ["name", "-created_at", "priority"]
-    list_fields: list[str] = []  # columns to display
+    """Saved filter configuration for a space."""
+
+    name: str  # Unique ID within space
+    title: str  # Display name
+    description: str = ""
+    conditions: list[FilterCondition]
+    sort: list[str] = []  # Field names with optional "-" prefix for descending
+    list_fields: list[str] = []  # Columns to show

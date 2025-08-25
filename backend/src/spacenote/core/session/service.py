@@ -17,6 +17,15 @@ class SessionService(Service):
         self._collection = database.get_collection("sessions")
         self._authenticated_users: dict[AuthToken, User] = {}
 
+    async def on_start(self) -> None:
+        """Create indexes on startup."""
+        # Unique index for auth_token (for authentication lookups)
+        await self._collection.create_index([("auth_token", 1)], unique=True)
+        # Single index for user_id (for finding sessions by user)
+        await self._collection.create_index([("user_id", 1)])
+        # TTL index for automatic session cleanup (30 days expiry)
+        await self._collection.create_index([("created_at", 1)], expireAfterSeconds=30 * 24 * 60 * 60)
+
     async def create_session(self, username: str) -> AuthToken:
         user = self.core.services.user.get_user_by_username(username)
         auth_token = AuthToken(secrets.token_urlsafe(32))

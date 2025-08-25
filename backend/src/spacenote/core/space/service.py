@@ -23,6 +23,10 @@ class SpaceService(Service):
         self._spaces: dict[ObjectId, Space] = {}
 
     async def on_start(self) -> None:
+        # Create indexes
+        await self._collection.create_index([("slug", 1)], unique=True)
+
+        # Load cache
         await self.update_cache()
         logger.debug("space_service_started", space_count=len(self._spaces))
 

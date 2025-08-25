@@ -67,6 +67,10 @@ class UserService(Service):
             self._users = {user.id: user for user in users}
 
     async def on_start(self) -> None:
+        # Create indexes
+        await self._collection.create_index([("username", 1)], unique=True)
+
+        # Load cache and ensure admin exists
         await self.update_cache()
         await self.ensure_admin_user_exists()
         logger.debug("user_service_started", user_count=len(self._users))

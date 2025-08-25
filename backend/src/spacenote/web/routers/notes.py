@@ -16,6 +16,11 @@ async def list_notes(space_slug: str, app: AppDep, auth_token: AuthTokenDep) -> 
     return await app.get_notes_by_space(auth_token, space_slug)
 
 
+@router.get("/spaces/{space_slug}/notes/{number}")
+async def get_note_by_number(space_slug: str, number: int, app: AppDep, auth_token: AuthTokenDep) -> Note:
+    return await app.get_note_by_number(auth_token, space_slug, number)
+
+
 @router.post("/spaces/{space_slug}/notes", status_code=201)
 async def create_note(space_slug: str, request: CreateNoteRequest, app: AppDep, auth_token: AuthTokenDep) -> Note:
     return await app.create_note(auth_token, space_slug, request.raw_fields)

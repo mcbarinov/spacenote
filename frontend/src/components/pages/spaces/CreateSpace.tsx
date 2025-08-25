@@ -15,7 +15,7 @@ const createSpaceSchema = z.object({
 
 type CreateSpaceForm = z.infer<typeof createSpaceSchema>
 
-export default function SpaceNewPage() {
+export default function CreateSpace() {
   const createSpaceMutation = useCreateSpaceMutation()
   const navigate = useNavigate()
 

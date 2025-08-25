@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 
-export default function SpaceFieldsPage() {
+export default function FieldList() {
   const { slug } = useParams() as { slug: string }
   const space = useSpace(slug)
 

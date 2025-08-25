@@ -50,7 +50,7 @@ const createFieldSchema = z
 
 type CreateFieldForm = z.infer<typeof createFieldSchema>
 
-export default function SpaceFieldNewPage() {
+export default function CreateField() {
   const { slug } = useParams() as { slug: string }
   const navigate = useNavigate()
   const space = useSpace(slug)

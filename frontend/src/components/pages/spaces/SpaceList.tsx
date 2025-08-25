@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Plus, Settings } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
-export default function SpacesPage() {
+export default function SpaceList() {
   const { data: spaces } = useSuspenseQuery(spacesQueryOptions())
 
   return (

@@ -13,7 +13,7 @@ import type { SpaceField } from "@/types"
 
 type FormData = Record<string, string>
 
-export default function NoteNewPage() {
+export default function CreateNote() {
   const { slug } = useParams() as { slug: string }
   const navigate = useNavigate()
   const space = useSpace(slug)

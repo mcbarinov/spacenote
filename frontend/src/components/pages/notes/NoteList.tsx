@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Plus } from "lucide-react"
 import type { Note } from "@/types"
 
-export default function NotesListPage() {
+export default function NoteList() {
   const { slug } = useParams() as { slug: string }
   const space = useSpace(slug)
   const { data: notes } = useSuspenseQuery(notesQueryOptions(slug))

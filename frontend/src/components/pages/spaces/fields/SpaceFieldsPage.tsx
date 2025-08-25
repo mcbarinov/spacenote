@@ -42,8 +42,9 @@ export default function SpaceFieldsPage() {
               </TableCell>
               <TableCell>{field.required ? "Yes" : "No"}</TableCell>
               <TableCell>
-                {/* eslint-disable-next-line @typescript-eslint/no-unnecessary-condition */}
-                {field.options && <span className="text-sm text-muted-foreground">{JSON.stringify(field.options)}</span>}
+                {Object.keys(field.options).length > 0 && (
+                  <span className="text-sm text-muted-foreground">{JSON.stringify(field.options)}</span>
+                )}
               </TableCell>
             </TableRow>
           ))}

@@ -8,6 +8,7 @@ from spacenote.core.field.models import SpaceField
 from spacenote.core.note.models import Note
 from spacenote.core.session.models import AuthToken
 from spacenote.core.space.models import Space
+from spacenote.core.user.models import User
 
 
 class App:
@@ -28,6 +29,12 @@ class App:
         if not self._core.services.user.verify_password(username, password):
             raise AuthenticationError
         return await self._core.services.session.create_session(username)
+
+    async def logout(self, auth_token: AuthToken) -> None:
+        await self._core.services.session.invalidate_session(auth_token)
+
+    async def get_current_user(self, auth_token: AuthToken) -> User:
+        return await self._core.services.session.get_authenticated_user(auth_token)
 
     async def get_spaces_by_member(self, auth_token: AuthToken) -> list[Space]:
         current_user = await self._core.services.session.get_authenticated_user(auth_token)

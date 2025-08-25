@@ -28,6 +28,28 @@ FilterOperator = CoreFilterOperator
 
 
 # ============================================================================
+# Error Schemas
+# ============================================================================
+
+
+class ErrorResponse(BaseModel):
+    """Standard error response format."""
+
+    message: str = Field(..., description="Human-readable error message")
+    type: str = Field(..., description="Machine-readable error type")
+
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {"message": "Invalid credentials", "type": "authentication_error"},
+                {"message": "Space not found", "type": "not_found"},
+                {"message": "Access denied", "type": "access_denied"},
+            ]
+        }
+    }
+
+
+# ============================================================================
 # Authentication Schemas
 # ============================================================================
 
@@ -74,7 +96,7 @@ class SpaceField(BaseModel):
     type: FieldType = Field(..., description="Field data type")
     required: bool = Field(False, description="Whether this field is required")
     options: dict[FieldOption, Any] = Field(
-        default_factory=dict,
+        ...,
         description="Field type-specific options (e.g., 'values' for string_choice, 'min'/'max' for numeric types)",
     )
     default: FieldValueType = Field(None, description="Default value for this field")
@@ -108,11 +130,11 @@ class Space(BaseModel):
     id: str = Field(..., description="Unique space identifier")
     slug: str = Field(..., description="URL-friendly unique identifier")
     title: str = Field(..., description="Human-readable space name")
-    members: list[str] = Field(default_factory=list, description="User IDs with access to this space")
-    fields: list[SpaceField] = Field(default_factory=list, description="Custom field definitions")
-    list_fields: list[str] = Field(default_factory=list, description="Default fields to show in note list view")
-    hidden_create_fields: list[str] = Field(default_factory=list, description="Fields to hide in the note creation form")
-    filters: list[Filter] = Field(default_factory=list, description="Predefined filter configurations")
+    members: list[str] = Field(..., description="User IDs with access to this space")
+    fields: list[SpaceField] = Field(..., description="Custom field definitions")
+    list_fields: list[str] = Field(..., description="Default fields to show in note list view")
+    hidden_create_fields: list[str] = Field(..., description="Fields to hide in the note creation form")
+    filters: list[Filter] = Field(..., description="Predefined filter configurations")
     note_detail_template: str | None = Field(None, description="Optional Liquid template for customizing note detail view")
     note_list_template: str | None = Field(None, description="Optional Liquid template for customizing note list item view")
 
@@ -131,6 +153,8 @@ class CreateSpaceRequest(BaseModel):
         pattern="^[a-z0-9-]+$",
     )
     title: str = Field(..., description="Human-readable space name")
+
+    model_config = {"json_schema_extra": {"examples": [{"slug": "my-tasks", "title": "My Task Tracker"}]}}
 
 
 # ============================================================================
@@ -161,8 +185,19 @@ class CreateNoteRequest(BaseModel):
     raw_fields: dict[str, str] = Field(
         ...,
         description="Field values as raw strings (will be parsed according to field types)",
-        alias="fields",  # Accept 'fields' in the API but use 'raw_fields' internally
     )
 
-    class Config:
-        populate_by_name = True  # Allow both 'fields' and 'raw_fields'
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "raw_fields": {
+                        "title": "Complete API documentation",
+                        "description": "Add comprehensive OpenAPI documentation",
+                        "status": "in_progress",
+                        "priority": "high",
+                    }
+                }
+            ]
+        }
+    }

@@ -51,3 +51,9 @@ class SessionService(Service):
         if user is None:
             raise AuthenticationError("Invalid or expired session")
         return user
+
+    async def invalidate_session(self, auth_token: AuthToken) -> None:
+        """Invalidate a session by removing it from the database."""
+        if auth_token in self._authenticated_users:
+            del self._authenticated_users[auth_token]
+        await self._collection.delete_one({"auth_token": auth_token})

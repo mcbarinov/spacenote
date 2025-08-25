@@ -42,14 +42,15 @@ def create_fastapi_app(app_instance: App, web_config: WebConfig) -> FastAPI:
             allow_headers=["*"],
         )
 
-    # Health check endpoint
+    # Health check endpoint (at root level, not versioned)
     @app.get("/health")
     async def health_check() -> dict[str, str]:
         return {"status": "healthy"}
 
-    app.include_router(auth_router, prefix="/api")
-    app.include_router(spaces_router, prefix="/api")
-    app.include_router(notes_router, prefix="/api")
+    # API v1 routes
+    app.include_router(auth_router, prefix="/api/v1")
+    app.include_router(spaces_router, prefix="/api/v1")
+    app.include_router(notes_router, prefix="/api/v1")
 
     # Register error handlers
     app.add_exception_handler(UserError, user_error_handler)

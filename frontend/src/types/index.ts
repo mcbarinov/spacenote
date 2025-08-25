@@ -4,6 +4,7 @@ export type { paths, components, operations }
 
 export type LoginRequest = components["schemas"]["LoginRequest"]
 export type LoginResponse = components["schemas"]["LoginResponse"]
+export type User = components["schemas"]["User"]
 export type Space = components["schemas"]["Space"]
 export type Note = components["schemas"]["Note"]
 export type SpaceField = components["schemas"]["SpaceField"]

@@ -1,35 +1,39 @@
 import { httpClient } from "./http-client"
-import type { LoginRequest, LoginResponse, Space, CreateSpaceRequest, SpaceField, Note, CreateNoteRequest } from "../types"
+import type { LoginRequest, LoginResponse, User, Space, CreateSpaceRequest, SpaceField, Note, CreateNoteRequest } from "../types"
 
 export const api = {
   // Auth API
   async login(credentials: LoginRequest): Promise<LoginResponse> {
-    return await httpClient.post("api/auth/login", { json: credentials }).json<LoginResponse>()
+    return await httpClient.post("api/v1/auth/login", { json: credentials }).json<LoginResponse>()
   },
 
   async logout(): Promise<void> {
-    await httpClient.post("api/auth/logout")
+    await httpClient.post("api/v1/auth/logout")
+  },
+
+  async getCurrentUser(): Promise<User> {
+    return await httpClient.get("api/v1/auth/me").json<User>()
   },
 
   // Spaces API
   async getSpaces(): Promise<Space[]> {
-    return await httpClient.get("api/spaces").json<Space[]>()
+    return await httpClient.get("api/v1/spaces").json<Space[]>()
   },
 
   async createSpace(data: CreateSpaceRequest): Promise<Space> {
-    return await httpClient.post("api/spaces", { json: data }).json<Space>()
+    return await httpClient.post("api/v1/spaces", { json: data }).json<Space>()
   },
 
   async addFieldToSpace(spaceSlug: string, data: SpaceField): Promise<Space> {
-    return await httpClient.post(`api/spaces/${spaceSlug}/fields`, { json: data }).json<Space>()
+    return await httpClient.post(`api/v1/spaces/${spaceSlug}/fields`, { json: data }).json<Space>()
   },
 
   // Notes API
   async getNotesBySpace(spaceSlug: string): Promise<Note[]> {
-    return await httpClient.get(`api/spaces/${spaceSlug}/notes`).json<Note[]>()
+    return await httpClient.get(`api/v1/spaces/${spaceSlug}/notes`).json<Note[]>()
   },
 
   async createNote(spaceSlug: string, data: CreateNoteRequest): Promise<Note> {
-    return await httpClient.post(`api/spaces/${spaceSlug}/notes`, { json: data }).json<Note>()
+    return await httpClient.post(`api/v1/spaces/${spaceSlug}/notes`, { json: data }).json<Note>()
   },
 }

@@ -14,7 +14,7 @@ export default function NotesListPage() {
   const { data: notes } = useSuspenseQuery(notesQueryOptions(slug))
 
   // Determine which columns to show
-  const columns = space.list_fields.length > 0 ? space.list_fields : ["id", "created_at", "author_id"]
+  const columns = space.list_fields.length > 0 ? space.list_fields : ["number", "created_at", "author_id"]
 
   // Helper function to format dates
   const formatDate = (dateString: string) => {
@@ -31,7 +31,7 @@ export default function NotesListPage() {
   // Helper function to get field value for display
   const getFieldValue = (note: Note, fieldName: string) => {
     // Handle special fields
-    if (fieldName === "id") return note.id
+    if (fieldName === "number") return note.number
     if (fieldName === "created_at") return formatDate(note.created_at)
     if (fieldName === "author_id") return note.author_id
     if (fieldName === "edited_at") return note.edited_at ? formatDate(note.edited_at) : "-"

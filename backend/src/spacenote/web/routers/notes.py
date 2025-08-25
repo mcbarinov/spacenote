@@ -1,14 +1,9 @@
 from fastapi import APIRouter
-from pydantic import BaseModel
 
 from spacenote.web.deps import AppDep, AuthTokenDep
-from spacenote.web.schemas import Note
+from spacenote.web.schemas import CreateNoteRequest, Note
 
 router: APIRouter = APIRouter(tags=["Notes"])
-
-
-class CreateNoteRequest(BaseModel):
-    raw_fields: dict[str, str]
 
 
 @router.get("/spaces/{space_slug}/notes")

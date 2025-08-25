@@ -1,17 +1,19 @@
 """API schemas for web layer.
 
 These schemas define the public API contract, separate from internal domain models.
+All request/response models should be defined here for consistency and better OpenAPI documentation.
 """
 
 from datetime import datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
-# Type aliases for pure Pydantic models from core
+# Re-export enums with API documentation
+from spacenote.core.field.models import FieldOption as CoreFieldOption
+from spacenote.core.field.models import FieldType as CoreFieldType
 from spacenote.core.field.models import FieldValueType
-from spacenote.core.field.models import SpaceField as SpaceField
-from spacenote.core.filter.models import Filter as Filter
+from spacenote.core.filter.models import FilterOperator as CoreFilterOperator
 
 if TYPE_CHECKING:
     from spacenote.core.note.models import Note as NoteModel
@@ -19,19 +21,100 @@ if TYPE_CHECKING:
     from spacenote.core.user.models import User as UserModel
 
 
+# Re-export enums for API use (these will appear in OpenAPI spec)
+FieldType = CoreFieldType
+FieldOption = CoreFieldOption
+FilterOperator = CoreFilterOperator
+
+
+# ============================================================================
+# Authentication Schemas
+# ============================================================================
+
+
+class LoginRequest(BaseModel):
+    """Authentication request."""
+
+    username: str = Field(..., description="Username for authentication")
+    password: str = Field(..., description="Password for authentication")
+
+
+class LoginResponse(BaseModel):
+    """Authentication response."""
+
+    auth_token: str = Field(..., description="Authentication token for subsequent requests")
+
+
+# ============================================================================
+# User Schemas
+# ============================================================================
+
+
+class User(BaseModel):
+    """User account information."""
+
+    id: str = Field(..., description="Unique user identifier")
+    username: str = Field(..., description="Username")
+
+    @classmethod
+    def from_core(cls, user: "UserModel") -> "User":
+        """Create from core User model."""
+        return cls.model_validate(user.model_dump(mode="json"))
+
+
+# ============================================================================
+# Space Schemas
+# ============================================================================
+
+
+class SpaceField(BaseModel):
+    """Field definition in a space schema."""
+
+    name: str = Field(..., description="Field name (must be unique within space)")
+    type: FieldType = Field(..., description="Field data type")
+    required: bool = Field(False, description="Whether this field is required")
+    options: dict[FieldOption, Any] = Field(
+        default_factory=dict,
+        description="Field type-specific options (e.g., 'values' for string_choice, 'min'/'max' for numeric types)",
+    )
+    default: FieldValueType = Field(None, description="Default value for this field")
+
+
+class FilterCondition(BaseModel):
+    """Single filter condition for querying notes."""
+
+    field: str = Field(..., description="Field name to filter on")
+    operator: FilterOperator = Field(..., description="Comparison operator")
+    value: FieldValueType = Field(..., description="Value to compare against")
+
+
+class Filter(BaseModel):
+    """Saved filter configuration for a space."""
+
+    name: str = Field(..., description="Unique filter identifier within the space")
+    title: str = Field(..., description="Display name for the filter")
+    description: str = Field("", description="Optional description of what this filter shows")
+    conditions: list[FilterCondition] = Field(default_factory=list, description="Filter conditions (combined with AND)")
+    sort: list[str] = Field(
+        default_factory=list,
+        description="Sort order - field names with optional '-' prefix for descending",
+    )
+    list_fields: list[str] = Field(default_factory=list, description="Fields to display in list view when this filter is active")
+
+
 class Space(BaseModel):
     """Container for notes with custom schema."""
 
-    id: str
-    slug: str
-    title: str
-    members: list[str] = []
-    fields: list[SpaceField] = []
-    list_fields: list[str] = []
-    hidden_create_fields: list[str] = []
-    filters: list[Filter] = []
-    note_detail_template: str | None = None
-    note_list_template: str | None = None
+    id: str = Field(..., description="Unique space identifier")
+    slug: str = Field(..., description="URL-friendly unique identifier")
+    title: str = Field(..., description="Human-readable space name")
+    members: list[str] = Field(default_factory=list, description="User IDs with access to this space")
+    fields: list[SpaceField] = Field(default_factory=list, description="Custom field definitions")
+    list_fields: list[str] = Field(default_factory=list, description="Default fields to show in note list view")
+    hidden_create_fields: list[str] = Field(default_factory=list, description="Fields to hide in the note creation form")
+    filters: list[Filter] = Field(default_factory=list, description="Predefined filter configurations")
+    note_detail_template: str | None = Field(None, description="Optional Liquid template for customizing note detail view")
+    note_list_template: str | None = Field(None, description="Optional Liquid template for customizing note list item view")
 
     @classmethod
     def from_core(cls, space: "SpaceModel") -> "Space":
@@ -39,16 +122,32 @@ class Space(BaseModel):
         return cls.model_validate(space.model_dump(mode="json"))
 
 
+class CreateSpaceRequest(BaseModel):
+    """Request to create a new space."""
+
+    slug: str = Field(
+        ...,
+        description="URL-friendly unique identifier (lowercase letters, numbers, hyphens only)",
+        pattern="^[a-z0-9-]+$",
+    )
+    title: str = Field(..., description="Human-readable space name")
+
+
+# ============================================================================
+# Note Schemas
+# ============================================================================
+
+
 class Note(BaseModel):
     """Note with custom fields stored in a space."""
 
-    id: str
-    space_id: str
-    number: int
-    author_id: str
-    created_at: datetime
-    edited_at: datetime | None = None
-    fields: dict[str, FieldValueType]
+    id: str = Field(..., description="Unique note identifier")
+    space_id: str = Field(..., description="ID of the space containing this note")
+    number: int = Field(..., description="Sequential number within the space")
+    author_id: str = Field(..., description="ID of the user who created this note")
+    created_at: datetime = Field(..., description="When the note was created")
+    edited_at: datetime | None = Field(None, description="When the note was last edited")
+    fields: dict[str, FieldValueType] = Field(..., description="Field values as defined by the space schema")
 
     @classmethod
     def from_core(cls, note: "NoteModel") -> "Note":
@@ -56,13 +155,14 @@ class Note(BaseModel):
         return cls.model_validate(note.model_dump(mode="json"))
 
 
-class User(BaseModel):
-    """User account."""
+class CreateNoteRequest(BaseModel):
+    """Request to create a new note."""
 
-    id: str
-    username: str
+    raw_fields: dict[str, str] = Field(
+        ...,
+        description="Field values as raw strings (will be parsed according to field types)",
+        alias="fields",  # Accept 'fields' in the API but use 'raw_fields' internally
+    )
 
-    @classmethod
-    def from_core(cls, user: "UserModel") -> "User":
-        """Create from core User model."""
-        return cls.model_validate(user.model_dump(mode="json"))
+    class Config:
+        populate_by_name = True  # Allow both 'fields' and 'raw_fields'

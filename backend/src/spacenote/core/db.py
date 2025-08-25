@@ -25,7 +25,11 @@ PyObjectId = Annotated[
 class MongoModel(BaseModel):
     id: PyObjectId = Field(alias="_id", serialization_alias="id", default_factory=ObjectId)
 
-    model_config = ConfigDict(populate_by_name=True, arbitrary_types_allowed=True)
+    model_config = ConfigDict(
+        populate_by_name=True,
+        arbitrary_types_allowed=True,
+        json_schema_serialization_defaults_required=True,
+    )
 
     def to_mongo(self) -> dict[str, Any]:
         """Convert the model to a dictionary for MongoDB storage with _id field."""

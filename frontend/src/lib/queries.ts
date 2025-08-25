@@ -18,6 +18,14 @@ import { queryOptions, useMutation, useQueryClient } from "@tanstack/react-query
 import { api } from "./api"
 import type { CreateSpaceRequest, SpaceField, CreateNoteRequest } from "../types"
 
+export const usersQueryOptions = () =>
+  queryOptions({
+    queryKey: ["users"],
+    queryFn: () => api.getUsers(),
+    staleTime: Infinity, // Never consider users data stale
+    gcTime: Infinity, // Never remove from memory - permanent cache
+  })
+
 export const spacesQueryOptions = () =>
   queryOptions({
     queryKey: ["spaces"],

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Response
 
 from spacenote.web.deps import AppDep, AuthTokenDep
-from spacenote.web.schemas import ErrorResponse, LoginRequest, LoginResponse, User
+from spacenote.web.schemas import ErrorResponse, LoginRequest, LoginResponse
 
 router = APIRouter(tags=["auth"])
 
@@ -48,19 +48,3 @@ async def logout(app: AppDep, auth_token: AuthTokenDep, response: Response) -> d
     await app.logout(auth_token)
     response.delete_cookie("auth_token")
     return {"message": "Logged out successfully"}
-
-
-@router.get(
-    "/auth/me",
-    summary="Get current user",
-    description="Get information about the currently authenticated user.",
-    operation_id="getCurrentUser",
-    responses={
-        200: {"description": "Current user information"},
-        401: {"model": ErrorResponse, "description": "Not authenticated"},
-    },
-)
-async def get_current_user(app: AppDep, auth_token: AuthTokenDep) -> User:
-    """Get current authenticated user."""
-    user = await app.get_current_user(auth_token)
-    return User.from_core(user)

@@ -1,6 +1,5 @@
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { Link } from "react-router"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { spacesQueryOptions } from "@/lib/queries"
 
 export default function HomePage() {
@@ -10,33 +9,17 @@ export default function HomePage() {
     <div>
       <h1 className="text-2xl font-bold mb-6">My Spaces</h1>
       {spaces.length > 0 ? (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <ul className="space-y-2">
           {spaces.map((space) => (
-            <Link key={space.id} to={`/s/${space.slug}`}>
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-                <CardHeader>
-                  <CardTitle>{space.title}</CardTitle>
-                  {space.fields.length > 0 && (
-                    <CardDescription>
-                      {space.fields.length} field{space.fields.length !== 1 ? "s" : ""}
-                    </CardDescription>
-                  )}
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">
-                    {space.members.length} member{space.members.length !== 1 ? "s" : ""}
-                  </p>
-                </CardContent>
-              </Card>
-            </Link>
+            <li key={space.id}>
+              <Link to={`/s/${space.slug}`} className="text-lg text-blue-600 hover:text-blue-800 hover:underline">
+                {space.title}
+              </Link>
+            </li>
           ))}
-        </div>
+        </ul>
       ) : (
-        <Card>
-          <CardContent className="pt-6">
-            <p className="text-center text-muted-foreground">No spaces yet. Create your first space to get started.</p>
-          </CardContent>
-        </Card>
+        <p className="text-muted-foreground">No spaces yet. Create your first space to get started.</p>
       )}
     </div>
   )

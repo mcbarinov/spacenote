@@ -35,6 +35,10 @@ class UserService(Service):
     def has_username(self, username: str) -> bool:
         return any(user.username == username for user in self._users.values())
 
+    def get_all_users(self) -> list[User]:
+        """Get all users. Returns cached users list."""
+        return list(self._users.values())
+
     async def create_user(self, username: str, password: str) -> User:
         if self.has_username(username):
             raise ValidationError(f"User '{username}' already exists")

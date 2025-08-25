@@ -12,7 +12,12 @@ export const api = {
   },
 
   async getCurrentUser(): Promise<User> {
-    return await httpClient.get("api/v1/auth/me").json<User>()
+    return await httpClient.get("api/v1/users/me").json<User>()
+  },
+
+  // Users API
+  async getUsers(): Promise<User[]> {
+    return await httpClient.get("api/v1/users").json<User[]>()
   },
 
   // Spaces API

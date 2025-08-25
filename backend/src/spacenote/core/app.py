@@ -36,6 +36,11 @@ class App:
     async def get_current_user(self, auth_token: AuthToken) -> User:
         return await self._core.services.session.get_authenticated_user(auth_token)
 
+    async def get_all_users(self, auth_token: AuthToken) -> list[User]:
+        """Get all users. Requires authentication."""
+        await self._core.services.session.get_authenticated_user(auth_token)  # Verify auth
+        return self._core.services.user.get_all_users()
+
     async def get_spaces_by_member(self, auth_token: AuthToken) -> list[Space]:
         current_user = await self._core.services.session.get_authenticated_user(auth_token)
         return self._core.services.space.get_spaces_by_member(current_user.id)

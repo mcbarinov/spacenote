@@ -25,7 +25,7 @@ const queryClient = new QueryClient({
         if (error instanceof APIError && error.status === 401) {
           return
         }
-        
+
         const message =
           error instanceof APIError ? error.message : error instanceof Error ? error.message : "An unexpected error occurred"
 

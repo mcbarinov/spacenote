@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <style>
+      .bg { fill: #437DFC; }
+      .txt {
+        fill: #ffffff;
+        font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", sans-serif;
+        font-weight: 800;
+      }
+    </style>
+  </defs>
+  <!-- Rounded-square background -->
+  <rect class="bg" x="16" y="16" width="480" height="480" rx="112" ry="112"/>
+  <!-- Centered "SN" -->
+  <text class="txt" x="256" y="270" font-size="260" text-anchor="middle" dominant-baseline="middle" letter-spacing="4">
+    SN
+  </text>
+</svg>

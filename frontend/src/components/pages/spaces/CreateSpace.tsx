@@ -4,13 +4,13 @@ import { z } from "zod"
 import { useCreateSpaceMutation } from "@/lib/queries"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { useNavigate } from "react-router"
 import { toast } from "sonner"
 
 const createSpaceSchema = z.object({
-  slug: z.string().min(1, "Required"),
-  title: z.string().min(1, "Required"),
+  slug: z.string().min(1, "Slug is required"),
+  title: z.string().min(1, "Title is required"),
 })
 
 type CreateSpaceForm = z.infer<typeof createSpaceSchema>
@@ -19,12 +19,12 @@ export default function CreateSpace() {
   const createSpaceMutation = useCreateSpaceMutation()
   const navigate = useNavigate()
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<CreateSpaceForm>({
+  const form = useForm<CreateSpaceForm>({
     resolver: zodResolver(createSpaceSchema),
+    defaultValues: {
+      slug: "",
+      title: "",
+    },
   })
 
   const onSubmit = (data: CreateSpaceForm) => {
@@ -40,23 +40,41 @@ export default function CreateSpace() {
     <div className="container mx-auto p-6 max-w-xl">
       <h1 className="text-2xl font-bold mb-6">Create New Space</h1>
 
-      <form onSubmit={(e) => void handleSubmit(onSubmit)(e)} className="space-y-4">
-        <div>
-          <Label htmlFor="slug">Slug</Label>
-          <Input id="slug" placeholder="my-space" {...register("slug")} disabled={createSpaceMutation.isPending} />
-          {errors.slug && <p className="text-sm text-red-500 mt-1">{errors.slug.message}</p>}
-        </div>
+      <Form {...form}>
+        <form onSubmit={(e) => void form.handleSubmit(onSubmit)(e)} className="space-y-4">
+          <FormField
+            control={form.control}
+            name="slug"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Slug</FormLabel>
+                <FormControl>
+                  <Input placeholder="my-space" {...field} disabled={createSpaceMutation.isPending} autoFocus />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <div>
-          <Label htmlFor="title">Title</Label>
-          <Input id="title" placeholder="My Space" {...register("title")} disabled={createSpaceMutation.isPending} />
-          {errors.title && <p className="text-sm text-red-500 mt-1">{errors.title.message}</p>}
-        </div>
+          <FormField
+            control={form.control}
+            name="title"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Title</FormLabel>
+                <FormControl>
+                  <Input placeholder="My Space" {...field} disabled={createSpaceMutation.isPending} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <Button type="submit" disabled={createSpaceMutation.isPending}>
-          {createSpaceMutation.isPending ? "Creating..." : "Create Space"}
-        </Button>
-      </form>
+          <Button type="submit" disabled={createSpaceMutation.isPending}>
+            {createSpaceMutation.isPending ? "Creating..." : "Create Space"}
+          </Button>
+        </form>
+      </Form>
     </div>
   )
 }

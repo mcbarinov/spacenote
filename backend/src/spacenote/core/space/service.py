@@ -67,6 +67,8 @@ class SpaceService(Service):
             raise ValidationError(f"User '{member}' does not exist")
         if not utils.is_slug(slug):
             raise ValidationError(f"Invalid slug format: '{slug}'")
+        if self.has_slug(slug):
+            raise ValidationError(f"Space with slug '{slug}' already exists")
 
         res = await self._collection.insert_one(Space(slug=slug, title=title, members=[member]).to_mongo())
         return await self.update_space_cache(res.inserted_id)

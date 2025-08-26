@@ -5,7 +5,7 @@ import { z } from "zod"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form"
 import { useAuth } from "@/hooks/useAuth"
 import { toast } from "sonner"
 
@@ -35,7 +35,6 @@ export default function LoginPage() {
   const onSubmit = async (data: LoginForm) => {
     try {
       await login(data.username, data.password)
-      toast.success("Logged in successfully")
       void navigate("/")
     } catch {
       toast.error("Invalid username or password")
@@ -46,7 +45,7 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle>Login</CardTitle>
+          <CardTitle>SpaceNote</CardTitle>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -62,9 +61,8 @@ export default function LoginPage() {
                 name="username"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Username</FormLabel>
                     <FormControl>
-                      <Input type="text" {...field} disabled={form.formState.isSubmitting} />
+                      <Input type="text" {...field} placeholder="Username" disabled={form.formState.isSubmitting} autoFocus />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -76,9 +74,8 @@ export default function LoginPage() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input type="password" {...field} disabled={form.formState.isSubmitting} />
+                      <Input type="password" {...field} disabled={form.formState.isSubmitting} placeholder="Password" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

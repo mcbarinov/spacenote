@@ -143,7 +143,7 @@ class Space(BaseModel):
     list_fields: list[str] = Field(..., description="Default fields to show in note list view")
     hidden_create_fields: list[str] = Field(..., description="Fields to hide in the note creation form")
     filters: list[Filter] = Field(..., description="Predefined filter configurations")
-    templates: SpaceTemplates = Field(default_factory=SpaceTemplates, description="Templates for customizing space views")
+    templates: SpaceTemplates = Field(..., description="Templates for customizing space views")
 
     @classmethod
     def from_core(cls, space: "SpaceModel") -> "Space":

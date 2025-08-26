@@ -22,11 +22,11 @@ export const httpClient = ky.create({
             // Clear auth data
             localStorage.removeItem("auth_token")
             localStorage.removeItem("username")
-            
+
             // Redirect to login
             window.location.href = "/login"
           }
-          
+
           throw await APIError.fromResponse(response)
         }
         return response

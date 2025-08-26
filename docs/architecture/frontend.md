@@ -48,12 +48,20 @@ Browser-based routing with authentication checks:
 
 ```typescript
 / (root)
-├── /login              # Public route with built-in auth check
-└── / (protected)       # Private routes wrapped in AuthLayout
-    ├── /                # Home page
-    ├── /spaces          # Spaces list
-    ├── /spaces/new      # Create new space
-    └── /change-password # Change password (TODO)
+├── /login                      # Public route with built-in auth check
+└── / (protected)               # Private routes wrapped in AuthLayout
+    ├── /                       # Home page
+    ├── /s/:slug                # Note list for a space
+    ├── /s/:slug/:number        # Note detail view
+    ├── /s/:slug/new            # Create new note
+    ├── /spaces/new             # Create new space
+    ├── /spaces/:slug/members   # Manage space members
+    ├── /spaces/:slug/fields    # Manage space fields
+    ├── /spaces/:slug/fields/new # Add new field
+    ├── /spaces/:slug/filters   # Manage space filters
+    ├── /spaces/:slug/templates # Manage space templates
+    ├── /spaces/:slug/settings  # Space settings
+    └── /change-password        # Change password (TODO)
 ```
 
 **Route Protection:**
@@ -137,13 +145,19 @@ Pre-styled, accessible components:
 - Styled with Tailwind CSS
 
 ### Page Components
-Route-specific components in `pages/` with `*Page` naming convention:
+Route-specific components organized in `pages/` directory:
 - `LoginPage` - Authentication form with built-in auth check
 - `HomePage` - Dashboard/landing page
-- `SpacesPage` - List of all spaces
-- `SpaceNewPage` - Create new space form
-
-**Naming Convention**: All page components must use the `Page` suffix (e.g., `LoginPage.tsx`, `HomePage.tsx`) to distinguish them from future sub-components or modules that may be added to the `/pages/` folder.
+- `spaces/CreateSpace` - Create new space form
+- `spaces/fields/CreateField` - Add field to space
+- `spaces/fields/FieldList` - List and manage space fields
+- `spaces/members/MemberList` - Manage space members
+- `spaces/filters/FilterList` - Manage space filters
+- `spaces/templates/TemplateList` - Manage space templates
+- `spaces/settings/SpaceSettings` - Space configuration
+- `notes/NoteList` - List notes in a space
+- `notes/NoteDetail` - View note details and comments
+- `notes/CreateNote` - Create new note in space
 
 ### Layout Components
 - `AuthLayout` - Main layout for authenticated pages with header, navigation, and footer

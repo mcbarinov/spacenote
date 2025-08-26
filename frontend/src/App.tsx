@@ -7,7 +7,7 @@ function App() {
   return (
     <React.StrictMode>
       <RouterProvider router={router} />
-      <Toaster />
+      <Toaster position="top-center" />
     </React.StrictMode>
   )
 }

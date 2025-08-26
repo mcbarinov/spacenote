@@ -51,13 +51,6 @@ export default function AuthLayout() {
             <DropdownMenuContent align="end">
               <DropdownMenuItem
                 onClick={() => {
-                  void navigate("/spaces")
-                }}
-              >
-                Spaces
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
                   void navigate("/change-password")
                 }}
               >

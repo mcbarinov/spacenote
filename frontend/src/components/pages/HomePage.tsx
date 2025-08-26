@@ -1,5 +1,9 @@
 import { useQueryClient } from "@tanstack/react-query"
 import { Link } from "react-router"
+import { Plus, Settings } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import type { Space } from "@/types"
 
 export default function HomePage() {
@@ -9,19 +13,76 @@ export default function HomePage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">My Spaces</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">My Spaces</h1>
+        <Button asChild>
+          <Link to="/spaces/new">
+            <Plus className="h-4 w-4 mr-2" />
+            New Space
+          </Link>
+        </Button>
+      </div>
+
       {spaces.length > 0 ? (
-        <ul className="space-y-2">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {spaces.map((space) => (
-            <li key={space.id}>
-              <Link to={`/s/${space.slug}`} className="text-lg text-blue-600 hover:text-blue-800 hover:underline">
-                {space.title}
-              </Link>
-            </li>
+            <Card key={space.id} className="relative hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <CardTitle>
+                      <Link to={`/s/${space.slug}`} className="hover:text-primary">
+                        {space.title}
+                      </Link>
+                    </CardTitle>
+                    <CardDescription className="mt-1">{space.slug}</CardDescription>
+                  </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <Settings className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem asChild>
+                        <Link to={`/spaces/${space.slug}/members`}>Members ({space.members.length})</Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to={`/spaces/${space.slug}/fields`}>Fields ({space.fields.length})</Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to={`/spaces/${space.slug}/filters`}>Filters ({space.filters.length})</Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to={`/spaces/${space.slug}/templates`}>Templates</Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to={`/spaces/${space.slug}/settings`}>Settings</Link>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <Link to={`/s/${space.slug}`} className="text-sm text-muted-foreground hover:text-primary">
+                  View Notes →
+                </Link>
+              </CardContent>
+            </Card>
           ))}
-        </ul>
+        </div>
       ) : (
-        <p className="text-muted-foreground">No spaces yet. Create your first space to get started.</p>
+        <Card>
+          <CardContent className="text-center py-8">
+            <p className="text-muted-foreground mb-4">No spaces yet. Create your first space to get started.</p>
+            <Button asChild>
+              <Link to="/spaces/new">
+                <Plus className="h-4 w-4 mr-2" />
+                Create Your First Space
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
       )}
     </div>
   )

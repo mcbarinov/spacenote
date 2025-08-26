@@ -44,6 +44,10 @@ export const api = {
     return await httpClient.post(`api/v1/spaces/${spaceSlug}/fields`, { json: data }).json<Space>()
   },
 
+  async updateSpaceMembers(spaceSlug: string, usernames: string[]): Promise<Space> {
+    return await httpClient.put(`api/v1/spaces/${spaceSlug}/members`, { json: { usernames } }).json<Space>()
+  },
+
   // Notes API
   async getNotesBySpace(spaceSlug: string): Promise<Note[]> {
     return await httpClient.get(`api/v1/spaces/${spaceSlug}/notes`).json<Note[]>()

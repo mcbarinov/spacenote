@@ -56,6 +56,17 @@ export const useAddFieldMutation = (spaceSlug: string) => {
   })
 }
 
+export const useUpdateSpaceMembersMutation = (spaceSlug: string) => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (usernames: string[]) => api.updateSpaceMembers(spaceSlug, usernames),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["spaces"] })
+    },
+  })
+}
+
 export const notesQueryOptions = (spaceSlug: string) =>
   queryOptions({
     queryKey: ["notes", spaceSlug],

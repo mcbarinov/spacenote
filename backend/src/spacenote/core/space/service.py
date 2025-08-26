@@ -83,3 +83,18 @@ class SpaceService(Service):
         await self._collection.update_one({"_id": space_id}, {"$push": {"fields": validated_field.model_dump()}})
 
         return await self.update_space_cache(space_id)
+
+    async def update_members(self, space_id: ObjectId, usernames: list[str]) -> Space:
+        """Update space members by usernames."""
+        # Convert usernames to user IDs
+        member_ids: list[ObjectId] = []
+        for username in usernames:
+            if not self.core.services.user.has_username(username):
+                raise ValidationError(f"User '{username}' does not exist")
+            user = self.core.services.user.get_user_by_username(username)
+            member_ids.append(user.id)
+
+        # Update members in database
+        await self._collection.update_one({"_id": space_id}, {"$set": {"members": member_ids}})
+
+        return await self.update_space_cache(space_id)

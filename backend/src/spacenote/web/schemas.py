@@ -164,6 +164,14 @@ class CreateSpaceRequest(BaseModel):
     model_config = {"json_schema_extra": {"examples": [{"slug": "my-tasks", "title": "My Task Tracker"}]}}
 
 
+class UpdateSpaceMembersRequest(BaseModel):
+    """Request to update space members."""
+
+    usernames: list[str] = Field(..., description="List of usernames to set as space members")
+
+    model_config = {"json_schema_extra": {"examples": [{"usernames": ["alice", "bob", "charlie"]}]}}
+
+
 # ============================================================================
 # Note Schemas
 # ============================================================================

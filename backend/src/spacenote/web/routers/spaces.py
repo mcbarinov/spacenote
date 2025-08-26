@@ -2,7 +2,7 @@ from fastapi import APIRouter
 
 from spacenote.core.field.models import SpaceField as CoreSpaceField
 from spacenote.web.deps import AppDep, AuthTokenDep
-from spacenote.web.schemas import CreateSpaceRequest, ErrorResponse, Space, SpaceField
+from spacenote.web.schemas import CreateSpaceRequest, ErrorResponse, Space, SpaceField, UpdateSpaceMembersRequest
 
 router: APIRouter = APIRouter(tags=["spaces"])
 
@@ -56,4 +56,21 @@ async def add_field_to_space(space_slug: str, field: SpaceField, app: AppDep, au
     # Convert API SpaceField to core SpaceField
     core_field = CoreSpaceField.model_validate(field.model_dump())
     space = await app.add_field_to_space(auth_token, space_slug, core_field)
+    return Space.from_core(space)
+
+
+@router.put(
+    "/spaces/{space_slug}/members",
+    summary="Update space members",
+    description="Update the list of members for a space. Only space members can update membership.",
+    operation_id="updateSpaceMembers",
+    responses={
+        200: {"description": "Members updated successfully"},
+        401: {"model": ErrorResponse, "description": "Not authenticated"},
+        403: {"model": ErrorResponse, "description": "Not a member of this space"},
+        404: {"model": ErrorResponse, "description": "Space not found"},
+    },
+)
+async def update_space_members(space_slug: str, req: UpdateSpaceMembersRequest, app: AppDep, auth_token: AuthTokenDep) -> Space:
+    space = await app.update_space_members(auth_token, space_slug, req.usernames)
     return Space.from_core(space)

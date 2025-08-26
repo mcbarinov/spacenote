@@ -89,3 +89,9 @@ class App:
         current_user = await self._core.services.session.get_authenticated_user(auth_token)
         note = await self._core.services.note.get_note_by_number(space.id, note_number)
         return await self._core.services.comment.create_comment(note.id, space.id, current_user.id, content)
+
+    async def update_space_members(self, auth_token: AuthToken, space_slug: str, usernames: list[str]) -> Space:
+        space = self._core.services.space.get_space_by_slug(space_slug)
+        await self._core.services.access.ensure_space_member(auth_token, space.id)
+
+        return await self._core.services.space.update_members(space.id, usernames)

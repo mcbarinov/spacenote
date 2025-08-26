@@ -5,6 +5,7 @@ import type {
   User,
   Space,
   CreateSpaceRequest,
+  CreateUserRequest,
   SpaceField,
   Note,
   CreateNoteRequest,
@@ -29,6 +30,10 @@ export const api = {
   // Users API
   async getUsers(): Promise<User[]> {
     return await httpClient.get("api/v1/users").json<User[]>()
+  },
+
+  async createUser(data: CreateUserRequest): Promise<User> {
+    return await httpClient.post("api/v1/users", { json: data }).json<User>()
   },
 
   // Spaces API

@@ -85,6 +85,13 @@ class User(BaseModel):
         return cls.model_validate(user.model_dump(mode="json"))
 
 
+class CreateUserRequest(BaseModel):
+    """Request to create a new user."""
+
+    username: str = Field(..., min_length=1, description="Username for the new user")
+    password: str = Field(..., min_length=1, description="Password for the new user")
+
+
 # ============================================================================
 # Space Schemas
 # ============================================================================

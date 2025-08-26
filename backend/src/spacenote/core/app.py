@@ -46,6 +46,11 @@ class App:
         await self._core.services.access.ensure_authenticated(auth_token)
         return self._core.services.user.get_all_users()
 
+    async def create_user(self, auth_token: AuthToken, username: str, password: str) -> User:
+        """Create a new user (admin only)."""
+        await self._core.services.access.ensure_admin(auth_token)
+        return await self._core.services.user.create_user(username, password)
+
     async def get_spaces_by_member(self, auth_token: AuthToken) -> list[Space]:
         current_user = await self._core.services.access.ensure_authenticated(auth_token)
         return self._core.services.space.get_spaces_by_member(current_user.id)

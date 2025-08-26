@@ -13,6 +13,8 @@ import SpaceSettings from "@/components/pages/spaces/settings/SpaceSettings"
 import NoteList from "@/components/pages/notes/NoteList"
 import NoteDetail from "@/components/pages/notes/detail/NoteDetail"
 import CreateNote from "@/components/pages/notes/CreateNote"
+import UserList from "@/components/pages/users/UserList"
+import CreateUser from "@/components/pages/users/CreateUser"
 
 export const router = createBrowserRouter([
   {
@@ -38,6 +40,8 @@ export const router = createBrowserRouter([
           { path: "/spaces/:slug/filters", element: <FilterList /> },
           { path: "/spaces/:slug/templates", element: <TemplateList /> },
           { path: "/spaces/:slug/settings", element: <SpaceSettings /> },
+          { path: "/users", element: <UserList /> },
+          { path: "/users/new", element: <CreateUser /> },
           { path: "/change-password", element: <div>Change Password Page (TODO)</div> },
         ],
       },

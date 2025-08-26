@@ -49,6 +49,18 @@ export default function AuthLayout() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
+              {username === "admin" && (
+                <>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      void navigate("/users")
+                    }}
+                  >
+                    Manage Users
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                </>
+              )}
               <DropdownMenuItem
                 onClick={() => {
                   void navigate("/change-password")

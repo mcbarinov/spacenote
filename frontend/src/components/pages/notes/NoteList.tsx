@@ -1,20 +1,23 @@
 import { useParams, Link } from "react-router"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { useSpace } from "@/hooks/useSpace"
-import { notesQueryOptions } from "@/lib/queries"
+import { notesQueryOptions, usersQueryOptions } from "@/lib/queries"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Plus } from "lucide-react"
+import { UserDisplay } from "@/components/UserDisplay"
 import type { Note } from "@/types"
 
 export default function NoteList() {
   const { slug } = useParams() as { slug: string }
   const space = useSpace(slug)
+  // Ensure users are loaded for UserDisplay component
+  useSuspenseQuery(usersQueryOptions())
   const { data: notes } = useSuspenseQuery(notesQueryOptions(slug))
 
   // Determine which columns to show
-  const columns = space.list_fields.length > 0 ? space.list_fields : ["number", "created_at", "author_id"]
+  const columns = space.list_fields.length > 0 ? space.list_fields : ["number", "created_at", "author"]
 
   // Helper function to format dates
   const formatDate = (dateString: string) => {
@@ -33,7 +36,7 @@ export default function NoteList() {
     // Handle special fields
     if (fieldName === "number") return note.number
     if (fieldName === "created_at") return formatDate(note.created_at)
-    if (fieldName === "author_id") return note.author_id
+    if (fieldName === "author") return <UserDisplay userId={note.author_id} />
     if (fieldName === "edited_at") return note.edited_at ? formatDate(note.edited_at) : "-"
 
     // Handle custom fields

@@ -1,5 +1,16 @@
 import { httpClient } from "./http-client"
-import type { LoginRequest, LoginResponse, User, Space, CreateSpaceRequest, SpaceField, Note, CreateNoteRequest } from "../types"
+import type {
+  LoginRequest,
+  LoginResponse,
+  User,
+  Space,
+  CreateSpaceRequest,
+  SpaceField,
+  Note,
+  CreateNoteRequest,
+  Comment,
+  CreateCommentRequest,
+} from "../types"
 
 export const api = {
   // Auth API
@@ -44,5 +55,16 @@ export const api = {
 
   async createNote(spaceSlug: string, data: CreateNoteRequest): Promise<Note> {
     return await httpClient.post(`api/v1/spaces/${spaceSlug}/notes`, { json: data }).json<Note>()
+  },
+
+  // Comments API
+  async getNoteComments(spaceSlug: string, noteNumber: number): Promise<Comment[]> {
+    return await httpClient.get(`api/v1/spaces/${spaceSlug}/notes/${String(noteNumber)}/comments`).json<Comment[]>()
+  },
+
+  async createComment(spaceSlug: string, noteNumber: number, data: CreateCommentRequest): Promise<Comment> {
+    return await httpClient
+      .post(`api/v1/spaces/${spaceSlug}/notes/${String(noteNumber)}/comments`, { json: data })
+      .json<Comment>()
   },
 }

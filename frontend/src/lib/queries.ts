@@ -16,7 +16,7 @@
 
 import { queryOptions, useMutation, useQueryClient } from "@tanstack/react-query"
 import { api } from "./api"
-import type { CreateSpaceRequest, SpaceField, CreateNoteRequest } from "../types"
+import type { CreateSpaceRequest, SpaceField, CreateNoteRequest, CreateCommentRequest } from "../types"
 
 export const usersQueryOptions = () =>
   queryOptions({
@@ -75,6 +75,23 @@ export const useCreateNoteMutation = (spaceSlug: string) => {
     mutationFn: (data: CreateNoteRequest) => api.createNote(spaceSlug, data),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["notes", spaceSlug] })
+    },
+  })
+}
+
+export const commentsQueryOptions = (spaceSlug: string, noteNumber: number) =>
+  queryOptions({
+    queryKey: ["comments", spaceSlug, noteNumber],
+    queryFn: () => api.getNoteComments(spaceSlug, noteNumber),
+  })
+
+export const useCreateCommentMutation = (spaceSlug: string, noteNumber: number) => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (data: CreateCommentRequest) => api.createComment(spaceSlug, noteNumber, data),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["comments", spaceSlug, noteNumber] })
     },
   })
 }

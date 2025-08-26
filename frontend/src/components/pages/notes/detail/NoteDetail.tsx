@@ -8,12 +8,14 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ArrowLeft } from "lucide-react"
 import { UserDisplay } from "@/components/UserDisplay"
+import { CommentsSection } from "./-components/CommentsSection"
 import type { SpaceField } from "@/types"
 
 export default function NoteDetail() {
   const { slug, number } = useParams() as { slug: string; number: string }
   const space = useSpace(slug)
-  const { data: note } = useSuspenseQuery(noteQueryOptions(slug, parseInt(number, 10)))
+  const noteNumber = parseInt(number, 10)
+  const { data: note } = useSuspenseQuery(noteQueryOptions(slug, noteNumber))
 
   // Helper function to get field definition
   const getFieldDefinition = (fieldName: string): SpaceField | undefined => {
@@ -128,6 +130,9 @@ export default function NoteDetail() {
             ))}
           </CardContent>
         </Card>
+
+        {/* Comments Section */}
+        <CommentsSection spaceSlug={slug} noteNumber={noteNumber} />
       </div>
     </div>
   )

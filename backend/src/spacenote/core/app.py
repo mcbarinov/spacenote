@@ -1,6 +1,7 @@
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
+from spacenote.core.comment.models import Comment
 from spacenote.core.config import CoreConfig
 from spacenote.core.core import Core
 from spacenote.core.errors import AuthenticationError
@@ -73,3 +74,18 @@ class App:
 
         current_user = await self._core.services.session.get_authenticated_user(auth_token)
         return await self._core.services.note.create_note(space.id, current_user.id, raw_fields)
+
+    async def get_note_comments(self, auth_token: AuthToken, space_slug: str, note_number: int) -> list[Comment]:
+        space = self._core.services.space.get_space_by_slug(space_slug)
+        await self._core.services.access.ensure_space_member(auth_token, space.id)
+
+        note = await self._core.services.note.get_note_by_number(space.id, note_number)
+        return await self._core.services.comment.get_note_comments(note.id)
+
+    async def create_comment(self, auth_token: AuthToken, space_slug: str, note_number: int, content: str) -> Comment:
+        space = self._core.services.space.get_space_by_slug(space_slug)
+        await self._core.services.access.ensure_space_member(auth_token, space.id)
+
+        current_user = await self._core.services.session.get_authenticated_user(auth_token)
+        note = await self._core.services.note.get_note_by_number(space.id, note_number)
+        return await self._core.services.comment.create_comment(note.id, space.id, current_user.id, content)

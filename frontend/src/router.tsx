@@ -8,7 +8,7 @@ import CreateSpace from "@/components/pages/spaces/CreateSpace"
 import FieldList from "@/components/pages/spaces/fields/FieldList"
 import CreateField from "@/components/pages/spaces/fields/CreateField"
 import NoteList from "@/components/pages/notes/NoteList"
-import NoteDetail from "@/components/pages/notes/NoteDetail"
+import NoteDetail from "@/components/pages/notes/detail/NoteDetail"
 import CreateNote from "@/components/pages/notes/CreateNote"
 
 export const router = createBrowserRouter([

@@ -16,6 +16,7 @@ from spacenote.core.field.models import FieldValueType
 from spacenote.core.filter.models import FilterOperator as CoreFilterOperator
 
 if TYPE_CHECKING:
+    from spacenote.core.comment.models import Comment as CommentModel
     from spacenote.core.note.models import Note as NoteModel
     from spacenote.core.space.models import Space as SpaceModel
     from spacenote.core.user.models import User as UserModel
@@ -201,3 +202,30 @@ class CreateNoteRequest(BaseModel):
             ]
         }
     }
+
+
+# ============================================================================
+# Comment Schemas
+# ============================================================================
+
+
+class Comment(BaseModel):
+    """Comment on a note."""
+
+    id: str = Field(..., description="Unique comment identifier")
+    note_id: str = Field(..., description="ID of the note being commented on")
+    author_id: str = Field(..., description="ID of the user who wrote this comment")
+    number: int = Field(..., description="Sequential number within the note's comments")
+    content: str = Field(..., description="The comment text")
+    created_at: datetime = Field(..., description="When the comment was created")
+
+    @classmethod
+    def from_core(cls, comment: "CommentModel") -> "Comment":
+        """Create from core Comment model."""
+        return cls.model_validate(comment.model_dump(mode="json"))
+
+
+class CreateCommentRequest(BaseModel):
+    """Request to create a new comment."""
+
+    content: str = Field(..., description="The comment text", min_length=1)

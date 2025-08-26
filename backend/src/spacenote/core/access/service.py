@@ -3,9 +3,14 @@ from bson import ObjectId
 from spacenote.core.core import Service
 from spacenote.core.errors import AccessDeniedError
 from spacenote.core.session.models import AuthToken
+from spacenote.core.user.models import User
 
 
 class AccessService(Service):
+    async def ensure_authenticated(self, auth_token: AuthToken) -> User:
+        """Ensure the user is authenticated."""
+        return await self.core.services.session.get_authenticated_user(auth_token)
+
     async def ensure_space_member(self, auth_token: AuthToken, space_id: ObjectId) -> None:
         """Ensure the authenticated user is a member of the specified space."""
         user = await self.core.services.session.get_authenticated_user(auth_token)

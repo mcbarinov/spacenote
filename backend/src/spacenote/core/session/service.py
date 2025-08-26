@@ -1,6 +1,7 @@
 import secrets
 from typing import Any
 
+from bson import ObjectId
 from pymongo.asynchronous.database import AsyncDatabase
 
 from spacenote.core.core import Service
@@ -26,10 +27,9 @@ class SessionService(Service):
         # TTL index for automatic session cleanup (30 days expiry)
         await self._collection.create_index([("created_at", 1)], expireAfterSeconds=30 * 24 * 60 * 60)
 
-    async def create_session(self, username: str) -> AuthToken:
-        user = self.core.services.user.get_user_by_username(username)
+    async def create_session(self, user_id: ObjectId) -> AuthToken:
         auth_token = AuthToken(secrets.token_urlsafe(32))
-        new_session = Session(user_id=user.id, auth_token=auth_token)
+        new_session = Session(user_id=user_id, auth_token=auth_token)
         await self._collection.insert_one(new_session.to_mongo())
         return auth_token
 

@@ -222,13 +222,81 @@ Error handlers map exceptions to HTTP responses:
 - Member access checks in App layer
 - Field schema compliance in NoteService
 
+## Identity Management
+
+SpaceNote uses different types of identifiers at different layers of the architecture to balance performance, security, and user experience.
+
+### Types of Identifiers
+
+- **ObjectId**: MongoDB's internal identifier - fast, unique, used for foreign keys and indexing
+- **slug**: URL-friendly identifier for Space (e.g., "my-tasks", "project-notes")
+- **username**: Unique human-readable identifier for User
+- **number**: Sequential integer for Note and Comment within their context (Space or Note respectively)
+
+### Architectural Layers and ID Usage
+
+#### 1. Service Layer (`core/*/service.py`)
+- **Accepts ONLY ObjectId** in method parameters
+- Never knows about slug, username, or number (with rare exceptions like UserService.verify_password for auth)
+- Returns domain models containing ObjectId references
+- Example:
+  ```python
+  async def get_note(self, note_id: ObjectId) -> Note
+  async def update_members(self, space_id: ObjectId, member_ids: list[ObjectId]) -> Space
+  ```
+
+#### 2. App Layer (`core/app.py`)
+- **Public methods accept human-readable identifiers** (slug, username, number)
+- **Private `_resolve_*` methods** perform translation from human-readable to ObjectId
+- **Passes only ObjectId to services**
+- Serves as the single point of ID translation in the system
+- Example:
+  ```python
+  # Public method accepts human-readable IDs
+  async def get_note_by_number(self, auth_token: AuthToken, space_slug: str, number: int) -> Note:
+      space = self._resolve_space(space_slug)  # Resolve slug to Space object
+      await self._core.services.access.ensure_space_member(auth_token, space.id)
+      return await self._core.services.note.get_note_by_number(space.id, number)  # Pass ObjectId to service
+  ```
+
+#### 3. Web Layer (`web/routers/*`)
+- **Uses URL-friendly identifiers** in endpoint paths
+- Passes these identifiers to App layer without modification
+- Example:
+  ```python
+  @router.get("/spaces/{space_slug}/notes/{number}")
+  async def get_note(space_slug: str, number: int, app: AppDep, auth_token: AuthTokenDep):
+      return await app.get_note_by_number(auth_token, space_slug, number)
+  ```
+
+### Benefits of This Architecture
+
+1. **Performance**: Services work with fast ObjectId lookups internally
+2. **Security**: Internal database IDs are never exposed in URLs or APIs
+3. **User Experience**: URLs are readable and memorable (e.g., `/spaces/my-tasks/notes/42`)
+4. **Flexibility**: Can change slugs without breaking internal references
+5. **Clean Separation**: Each layer has clear responsibilities for ID handling
+
+### Resolution Pattern in App Class
+
+The App class contains private resolver methods that handle all ID translation:
+
+```python
+def _resolve_space(self, slug: str) -> Space
+def _resolve_user(self, username: str) -> User
+async def _resolve_note(self, space_slug: str, number: int) -> tuple[Space, Note]
+```
+
+These methods centralize the resolution logic and ensure consistency across the application.
+
 ## Authentication Flow
 
 1. Login endpoint validates credentials via UserService
-2. SessionService creates secure token
-3. Token stored in database and returned to client
-4. Subsequent requests include token in header or cookie
-5. Dependencies validate token and inject authenticated user
+2. App layer resolves username to user ID
+3. SessionService creates secure token with user ID
+4. Token stored in database and returned to client
+5. Subsequent requests include token in header or cookie
+6. Dependencies validate token and inject authenticated user
 
 ## Configuration
 

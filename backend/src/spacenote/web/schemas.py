@@ -149,8 +149,8 @@ class CreateSpaceRequest(BaseModel):
 
     slug: str = Field(
         ...,
-        description="URL-friendly unique identifier (lowercase letters, numbers, hyphens only)",
-        pattern="^[a-z0-9-]+$",
+        description="URL-friendly unique identifier (lowercase letters, numbers, hyphens; no leading/trailing/double hyphens)",
+        pattern="^[a-z0-9]+(?:-[a-z0-9]+)*$",
     )
     title: str = Field(..., description="Human-readable space name")
 

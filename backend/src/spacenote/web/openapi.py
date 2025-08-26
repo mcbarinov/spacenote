@@ -16,6 +16,39 @@ def set_custom_openapi(app: FastAPI) -> None:
             routes=app.routes,
         )
 
+        # Add security schemes
+        openapi_schema["components"]["securitySchemes"] = {
+            "AuthTokenHeader": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "X-Auth-Token",
+                "description": "Authentication token passed in header",
+            },
+            "AuthTokenCookie": {
+                "type": "apiKey",
+                "in": "cookie",
+                "name": "auth_token",
+                "description": "Authentication token stored in cookie",
+            },
+        }
+
+        # Apply security globally (will be overridden for public endpoints)
+        openapi_schema["security"] = [
+            {"AuthTokenHeader": []},
+            {"AuthTokenCookie": []},
+        ]
+
+        # Remove security from public endpoints
+        public_endpoints = {
+            ("POST", "/auth/login"),
+        }
+
+        for path, path_item in openapi_schema["paths"].items():
+            for method, operation in path_item.items():
+                if (method.upper(), path) in public_endpoints:
+                    # Mark as public endpoint (no security required)
+                    operation["security"] = []
+
         app.openapi_schema = openapi_schema
         return app.openapi_schema
 

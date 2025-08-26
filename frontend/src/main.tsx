@@ -10,11 +10,22 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 5 * 60 * 1000, // 5 minutes
-      retry: 1,
+      retry: (failureCount, error) => {
+        // Don't retry on 401 errors
+        if (error instanceof APIError && error.status === 401) {
+          return false
+        }
+        return failureCount < 1
+      },
       refetchOnWindowFocus: false,
     },
     mutations: {
       onError: (error) => {
+        // Don't show toast for 401 errors - they're handled by http-client redirect
+        if (error instanceof APIError && error.status === 401) {
+          return
+        }
+        
         const message =
           error instanceof APIError ? error.message : error instanceof Error ? error.message : "An unexpected error occurred"
 

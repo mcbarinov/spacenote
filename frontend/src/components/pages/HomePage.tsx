@@ -75,12 +75,6 @@ export default function HomePage() {
         <Card>
           <CardContent className="text-center py-8">
             <p className="text-muted-foreground mb-4">No spaces yet. Create your first space to get started.</p>
-            <Button asChild>
-              <Link to="/spaces/new">
-                <Plus className="h-4 w-4 mr-2" />
-                Create Your First Space
-              </Link>
-            </Button>
           </CardContent>
         </Card>
       )}

@@ -90,6 +90,13 @@ class User(BaseModel):
 # ============================================================================
 
 
+class SpaceTemplates(BaseModel):
+    """Templates for customizing space views."""
+
+    note_detail: str | None = Field(None, description="Optional Liquid template for customizing note detail view")
+    note_list: str | None = Field(None, description="Optional Liquid template for customizing note list item view")
+
+
 class SpaceField(BaseModel):
     """Field definition in a space schema."""
 
@@ -136,8 +143,7 @@ class Space(BaseModel):
     list_fields: list[str] = Field(..., description="Default fields to show in note list view")
     hidden_create_fields: list[str] = Field(..., description="Fields to hide in the note creation form")
     filters: list[Filter] = Field(..., description="Predefined filter configurations")
-    note_detail_template: str | None = Field(None, description="Optional Liquid template for customizing note detail view")
-    note_list_template: str | None = Field(None, description="Optional Liquid template for customizing note list item view")
+    templates: SpaceTemplates = Field(default_factory=SpaceTemplates, description="Templates for customizing space views")
 
     @classmethod
     def from_core(cls, space: "SpaceModel") -> "Space":

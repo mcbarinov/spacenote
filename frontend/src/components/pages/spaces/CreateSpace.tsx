@@ -29,9 +29,9 @@ export default function CreateSpace() {
 
   const onSubmit = (data: CreateSpaceForm) => {
     createSpaceMutation.mutate(data, {
-      onSuccess: (space) => {
+      onSuccess: () => {
         toast.success("Space created successfully")
-        void navigate(`/spaces/${space.slug}`)
+        void navigate("/")
       },
     })
   }

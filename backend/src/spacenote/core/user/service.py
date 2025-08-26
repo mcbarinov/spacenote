@@ -44,10 +44,8 @@ class UserService(Service):
             raise ValidationError(f"User '{username}' already exists")
 
         password_hash = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
-        new_user = User(username=username, password_hash=password_hash)
-        id = (await self._collection.insert_one(new_user.to_mongo())).inserted_id
-        await self.update_cache(id)
-        return self.get_user(id)
+        res = await self._collection.insert_one(User(username=username, password_hash=password_hash).to_mongo())
+        return await self.update_user_cache(res.inserted_id)
 
     def verify_password(self, username: str, password: str) -> bool:
         user = next((u for u in self._users.values() if u.username == username), None)
@@ -59,22 +57,21 @@ class UserService(Service):
         if not self.has_username("admin"):
             await self.create_user("admin", "admin")
 
-    async def update_cache(self, id: ObjectId | None = None) -> None:
-        """Reload users cache from database."""
-        if id is not None:  # update a specific user
-            user = await self._collection.find_one({"_id": id})
-            if user is None:
-                del self._users[id]
-            self._users[id] = User.model_validate(user)
-        else:  # update all users
-            users = await User.list_cursor(self._collection.find())
-            self._users = {user.id: user for user in users}
+    async def update_all_users_cache(self) -> None:
+        """Reload all users cache from database."""
+        users = await User.list_cursor(self._collection.find())
+        self._users = {user.id: user for user in users}
+
+    async def update_user_cache(self, id: ObjectId) -> User:
+        """Reload a specific user cache from database."""
+        user = await self._collection.find_one({"_id": id})
+        if user is None:
+            raise NotFoundError(f"User '{id}' not found")
+        self._users[id] = User.model_validate(user)
+        return self._users[id]
 
     async def on_start(self) -> None:
-        # Create indexes
         await self._collection.create_index([("username", 1)], unique=True)
-
-        # Load cache and ensure admin exists
-        await self.update_cache()
+        await self.update_all_users_cache()
         await self.ensure_admin_user_exists()
         logger.debug("user_service_started", user_count=len(self._users))

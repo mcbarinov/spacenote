@@ -1,6 +1,7 @@
 from typing import Any
 
 from bson import ObjectId
+from pymongo import ReturnDocument
 from pymongo.asynchronous.database import AsyncDatabase
 
 from spacenote.core.core import Service
@@ -23,7 +24,7 @@ class CounterService(Service):
             {"space_id": space_id, "counter_type": counter_type},
             {"$inc": {"seq": 1}},
             upsert=True,
-            return_document=True,
+            return_document=ReturnDocument.AFTER,
         )
 
         # If it was just created (upserted), seq will be 1

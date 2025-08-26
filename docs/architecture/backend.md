@@ -5,7 +5,7 @@
 SpaceNote backend uses a layered architecture built on:
 
 - **FastAPI** - Async web framework with automatic OpenAPI generation
-- **MongoDB** - Document database with async driver (pymongo)  
+- **MongoDB** - Document database with async driver (pymongo)
 - **Python 3.13** - Type-safe async/await programming
 
 ## Architecture Layers
@@ -18,9 +18,11 @@ core/
 ├── user/            # User domain (models.py, service.py)
 ├── space/           # Space domain (models.py, service.py)  
 ├── note/            # Note domain (models.py, service.py)
+├── comment/         # Comment domain (models.py, service.py)
 ├── session/         # Session domain (models.py, service.py)
 ├── field/           # Field domain (models.py)
 ├── filter/          # Filter domain (models.py)
+├── counter/         # Sequential counters (models.py, service.py)
 ├── app.py           # Application facade layer
 ├── config.py        # Core configuration
 ├── core.py          # Application lifecycle and service registry
@@ -53,85 +55,26 @@ Each domain concept has its own module containing:
 - **Utilities**: Pure functions for stateless operations
 
 ### Core Class - Central Orchestrator
-Responsibilities:
-- Service lifecycle management
-- Database connection handling
-- Configuration management
-- Startup/shutdown orchestration
+Manages service lifecycle, database connections, configuration, and application startup/shutdown.
 
 ### App Class - Client Interface
-The ONLY interface clients should use:
-- **Primary responsibility**: Access control enforcement
+Primary interface for clients providing:
+- Access control enforcement
 - User context management
-- Direct delegation to services (no business logic)
+- Delegation to services (no business logic)
 
 ### Service Layer Pattern
 Services handle all business logic and data access:
 - Database operations (CRUD)
 - In-memory caching for performance
-- Business logic enforcement
 - Cross-service coordination via `self.core.services.*`
-
-**Service Access Rules:**
-- Services ONLY access other services through `self.core.services.*`
-- Never pass services as parameters to functions
 - Services are singletons managed by Core
 
 ### Pure Functions
-Stateless business logic organized as pure functions:
-- Work with simple data types only
-- No service dependencies or database access
-- Same input always produces same output
+Stateless business logic with no service dependencies or database access.
 
 ### API Schema Pattern
-**Critical Rule**: API endpoints NEVER return core domain models directly.
-
-All API responses use schema models defined in `web/schemas.py`:
-- **Clean names**: API schemas use simple names (`Note`, `Space`, `User`)
-- **Conversion method**: Each schema has `from_core()` class method for converting domain models
-- **Type safety**: Full type checking from database to API response
-- **API contract**: Schemas define the public API contract, separate from internal models
-
-Example:
-```python
-# In web/schemas.py
-class Note(BaseModel):
-    @classmethod
-    def from_core(cls, note: "NoteModel") -> "Note":
-        return cls.model_validate(note.model_dump(mode="json"))
-
-# In routers
-@router.get("/notes")
-async def list_notes(...) -> list[Note]:
-    notes = await app.get_notes(...)
-    return [Note.from_core(note) for note in notes]
-```
-
-This separation allows:
-- API evolution without changing domain models
-- Different representations for different endpoints
-- Clean OpenAPI documentation
-- Hiding internal implementation details
-
-## Request Flow
-
-**Standard Flow:**
-```
-Client Request 
-  → Web Router (parse request)
-  → App (access control check)
-  → Service (business logic + validation)
-  → Database (data persistence)
-  → Service (return domain model)
-  → Router (convert to API schema via from_core())
-  → Client (JSON response)
-```
-
-**Design Principles:**
-- **Web layer**: Request parsing, schema conversion, response formatting
-- **App layer**: Only access control, then delegate to services
-- **Service layer**: All business logic, validation, and data operations
-- **Schema layer**: Clean API contract, separate from domain models
+API endpoints never return core domain models directly. All responses use schema models from `web/schemas.py` with `from_core()` conversion methods. This separation enables API evolution independent of domain models.
 
 ## Domain Models
 
@@ -152,10 +95,19 @@ Client Request
 
 ### Note
 - `space_id: ObjectId` - Reference to the space containing this note
+- `number: int` - Sequential number within the space for URL generation
 - `author_id: ObjectId` - Reference to the user who created the note
 - `created_at: datetime` - When the note was created
 - `edited_at: datetime | None` - Last time note fields were edited
 - `fields: dict[str, FieldValueType]` - User-defined field values as defined in the Space
+
+### Comment
+- `note_id: ObjectId` - Reference to the parent note
+- `number: int` - Sequential number within the note
+- `author_id: ObjectId` - User who created the comment
+- `content: str` - Markdown-formatted comment text
+- `created_at: datetime` - Creation timestamp
+- `parent_id: ObjectId | None` - For future threading support
 
 ### Field System
 - **Types**: string, markdown, boolean, choice, tags, user, datetime, int, float
@@ -185,18 +137,32 @@ Client Request
 - Space CRUD with slug validation
 - Member-based access control
 - In-memory space cache
-- Space field and filter management
+- Field and filter management
 
 ### NoteService
 - Note CRUD operations within spaces
-- Space-based note listing and filtering
+- Sequential numbering via CounterService
+- Space-based listing and filtering
 - Custom field data management
-- Note creation and editing tracking
+- Creation and editing tracking
+
+### CommentService
+- Comment CRUD operations
+- Sequential numbering per note
+- Author tracking and timestamps
+- Markdown content support
 
 ### SessionService
-- Token-based authentication with secrets.token_urlsafe
+- Token generation with secrets.token_urlsafe
 - Session persistence in MongoDB
-- User authentication and authorization
+- 30-day TTL for sessions
+- Token validation and user lookup
+
+### CounterService
+- Atomic sequential counters per collection
+- Ensures unique numbering under concurrent access
+- Used for note and comment numbering
+- MongoDB findAndModify for atomicity
 
 ## Database Design
 
@@ -204,12 +170,57 @@ Client Request
 - `users` - User documents with password hashes
 - `spaces` - Space configurations with fields and filters  
 - `notes` - Note documents with custom field data and metadata
+- `comments` - Comment documents linked to notes
 - `sessions` - Authentication tokens with user references
+- `counters` - Atomic counter documents for sequential numbering
 
-### ObjectId Handling
+### ObjectId **Handling**
 - Custom `PyObjectId` type for Pydantic validation
 - Automatic `_id` ↔ `id` field mapping for MongoDB compatibility
 - Type-safe ObjectId operations throughout system
+
+### Database Indexes
+- `users.username` - Unique index for login lookups
+- `spaces.slug` - Unique index for URL generation
+- `notes.space_id + number` - Compound index for note lookups
+- `comments.note_id + number` - Compound index for comment ordering
+- `sessions.auth_token` - Index for token validation
+- `counters._id` - Primary key for atomic operations
+
+## Error Handling
+
+### Service Layer
+- Custom exceptions in `core/errors.py` hierarchy
+- `NotFoundError` - Resource doesn't exist
+- `AlreadyExistsError` - Duplicate resource
+- `ValidationError` - Business rule violation
+- `AuthenticationError` - Invalid credentials
+- `AuthorizationError` - Insufficient permissions
+
+### Web Layer
+Error handlers map exceptions to HTTP responses:
+- `NotFoundError` → 404
+- `ValidationError` → 400
+- `AuthenticationError` → 401
+- `AuthorizationError` → 403
+- Unexpected errors → 500 with logging
+
+## Validation Strategy
+
+### Field Validation
+- Type checking via Pydantic models
+- Field-specific validation based on type:
+  - String fields: min/max length
+  - Numeric fields: min/max values
+  - Choice fields: allowed values
+  - Tags fields: valid tag list
+- Required field enforcement
+
+### Business Logic Validation
+- Username uniqueness in UserService
+- Space slug format and uniqueness
+- Member access checks in App layer
+- Field schema compliance in NoteService
 
 ## Authentication Flow
 
@@ -227,8 +238,3 @@ Client Request
 - `SPACENOTE_BACKEND_HOST/PORT` - Server binding
 - `SPACENOTE_SESSION_SECRET_KEY` - Session middleware secret
 - `SPACENOTE_CORS_ORIGINS` - CORS configuration for frontend
-
-### Development Commands
-- Development: `just b-dev` with file watching
-- AI Agents: `just b-agent-start` with background process
-- Production: Standard uvicorn deployment

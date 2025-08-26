@@ -1,7 +1,8 @@
-import { useParams, Link } from "react-router"
+import { useParams, Link, useNavigate } from "react-router"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { useSpace } from "@/hooks/useSpace"
-import { notesQueryOptions, usersQueryOptions } from "@/lib/queries"
+import { notesQueryOptions } from "@/lib/queries"
+import { formatDateShort } from "@/lib/format"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -11,33 +12,20 @@ import type { Note } from "@/types"
 
 export default function NoteList() {
   const { slug } = useParams() as { slug: string }
+  const navigate = useNavigate()
   const space = useSpace(slug)
-  // Ensure users are loaded for UserDisplay component
-  useSuspenseQuery(usersQueryOptions())
   const { data: notes } = useSuspenseQuery(notesQueryOptions(slug))
 
   // Determine which columns to show
   const columns = space.list_fields.length > 0 ? space.list_fields : ["number", "created_at", "author"]
 
-  // Helper function to format dates
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    return date.toLocaleString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    })
-  }
-
   // Helper function to get field value for display
   const getFieldValue = (note: Note, fieldName: string) => {
     // Handle special fields
     if (fieldName === "number") return note.number
-    if (fieldName === "created_at") return formatDate(note.created_at)
+    if (fieldName === "created_at") return formatDateShort(note.created_at)
     if (fieldName === "author") return <UserDisplay userId={note.author_id} />
-    if (fieldName === "edited_at") return note.edited_at ? formatDate(note.edited_at) : "-"
+    if (fieldName === "edited_at") return note.edited_at ? formatDateShort(note.edited_at) : "-"
 
     // Handle custom fields
     const fieldValue = note.fields[fieldName]
@@ -79,7 +67,13 @@ export default function NoteList() {
               </TableHeader>
               <TableBody>
                 {notes.map((note) => (
-                  <TableRow key={note.id}>
+                  <TableRow
+                    key={note.id}
+                    className="cursor-pointer"
+                    onClick={() => {
+                      void navigate(`/s/${slug}/${String(note.number)}`)
+                    }}
+                  >
                     {columns.map((column) => (
                       <TableCell key={column}>{getFieldValue(note, column)}</TableCell>
                     ))}

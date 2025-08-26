@@ -8,6 +8,7 @@ import CreateSpace from "@/components/pages/spaces/CreateSpace"
 import FieldList from "@/components/pages/spaces/fields/FieldList"
 import CreateField from "@/components/pages/spaces/fields/CreateField"
 import NoteList from "@/components/pages/notes/NoteList"
+import NoteDetail from "@/components/pages/notes/NoteDetail"
 import CreateNote from "@/components/pages/notes/CreateNote"
 
 export const router = createBrowserRouter([
@@ -25,6 +26,7 @@ export const router = createBrowserRouter([
         children: [
           { path: "/", element: <HomePage /> },
           { path: "/s/:slug", element: <NoteList /> },
+          { path: "/s/:slug/:number", element: <NoteDetail /> },
           { path: "/s/:slug/new", element: <CreateNote /> },
           { path: "/spaces", element: <SpaceList /> },
           { path: "/spaces/new", element: <CreateSpace /> },

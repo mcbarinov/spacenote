@@ -1,11 +1,11 @@
-import { useSuspenseQuery } from "@tanstack/react-query"
-
-import { spacesQueryOptions } from "@/lib/queries"
+import { useQueryClient } from "@tanstack/react-query"
 import { NotFoundError } from "@/lib/errors"
 import type { Space } from "@/types"
 
 export function useSpace(slug: string): Space {
-  const { data: spaces } = useSuspenseQuery(spacesQueryOptions())
+  const queryClient = useQueryClient()
+  // Get spaces from cache since they're already loaded in AuthLayout
+  const spaces = queryClient.getQueryData<Space[]>(["spaces"]) ?? []
 
   const space = spaces.find((s) => s.slug === slug)
 

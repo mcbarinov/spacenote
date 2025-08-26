@@ -38,6 +38,10 @@ export const api = {
     return await httpClient.get(`api/v1/spaces/${spaceSlug}/notes`).json<Note[]>()
   },
 
+  async getNote(spaceSlug: string, number: number): Promise<Note> {
+    return await httpClient.get(`api/v1/spaces/${spaceSlug}/notes/${String(number)}`).json<Note>()
+  },
+
   async createNote(spaceSlug: string, data: CreateNoteRequest): Promise<Note> {
     return await httpClient.post(`api/v1/spaces/${spaceSlug}/notes`, { json: data }).json<Note>()
   },

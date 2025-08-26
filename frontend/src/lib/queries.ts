@@ -62,6 +62,12 @@ export const notesQueryOptions = (spaceSlug: string) =>
     queryFn: () => api.getNotesBySpace(spaceSlug),
   })
 
+export const noteQueryOptions = (spaceSlug: string, number: number) =>
+  queryOptions({
+    queryKey: ["notes", spaceSlug, number],
+    queryFn: () => api.getNote(spaceSlug, number),
+  })
+
 export const useCreateNoteMutation = (spaceSlug: string) => {
   const queryClient = useQueryClient()
 

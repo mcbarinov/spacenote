@@ -1,7 +1,9 @@
 import { Suspense } from "react"
 import { Navigate, Outlet, useNavigate, Link } from "react-router"
 import { ErrorBoundary } from "react-error-boundary"
+import { useSuspenseQuery } from "@tanstack/react-query"
 import { useAuth } from "@/hooks/useAuth"
+import { usersQueryOptions, spacesQueryOptions } from "@/lib/queries"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,6 +18,10 @@ import { Loading } from "@/components/ui/loading"
 export default function AuthLayout() {
   const { isAuthenticated, username, logout } = useAuth()
   const navigate = useNavigate()
+
+  // Load users and spaces data once for the entire app
+  useSuspenseQuery(usersQueryOptions())
+  useSuspenseQuery(spacesQueryOptions())
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />

@@ -1,13 +1,15 @@
-import { useSuspenseQuery } from "@tanstack/react-query"
-import { spacesQueryOptions } from "@/lib/queries"
+import { useQueryClient } from "@tanstack/react-query"
 import { Link } from "react-router"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Plus, Settings } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import type { Space } from "@/types"
 
 export default function SpaceList() {
-  const { data: spaces } = useSuspenseQuery(spacesQueryOptions())
+  const queryClient = useQueryClient()
+  // Get spaces from cache since they're already loaded in AuthLayout
+  const spaces = queryClient.getQueryData<Space[]>(["spaces"]) ?? []
 
   return (
     <div className="container mx-auto p-6">

@@ -26,7 +26,7 @@ export default function HomePage() {
       {spaces.length > 0 ? (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {spaces.map((space) => (
-            <Card key={space.id} className="relative hover:shadow-lg transition-shadow">
+            <Card key={space.slug} className="relative hover:shadow-lg transition-shadow">
               <CardHeader>
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
@@ -45,7 +45,7 @@ export default function HomePage() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem asChild>
-                        <Link to={`/spaces/${space.slug}/members`}>Members ({space.members.length})</Link>
+                        <Link to={`/spaces/${space.slug}/members`}>Members ({space.member_usernames.length})</Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
                         <Link to={`/spaces/${space.slug}/fields`}>Fields ({space.fields.length})</Link>

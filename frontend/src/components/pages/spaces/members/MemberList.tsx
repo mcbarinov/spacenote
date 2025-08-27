@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import { useParams } from "react-router"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { toast } from "sonner"
-import { spacesQueryOptions, usersQueryOptions, useUpdateSpaceMembersMutation } from "@/lib/queries"
+import { spacesQueryOptions, useUpdateSpaceMembersMutation } from "@/lib/queries"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -10,7 +10,6 @@ import { Label } from "@/components/ui/label"
 export default function MemberList() {
   const { slug } = useParams()
   const { data: spaces } = useSuspenseQuery(spacesQueryOptions())
-  const { data: users } = useSuspenseQuery(usersQueryOptions())
   const updateMembersMutation = useUpdateSpaceMembersMutation(slug ?? "")
 
   const space = spaces.find((s) => s.slug === slug)
@@ -18,13 +17,10 @@ export default function MemberList() {
 
   useEffect(() => {
     if (space) {
-      const memberUsernames = space.members
-        .map((memberId) => users.find((u) => u.id === memberId)?.username)
-        .filter(Boolean)
-        .join(", ")
+      const memberUsernames = space.member_usernames.join(", ")
       setMembersInput(memberUsernames)
     }
-  }, [space, users])
+  }, [space])
 
   if (!space) {
     return <div>Space not found</div>

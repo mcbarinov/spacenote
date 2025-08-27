@@ -11,7 +11,7 @@ from spacenote.core.note.models import Note
 from spacenote.core.session.models import AuthToken
 from spacenote.core.space.models import Space
 from spacenote.core.user.models import User
-from spacenote.core.views import CommentView, NoteView
+from spacenote.core.views import CommentView, NoteView, SpaceView
 
 
 class App:
@@ -51,18 +51,29 @@ class App:
         await self._core.services.access.ensure_admin(auth_token)
         return await self._core.services.user.create_user(username, password)
 
-    async def get_spaces_by_member(self, auth_token: AuthToken) -> list[Space]:
+    async def get_spaces_by_member(self, auth_token: AuthToken) -> list[SpaceView]:
         current_user = await self._core.services.access.ensure_authenticated(auth_token)
-        return self._core.services.space.get_spaces_by_member(current_user.id)
+        spaces = self._core.services.space.get_spaces_by_member(current_user.id)
 
-    async def create_space(self, auth_token: AuthToken, slug: str, title: str) -> Space:
+        # Convert to view models with member usernames
+        result = []
+        for space in spaces:
+            member_usernames = [self._core.services.user.get_user(member_id).username for member_id in space.members]
+            result.append(SpaceView.from_domain(space, member_usernames))
+        return result
+
+    async def create_space(self, auth_token: AuthToken, slug: str, title: str) -> SpaceView:
         current_user = await self._core.services.access.ensure_authenticated(auth_token)
-        return await self._core.services.space.create_space(slug, title, current_user.id)
+        space = await self._core.services.space.create_space(slug, title, current_user.id)
+        member_usernames = [self._core.services.user.get_user(member_id).username for member_id in space.members]
+        return SpaceView.from_domain(space, member_usernames)
 
-    async def add_field_to_space(self, auth_token: AuthToken, space_slug: str, field: SpaceField) -> Space:
+    async def add_field_to_space(self, auth_token: AuthToken, space_slug: str, field: SpaceField) -> SpaceView:
         space = self._resolve_space(space_slug)
         await self._core.services.access.ensure_space_member(auth_token, space.id)
-        return await self._core.services.space.add_field(space.id, field)
+        updated_space = await self._core.services.space.add_field(space.id, field)
+        member_usernames = [self._core.services.user.get_user(member_id).username for member_id in updated_space.members]
+        return SpaceView.from_domain(updated_space, member_usernames)
 
     async def get_notes_by_space(self, auth_token: AuthToken, space_slug: str) -> list[NoteView]:
         space = self._resolve_space(space_slug)
@@ -109,7 +120,7 @@ class App:
         comment = await self._core.services.comment.create_comment(note.id, space.id, current_user.id, content)
         return CommentView.from_domain(comment, space_slug, note_number, current_user.username)
 
-    async def update_space_members(self, auth_token: AuthToken, space_slug: str, usernames: list[str]) -> Space:
+    async def update_space_members(self, auth_token: AuthToken, space_slug: str, usernames: list[str]) -> SpaceView:
         space = self._resolve_space(space_slug)
         await self._core.services.access.ensure_space_member(auth_token, space.id)
 
@@ -119,7 +130,8 @@ class App:
             user = self._resolve_user(username)
             member_ids.append(user.id)
 
-        return await self._core.services.space.update_members(space.id, member_ids)
+        updated_space = await self._core.services.space.update_members(space.id, member_ids)
+        return SpaceView.from_domain(updated_space, usernames)
 
     # === Private resolver methods ===
     def _resolve_space(self, slug: str) -> Space:

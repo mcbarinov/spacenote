@@ -12,6 +12,7 @@ from spacenote.core.note.models import Note
 from spacenote.core.session.models import AuthToken
 from spacenote.core.space.models import Space
 from spacenote.core.user.models import User
+from spacenote.core.views import NoteView
 
 
 class App:
@@ -64,21 +65,31 @@ class App:
         await self._core.services.access.ensure_space_member(auth_token, space.id)
         return await self._core.services.space.add_field(space.id, field)
 
-    async def get_notes_by_space(self, auth_token: AuthToken, space_slug: str) -> list[Note]:
+    async def get_notes_by_space(self, auth_token: AuthToken, space_slug: str) -> list[NoteView]:
         space = self._resolve_space(space_slug)
         await self._core.services.access.ensure_space_member(auth_token, space.id)
-        return await self._core.services.note.list_notes(space.id)
+        notes = await self._core.services.note.list_notes(space.id)
 
-    async def get_note_by_number(self, auth_token: AuthToken, space_slug: str, number: int) -> Note:
+        # Convert to view models with author usernames
+        result = []
+        for note in notes:
+            author = self._core.services.user.get_user(note.author_id)
+            result.append(NoteView.from_domain(note, space_slug, author.username))
+        return result
+
+    async def get_note_by_number(self, auth_token: AuthToken, space_slug: str, number: int) -> NoteView:
         space = self._resolve_space(space_slug)
         await self._core.services.access.ensure_space_member(auth_token, space.id)
-        return await self._core.services.note.get_note_by_number(space.id, number)
+        note = await self._core.services.note.get_note_by_number(space.id, number)
+        author = self._core.services.user.get_user(note.author_id)
+        return NoteView.from_domain(note, space_slug, author.username)
 
-    async def create_note(self, auth_token: AuthToken, space_slug: str, raw_fields: dict[str, str]) -> Note:
+    async def create_note(self, auth_token: AuthToken, space_slug: str, raw_fields: dict[str, str]) -> NoteView:
         space = self._resolve_space(space_slug)
         await self._core.services.access.ensure_space_member(auth_token, space.id)
         current_user = await self._core.services.access.ensure_authenticated(auth_token)
-        return await self._core.services.note.create_note(space.id, current_user.id, raw_fields)
+        note = await self._core.services.note.create_note(space.id, current_user.id, raw_fields)
+        return NoteView.from_domain(note, space_slug, current_user.username)
 
     async def get_note_comments(self, auth_token: AuthToken, space_slug: str, note_number: int) -> list[Comment]:
         space, note = await self._resolve_note(space_slug, note_number)

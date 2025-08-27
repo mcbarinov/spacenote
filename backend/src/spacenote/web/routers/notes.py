@@ -1,7 +1,8 @@
 from fastapi import APIRouter
 
+from spacenote.core.views import NoteView
 from spacenote.web.deps import AppDep, AuthTokenDep
-from spacenote.web.schemas import CreateNoteRequest, ErrorResponse, Note
+from spacenote.web.schemas import CreateNoteRequest, ErrorResponse
 
 router: APIRouter = APIRouter(tags=["notes"])
 
@@ -18,9 +19,8 @@ router: APIRouter = APIRouter(tags=["notes"])
         404: {"model": ErrorResponse, "description": "Space not found"},
     },
 )
-async def list_notes(space_slug: str, app: AppDep, auth_token: AuthTokenDep) -> list[Note]:
-    notes = await app.get_notes_by_space(auth_token, space_slug)
-    return [Note.from_core(note) for note in notes]
+async def list_notes(space_slug: str, app: AppDep, auth_token: AuthTokenDep) -> list[NoteView]:
+    return await app.get_notes_by_space(auth_token, space_slug)
 
 
 @router.get(
@@ -35,9 +35,8 @@ async def list_notes(space_slug: str, app: AppDep, auth_token: AuthTokenDep) -> 
         404: {"model": ErrorResponse, "description": "Space or note not found"},
     },
 )
-async def get_note_by_number(space_slug: str, number: int, app: AppDep, auth_token: AuthTokenDep) -> Note:
-    note = await app.get_note_by_number(auth_token, space_slug, number)
-    return Note.from_core(note)
+async def get_note_by_number(space_slug: str, number: int, app: AppDep, auth_token: AuthTokenDep) -> NoteView:
+    return await app.get_note_by_number(auth_token, space_slug, number)
 
 
 @router.post(
@@ -54,6 +53,5 @@ async def get_note_by_number(space_slug: str, number: int, app: AppDep, auth_tok
         404: {"model": ErrorResponse, "description": "Space not found"},
     },
 )
-async def create_note(space_slug: str, request: CreateNoteRequest, app: AppDep, auth_token: AuthTokenDep) -> Note:
-    note = await app.create_note(auth_token, space_slug, request.raw_fields)
-    return Note.from_core(note)
+async def create_note(space_slug: str, request: CreateNoteRequest, app: AppDep, auth_token: AuthTokenDep) -> NoteView:
+    return await app.create_note(auth_token, space_slug, request.raw_fields)

@@ -7,7 +7,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Plus } from "lucide-react"
-import { UserDisplay } from "@/components/UserDisplay"
 import type { Note } from "@/types"
 
 export default function NoteList() {
@@ -24,7 +23,7 @@ export default function NoteList() {
     // Handle special fields
     if (fieldName === "number") return note.number
     if (fieldName === "created_at") return formatDateShort(note.created_at)
-    if (fieldName === "author") return <UserDisplay userId={note.author_id} />
+    if (fieldName === "author") return note.author_username
     if (fieldName === "edited_at") return note.edited_at ? formatDateShort(note.edited_at) : "-"
 
     // Handle custom fields
@@ -68,7 +67,7 @@ export default function NoteList() {
               <TableBody>
                 {notes.map((note) => (
                   <TableRow
-                    key={note.id}
+                    key={note.number}
                     className="cursor-pointer"
                     onClick={() => {
                       void navigate(`/s/${slug}/${String(note.number)}`)

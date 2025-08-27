@@ -97,9 +97,7 @@ export default function NoteDetail() {
               </div>
               <div>
                 <div className="text-sm text-muted-foreground">Author</div>
-                <div className="font-medium">
-                  <UserDisplay userId={note.author_id} />
-                </div>
+                <div className="font-medium">{note.author_username}</div>
               </div>
               <div>
                 <div className="text-sm text-muted-foreground">Created</div>

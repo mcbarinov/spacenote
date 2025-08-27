@@ -29,7 +29,8 @@ core/
 ├── db.py            # MongoDB base models and ObjectId handling
 ├── errors.py        # Custom exception hierarchy
 ├── logging.py       # Structured logging setup
-└── utils.py         # Shared utilities
+├── utils.py         # Shared utilities
+└── views.py         # View models for external API
 ```
 
 ### Web Layer (`spacenote.web`)
@@ -61,6 +62,8 @@ Manages service lifecycle, database connections, configuration, and application 
 Primary interface for clients providing:
 - Access control enforcement
 - User context management
+- Conversion from domain models to view models
+- Returns view models for external consumption
 - Delegation to services (no business logic)
 
 ### Service Layer Pattern
@@ -73,8 +76,19 @@ Services handle all business logic and data access:
 ### Pure Functions
 Stateless business logic with no service dependencies or database access.
 
+### View Models Architecture
+View models are the external representation of domain models, defined in `core/views.py`:
+- **Purpose**: Provide clean API responses without internal implementation details
+- **No ObjectIds**: Only human-readable identifiers (slug, username, number)
+- **Conversion**: Class methods convert from domain models with additional context
+- **OpenAPI Integration**: Used directly for schema generation
+- **Examples**:
+  - `NoteView`: Contains `space_slug` and `author_username` instead of ObjectIds
+  - `SpaceView`: Contains `member_usernames` instead of member IDs
+  - Domain model has `author_id: ObjectId`, view model has `author_username: str`
+
 ### API Schema Pattern
-API endpoints never return core domain models directly. All responses use schema models from `web/schemas.py` with `from_core()` conversion methods. This separation enables API evolution independent of domain models.
+API endpoints return view models from `core/views.py` directly. View models contain only human-readable identifiers (no ObjectIds) and are designed for external consumption. The web layer passes view models through without conversion, and FastAPI automatically generates OpenAPI schemas from these models.
 
 ## Domain Models
 
@@ -249,24 +263,28 @@ SpaceNote uses different types of identifiers at different layers of the archite
 - **Public methods accept human-readable identifiers** (slug, username, number)
 - **Private `_resolve_*` methods** perform translation from human-readable to ObjectId
 - **Passes only ObjectId to services**
+- **Returns view models instead of domain models**
 - Serves as the single point of ID translation in the system
 - Example:
   ```python
-  # Public method accepts human-readable IDs
-  async def get_note_by_number(self, auth_token: AuthToken, space_slug: str, number: int) -> Note:
+  # Public method accepts human-readable IDs and returns view model
+  async def get_note_by_number(self, auth_token: AuthToken, space_slug: str, number: int) -> NoteView:
       space = self._resolve_space(space_slug)  # Resolve slug to Space object
       await self._core.services.access.ensure_space_member(auth_token, space.id)
-      return await self._core.services.note.get_note_by_number(space.id, number)  # Pass ObjectId to service
+      note = await self._core.services.note.get_note_by_number(space.id, number)  # Get domain model
+      author = self._core.services.user.get_user(note.author_id)  # Get author for username
+      return NoteView.from_domain(note, space_slug, author.username)  # Return view model
   ```
 
 #### 3. Web Layer (`web/routers/*`)
 - **Uses URL-friendly identifiers** in endpoint paths
 - Passes these identifiers to App layer without modification
+- **Returns view models directly** without any conversion
 - Example:
   ```python
-  @router.get("/spaces/{space_slug}/notes/{number}")
-  async def get_note(space_slug: str, number: int, app: AppDep, auth_token: AuthTokenDep):
-      return await app.get_note_by_number(auth_token, space_slug, number)
+  @router.get("/spaces/{space_slug}/notes/{number}", response_model=NoteView)
+  async def get_note(space_slug: str, number: int, app: AppDep, auth_token: AuthTokenDep) -> NoteView:
+      return await app.get_note_by_number(auth_token, space_slug, number)  # Direct return of view model
   ```
 
 ### Benefits of This Architecture

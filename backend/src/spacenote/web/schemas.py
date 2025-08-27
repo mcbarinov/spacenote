@@ -17,7 +17,6 @@ from spacenote.core.filter.models import FilterOperator as CoreFilterOperator
 
 if TYPE_CHECKING:
     from spacenote.core.comment.models import Comment as CommentModel
-    from spacenote.core.note.models import Note as NoteModel
     from spacenote.core.space.models import Space as SpaceModel
     from spacenote.core.user.models import User as UserModel
 
@@ -182,23 +181,6 @@ class UpdateSpaceMembersRequest(BaseModel):
 # ============================================================================
 # Note Schemas
 # ============================================================================
-
-
-class Note(BaseModel):
-    """Note with custom fields stored in a space."""
-
-    id: str = Field(..., description="Unique note identifier")
-    space_id: str = Field(..., description="ID of the space containing this note")
-    number: int = Field(..., description="Sequential number within the space")
-    author_id: str = Field(..., description="ID of the user who created this note")
-    created_at: datetime = Field(..., description="When the note was created")
-    edited_at: datetime | None = Field(None, description="When the note was last edited")
-    fields: dict[str, FieldValueType] = Field(..., description="Field values as defined by the space schema")
-
-    @classmethod
-    def from_core(cls, note: "NoteModel") -> "Note":
-        """Create from core Note model."""
-        return cls.model_validate(note.model_dump(mode="json"))
 
 
 class CreateNoteRequest(BaseModel):

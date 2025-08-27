@@ -313,3 +313,9 @@ End-to-end type safety:
 - Generated types for all endpoints
 - Zod schemas for runtime validation
 - TypeScript strict mode enabled
+- **Type Mapping**: Frontend maps backend view model names to clean types in `types/index.ts`:
+  - `NoteView` → `Note`
+  - `SpaceView` → `Space` 
+  - `CommentView` → `Comment`
+  - Frontend code uses clean names without "View" suffix
+  - No ObjectId types exposed to frontend

@@ -1,27 +1,11 @@
-from typing import TYPE_CHECKING
-
 from fastapi import APIRouter
 from pydantic import BaseModel, Field
 
+from spacenote.core.user.models import UserView
 from spacenote.web.deps import AppDep, AuthTokenDep
 from spacenote.web.schemas import ErrorResponse
 
-if TYPE_CHECKING:
-    from spacenote.core.user.models import User as UserModel
-
 router = APIRouter(tags=["users"])
-
-
-class User(BaseModel):
-    """User account information."""
-
-    id: str = Field(..., description="Unique user identifier")
-    username: str = Field(..., description="Username")
-
-    @classmethod
-    def from_core(cls, user: "UserModel") -> "User":
-        """Create from core User model."""
-        return cls.model_validate(user.model_dump(mode="json"))
 
 
 class CreateUserRequest(BaseModel):
@@ -41,10 +25,9 @@ class CreateUserRequest(BaseModel):
         401: {"model": ErrorResponse, "description": "Not authenticated"},
     },
 )
-async def list_users(app: AppDep, auth_token: AuthTokenDep) -> list[User]:
+async def list_users(app: AppDep, auth_token: AuthTokenDep) -> list[UserView]:
     """Get all users."""
-    users = await app.get_all_users(auth_token)
-    return [User.from_core(user) for user in users]
+    return await app.get_all_users(auth_token)
 
 
 @router.get(
@@ -57,10 +40,9 @@ async def list_users(app: AppDep, auth_token: AuthTokenDep) -> list[User]:
         401: {"model": ErrorResponse, "description": "Not authenticated"},
     },
 )
-async def get_current_user(app: AppDep, auth_token: AuthTokenDep) -> User:
+async def get_current_user(app: AppDep, auth_token: AuthTokenDep) -> UserView:
     """Get current authenticated user."""
-    user = await app.get_current_user(auth_token)
-    return User.from_core(user)
+    return await app.get_current_user(auth_token)
 
 
 @router.post(
@@ -76,7 +58,6 @@ async def get_current_user(app: AppDep, auth_token: AuthTokenDep) -> User:
     },
     status_code=201,
 )
-async def create_user(create_data: CreateUserRequest, app: AppDep, auth_token: AuthTokenDep) -> User:
+async def create_user(create_data: CreateUserRequest, app: AppDep, auth_token: AuthTokenDep) -> UserView:
     """Create a new user (admin only)."""
-    user = await app.create_user(auth_token, create_data.username, create_data.password)
-    return User.from_core(user)
+    return await app.create_user(auth_token, create_data.username, create_data.password)

@@ -32,7 +32,7 @@ export default function UserList() {
           </TableHeader>
           <TableBody>
             {users.map((user) => (
-              <TableRow key={user.id}>
+              <TableRow key={user.username}>
                 <TableCell className="font-medium">{user.username}</TableCell>
               </TableRow>
             ))}

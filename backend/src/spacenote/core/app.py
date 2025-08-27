@@ -11,7 +11,7 @@ from spacenote.core.field.models import SpaceField
 from spacenote.core.note.models import Note, NoteView
 from spacenote.core.session.models import AuthToken
 from spacenote.core.space.models import Space, SpaceView
-from spacenote.core.user.models import User
+from spacenote.core.user.models import User, UserView
 
 
 class App:
@@ -38,18 +38,21 @@ class App:
         await self._core.services.access.ensure_authenticated(auth_token)
         await self._core.services.session.invalidate_session(auth_token)
 
-    async def get_current_user(self, auth_token: AuthToken) -> User:
-        return await self._core.services.access.ensure_authenticated(auth_token)
+    async def get_current_user(self, auth_token: AuthToken) -> UserView:
+        user = await self._core.services.access.ensure_authenticated(auth_token)
+        return UserView.from_domain(user)
 
-    async def get_all_users(self, auth_token: AuthToken) -> list[User]:
+    async def get_all_users(self, auth_token: AuthToken) -> list[UserView]:
         """Get all users."""
         await self._core.services.access.ensure_authenticated(auth_token)
-        return self._core.services.user.get_all_users()
+        users = self._core.services.user.get_all_users()
+        return [UserView.from_domain(user) for user in users]
 
-    async def create_user(self, auth_token: AuthToken, username: str, password: str) -> User:
+    async def create_user(self, auth_token: AuthToken, username: str, password: str) -> UserView:
         """Create a new user (admin only)."""
         await self._core.services.access.ensure_admin(auth_token)
-        return await self._core.services.user.create_user(username, password)
+        user = await self._core.services.user.create_user(username, password)
+        return UserView.from_domain(user)
 
     async def get_spaces_by_member(self, auth_token: AuthToken) -> list[SpaceView]:
         current_user = await self._core.services.access.ensure_authenticated(auth_token)

@@ -4,10 +4,10 @@ export type { paths, components, operations }
 
 export type LoginRequest = components["schemas"]["LoginRequest"]
 export type LoginResponse = components["schemas"]["LoginResponse"]
-export type User = components["schemas"]["User"]
+export type User = components["schemas"]["UserView"]
 export type Space = components["schemas"]["SpaceView"]
 export type Note = components["schemas"]["NoteView"]
-export type SpaceField = components["schemas"]["SpaceField-Input"]
+export type SpaceField = components["schemas"]["SpaceField"]
 export type Filter = components["schemas"]["Filter"]
 export type FilterCondition = components["schemas"]["FilterCondition"]
 export type FilterOperator = components["schemas"]["FilterOperator"]

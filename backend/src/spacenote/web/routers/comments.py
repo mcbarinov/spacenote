@@ -2,8 +2,9 @@
 
 from fastapi import APIRouter
 
+from spacenote.core.views import CommentView
 from spacenote.web.deps import AppDep, AuthTokenDep
-from spacenote.web.schemas import Comment, CreateCommentRequest, ErrorResponse
+from spacenote.web.schemas import CreateCommentRequest, ErrorResponse
 
 router: APIRouter = APIRouter(tags=["comments"])
 
@@ -20,9 +21,8 @@ router: APIRouter = APIRouter(tags=["comments"])
         404: {"model": ErrorResponse, "description": "Space or note not found"},
     },
 )
-async def list_comments(space_slug: str, number: int, app: AppDep, auth_token: AuthTokenDep) -> list[Comment]:
-    comments = await app.get_note_comments(auth_token, space_slug, number)
-    return [Comment.from_core(comment) for comment in comments]
+async def list_comments(space_slug: str, number: int, app: AppDep, auth_token: AuthTokenDep) -> list[CommentView]:
+    return await app.get_note_comments(auth_token, space_slug, number)
 
 
 @router.post(
@@ -40,6 +40,5 @@ async def list_comments(space_slug: str, number: int, app: AppDep, auth_token: A
 )
 async def create_comment(
     space_slug: str, number: int, request: CreateCommentRequest, app: AppDep, auth_token: AuthTokenDep
-) -> Comment:
-    comment = await app.create_comment(auth_token, space_slug, number, request.content)
-    return Comment.from_core(comment)
+) -> CommentView:
+    return await app.create_comment(auth_token, space_slug, number, request.content)

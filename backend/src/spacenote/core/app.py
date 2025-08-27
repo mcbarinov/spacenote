@@ -3,7 +3,6 @@ from contextlib import asynccontextmanager
 
 from bson import ObjectId
 
-from spacenote.core.comment.models import Comment
 from spacenote.core.config import CoreConfig
 from spacenote.core.core import Core
 from spacenote.core.errors import AuthenticationError
@@ -12,7 +11,7 @@ from spacenote.core.note.models import Note
 from spacenote.core.session.models import AuthToken
 from spacenote.core.space.models import Space
 from spacenote.core.user.models import User
-from spacenote.core.views import NoteView
+from spacenote.core.views import CommentView, NoteView
 
 
 class App:
@@ -91,16 +90,24 @@ class App:
         note = await self._core.services.note.create_note(space.id, current_user.id, raw_fields)
         return NoteView.from_domain(note, space_slug, current_user.username)
 
-    async def get_note_comments(self, auth_token: AuthToken, space_slug: str, note_number: int) -> list[Comment]:
+    async def get_note_comments(self, auth_token: AuthToken, space_slug: str, note_number: int) -> list[CommentView]:
         space, note = await self._resolve_note(space_slug, note_number)
         await self._core.services.access.ensure_space_member(auth_token, space.id)
-        return await self._core.services.comment.get_note_comments(note.id)
+        comments = await self._core.services.comment.get_note_comments(note.id)
 
-    async def create_comment(self, auth_token: AuthToken, space_slug: str, note_number: int, content: str) -> Comment:
+        # Convert to view models with author usernames
+        comment_views = []
+        for comment in comments:
+            author = self._core.services.user.get_user(comment.author_id)
+            comment_views.append(CommentView.from_domain(comment, space_slug, note_number, author.username))
+        return comment_views
+
+    async def create_comment(self, auth_token: AuthToken, space_slug: str, note_number: int, content: str) -> CommentView:
         space, note = await self._resolve_note(space_slug, note_number)
         await self._core.services.access.ensure_space_member(auth_token, space.id)
         current_user = await self._core.services.session.get_authenticated_user(auth_token)
-        return await self._core.services.comment.create_comment(note.id, space.id, current_user.id, content)
+        comment = await self._core.services.comment.create_comment(note.id, space.id, current_user.id, content)
+        return CommentView.from_domain(comment, space_slug, note_number, current_user.username)
 
     async def update_space_members(self, auth_token: AuthToken, space_slug: str, usernames: list[str]) -> Space:
         space = self._resolve_space(space_slug)

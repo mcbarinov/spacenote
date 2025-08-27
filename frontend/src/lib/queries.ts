@@ -22,7 +22,7 @@ export const usersQueryOptions = () =>
   queryOptions({
     queryKey: ["users"],
     queryFn: () => api.getUsers(),
-    staleTime: Infinity, // Never consider users data stale
+    staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: Infinity, // Never remove from memory - permanent cache
   })
 
@@ -30,7 +30,7 @@ export const spacesQueryOptions = () =>
   queryOptions({
     queryKey: ["spaces"],
     queryFn: () => api.getSpaces(),
-    staleTime: Infinity, // Never consider spaces data stale
+    staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: Infinity, // Never remove from memory - permanent cache
   })
 
@@ -39,8 +39,8 @@ export const useCreateSpaceMutation = () => {
 
   return useMutation({
     mutationFn: (data: CreateSpaceRequest) => api.createSpace(data),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ["spaces"] })
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["spaces"] })
     },
   })
 }
@@ -50,8 +50,8 @@ export const useAddFieldMutation = (spaceSlug: string) => {
 
   return useMutation({
     mutationFn: (data: SpaceField) => api.addFieldToSpace(spaceSlug, data),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ["spaces"] })
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["spaces"] })
     },
   })
 }
@@ -61,8 +61,8 @@ export const useUpdateSpaceMembersMutation = (spaceSlug: string) => {
 
   return useMutation({
     mutationFn: (usernames: string[]) => api.updateSpaceMembers(spaceSlug, usernames),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ["spaces"] })
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["spaces"] })
     },
   })
 }

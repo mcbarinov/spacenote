@@ -229,20 +229,9 @@ export default function CreateField() {
             </>
           )}
 
-          <div className="flex gap-4">
-            <Button type="submit" disabled={mutation.isPending}>
-              {mutation.isPending ? "Adding..." : "Add Field"}
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => {
-                void navigate(`/spaces/${slug}/fields`)
-              }}
-            >
-              Cancel
-            </Button>
-          </div>
+          <Button type="submit" disabled={mutation.isPending}>
+            {mutation.isPending ? "Adding..." : "Add Field"}
+          </Button>
         </form>
       </Form>
     </div>

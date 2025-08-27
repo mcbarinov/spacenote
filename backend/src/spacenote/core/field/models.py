@@ -3,7 +3,7 @@
 from datetime import datetime
 from enum import StrEnum
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 # Type for field option values (VALUES, MIN, MAX)
 FieldOptionValueType = list[str] | int | float
@@ -37,8 +37,11 @@ class FieldOption(StrEnum):
 class SpaceField(BaseModel):
     """Field definition in a space schema."""
 
-    name: str
-    type: FieldType
-    required: bool = False
-    options: dict[FieldOption, FieldOptionValueType] = {}
-    default: FieldValueType = None
+    name: str = Field(..., description="Field name (must be unique within space)")
+    type: FieldType = Field(..., description="Field data type")
+    required: bool = Field(False, description="Whether this field is required")
+    options: dict[FieldOption, FieldOptionValueType] = Field(
+        default_factory=dict,
+        description="Field type-specific options (e.g., 'values' for string_choice, 'min'/'max' for numeric types)",
+    )
+    default: FieldValueType = Field(None, description="Default value for this field")

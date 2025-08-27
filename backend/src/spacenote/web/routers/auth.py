@@ -1,9 +1,23 @@
 from fastapi import APIRouter, Response
+from pydantic import BaseModel, Field
 
 from spacenote.web.deps import AppDep, AuthTokenDep
-from spacenote.web.schemas import ErrorResponse, LoginRequest, LoginResponse
+from spacenote.web.schemas import ErrorResponse
 
 router = APIRouter(tags=["auth"])
+
+
+class LoginRequest(BaseModel):
+    """Authentication request."""
+
+    username: str = Field(..., description="Username for authentication")
+    password: str = Field(..., description="Password for authentication")
+
+
+class LoginResponse(BaseModel):
+    """Authentication response."""
+
+    auth_token: str = Field(..., description="Authentication token for subsequent requests")
 
 
 @router.post(

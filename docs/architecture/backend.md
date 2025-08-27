@@ -15,13 +15,13 @@ Business logic layer organized by domain concepts:
 
 ```
 core/
-├── user/            # User domain (models.py, service.py)
-├── space/           # Space domain (models.py, service.py)  
-├── note/            # Note domain (models.py, service.py)
-├── comment/         # Comment domain (models.py, service.py)
+├── user/            # User domain (models.py with domain + view, service.py)
+├── space/           # Space domain (models.py with domain + view, service.py)  
+├── note/            # Note domain (models.py with domain + view, service.py)
+├── comment/         # Comment domain (models.py with domain + view, service.py)
 ├── session/         # Session domain (models.py, service.py)
-├── field/           # Field domain (models.py)
-├── filter/          # Filter domain (models.py)
+├── field/           # Field domain (models.py with OpenAPI docs)
+├── filter/          # Filter domain (models.py with OpenAPI docs)
 ├── counter/         # Sequential counters (models.py, service.py)
 ├── app.py           # Application facade layer
 ├── config.py        # Core configuration
@@ -29,8 +29,7 @@ core/
 ├── db.py            # MongoDB base models and ObjectId handling
 ├── errors.py        # Custom exception hierarchy
 ├── logging.py       # Structured logging setup
-├── utils.py         # Shared utilities
-└── views.py         # View models for external API
+└── utils.py         # Shared utilities
 ```
 
 ### Web Layer (`spacenote.web`)
@@ -38,8 +37,13 @@ HTTP interface layer with FastAPI:
 
 ```
 web/
-├── routers/         # API endpoints (auth, spaces, notes)
-├── schemas.py       # API response/request models
+├── routers/         # API endpoints with request/response models
+│   ├── auth.py      # Auth endpoints + LoginRequest, LoginResponse
+│   ├── users.py     # User endpoints + User, CreateUserRequest
+│   ├── spaces.py    # Space endpoints + CreateSpaceRequest, UpdateSpaceMembersRequest
+│   ├── notes.py     # Note endpoints + CreateNoteRequest
+│   └── comments.py  # Comment endpoints + CreateCommentRequest
+├── schemas.py       # Shared error response model only
 ├── deps.py          # FastAPI dependency injection
 ├── server.py        # FastAPI app configuration
 ├── config.py        # Web-specific configuration
@@ -49,11 +53,17 @@ web/
 
 ## Architecture Patterns
 
-### Concept-Based Organization
-Each domain concept has its own module containing:
-- **Models**: Pydantic models for data structures
+### Feature-Based Organization
+Each domain feature has its own module containing:
+- **Domain Models**: Core business entities with ObjectId references
+- **View Models**: API representations with human-readable identifiers (for features that need them)
 - **Service**: Business logic and database operations
 - **Utilities**: Pure functions for stateless operations
+
+Models are organized as:
+- Features with ObjectId (user, space, note, comment) have both domain and view models in `models.py`
+- Features without ObjectId (field, filter) only have domain models with OpenAPI documentation
+- Request/Response models are defined locally in router files for better locality
 
 ### Core Class - Central Orchestrator
 Manages service lifecycle, database connections, configuration, and application startup/shutdown.
@@ -77,18 +87,23 @@ Services handle all business logic and data access:
 Stateless business logic with no service dependencies or database access.
 
 ### View Models Architecture
-View models are the external representation of domain models, defined in `core/views.py`:
+View models are the external representation of domain models, defined alongside domain models in feature modules:
 - **Purpose**: Provide clean API responses without internal implementation details
 - **No ObjectIds**: Only human-readable identifiers (slug, username, number)
+- **Location**: In `core/{feature}/models.py` next to domain models
 - **Conversion**: Class methods convert from domain models with additional context
 - **OpenAPI Integration**: Used directly for schema generation
 - **Examples**:
-  - `NoteView`: Contains `space_slug` and `author_username` instead of ObjectIds
-  - `SpaceView`: Contains `member_usernames` instead of member IDs
+  - `NoteView` in `core/note/models.py`: Contains `space_slug` and `author_username` instead of ObjectIds
+  - `SpaceView` in `core/space/models.py`: Contains `member_usernames` instead of member IDs
   - Domain model has `author_id: ObjectId`, view model has `author_username: str`
 
 ### API Schema Pattern
-API endpoints return view models from `core/views.py` directly. View models contain only human-readable identifiers (no ObjectIds) and are designed for external consumption. The web layer passes view models through without conversion, and FastAPI automatically generates OpenAPI schemas from these models.
+API endpoints use different model types based on their purpose:
+- **View Models**: From feature modules for responses (e.g., `NoteView`, `SpaceView`)
+- **Domain Models without ObjectId**: Used directly (e.g., `SpaceField`, `Filter`)
+- **Request Models**: Defined locally in router files for better locality
+- FastAPI automatically generates OpenAPI schemas from all these models
 
 ## Domain Models
 

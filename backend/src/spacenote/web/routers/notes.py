@@ -1,10 +1,35 @@
 from fastapi import APIRouter
+from pydantic import BaseModel, Field
 
-from spacenote.core.views import NoteView
+from spacenote.core.note.models import NoteView
 from spacenote.web.deps import AppDep, AuthTokenDep
-from spacenote.web.schemas import CreateNoteRequest, ErrorResponse
+from spacenote.web.schemas import ErrorResponse
 
 router: APIRouter = APIRouter(tags=["notes"])
+
+
+class CreateNoteRequest(BaseModel):
+    """Request to create a new note."""
+
+    raw_fields: dict[str, str] = Field(
+        ...,
+        description="Field values as raw strings (will be parsed according to field types)",
+    )
+
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "raw_fields": {
+                        "title": "Complete API documentation",
+                        "description": "Add comprehensive OpenAPI documentation",
+                        "status": "in_progress",
+                        "priority": "high",
+                    }
+                }
+            ]
+        }
+    }
 
 
 @router.get(

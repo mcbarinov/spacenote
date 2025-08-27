@@ -1,11 +1,33 @@
 from fastapi import APIRouter
+from pydantic import BaseModel, Field
 
-from spacenote.core.field.models import SpaceField as CoreSpaceField
-from spacenote.core.views import SpaceView
+from spacenote.core.field.models import SpaceField
+from spacenote.core.space.models import SpaceView
 from spacenote.web.deps import AppDep, AuthTokenDep
-from spacenote.web.schemas import CreateSpaceRequest, ErrorResponse, SpaceField, UpdateSpaceMembersRequest
+from spacenote.web.schemas import ErrorResponse
 
 router: APIRouter = APIRouter(tags=["spaces"])
+
+
+class CreateSpaceRequest(BaseModel):
+    """Request to create a new space."""
+
+    slug: str = Field(
+        ...,
+        description="URL-friendly unique identifier (lowercase letters, numbers, hyphens; no leading/trailing/double hyphens)",
+        pattern="^[a-z0-9]+(?:-[a-z0-9]+)*$",
+    )
+    title: str = Field(..., description="Human-readable space name")
+
+    model_config = {"json_schema_extra": {"examples": [{"slug": "my-tasks", "title": "My Task Tracker"}]}}
+
+
+class UpdateSpaceMembersRequest(BaseModel):
+    """Request to update space members."""
+
+    usernames: list[str] = Field(..., description="List of usernames to set as space members")
+
+    model_config = {"json_schema_extra": {"examples": [{"usernames": ["alice", "bob", "charlie"]}]}}
 
 
 @router.get(
@@ -52,9 +74,7 @@ async def create_space(req: CreateSpaceRequest, app: AppDep, auth_token: AuthTok
     },
 )
 async def add_field_to_space(space_slug: str, field: SpaceField, app: AppDep, auth_token: AuthTokenDep) -> SpaceView:
-    # Convert API SpaceField to core SpaceField
-    core_field = CoreSpaceField.model_validate(field.model_dump())
-    return await app.add_field_to_space(auth_token, space_slug, core_field)
+    return await app.add_field_to_space(auth_token, space_slug, field)
 
 
 @router.put(

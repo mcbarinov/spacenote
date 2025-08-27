@@ -3,15 +3,15 @@ from contextlib import asynccontextmanager
 
 from bson import ObjectId
 
+from spacenote.core.comment.models import CommentView
 from spacenote.core.config import CoreConfig
 from spacenote.core.core import Core
 from spacenote.core.errors import AuthenticationError
 from spacenote.core.field.models import SpaceField
-from spacenote.core.note.models import Note
+from spacenote.core.note.models import Note, NoteView
 from spacenote.core.session.models import AuthToken
-from spacenote.core.space.models import Space
+from spacenote.core.space.models import Space, SpaceView
 from spacenote.core.user.models import User
-from spacenote.core.views import CommentView, NoteView, SpaceView
 
 
 class App:

@@ -1,12 +1,19 @@
 """Comment-related API endpoints."""
 
 from fastapi import APIRouter
+from pydantic import BaseModel, Field
 
-from spacenote.core.views import CommentView
+from spacenote.core.comment.models import CommentView
 from spacenote.web.deps import AppDep, AuthTokenDep
-from spacenote.web.schemas import CreateCommentRequest, ErrorResponse
+from spacenote.web.schemas import ErrorResponse
 
 router: APIRouter = APIRouter(tags=["comments"])
+
+
+class CreateCommentRequest(BaseModel):
+    """Request to create a new comment."""
+
+    content: str = Field(..., description="The comment text", min_length=1)
 
 
 @router.get(

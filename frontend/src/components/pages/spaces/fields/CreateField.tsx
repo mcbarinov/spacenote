@@ -8,9 +8,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form"
 import { toast } from "sonner"
-import type { FieldType } from "@/types"
+import type { FieldType, SpaceField } from "@/types"
 
 const fieldTypes: FieldType[] = ["string", "markdown", "boolean", "string_choice", "tags", "user", "datetime", "int", "float"]
 
@@ -22,6 +22,10 @@ const createFieldSchema = z
     values: z.string().optional(),
     min: z.number().optional(),
     max: z.number().optional(),
+    defaultString: z.string().optional(),
+    defaultBoolean: z.boolean().optional(),
+    defaultNumber: z.number().optional(),
+    defaultTags: z.string().optional(),
   })
   .refine(
     (data) => {
@@ -65,6 +69,10 @@ export default function CreateField() {
       values: undefined,
       min: undefined,
       max: undefined,
+      defaultString: undefined,
+      defaultBoolean: false,
+      defaultNumber: undefined,
+      defaultTags: undefined,
     },
   })
 
@@ -85,11 +93,41 @@ export default function CreateField() {
       if (data.max !== undefined) options.max = data.max
     }
 
-    const fieldData = {
+    let defaultValue: string | boolean | string[] | number | undefined = undefined
+
+    switch (data.type) {
+      case "string":
+      case "markdown":
+      case "user":
+      case "datetime":
+        defaultValue = data.defaultString ?? undefined
+        break
+      case "boolean":
+        defaultValue = data.defaultBoolean
+        break
+      case "string_choice":
+        defaultValue = data.defaultString ?? undefined
+        break
+      case "tags":
+        if (data.defaultTags) {
+          defaultValue = data.defaultTags
+            .split(",")
+            .map((v) => v.trim())
+            .filter(Boolean)
+        }
+        break
+      case "int":
+      case "float":
+        defaultValue = data.defaultNumber
+        break
+    }
+
+    const fieldData: SpaceField = {
       name: data.name,
       type: data.type,
       required: data.required,
       options: Object.keys(options).length > 0 ? options : {},
+      ...(defaultValue !== undefined && { default: defaultValue }),
     }
 
     mutation.mutate(fieldData, {
@@ -227,6 +265,159 @@ export default function CreateField() {
                 )}
               />
             </>
+          )}
+
+          {watchType === "string" && (
+            <FormField
+              control={form.control}
+              name="defaultString"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Default Value (optional)</FormLabel>
+                  <FormControl>
+                    <Input {...field} value={field.value ?? ""} disabled={mutation.isPending} />
+                  </FormControl>
+                  <FormDescription>Default value for new notes</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
+
+          {watchType === "markdown" && (
+            <FormField
+              control={form.control}
+              name="defaultString"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Default Value (optional)</FormLabel>
+                  <FormControl>
+                    <Input {...field} value={field.value ?? ""} disabled={mutation.isPending} />
+                  </FormControl>
+                  <FormDescription>Default markdown content for new notes</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
+
+          {watchType === "boolean" && (
+            <FormField
+              control={form.control}
+              name="defaultBoolean"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                  <FormControl>
+                    <Checkbox checked={field.value} onCheckedChange={field.onChange} disabled={mutation.isPending} />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Default to checked</FormLabel>
+                    <FormDescription>This field will be checked by default in new notes</FormDescription>
+                  </div>
+                </FormItem>
+              )}
+            />
+          )}
+
+          {watchType === "string_choice" && (
+            <FormField
+              control={form.control}
+              name="defaultString"
+              render={({ field }) => {
+                const values = form.watch("values")
+                const valuesList =
+                  values
+                    ?.split(",")
+                    .map((v) => v.trim())
+                    .filter(Boolean) ?? []
+                return (
+                  <FormItem>
+                    <FormLabel>Default Value (optional)</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value ?? ""}
+                      disabled={mutation.isPending || valuesList.length === 0}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder={valuesList.length === 0 ? "Define values first" : "Select default"} />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {valuesList.map((value) => (
+                          <SelectItem key={value} value={value}>
+                            {value}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormDescription>Default selection for new notes</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )
+              }}
+            />
+          )}
+
+          {watchType === "tags" && (
+            <FormField
+              control={form.control}
+              name="defaultTags"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Default Tags (optional)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="tag1, tag2, tag3" {...field} value={field.value ?? ""} disabled={mutation.isPending} />
+                  </FormControl>
+                  <FormDescription>Default tags for new notes (comma separated)</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
+
+          {(watchType === "int" || watchType === "float") && (
+            <FormField
+              control={form.control}
+              name="defaultNumber"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Default Value (optional)</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      step={watchType === "float" ? "any" : "1"}
+                      {...field}
+                      value={field.value ?? ""}
+                      onChange={(e) => {
+                        const value = e.target.value
+                        field.onChange(value === "" ? undefined : Number(value))
+                      }}
+                      disabled={mutation.isPending}
+                    />
+                  </FormControl>
+                  <FormDescription>Default numeric value for new notes</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
+
+          {watchType === "datetime" && (
+            <FormField
+              control={form.control}
+              name="defaultString"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Default Value (optional)</FormLabel>
+                  <FormControl>
+                    <Input type="datetime-local" {...field} value={field.value ?? ""} disabled={mutation.isPending} />
+                  </FormControl>
+                  <FormDescription>Default date/time for new notes</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           )}
 
           <Button type="submit" disabled={mutation.isPending}>

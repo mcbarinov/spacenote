@@ -30,6 +30,7 @@ export default function FieldList() {
             <TableHead>Name</TableHead>
             <TableHead>Type</TableHead>
             <TableHead>Required</TableHead>
+            <TableHead>Default</TableHead>
             <TableHead>Options</TableHead>
           </TableRow>
         </TableHeader>
@@ -41,6 +42,19 @@ export default function FieldList() {
                 <Badge variant="secondary">{field.type}</Badge>
               </TableCell>
               <TableCell>{field.required ? "Yes" : "No"}</TableCell>
+              <TableCell>
+                {field.default !== undefined && field.default !== null && (
+                  <span className="text-sm">
+                    {Array.isArray(field.default)
+                      ? field.default.join(", ")
+                      : typeof field.default === "boolean"
+                        ? field.default
+                          ? "true"
+                          : "false"
+                        : String(field.default)}
+                  </span>
+                )}
+              </TableCell>
               <TableCell>
                 {Object.keys(field.options).length > 0 && (
                   <span className="text-sm text-muted-foreground">{JSON.stringify(field.options)}</span>

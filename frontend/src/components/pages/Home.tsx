@@ -1,9 +1,9 @@
 import { useQueryClient } from "@tanstack/react-query"
 import { Link } from "react-router"
-import { Plus, Settings } from "lucide-react"
+import { Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { SpaceMenu } from "@/components/shared/SpaceMenu"
 import type { Space } from "@/types"
 
 export default function HomePage() {
@@ -37,30 +37,7 @@ export default function HomePage() {
                     </CardTitle>
                     <CardDescription className="mt-1">{space.slug}</CardDescription>
                   </div>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <Settings className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem asChild>
-                        <Link to={`/spaces/${space.slug}/members`}>Members ({space.member_usernames.length})</Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link to={`/spaces/${space.slug}/fields`}>Fields ({space.fields.length})</Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link to={`/spaces/${space.slug}/filters`}>Filters ({space.filters.length})</Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link to={`/spaces/${space.slug}/templates`}>Templates</Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link to={`/spaces/${space.slug}/settings`}>Settings</Link>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  <SpaceMenu space={space} />
                 </div>
               </CardHeader>
               <CardContent>

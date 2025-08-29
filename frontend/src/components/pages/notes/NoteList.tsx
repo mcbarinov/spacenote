@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Plus } from "lucide-react"
+import { SpaceMenu } from "@/components/shared/SpaceMenu"
 import type { Note } from "@/types"
 
 export default function NoteList() {
@@ -41,12 +42,15 @@ export default function NoteList() {
     <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">{space.title}</h1>
-        <Link to={`/s/${slug}/new`}>
-          <Button>
-            <Plus className="mr-2 h-4 w-4" />
-            New Note
-          </Button>
-        </Link>
+        <div className="flex gap-2">
+          <SpaceMenu space={space} />
+          <Link to={`/s/${slug}/new`}>
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              New Note
+            </Button>
+          </Link>
+        </div>
       </div>
       <Card>
         <CardHeader>

@@ -2,6 +2,13 @@
 
 This file contains technical instructions specifically for the Claude Code agent. Project architecture and general documentation should be found in the `docs/architecture/` directory.
 
+## Command Execution
+
+**IMPORTANT**: Always use `pnpm` for frontend commands, never use `npx`:
+- **Always use**: `pnpm exec <command>` instead of `npx <command>`
+- **Always use**: `pnpm dlx <package>` instead of `npx <package>`
+- This ensures consistency with the project's package manager
+
 ## Required Reading
 
 When starting work on this project, you MUST read:

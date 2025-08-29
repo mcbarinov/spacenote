@@ -104,7 +104,7 @@ export default function CreateNote() {
         )
 
       case "string_choice":
-        if (field.options.values && Array.isArray(field.options.values)) {
+        if (field.options?.values && Array.isArray(field.options.values)) {
           return (
             <Select
               // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
@@ -143,8 +143,8 @@ export default function CreateNote() {
           <Input
             {...formField}
             type="number"
-            min={field.options.min as number | undefined}
-            max={field.options.max as number | undefined}
+            min={field.options?.min as number | undefined}
+            max={field.options?.max as number | undefined}
           />
         )
 
@@ -154,8 +154,8 @@ export default function CreateNote() {
             {...formField}
             type="number"
             step="0.01"
-            min={field.options.min as number | undefined}
-            max={field.options.max as number | undefined}
+            min={field.options?.min as number | undefined}
+            max={field.options?.max as number | undefined}
           />
         )
 

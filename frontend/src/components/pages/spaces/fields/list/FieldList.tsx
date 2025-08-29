@@ -56,7 +56,7 @@ export default function FieldList() {
                 )}
               </TableCell>
               <TableCell>
-                {Object.keys(field.options).length > 0 && (
+                {field.options && Object.keys(field.options).length > 0 && (
                   <span className="text-sm text-muted-foreground">{JSON.stringify(field.options)}</span>
                 )}
               </TableCell>

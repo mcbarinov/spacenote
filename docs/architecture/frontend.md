@@ -134,6 +134,79 @@ This architecture ensures:
 - Easier testing (mock only queries.ts)
 - Clear separation of concerns
 
+### Mutation Pattern
+
+**Critical Rule**: Separation of concerns between queries and components.
+
+#### Mutation Architecture Rules:
+1. **Mutations handle ONLY data operations** - Cache invalidation via `queryClient.invalidateQueries()`
+2. **UI feedback belongs in components** - Toast notifications, navigation, form resets
+3. **Error handling is split**:
+   - Mutations: Return errors to component
+   - Components: Display errors via toast/UI
+4. **Success handling is split**:
+   - Mutations: Invalidate related queries
+   - Components: Show success feedback, navigate, reset forms
+
+#### Correct Implementation:
+
+```typescript
+// ✅ CORRECT: In queries.ts - Only cache invalidation
+export const useUpdateTitleMutation = (slug: string) => {
+  const queryClient = useQueryClient()
+  
+  return useMutation({
+    mutationFn: (title: string) => api.updateTitle(slug, title),
+    onSuccess: () => {
+      // ONLY cache invalidation
+      void queryClient.invalidateQueries({ queryKey: ["space", slug] })
+    },
+  })
+}
+
+// ✅ CORRECT: In component - UI feedback
+const handleSubmit = (data: FormData) => {
+  mutation.mutate(data, {
+    onSuccess: () => {
+      toast.success("Title updated successfully")
+      navigate("/spaces")
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to update")
+    },
+  })
+}
+```
+
+#### Incorrect Implementation:
+
+```typescript
+// ❌ WRONG: In queries.ts - Contains UI feedback
+export const useUpdateTitleMutation = (slug: string) => {
+  return useMutation({
+    mutationFn: (title: string) => api.updateTitle(slug, title),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["space", slug] })
+      toast.success("Updated!")  // ❌ UI feedback should be in component
+    },
+    onError: () => {
+      toast.error("Failed!")  // ❌ UI feedback should be in component
+    },
+  })
+}
+
+// ❌ WRONG: In component - No feedback handling
+const handleSubmit = (data: FormData) => {
+  mutation.mutate(data)  // ❌ Missing success/error callbacks
+}
+```
+
+This pattern ensures:
+- **Reusable mutations** - Same mutation can show different messages in different contexts
+- **Component control** - Each component decides its own UI feedback
+- **Flexibility** - Components can add context-specific logic (navigation, form resets)
+- **Testing** - Mutations can be tested without UI dependencies
+
 ## Component System
 
 ### UI Components (shadcn/ui)

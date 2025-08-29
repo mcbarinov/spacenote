@@ -1,14 +1,21 @@
 import { useParams } from "react-router"
+import { TitleSettingsForm } from "./-components/TitleSettingsForm"
+import { ListFieldsSettingsForm } from "./-components/ListFieldsSettingsForm"
+import { HiddenFieldsSettingsForm } from "./-components/HiddenFieldsSettingsForm"
+import { useSpace } from "@/hooks/useSpace"
 
 export default function SpaceSettings() {
-  const { slug } = useParams()
+  const { slug } = useParams() as { slug: string }
+  const space = useSpace(slug)
 
   return (
-    <div className="container mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">Settings</h1>
-      <p className="text-muted-foreground">Space: {slug}</p>
-      <div className="mt-8 p-8 border rounded-lg bg-muted/10 text-center">
-        <p className="text-muted-foreground">Space settings coming soon</p>
+    <div className="container mx-auto p-6 max-w-4xl">
+      <h1 className="text-3xl font-bold mb-6">Space Settings</h1>
+
+      <div className="space-y-6">
+        <TitleSettingsForm space={space} />
+        <ListFieldsSettingsForm space={space} />
+        <HiddenFieldsSettingsForm space={space} />
       </div>
     </div>
   )

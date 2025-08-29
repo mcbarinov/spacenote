@@ -28,7 +28,7 @@ const createFieldSchema = z
   })
   .refine(
     (data) => {
-      if ((data.type === "string_choice" || data.type === "tags") && !data.values?.trim()) {
+      if (data.type === "string_choice" && !data.values?.trim()) {
         return false
       }
       return true
@@ -171,20 +171,9 @@ export default function CreateField() {
 
           <FieldDefaultValue fieldType={watchType} form={form} disabled={mutation.isPending} />
 
-          <div className="flex gap-4 pt-4">
-            <Button type="submit" disabled={mutation.isPending}>
-              {mutation.isPending ? "Adding..." : "Add Field"}
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => {
-                void navigate(`/spaces/${slug}/fields`)
-              }}
-            >
-              Cancel
-            </Button>
-          </div>
+          <Button type="submit" disabled={mutation.isPending}>
+            {mutation.isPending ? "Adding..." : "Add Field"}
+          </Button>
         </form>
       </Form>
     </div>

@@ -117,3 +117,37 @@ export const useCreateUserMutation = () => {
     },
   })
 }
+
+// Space settings mutations
+export const useUpdateSpaceTitleMutation = (spaceSlug: string) => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (title: string) => api.updateSpaceTitle(spaceSlug, title),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["space", spaceSlug] })
+    },
+  })
+}
+
+export const useUpdateSpaceListFieldsMutation = (spaceSlug: string) => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (listFields: string[]) => api.updateSpaceListFields(spaceSlug, listFields),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["space", spaceSlug] })
+    },
+  })
+}
+
+export const useUpdateSpaceHiddenCreateFieldsMutation = (spaceSlug: string) => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (hiddenCreateFields: string[]) => api.updateSpaceHiddenCreateFields(spaceSlug, hiddenCreateFields),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["space", spaceSlug] })
+    },
+  })
+}

@@ -1,8 +1,6 @@
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
-from bson import ObjectId
-
 from spacenote.core.comment.models import CommentView
 from spacenote.core.config import CoreConfig
 from spacenote.core.core import Core
@@ -58,25 +56,18 @@ class App:
         current_user = await self._core.services.access.ensure_authenticated(auth_token)
         spaces = self._core.services.space.get_spaces_by_member(current_user.id)
 
-        # Convert to view models with member usernames
-        result = []
-        for space in spaces:
-            member_usernames = [self._core.services.user.get_user(member_id).username for member_id in space.members]
-            result.append(SpaceView.from_domain(space, member_usernames))
-        return result
+        return [await self._resolve_space_view(space) for space in spaces]
 
     async def create_space(self, auth_token: AuthToken, slug: str, title: str) -> SpaceView:
         current_user = await self._core.services.access.ensure_authenticated(auth_token)
         space = await self._core.services.space.create_space(slug, title, current_user.id)
-        member_usernames = [self._core.services.user.get_user(member_id).username for member_id in space.members]
-        return SpaceView.from_domain(space, member_usernames)
+        return await self._resolve_space_view(space)
 
     async def add_field_to_space(self, auth_token: AuthToken, space_slug: str, field: SpaceField) -> SpaceView:
         space = self._resolve_space(space_slug)
         await self._core.services.access.ensure_space_member(auth_token, space.id)
         updated_space = await self._core.services.space.add_field(space.id, field)
-        member_usernames = [self._core.services.user.get_user(member_id).username for member_id in updated_space.members]
-        return SpaceView.from_domain(updated_space, member_usernames)
+        return await self._resolve_space_view(updated_space)
 
     async def get_notes_by_space(self, auth_token: AuthToken, space_slug: str) -> list[NoteView]:
         space = self._resolve_space(space_slug)
@@ -127,19 +118,41 @@ class App:
         space = self._resolve_space(space_slug)
         await self._core.services.access.ensure_space_member(auth_token, space.id)
 
-        # Resolve usernames to user IDs
-        member_ids: list[ObjectId] = []
-        for username in usernames:
-            user = self._resolve_user(username)
-            member_ids.append(user.id)
-
+        member_ids = [self._resolve_user(username).id for username in usernames]
         updated_space = await self._core.services.space.update_members(space.id, member_ids)
-        return SpaceView.from_domain(updated_space, usernames)
+        return await self._resolve_space_view(updated_space)
+
+    async def update_space_title(self, auth_token: AuthToken, space_slug: str, title: str) -> SpaceView:
+        space = self._resolve_space(space_slug)
+        await self._core.services.access.ensure_space_member(auth_token, space.id)
+
+        updated_space = await self._core.services.space.update_title(space.id, title)
+        return await self._resolve_space_view(updated_space)
+
+    async def update_space_list_fields(self, auth_token: AuthToken, space_slug: str, list_fields: list[str]) -> SpaceView:
+        space = self._resolve_space(space_slug)
+        await self._core.services.access.ensure_space_member(auth_token, space.id)
+
+        updated_space = await self._core.services.space.update_list_fields(space.id, list_fields)
+        return await self._resolve_space_view(updated_space)
+
+    async def update_space_hidden_create_fields(
+        self, auth_token: AuthToken, space_slug: str, hidden_create_fields: list[str]
+    ) -> SpaceView:
+        space = self._resolve_space(space_slug)
+        await self._core.services.access.ensure_space_member(auth_token, space.id)
+
+        updated_space = await self._core.services.space.update_hidden_create_fields(space.id, hidden_create_fields)
+        return await self._resolve_space_view(updated_space)
 
     # === Private resolver methods ===
     def _resolve_space(self, slug: str) -> Space:
         """Resolve space slug to Space object. Raises NotFoundError if not found."""
         return self._core.services.space.get_space_by_slug(slug)
+
+    async def _resolve_space_view(self, space: Space) -> SpaceView:
+        member_usernames = [self._core.services.user.get_user(mid).username for mid in space.members]
+        return SpaceView.from_domain(space, member_usernames)
 
     def _resolve_user(self, username: str) -> User:
         """Resolve username to User object. Raises NotFoundError if not found."""

@@ -76,4 +76,21 @@ export const api = {
       .post(`api/v1/spaces/${spaceSlug}/notes/${String(noteNumber)}/comments`, { json: data })
       .json<Comment>()
   },
+
+  // Space settings API
+  async updateSpaceTitle(spaceSlug: string, title: string): Promise<Space> {
+    return await httpClient.patch(`api/v1/spaces/${spaceSlug}/title`, { json: { title } }).json<Space>()
+  },
+
+  async updateSpaceListFields(spaceSlug: string, listFields: string[]): Promise<Space> {
+    return await httpClient.patch(`api/v1/spaces/${spaceSlug}/list-fields`, { json: { list_fields: listFields } }).json<Space>()
+  },
+
+  async updateSpaceHiddenCreateFields(spaceSlug: string, hiddenCreateFields: string[]): Promise<Space> {
+    return await httpClient
+      .patch(`api/v1/spaces/${spaceSlug}/hidden-create-fields`, {
+        json: { hidden_create_fields: hiddenCreateFields },
+      })
+      .json<Space>()
+  },
 }

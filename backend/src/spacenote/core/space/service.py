@@ -95,3 +95,37 @@ class SpaceService(Service):
         await self._collection.update_one({"_id": space_id}, {"$set": {"members": member_ids}})
 
         return await self.update_space_cache(space_id)
+
+    async def update_title(self, space_id: ObjectId, title: str) -> Space:
+        """Update space title."""
+        if not title or not title.strip():
+            raise ValidationError("Title cannot be empty")
+
+        await self._collection.update_one({"_id": space_id}, {"$set": {"title": title.strip()}})
+        return await self.update_space_cache(space_id)
+
+    async def update_list_fields(self, space_id: ObjectId, list_fields: list[str]) -> Space:
+        """Update space list fields."""
+        space = self.get_space(space_id)
+
+        # Validate that all field names exist in the space
+        field_names = {field.name for field in space.fields}
+        for field_name in list_fields:
+            if field_name not in field_names:
+                raise ValidationError(f"Field '{field_name}' does not exist in the space")
+
+        await self._collection.update_one({"_id": space_id}, {"$set": {"list_fields": list_fields}})
+        return await self.update_space_cache(space_id)
+
+    async def update_hidden_create_fields(self, space_id: ObjectId, hidden_create_fields: list[str]) -> Space:
+        """Update space hidden create fields."""
+        space = self.get_space(space_id)
+
+        # Validate that all field names exist in the space
+        field_names = {field.name for field in space.fields}
+        for field_name in hidden_create_fields:
+            if field_name not in field_names:
+                raise ValidationError(f"Field '{field_name}' does not exist in the space")
+
+        await self._collection.update_one({"_id": space_id}, {"$set": {"hidden_create_fields": hidden_create_fields}})
+        return await self.update_space_cache(space_id)

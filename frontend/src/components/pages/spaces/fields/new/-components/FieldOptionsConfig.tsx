@@ -11,7 +11,7 @@ interface FieldOptionsConfigProps {
 }
 
 export function FieldOptionsConfig({ fieldType, form, disabled }: FieldOptionsConfigProps) {
-  const hasValues = fieldType === "string_choice" || fieldType === "tags"
+  const hasValues = fieldType === "string_choice"
   const hasMinMax = fieldType === "int" || fieldType === "float"
 
   if (!hasValues && !hasMinMax) {
@@ -22,11 +22,11 @@ export function FieldOptionsConfig({ fieldType, form, disabled }: FieldOptionsCo
     <>
       {hasValues && (
         <FormItem>
-          <FormLabel>Values {fieldType === "tags" ? "(available tags)" : "(options)"}</FormLabel>
+          <FormLabel>Values (options)</FormLabel>
           <FormControl>
             <Input {...form.register("values")} placeholder="option1, option2, option3" disabled={disabled} />
           </FormControl>
-          <FormDescription>Comma-separated list of {fieldType === "tags" ? "available tags" : "options"}</FormDescription>
+          <FormDescription>Comma-separated list of options</FormDescription>
           <FormMessage />
         </FormItem>
       )}

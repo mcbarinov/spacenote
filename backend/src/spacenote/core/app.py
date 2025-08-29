@@ -1,5 +1,6 @@
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
+from typing import Any
 
 from spacenote.core.comment.models import CommentView
 from spacenote.core.config import CoreConfig
@@ -163,3 +164,9 @@ class App:
         space = self._resolve_space(space_slug)
         note = await self._core.services.note.get_note_by_number(space.id, number)
         return space, note
+
+    async def export_space(self, auth_token: AuthToken, space_slug: str, include_data: bool = False) -> dict[str, Any]:
+        """Export space configuration and optionally data."""
+        space = self._resolve_space(space_slug)
+        await self._core.services.access.ensure_space_member(auth_token, space.id)
+        return await self._core.services.export.export_space(space, include_data)

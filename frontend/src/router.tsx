@@ -10,6 +10,7 @@ import MemberList from "@/components/pages/spaces/members/MemberList"
 import FilterList from "@/components/pages/spaces/filters/FilterList"
 import TemplateList from "@/components/pages/spaces/templates/TemplateList"
 import SpaceSettings from "@/components/pages/spaces/settings/SpaceSettings"
+import ExportPage from "@/components/pages/spaces/export/ExportPage"
 import NoteList from "@/components/pages/notes/NoteList"
 import NoteDetail from "@/components/pages/notes/detail/NoteDetail"
 import CreateNote from "@/components/pages/notes/CreateNote"
@@ -39,6 +40,7 @@ export const router = createBrowserRouter([
           { path: "/spaces/:slug/fields/new", element: <CreateField /> },
           { path: "/spaces/:slug/filters", element: <FilterList /> },
           { path: "/spaces/:slug/templates", element: <TemplateList /> },
+          { path: "/spaces/:slug/export", element: <ExportPage /> },
           { path: "/spaces/:slug/settings", element: <SpaceSettings /> },
           { path: "/users", element: <UserList /> },
           { path: "/users/new", element: <CreateUser /> },

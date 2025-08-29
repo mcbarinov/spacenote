@@ -1,3 +1,5 @@
+from typing import Any
+
 from fastapi import APIRouter
 from pydantic import BaseModel, Field
 
@@ -172,3 +174,19 @@ async def update_space_hidden_create_fields(
     space_slug: str, req: UpdateSpaceHiddenCreateFieldsRequest, app: AppDep, auth_token: AuthTokenDep
 ) -> SpaceView:
     return await app.update_space_hidden_create_fields(auth_token, space_slug, req.hidden_create_fields)
+
+
+@router.get(
+    "/spaces/{space_slug}/export",
+    summary="Export space",
+    description="Export space configuration and optionally all notes and comments.",
+    operation_id="exportSpace",
+    responses={
+        200: {"description": "Space export data"},
+        401: {"model": ErrorResponse, "description": "Not authenticated"},
+        403: {"model": ErrorResponse, "description": "Not a member of this space"},
+        404: {"model": ErrorResponse, "description": "Space not found"},
+    },
+)
+async def export_space(space_slug: str, app: AppDep, auth_token: AuthTokenDep, include_data: bool = False) -> dict[str, Any]:
+    return await app.export_space(auth_token, space_slug, include_data)

@@ -16,6 +16,7 @@ if TYPE_CHECKING:
     from spacenote.core.access.service import AccessService
     from spacenote.core.comment.service import CommentService
     from spacenote.core.counter.service import CounterService
+    from spacenote.core.export.service import ExportService
     from spacenote.core.note.service import NoteService
     from spacenote.core.session.service import SessionService
     from spacenote.core.space.service import SpaceService
@@ -57,6 +58,7 @@ class Services:
     note: NoteService
     counter: CounterService
     comment: CommentService
+    export: ExportService
 
     def __init__(self, database: AsyncDatabase[dict[str, Any]]) -> None:
         """Initialize all services automatically using service configuration."""
@@ -73,6 +75,7 @@ class Services:
             ("counter", "spacenote.core.counter.service", "CounterService"),
             ("note", "spacenote.core.note.service", "NoteService"),
             ("comment", "spacenote.core.comment.service", "CommentService"),
+            ("export", "spacenote.core.export.service", "ExportService"),
         ]
 
         # Dynamically import and instantiate services

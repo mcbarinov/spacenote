@@ -31,6 +31,9 @@ export function SpaceMenu({ space, triggerClassName }: SpaceMenuProps) {
           <Link to={`/spaces/${space.slug}/templates`}>Templates</Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
+          <Link to={`/spaces/${space.slug}/export`}>Export</Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
           <Link to={`/spaces/${space.slug}/settings`}>Settings</Link>
         </DropdownMenuItem>
       </DropdownMenuContent>

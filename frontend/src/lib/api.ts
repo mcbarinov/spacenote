@@ -93,4 +93,10 @@ export const api = {
       })
       .json<Space>()
   },
+
+  // Export API
+  async exportSpace(spaceSlug: string, includeData: boolean): Promise<Record<string, unknown>> {
+    const params = new URLSearchParams({ include_data: includeData.toString() })
+    return await httpClient.get(`api/v1/spaces/${spaceSlug}/export?${params}`).json<Record<string, unknown>>()
+  },
 }

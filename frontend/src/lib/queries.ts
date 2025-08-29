@@ -67,6 +67,12 @@ export const useUpdateSpaceMembersMutation = (spaceSlug: string) => {
   })
 }
 
+export const spaceExportQueryOptions = (spaceSlug: string, includeData: boolean) =>
+  queryOptions({
+    queryKey: ["space", "export", spaceSlug, includeData],
+    queryFn: () => api.exportSpace(spaceSlug, includeData),
+  })
+
 export const notesQueryOptions = (spaceSlug: string) =>
   queryOptions({
     queryKey: ["notes", spaceSlug],

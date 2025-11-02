@@ -1,0 +1,22 @@
+set dotenv-load
+set shell := ["bash", "-cu"]
+
+clean:
+	rm -rf .pytest_cache .ruff_cache .mypy_cache build dist src/*.egg-info
+
+sync:
+    uv sync
+
+format:
+    uv run ruff check --select I --fix src
+    uv run ruff format src
+
+lint *args: format
+    uv run ruff check {{args}} src tests
+    uv run mypy src
+
+test:
+    uv run pytest tests
+
+dev:
+    uv run python -m watchfiles "python -m spacenote.main" src

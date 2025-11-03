@@ -74,6 +74,10 @@ class UserService(Service):
         if not self.has_user(user_id):
             raise NotFoundError(f"User '{user_id}' not found")
 
+        if user_id == "admin":
+            raise ValidationError("Cannot delete admin user")
+
+        # TODO: When spaces are implemented, check if user is member of any space
         await self._collection.delete_one({"_id": user_id})
         del self._users[user_id]
 

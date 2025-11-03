@@ -9,19 +9,54 @@ from pymongo import AsyncMongoClient
 from pymongo.asynchronous.database import AsyncDatabase
 
 from spacenote.config import Config
+from spacenote.core.modules.user.service import UserService
+from spacenote.core.service import Service
+
+
+class ServiceRegistry:
+    """Service registry that automatically discovers and initializes services."""
+
+    user: UserService
+
+    def __init__(self, database: AsyncDatabase[dict[str, Any]]) -> None:
+        """Initialize all services."""
+        self._services: list[Service] = []
+
+        self.user = UserService(database)
+        self._services.append(self.user)
+
+    def set_core(self, core: Core) -> None:
+        """Set core reference for all services."""
+        for service in self._services:
+            service.set_core(core)
+
+    async def start_all(self) -> None:
+        """Start all services that have startup logic."""
+        for service in self._services:
+            if hasattr(service, "on_start"):
+                await service.on_start()
+
+    async def stop_all(self) -> None:
+        """Stop all services that have cleanup logic."""
+        for service in self._services:
+            if hasattr(service, "on_stop"):
+                await service.on_stop()
 
 
 class Core:
-    """Container providing config, database, and MongoDB client."""
+    """Container providing config, database, and all service instances."""
 
     config: Config
     mongo_client: AsyncMongoClient[dict[str, Any]]
     database: AsyncDatabase[dict[str, Any]]
+    services: ServiceRegistry
 
     def __init__(self, config: Config) -> None:
         self.config = config
         self.mongo_client = AsyncMongoClient(config.database_url, uuidRepresentation="standard", tz_aware=True)
         self.database = self.mongo_client.get_database(urlparse(config.database_url).path[1:])
+        self.services = ServiceRegistry(self.database)
+        self.services.set_core(self)
 
     @asynccontextmanager
     async def lifespan(self) -> AsyncGenerator[None]:
@@ -33,10 +68,12 @@ class Core:
             await self.on_stop()
 
     async def on_start(self) -> None:
-        """Initialize core on application startup."""
+        """Start all services on application startup."""
+        await self.services.start_all()
 
     async def on_stop(self) -> None:
-        """Close MongoDB connection on shutdown."""
+        """Stop services and close MongoDB connection on shutdown."""
+        await self.services.stop_all()
         await self.mongo_client.aclose()
 
     async def check_database_health(self) -> bool:

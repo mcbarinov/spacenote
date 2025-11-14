@@ -5,6 +5,10 @@ from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 
 from spacenote.app import App
+from spacenote.errors import UserError
+from spacenote.web.error_handlers import general_exception_handler, user_error_handler
+from spacenote.web.openapi import set_custom_openapi
+from spacenote.web.routers import auth_router, profile_router, users_router
 
 
 def create_fastapi_app(app_instance: App) -> FastAPI:
@@ -21,6 +25,18 @@ def create_fastapi_app(app_instance: App) -> FastAPI:
         title="SpaceNote API",
         lifespan=lifespan,
     )
+
+    # Register error handlers
+    app.add_exception_handler(UserError, user_error_handler)
+    app.add_exception_handler(Exception, general_exception_handler)
+
+    # Register routers
+    app.include_router(auth_router, prefix="/api/v1")
+    app.include_router(profile_router, prefix="/api/v1")
+    app.include_router(users_router, prefix="/api/v1")
+
+    # Apply custom OpenAPI schema
+    set_custom_openapi(app)
 
     @app.get("/health", response_model=None)
     async def health_check() -> dict[str, str] | JSONResponse:

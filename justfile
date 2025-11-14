@@ -1,42 +1,33 @@
+set dotenv-load
 set shell := ["bash", "-cu"]
 
-# Development
-dev:all:
-    @echo "stub: start all dev services"
+[group("backend")]
+backend-clean:
+    cd apps/backend && rm -rf .pytest_cache .ruff_cache .mypy_cache build dist src/*.egg-info
 
-dev:backend:
-    @echo "stub: start backend dev server"
+[group("backend")]
+backend-sync:
+    cd apps/backend && uv sync
 
-dev:web:
-    @echo "stub: start web dev server"
+[group("backend")]
+backend-outdated:
+    cd apps/backend && uv pip list --outdated
 
-dev:admin:
-    @echo "stub: start admin dev server"
+[group("backend")]
+backend-format:
+    cd apps/backend && uv run ruff check --select I --fix src && uv run ruff format src
 
 # Lint & typecheck
-lint:backend:
-    @echo "stub: ruff + other linters"
+[group("backend")]
+backend-lint *args: backend-format
+    cd apps/backend && uv run ruff check {{args}} src tests
+    cd apps/backend && uv run mypy src
 
-lint:web:
-    @echo "stub: eslint"
+# Run development server
+[group("backend")]
+backend-dev:
+    cd apps/backend && uv run python -m watchfiles "python -m spacenote.main" src
 
-lint:admin:
-    @echo "stub: eslint"
-
-typecheck:web:
-    @echo "stub: tsc --noEmit"
-
-typecheck:admin:
-    @echo "stub: tsc --noEmit"
-
-test:backend:
-    @echo "stub: pytest"
-
-# Compose
-compose:up:
-    @echo "stub: docker compose up -d"
-
-compose:down:
-    @echo "stub: docker compose down"
-
-
+[group("backend")]
+backend-test:
+    cd apps/backend && uv run pytest tests

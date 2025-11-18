@@ -1,0 +1,97 @@
+# OS
+.DS_Store
+
+# Node
+node_modules/
+dist/
+build/
+.pnp.cjs
+.pnpm-store/
+
+# TypeScript
+*.tsbuildinfo
+
+# Env
+.env
+.env.*
+
+# Python
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+*.pyc
+uv.lock
+
+# Coverage & logs
+coverage/
+*.log
+
+# Temporary workspace for notes and experiments
+/tmp/
+
+# Environment variables and secrets
+.env
+.env.*
+.env.local
+.env.*.local
+!.env.example
+
+# Editor and IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-project
+*.sublime-workspace
+
+# System files
+Thumbs.db
+Desktop.ini
+.AppleDouble
+.LSOverride
+._*
+
+# Dependencies (common across languages)
+node_modules/
+.pnp
+.pnp.js
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+ENV/
+
+# Build outputs
+dist/
+build/
+out/
+.next/
+.nuxt/
+.cache/
+*.tsbuildinfo
+
+# Logs and debugging
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm/
+
+# OS generated
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+
+# AI agents (local)
+/.ai-local/
+/.claude/
+/.cursor/

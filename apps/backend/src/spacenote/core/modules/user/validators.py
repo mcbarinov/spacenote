@@ -2,17 +2,17 @@ from spacenote.errors import ValidationError
 from spacenote.utils import is_slug
 
 
-def validate_user_id(user_id: str) -> None:
-    """Validate user ID meets requirements.
+def validate_username(username: str) -> None:
+    """Validate username meets requirements.
 
     Requirements:
     - Must be a valid slug (lowercase alphanumeric with hyphens)
 
     Raises:
-        ValidationError: If user ID doesn't meet requirements
+        ValidationError: If username doesn't meet requirements
     """
-    if not is_slug(user_id):
-        raise ValidationError("User ID must be a valid slug (lowercase alphanumeric with hyphens)")
+    if not is_slug(username):
+        raise ValidationError("Username must be a valid slug (lowercase alphanumeric with hyphens)")
 
 
 def validate_password(password: str) -> None:

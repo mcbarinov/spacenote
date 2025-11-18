@@ -21,6 +21,6 @@ class AccessService(Service):
     async def ensure_admin(self, auth_token: AuthToken) -> User:
         """Verify user has admin privileges."""
         user = await self.core.services.session.get_authenticated_user(auth_token)
-        if user.id != "admin":
+        if user.username != "admin":
             raise AccessDeniedError("Admin privileges required")
         return user

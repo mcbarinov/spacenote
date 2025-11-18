@@ -28,11 +28,11 @@ class App:
         """Check if authentication token is valid."""
         return await self._core.services.session.is_auth_token_valid(auth_token)
 
-    async def login(self, user_id: str, password: str) -> AuthToken:
+    async def login(self, username: str, password: str) -> AuthToken:
         """Authenticate user and create session."""
-        if not self._core.services.user.verify_password(user_id, password):
+        if not self._core.services.user.verify_password(username, password):
             raise AuthenticationError
-        return await self._core.services.session.create_session(user_id)
+        return await self._core.services.session.create_session(username)
 
     async def logout(self, auth_token: AuthToken) -> None:
         """Invalidate user session."""
@@ -46,7 +46,7 @@ class App:
     async def change_password(self, auth_token: AuthToken, old_password: str, new_password: str) -> None:
         """Change password for the current authenticated user."""
         user = await self._core.services.access.ensure_authenticated(auth_token)
-        await self._core.services.user.change_password(user.id, old_password, new_password)
+        await self._core.services.user.change_password(user.username, old_password, new_password)
 
     async def get_all_users(self, auth_token: AuthToken) -> list[UserView]:
         """Get all users (requires authentication)."""

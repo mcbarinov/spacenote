@@ -23,12 +23,12 @@ class SessionService(Service):
         self._collection = database.get_collection(self.COLLECTION_NAME)
         self._authenticated_users: dict[AuthToken, User] = {}
 
-    async def create_session(self, user_id: str) -> AuthToken:
+    async def create_session(self, username: str) -> AuthToken:
         """Create new session and return authentication token."""
         auth_token = AuthToken(secrets.token_urlsafe(32))
-        session = Session(user_id=user_id, auth_token=auth_token)
+        session = Session(username=username, auth_token=auth_token)
         await self._collection.insert_one(session.to_mongo())
-        logger.debug("session_created", user_id=user_id, token_length=len(auth_token))
+        logger.debug("session_created", username=username, token_length=len(auth_token))
         return auth_token
 
     async def get_authenticated_user(self, auth_token: AuthToken) -> User:
@@ -42,10 +42,10 @@ class SessionService(Service):
 
         session = Session.model_validate(session_doc)
 
-        if not self.core.services.user.has_user(session.user_id):
+        if not self.core.services.user.has_user(session.username):
             raise AuthenticationError("Invalid or expired session")
 
-        user = self.core.services.user.get_user(session.user_id)
+        user = self.core.services.user.get_user(session.username)
         self._authenticated_users[auth_token] = user
         return user
 
@@ -67,6 +67,6 @@ class SessionService(Service):
     async def on_start(self) -> None:
         """Create database indexes on startup."""
         await self._collection.create_index("auth_token", unique=True)
-        await self._collection.create_index("user_id")
+        await self._collection.create_index("username")
         await self._collection.create_index("created_at", expireAfterSeconds=self.SESSION_TTL_SECONDS)
         logger.debug("session_service_started", ttl_seconds=self.SESSION_TTL_SECONDS)

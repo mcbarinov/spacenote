@@ -11,7 +11,7 @@ from spacenote.utils import now
 class User(MongoModel):
     """User domain model with credentials."""
 
-    id: str = Field(alias="_id", serialization_alias="id")
+    username: str
     password_hash: str
     created_at: datetime = Field(default_factory=now)
 
@@ -19,9 +19,9 @@ class User(MongoModel):
 class UserView(BaseModel):
     """User account information (API representation)."""
 
-    id: str = Field(..., description="User ID")
+    username: str = Field(..., description="Username")
 
     @classmethod
     def from_domain(cls, user: User) -> UserView:
         """Create view model from domain model."""
-        return cls(id=user.id)
+        return cls(username=user.username)

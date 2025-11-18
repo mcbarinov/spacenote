@@ -22,7 +22,7 @@ __pycache__/
 .ruff_cache/
 .venv/
 *.pyc
-uv.lock
+
 
 # Coverage & logs
 coverage/

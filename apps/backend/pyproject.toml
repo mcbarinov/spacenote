@@ -1,0 +1,84 @@
+[project]
+name = "spacenote"
+version = "0.0.1"
+description = "Spacenote backend service"
+requires-python = ">=3.14"
+dependencies = [
+    "bcrypt~=5.0.0",
+    "fastapi[standard]~=0.121.2",
+    "pymongo~=4.15.3",
+    "pydantic-settings~=2.12.0",
+    "python-dotenv~=1.2.1",
+    "structlog~=25.5.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "ruff~=0.14.1",
+    "mypy~=1.18.2",
+    "pytest~=9.0.1",
+    "pytest-xdist~=3.8.0",
+    "bandit~=1.9.1",
+]
+
+[tool.mypy]
+python_version = "3.14"
+warn_no_return = false
+strict = true
+plugins = "pydantic.mypy"
+exclude = ["^tests/"]
+
+[tool.ruff]
+line-length = 130
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    "TC",      # flake8-type-checking (TYPE_CHECKING is dangerous with pydantic)
+    "A005",    # stdlib-module-shadowing
+    "ERA001",  # commented-out-code
+    "PT",      # flake8-pytest-style
+    "D",       # pydocstyle (no docstrings)
+    "FIX",     # flake8-fixme
+    "PLR0911", # too-many-return-statements
+    "PLR0912", # too-many-branches
+    "PLR0913", # too-many-arguments
+    "PLR2004", # magic-value-comparison
+    "PLC0414", # useless-import-alias
+    "FBT",     # flake8-boolean-trap
+    "EM",      # flake8-errmsg
+    "TRY003",  # raise-vanilla-args
+    "C901",    # complex-structure
+    "BLE001",  # flake8-blind-except
+    "S311",    # suspicious-non-cryptographic-random-usage
+    "TD002",   # missing-todo-author
+    "TD003",   # missing-todo-link
+    "RET503",  # implicit-return
+    "RUF012",  # mutable-class-default
+    "COM812",  # (used in ruff formatter)
+]
+
+[tool.ruff.lint.flake8-builtins]
+builtins-ignorelist = ["id", "filter"]
+
+[tool.ruff.lint.pep8-naming]
+classmethod-decorators = ["field_validator"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*.py" = ["ANN", "S"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.bandit]
+exclude_dirs = ["tests"]
+skips = ["B311"]
+
+[tool.pytest.ini_options]
+addopts = "-n auto"

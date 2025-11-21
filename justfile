@@ -31,3 +31,8 @@ backend-dev:
 [group("backend")]
 backend-test:
     cd apps/backend && uv run pytest tests
+
+
+[group("api-types")]
+api-types-generate:
+    pnpm --filter @spacenote/api-types generate

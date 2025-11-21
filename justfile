@@ -36,3 +36,15 @@ backend-test:
 [group("api-types")]
 api-types-generate:
     pnpm --filter @spacenote/api-types generate
+
+
+[group("admin")]
+admin-dev:
+    pnpm --filter @spacenote/admin run dev
+
+
+[group("admin")]
+admin-lint:
+    pnpm --filter @spacenote/admin run format
+    pnpm --filter @spacenote/admin run lint
+    pnpm --filter @spacenote/admin run typecheck

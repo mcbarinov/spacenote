@@ -122,3 +122,12 @@ AccessService → SessionService → UserService
 - Explicit dependency relationships
 - No additional DI framework needed
 - Clear service boundaries
+
+### In-Memory Caching for Users and Spaces
+
+Users and spaces are cached in memory (`dict[str, User]` and `dict[str, Space]`) due to small system limits (up to 10 users, up to 100 spaces).
+
+- Cache loads on service startup via `on_start()`
+- Reads served from cache (no DB queries)
+- Updates call `update_*_cache()` to reload from DB
+- Same approach used on frontend (TanStack Query cache)

@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 from spacenote.config import Config
 from spacenote.core.core import Core
 from spacenote.core.modules.session.models import AuthToken
+from spacenote.core.modules.space.models import Space
 from spacenote.core.modules.user.models import UserView
 from spacenote.errors import AuthenticationError
 
@@ -64,3 +65,36 @@ class App:
         """Delete user (admin only)."""
         await self._core.services.access.ensure_admin(auth_token)
         await self._core.services.user.delete_user(username)
+
+    async def get_spaces(self, auth_token: AuthToken) -> list[Space]:
+        """Get spaces - all for admin, only member spaces for users."""
+        user = await self._core.services.access.ensure_authenticated(auth_token)
+
+        if user.username == "admin":
+            return self._core.services.space.get_all_spaces()
+        return self._core.services.space.get_user_spaces(user.username)
+
+    async def create_space(self, auth_token: AuthToken, slug: str, title: str, description: str, members: list[str]) -> Space:
+        """Create new space (admin only)."""
+        await self._core.services.access.ensure_admin(auth_token)
+        return await self._core.services.space.create_space(slug, title, description, members)
+
+    async def update_space_title(self, auth_token: AuthToken, slug: str, title: str) -> Space:
+        """Update space title (admin only)."""
+        await self._core.services.access.ensure_admin(auth_token)
+        return await self._core.services.space.update_title(slug, title)
+
+    async def update_space_description(self, auth_token: AuthToken, slug: str, description: str) -> Space:
+        """Update space description (admin only)."""
+        await self._core.services.access.ensure_admin(auth_token)
+        return await self._core.services.space.update_description(slug, description)
+
+    async def update_space_members(self, auth_token: AuthToken, slug: str, members: list[str]) -> Space:
+        """Update space members (admin only)."""
+        await self._core.services.access.ensure_admin(auth_token)
+        return await self._core.services.space.update_members(slug, members)
+
+    async def delete_space(self, auth_token: AuthToken, slug: str) -> None:
+        """Delete space (admin only)."""
+        await self._core.services.access.ensure_admin(auth_token)
+        await self._core.services.space.delete_space(slug)

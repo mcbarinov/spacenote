@@ -33,9 +33,9 @@ backend-test:
     cd apps/backend && uv run pytest tests
 
 
-[group("api-types")]
-api-types-generate:
-    pnpm --filter @spacenote/api-types generate
+[group("common")]
+common-generate:
+    pnpm --filter @spacenote/common generate
 
 
 [group("admin")]

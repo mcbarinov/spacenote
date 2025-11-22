@@ -1,5 +1,5 @@
 import { useSuspenseQuery } from "@tanstack/react-query"
-import type { User } from "@spacenote/api-types"
+import type { User } from "@spacenote/common"
 import { currentUser } from "./queries"
 
 /**

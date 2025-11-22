@@ -1,6 +1,6 @@
 import { queryOptions } from "@tanstack/react-query"
 import { httpClient } from "./httpClient"
-import type { User } from "@spacenote/api-types"
+import type { User } from "@spacenote/common"
 
 export function currentUser() {
   return queryOptions({

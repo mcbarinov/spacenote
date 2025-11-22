@@ -1,0 +1,17 @@
+{
+  "name": "@spacenote/common",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "Common frontend code: API layer, components, utilities, types",
+  "main": "./src/types/index.ts",
+  "types": "./src/types/index.ts",
+  "scripts": {
+    "generate": "openapi-typescript http://localhost:3100/openapi.json -o src/types/openapi.gen.ts --export-type",
+    "clean": "rm -rf dist node_modules"
+  },
+  "devDependencies": {
+    "openapi-typescript": "^7.10.1",
+    "typescript": "^5.9.0"
+  }
+}

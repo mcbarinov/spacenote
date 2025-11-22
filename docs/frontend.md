@@ -33,13 +33,19 @@ src/
 ├── routes/             # File-based routing (TanStack Router)
 │   ├── __root.tsx      # Root layout
 │   ├── _auth/          # Authenticated routes
-│   │   ├── -components/    # Route-specific components
+│   │   ├── users/      # Route with components (folder structure)
+│   │   │   ├── -components/  # Route-specific components
+│   │   │   └── route.tsx
 │   │   └── route.tsx
-│   └── login.tsx
+│   └── login.tsx       # Simple route (single file)
 ├── main.tsx
 ├── router.ts
 └── routeTree.gen.ts    # Auto-generated
 ```
+
+**Route structure:**
+- Simple routes: `login.tsx` (single file)
+- Routes with components: `users/route.tsx` + `users/-components/` (folder)
 
 ## Architecture
 
@@ -85,6 +91,24 @@ Avoid unnecessary nested containers.
 1. Used in multiple routes? → `src/components/`
 2. Special app-wide purpose (error boundaries, auth)? → `src/components/`
 3. Otherwise → `src/routes/[route]/-components/`
+
+### Component Encapsulation
+
+**Principle:** Minimize props, maximize encapsulation. Components should own their logic.
+
+❌ **Passing callbacks:**
+```tsx
+// Parent passes callback
+<UsersTable users={users} onDeleteClick={(username) => setDeleteUser(username)} />
+```
+
+✅ **Self-contained:**
+```tsx
+// Component owns delete logic with mutation and modal inside
+<UsersTable users={users} />
+```
+
+Keep parent components simple - they coordinate, not implement.
 
 ### API Layer - Separation of Concerns
 
@@ -214,6 +238,33 @@ const handleSubmit = form.onSubmit((values) => {
 {mutation.error && <ErrorMessage error={mutation.error} />}
 <Button type="submit" loading={mutation.isPending}>Submit</Button>
 ```
+
+### Modal Patterns
+
+**Controlled modals** (complex forms, custom UI):
+```tsx
+const [opened, setOpened] = useState(false)
+<CreateUserModal opened={opened} onClose={() => setOpened(false)} />
+```
+
+This is the standard React pattern. `useState(false)` + `opened`/`onClose` props is the minimum for controlled components.
+
+**Imperative confirmations** (simple yes/no):
+```tsx
+import { modals } from "@mantine/modals"
+
+<Button onClick={() => {
+  modals.openConfirmModal({
+    title: "Delete User",
+    children: `Are you sure you want to delete "${username}"?`,
+    labels: { confirm: "Delete", cancel: "Cancel" },
+    confirmProps: { color: "red" },
+    onConfirm: () => deleteMutation.mutate(username)
+  })
+}}>Delete</Button>
+```
+
+No state, no modal component, no props. Use for simple confirmations.
 
 ### Error Handling Patterns
 

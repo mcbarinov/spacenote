@@ -98,3 +98,4 @@ ehthumbs.db
 
 # Misc
 .tanstack/
+.vite/

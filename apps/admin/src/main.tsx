@@ -9,7 +9,8 @@ import { QueryClientProvider } from "@tanstack/react-query"
 import { TanStackDevtools } from "@tanstack/react-devtools"
 import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools"
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools"
-import { router, queryClient } from "./router"
+import { router } from "./router"
+import { queryClient } from "./api"
 
 const rootElement = document.getElementById("root")
 if (!rootElement) throw new Error("Root element not found")

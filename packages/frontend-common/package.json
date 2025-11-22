@@ -3,15 +3,20 @@
   "version": "0.0.1",
   "private": true,
   "type": "module",
+  "prettier": "./configs/prettier.json",
   "description": "Common frontend code: API layer, components, utilities, types",
   "exports": {
     "./api": "./src/api/index.ts",
     "./components": "./src/components/index.ts",
     "./errors": "./src/errors/index.ts",
-    "./types": "./src/types/index.ts"
+    "./types": "./src/types/index.ts",
+    "./configs/*": "./configs/*"
   },
   "scripts": {
     "generate": "openapi-typescript http://localhost:3100/openapi.json -o src/types/openapi.gen.ts --export-type",
+    "format": "prettier --write .",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist node_modules"
   },
   "peerDependencies": {
@@ -26,9 +31,22 @@
     "ky": "^1.14.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@tanstack/eslint-plugin-query": "^5.91.2",
     "@types/react": "^19.2.6",
     "@types/react-dom": "^19.2.3",
+    "eslint": "^9.39.1",
+    "eslint-config-mantine": "^4.0.3",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react-dom": "^2.3.7",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.4.24",
+    "eslint-plugin-react-x": "^2.3.7",
+    "globals": "^16.5.0",
     "openapi-typescript": "^7.10.1",
-    "typescript": "^5.9.0"
+    "prettier": "^3.6.2",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.47.0",
+    "vite": "^7.2.4"
   }
 }

@@ -1,5 +1,5 @@
 import { Divider, Group, Text, Menu, UnstyledButton } from "@mantine/core"
-import { IconUser, IconChevronDown, IconLogout } from "@tabler/icons-react"
+import { IconUser, IconChevronDown, IconLogout, IconUsers } from "@tabler/icons-react"
 import { Link, useNavigate } from "@tanstack/react-router"
 import { api } from "@spacenote/common/api"
 
@@ -30,6 +30,9 @@ export default function Header() {
           </Menu.Target>
 
           <Menu.Dropdown>
+            <Menu.Item component={Link} to="/users" leftSection={<IconUsers size={16} />}>
+              Users
+            </Menu.Item>
             <Menu.Item
               leftSection={<IconLogout size={16} />}
               onClick={() => {

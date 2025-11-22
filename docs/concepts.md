@@ -35,6 +35,7 @@ Dynamic schema system where each space defines its own fields:
 - Small team focus (1-10 users)
 - Space-level access control
 - Members have full access to their spaces
+- User management (creating and deleting users) is restricted to administrators only
 
 ### Comments
 

@@ -6,3 +6,4 @@ export type User = components["schemas"]["UserView"]
 // Request/Response types
 export type LoginRequest = components["schemas"]["LoginRequest"]
 export type LoginResponse = components["schemas"]["LoginResponse"]
+export type CreateUserRequest = components["schemas"]["CreateUserRequest"]

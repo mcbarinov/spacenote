@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { httpClient } from "./httpClient"
-import type { LoginRequest } from "../types"
+import type { LoginRequest, CreateUserRequest, User } from "../types"
 
 export function useLogin() {
   const queryClient = useQueryClient()
@@ -25,6 +25,26 @@ export function useLogout() {
       // 3. Fresh data will be loaded by _auth.beforeLoad on next login
       // 4. Clearing cache here causes race condition: Header re-renders and tries
       //    to fetch currentUser, gets 401, triggers unnecessary error handling
+    },
+  })
+}
+
+export function useCreateUser() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (data: CreateUserRequest) => httpClient.post("api/v1/users", { json: data }).json<User>(),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["users"] })
+    },
+  })
+}
+
+export function useDeleteUser() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (username: string) => httpClient.delete(`api/v1/users/${username}`),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["users"] })
     },
   })
 }

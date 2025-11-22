@@ -10,3 +10,10 @@ export function currentUser() {
     gcTime: Infinity,
   })
 }
+
+export function listUsers() {
+  return queryOptions({
+    queryKey: ["users"],
+    queryFn: () => httpClient.get("api/v1/users").json<User[]>(),
+  })
+}

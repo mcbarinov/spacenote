@@ -1,9 +1,9 @@
 import { createFileRoute, Outlet, redirect, useLocation, useNavigate } from "@tanstack/react-router"
 import { Alert, Box, Center, Container, Flex } from "@mantine/core"
 import { IconAlertCircle } from "@tabler/icons-react"
-import { api } from "@/api"
-import { AppError } from "@/errors/AppError"
-import { ErrorBoundary } from "@/components/errors/ErrorBoundary"
+import { api } from "@spacenote/common/api"
+import { AppError } from "@spacenote/common/errors"
+import { ErrorBoundary } from "@spacenote/common/components"
 import Header from "./-components/layout/Header"
 import Footer from "./-components/layout/Footer"
 

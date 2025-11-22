@@ -1,5 +1,5 @@
 import ky from "ky"
-import { AppError } from "@/errors/AppError"
+import { AppError } from "../errors/AppError"
 
 const baseUrl = import.meta.env.VITE_API_BASE_URL as string | undefined
 

@@ -1,6 +1,6 @@
 import { QueryClient, QueryCache, MutationCache } from "@tanstack/react-query"
 import { notifications } from "@mantine/notifications"
-import { AppError } from "@/errors/AppError"
+import { AppError } from "../errors/AppError"
 
 export const queryClient = new QueryClient({
   defaultOptions: {

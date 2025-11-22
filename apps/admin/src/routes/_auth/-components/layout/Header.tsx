@@ -1,7 +1,7 @@
 import { Divider, Group, Text, Menu, UnstyledButton } from "@mantine/core"
 import { IconUser, IconChevronDown, IconLogout } from "@tabler/icons-react"
 import { Link, useNavigate } from "@tanstack/react-router"
-import { api } from "@/api"
+import { api } from "@spacenote/common/api"
 
 export default function Header() {
   const currentUser = api.cache.useCurrentUser()

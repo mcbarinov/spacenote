@@ -4,8 +4,8 @@ import { zod4Resolver } from "mantine-form-zod-resolver"
 import { z } from "zod"
 import { TextInput, Button, Paper, Title, Stack, Center, PasswordInput } from "@mantine/core"
 import { notifications } from "@mantine/notifications"
-import { api } from "@/api"
-import { ErrorMessage } from "@/components/ui/ErrorMessage"
+import { api } from "@spacenote/common/api"
+import { ErrorMessage } from "@spacenote/common/components"
 
 export const Route = createFileRoute("/login")({
   validateSearch: z.object({

@@ -4,13 +4,30 @@
   "private": true,
   "type": "module",
   "description": "Common frontend code: API layer, components, utilities, types",
-  "main": "./src/types/index.ts",
-  "types": "./src/types/index.ts",
+  "exports": {
+    "./api": "./src/api/index.ts",
+    "./components": "./src/components/index.ts",
+    "./errors": "./src/errors/index.ts",
+    "./types": "./src/types/index.ts"
+  },
   "scripts": {
     "generate": "openapi-typescript http://localhost:3100/openapi.json -o src/types/openapi.gen.ts --export-type",
     "clean": "rm -rf dist node_modules"
   },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "dependencies": {
+    "@mantine/core": "^8.3.8",
+    "@mantine/notifications": "^8.3.8",
+    "@tabler/icons-react": "^3.35.0",
+    "@tanstack/react-query": "^5.90.10",
+    "ky": "^1.14.0"
+  },
   "devDependencies": {
+    "@types/react": "^19.2.6",
+    "@types/react-dom": "^19.2.3",
     "openapi-typescript": "^7.10.1",
     "typescript": "^5.9.0"
   }

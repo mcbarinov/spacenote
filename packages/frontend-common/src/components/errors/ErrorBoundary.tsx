@@ -1,7 +1,7 @@
 import { Component, type ReactNode } from "react"
 import { Alert, Container } from "@mantine/core"
 import { IconAlertCircle } from "@tabler/icons-react"
-import { AppError } from "@/errors/AppError"
+import { AppError } from "../../errors/AppError"
 
 interface Props {
   children: ReactNode

@@ -1,14 +1,36 @@
 from typing import Any, Self
 
 from bson import ObjectId
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, GetCoreSchemaHandler
+from pydantic_core import core_schema
 from pymongo.asynchronous.cursor import AsyncCursor
+
+
+class PyObjectId(ObjectId):
+    """MongoDB ObjectId with Pydantic v2 support."""
+
+    @classmethod
+    def __get_pydantic_core_schema__(cls, source_type: object, handler: GetCoreSchemaHandler) -> core_schema.CoreSchema:
+        """Generate Pydantic core schema for ObjectId validation."""
+
+        def validate_object_id(value: object) -> ObjectId:
+            if isinstance(value, ObjectId):
+                return value
+            if isinstance(value, str):
+                if ObjectId.is_valid(value):
+                    return ObjectId(value)
+                raise ValueError(f"Invalid ObjectId string: {value}")
+            if isinstance(value, bytes):
+                return ObjectId(value)
+            raise ValueError(f"Expected ObjectId, str or bytes, got {type(value).__name__}")
+
+        return core_schema.no_info_plain_validator_function(validate_object_id)
 
 
 class MongoModel(BaseModel):
     """Base model for MongoDB documents using ObjectId as primary key."""
 
-    id: ObjectId = Field(alias="_id", serialization_alias="id", default_factory=ObjectId)
+    id: PyObjectId = Field(alias="_id", default_factory=PyObjectId, exclude=True)
     model_config = ConfigDict(
         populate_by_name=True,
         arbitrary_types_allowed=True,
@@ -18,8 +40,7 @@ class MongoModel(BaseModel):
     def to_mongo(self) -> dict[str, Any]:
         """Convert the model to a dictionary for MongoDB storage with _id field."""
         data = self.model_dump()
-        if "id" in data:
-            data["_id"] = data.pop("id")
+        data["_id"] = self.id
         return data
 
     @classmethod

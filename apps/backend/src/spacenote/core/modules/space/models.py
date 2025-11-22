@@ -1,0 +1,37 @@
+from __future__ import annotations
+
+from datetime import datetime
+
+from pydantic import Field
+
+from spacenote.core.db import MongoModel
+from spacenote.utils import SLUG_RE, now
+
+
+class Space(MongoModel):
+    """Space entity."""
+
+    slug: str = Field(
+        ...,
+        pattern=SLUG_RE.pattern,
+        description="URL-friendly unique identifier for the space (lowercase, hyphens, alphanumeric)",
+    )
+    title: str = Field(
+        ...,
+        min_length=1,
+        max_length=100,
+        description="Space title",
+    )
+    description: str = Field(
+        default="",
+        max_length=1000,
+        description="Space description",
+    )
+    members: list[str] = Field(
+        default_factory=list,
+        description="List of member usernames who have access to this space",
+    )
+    created_at: datetime = Field(
+        default_factory=now,
+        description="Timestamp when the space was created",
+    )

@@ -9,7 +9,7 @@ from spacenote.utils import now
 
 
 class User(MongoModel):
-    """User domain model with credentials."""
+    """User entity."""
 
     username: str
     password_hash: str

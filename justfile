@@ -31,3 +31,45 @@ backend-dev:
 [group("backend")]
 backend-test:
     cd apps/backend && uv run pytest tests
+
+
+[group("frontend-common")]
+frontend-common-generate:
+    pnpm --filter @spacenote/common generate
+
+[group("frontend-common")]
+frontend-common-lint:
+    pnpm --filter @spacenote/common run format
+    pnpm --filter @spacenote/common run lint
+    pnpm --filter @spacenote/common run typecheck
+
+
+[group("frontend-common")]
+frontend-common-outdated:
+    pnpm --filter @spacenote/common outdated
+
+
+[group("frontend-common")]
+frontend-common-update:
+    pnpm --filter @spacenote/common update
+
+
+[group("admin")]
+admin-dev:
+    pnpm --filter @spacenote/admin run dev
+
+
+[group("admin")]
+admin-lint:
+    pnpm --filter @spacenote/admin run format
+    pnpm --filter @spacenote/admin run lint
+    pnpm --filter @spacenote/admin run typecheck
+
+
+[group("admin")]
+admin-outdated:
+    pnpm --filter @spacenote/admin outdated
+
+[group("admin")]
+admin-update:
+    pnpm --filter @spacenote/admin update

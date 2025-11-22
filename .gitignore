@@ -95,3 +95,6 @@ ehthumbs.db
 /.ai-local/
 /.claude/
 /.cursor/
+
+# Misc
+.tanstack/

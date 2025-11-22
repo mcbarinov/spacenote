@@ -11,9 +11,7 @@ spacenote/
 │   ├── web/                # React frontend for users
 │   └── admin/              # React frontend for admins
 ├── packages/               # Shared packages
-│   ├── types/              # TypeScript types from OpenAPI
-│   ├── shared/             # Shared utilities, API client, hooks
-│   └── ui/                 # Shared UI components (shadcn/ui)
+│   └── frontend-common/    # @spacenote/common - shared frontend code
 ├── pnpm-workspace.yaml     # pnpm workspace configuration
 ├── package.json            # Root package.json
 └── README.md
@@ -38,14 +36,12 @@ spacenote/
 
 ## Packages
 
-### @spacenote/types
-TypeScript types generated from backend OpenAPI specification. Used by all frontend applications for type-safe API communication.
-
-### @spacenote/shared
-Shared utilities, API client configuration, TanStack Query hooks, error handling, formatters, and common business logic.
-
-### @spacenote/ui
-Shared UI component library based on shadcn/ui with Radix UI primitives and Tailwind CSS styling.
+### @spacenote/common
+Shared frontend code for all React applications:
+- **Types**: Auto-generated from backend OpenAPI specification + custom types
+- **API layer**: Queries, mutations, cache hooks (planned)
+- **Components**: Reusable UI components, error boundaries (planned)
+- **Utilities**: Formatters, helpers, error handling (planned)
 
 ## Technology Stack
 
@@ -60,7 +56,7 @@ Shared UI component library based on shadcn/ui with Radix UI primitives and Tail
 - Vite (build tool)
 - TanStack Query (server state)
 - TanStack Router (routing)
-- Tailwind CSS + shadcn/ui (styling)
+- Mantine (UI components and styling)
 - pnpm (package manager)
 
 **Monorepo:**

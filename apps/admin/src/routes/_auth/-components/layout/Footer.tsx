@@ -5,7 +5,7 @@ export default function Footer() {
     <footer>
       <Divider my="md" />
       <Text size="sm" c="dimmed" pb="md">
-        © 2025 DemoForums
+        © 2025 SpaceNote
       </Text>
     </footer>
   )

@@ -1,6 +1,6 @@
 import { queryOptions } from "@tanstack/react-query"
 import { httpClient } from "./httpClient"
-import type { User } from "../types"
+import type { Space, User } from "../types"
 
 export function currentUser() {
   return queryOptions({
@@ -15,5 +15,12 @@ export function listUsers() {
   return queryOptions({
     queryKey: ["users"],
     queryFn: () => httpClient.get("api/v1/users").json<User[]>(),
+  })
+}
+
+export function listSpaces() {
+  return queryOptions({
+    queryKey: ["spaces"],
+    queryFn: () => httpClient.get("api/v1/spaces").json<Space[]>(),
   })
 }

@@ -49,7 +49,7 @@ function CreateSpacePage() {
     })
   })
 
-  const userOptions = users.map((user) => user.username)
+  const userOptions = users.filter((user) => user.username !== "admin").map((user) => user.username)
 
   return (
     <Stack gap="md">

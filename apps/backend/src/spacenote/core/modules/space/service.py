@@ -84,6 +84,8 @@ class SpaceService(Service):
         for username in members:
             if not self.core.services.user.has_user(username):
                 raise ValidationError(f"User '{username}' not found")
+            if username == "admin":
+                raise ValidationError("Admin user cannot be a member of spaces")
 
     async def update_all_spaces_cache(self) -> None:
         """Reload all spaces cache from database."""

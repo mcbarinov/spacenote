@@ -84,6 +84,110 @@ export type paths = {
     patch?: never
     trace?: never
   }
+  "/api/v1/spaces": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * List spaces
+     * @description Get all spaces. Admin sees all spaces, regular users see only spaces where they are members.
+     */
+    get: operations["listSpaces"]
+    put?: never
+    /**
+     * Create new space
+     * @description Create a new space. Only accessible by admin users.
+     */
+    post: operations["createSpace"]
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  "/api/v1/spaces/{slug}/title": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    /**
+     * Update space title
+     * @description Update space title. Only accessible by admin users.
+     */
+    patch: operations["updateSpaceTitle"]
+    trace?: never
+  }
+  "/api/v1/spaces/{slug}/description": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    /**
+     * Update space description
+     * @description Update space description. Only accessible by admin users.
+     */
+    patch: operations["updateSpaceDescription"]
+    trace?: never
+  }
+  "/api/v1/spaces/{slug}/members": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    /**
+     * Update space members
+     * @description Update space members list. Only accessible by admin users.
+     */
+    patch: operations["updateSpaceMembers"]
+    trace?: never
+  }
+  "/api/v1/spaces/{slug}": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post?: never
+    /**
+     * Delete space
+     * @description Delete a space. Only accessible by admin users.
+     */
+    delete: operations["deleteSpace"]
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   "/api/v1/users": {
     parameters: {
       query?: never
@@ -166,6 +270,33 @@ export type components = {
       new_password: string
     }
     /**
+     * CreateSpaceRequest
+     * @description Space creation request.
+     */
+    CreateSpaceRequest: {
+      /**
+       * Slug
+       * @description URL-friendly unique identifier for the space
+       */
+      slug: string
+      /**
+       * Title
+       * @description Space title
+       */
+      title: string
+      /**
+       * Description
+       * @description Space description
+       * @default
+       */
+      description: string
+      /**
+       * Members
+       * @description List of member usernames
+       */
+      members?: string[]
+    }
+    /**
      * CreateUserRequest
      * @description User creation request.
      */
@@ -240,6 +371,72 @@ export type components = {
        * @description Authentication token for subsequent requests
        */
       token: string
+    }
+    /**
+     * Space
+     * @description Space entity.
+     */
+    Space: {
+      /**
+       * Slug
+       * @description URL-friendly unique identifier for the space (lowercase, hyphens, alphanumeric)
+       */
+      slug: string
+      /**
+       * Title
+       * @description Space title
+       */
+      title: string
+      /**
+       * Description
+       * @description Space description
+       * @default
+       */
+      description: string
+      /**
+       * Members
+       * @description List of member usernames who have access to this space
+       */
+      members: string[]
+      /**
+       * Created At
+       * Format: date-time
+       * @description Timestamp when the space was created
+       */
+      created_at: string
+    }
+    /**
+     * UpdateDescriptionRequest
+     * @description Space description update request.
+     */
+    UpdateDescriptionRequest: {
+      /**
+       * Description
+       * @description New space description
+       */
+      description: string
+    }
+    /**
+     * UpdateMembersRequest
+     * @description Space members update request.
+     */
+    UpdateMembersRequest: {
+      /**
+       * Members
+       * @description New list of member usernames
+       */
+      members: string[]
+    }
+    /**
+     * UpdateTitleRequest
+     * @description Space title update request.
+     */
+    UpdateTitleRequest: {
+      /**
+       * Title
+       * @description New space title
+       */
+      title: string
     }
     /**
      * UserView
@@ -399,6 +596,364 @@ export interface operations {
       }
       /** @description Not authenticated or invalid current password */
       401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  listSpaces: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description List of spaces */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["Space"][]
+        }
+      }
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+    }
+  }
+  createSpace: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateSpaceRequest"]
+      }
+    }
+    responses: {
+      /** @description Space created successfully */
+      201: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["Space"]
+        }
+      }
+      /** @description Invalid request */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Admin privileges required */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  updateSpaceTitle: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        slug: string
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateTitleRequest"]
+      }
+    }
+    responses: {
+      /** @description Space title updated successfully */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["Space"]
+        }
+      }
+      /** @description Invalid request */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Admin privileges required */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Space not found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  updateSpaceDescription: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        slug: string
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateDescriptionRequest"]
+      }
+    }
+    responses: {
+      /** @description Space description updated successfully */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["Space"]
+        }
+      }
+      /** @description Invalid request */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Admin privileges required */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Space not found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  updateSpaceMembers: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        slug: string
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateMembersRequest"]
+      }
+    }
+    responses: {
+      /** @description Space members updated successfully */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["Space"]
+        }
+      }
+      /** @description Invalid request */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Admin privileges required */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Space not found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  deleteSpace: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        slug: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Space deleted successfully */
+      204: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Admin privileges required */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Space not found */
+      404: {
         headers: {
           [name: string]: unknown
         }

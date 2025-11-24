@@ -11,7 +11,10 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthRouteRouteImport } from './routes/_auth/route'
+import { Route as AuthIndexRouteImport } from './routes/_auth/index'
 import { Route as AuthUsersRouteRouteImport } from './routes/_auth/users/route'
+import { Route as AuthSpacesIndexRouteImport } from './routes/_auth/spaces/index'
+import { Route as AuthSpacesNewRouteImport } from './routes/_auth/spaces/new'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -22,32 +25,63 @@ const AuthRouteRoute = AuthRouteRouteImport.update({
   id: '/_auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthIndexRoute = AuthIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
 const AuthUsersRouteRoute = AuthUsersRouteRouteImport.update({
   id: '/users',
   path: '/users',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
+const AuthSpacesIndexRoute = AuthSpacesIndexRouteImport.update({
+  id: '/spaces/',
+  path: '/spaces/',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
+const AuthSpacesNewRoute = AuthSpacesNewRouteImport.update({
+  id: '/spaces/new',
+  path: '/spaces/new',
   getParentRoute: () => AuthRouteRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/users': typeof AuthUsersRouteRoute
+  '/': typeof AuthIndexRoute
+  '/spaces/new': typeof AuthSpacesNewRoute
+  '/spaces': typeof AuthSpacesIndexRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/users': typeof AuthUsersRouteRoute
+  '/': typeof AuthIndexRoute
+  '/spaces/new': typeof AuthSpacesNewRoute
+  '/spaces': typeof AuthSpacesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_auth': typeof AuthRouteRouteWithChildren
   '/login': typeof LoginRoute
   '/_auth/users': typeof AuthUsersRouteRoute
+  '/_auth/': typeof AuthIndexRoute
+  '/_auth/spaces/new': typeof AuthSpacesNewRoute
+  '/_auth/spaces/': typeof AuthSpacesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/login' | '/users'
+  fullPaths: '/login' | '/users' | '/' | '/spaces/new' | '/spaces'
   fileRoutesByTo: FileRoutesByTo
-  to: '/login' | '/users'
-  id: '__root__' | '/_auth' | '/login' | '/_auth/users'
+  to: '/login' | '/users' | '/' | '/spaces/new' | '/spaces'
+  id:
+    | '__root__'
+    | '/_auth'
+    | '/login'
+    | '/_auth/users'
+    | '/_auth/'
+    | '/_auth/spaces/new'
+    | '/_auth/spaces/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -71,6 +105,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_auth/': {
+      id: '/_auth/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof AuthIndexRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
     '/_auth/users': {
       id: '/_auth/users'
       path: '/users'
@@ -78,15 +119,35 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthUsersRouteRouteImport
       parentRoute: typeof AuthRouteRoute
     }
+    '/_auth/spaces/': {
+      id: '/_auth/spaces/'
+      path: '/spaces'
+      fullPath: '/spaces'
+      preLoaderRoute: typeof AuthSpacesIndexRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
+    '/_auth/spaces/new': {
+      id: '/_auth/spaces/new'
+      path: '/spaces/new'
+      fullPath: '/spaces/new'
+      preLoaderRoute: typeof AuthSpacesNewRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
   }
 }
 
 interface AuthRouteRouteChildren {
   AuthUsersRouteRoute: typeof AuthUsersRouteRoute
+  AuthIndexRoute: typeof AuthIndexRoute
+  AuthSpacesNewRoute: typeof AuthSpacesNewRoute
+  AuthSpacesIndexRoute: typeof AuthSpacesIndexRoute
 }
 
 const AuthRouteRouteChildren: AuthRouteRouteChildren = {
   AuthUsersRouteRoute: AuthUsersRouteRoute,
+  AuthIndexRoute: AuthIndexRoute,
+  AuthSpacesNewRoute: AuthSpacesNewRoute,
+  AuthSpacesIndexRoute: AuthSpacesIndexRoute,
 }
 
 const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(

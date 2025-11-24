@@ -36,6 +36,8 @@ Dynamic schema system where each space defines its own fields:
 - Space-level access control
 - Members have full access to their spaces
 - User management (creating and deleting users) is restricted to administrators only
+- Administrators cannot be members of spaces (admins manage system, regular users create content)
+- Users and spaces are cached in-memory for performance (see backend architecture docs)
 
 ### Comments
 

@@ -6,13 +6,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from spacenote.app import App
+from spacenote.config import Config
 from spacenote.errors import UserError
 from spacenote.web.error_handlers import general_exception_handler, user_error_handler
 from spacenote.web.openapi import set_custom_openapi
 from spacenote.web.routers import auth_router, fields_router, profile_router, spaces_router, users_router
 
 
-def create_fastapi_app(app_instance: App) -> FastAPI:
+def create_fastapi_app(app_instance: App, config: Config) -> FastAPI:
     """Create and configure FastAPI application."""
 
     @asynccontextmanager
@@ -30,7 +31,7 @@ def create_fastapi_app(app_instance: App) -> FastAPI:
     # Configure CORS
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["http://localhost:3000"],
+        allow_origins=config.cors_origins,
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],

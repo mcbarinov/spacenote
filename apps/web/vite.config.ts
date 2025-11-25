@@ -6,7 +6,7 @@ import path from "path"
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [devtools({ eventBusConfig: { port: 42070 } }), tanstackRouter({ target: "react", autoCodeSplitting: true }), react()],
+  plugins: [devtools(), tanstackRouter({ target: "react", autoCodeSplitting: true }), react()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

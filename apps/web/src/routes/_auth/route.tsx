@@ -25,10 +25,7 @@ export const Route = createFileRoute("/_auth")({
     }
   },
   loader: async ({ context }) => {
-    await Promise.all([
-      context.queryClient.ensureQueryData(api.queries.listUsers()),
-      context.queryClient.ensureQueryData(api.queries.listSpaces()),
-    ])
+    await context.queryClient.ensureQueryData(api.queries.listSpaces())
   },
   errorComponent: ErrorScreen,
   pendingComponent: LoadingScreen,

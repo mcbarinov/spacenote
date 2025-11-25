@@ -10,7 +10,7 @@ from spacenote.web.server import create_fastapi_app
 
 def run_server(app: App, config: Config) -> None:
     """Run the Uvicorn server with custom logging configuration."""
-    fastapi_app = create_fastapi_app(app)
+    fastapi_app = create_fastapi_app(app, config)
 
     log_config = LOGGING_CONFIG.copy()
     log_config["formatters"]["access"]["fmt"] = '%(asctime)s - "%(request_line)s" %(status_code)s'

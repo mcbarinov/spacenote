@@ -1,6 +1,9 @@
 set dotenv-load
 set shell := ["bash", "-cu"]
 
+# Lint all projects
+lint: frontend-common-lint admin-lint web-lint backend-lint
+
 [group("backend")]
 backend-clean:
     cd apps/backend && rm -rf .pytest_cache .ruff_cache .mypy_cache build dist src/*.egg-info
@@ -73,3 +76,37 @@ admin-outdated:
 [group("admin")]
 admin-update:
     pnpm --filter @spacenote/admin update
+
+
+[group("web")]
+web-dev:
+    pnpm --filter @spacenote/web run dev
+
+
+[group("web")]
+web-lint:
+    pnpm --filter @spacenote/web run format
+    pnpm --filter @spacenote/web run lint
+    pnpm --filter @spacenote/web run typecheck
+
+
+[group("web")]
+web-outdated:
+    pnpm --filter @spacenote/web outdated
+
+[group("web")]
+web-update:
+    pnpm --filter @spacenote/web update
+
+
+[group("agent")]
+agent-web-dev:
+    pnpm --filter @spacenote/web run agent-dev
+
+[group("agent")]
+agent-admin-dev:
+    pnpm --filter @spacenote/admin run agent-dev
+
+[group("agent")]
+agent-backend-dev:
+    cd apps/backend && SPACENOTE_PORT=3101 uv run python -m watchfiles "python -m spacenote.main" src

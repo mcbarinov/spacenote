@@ -8,5 +8,5 @@ declare module "@tanstack/react-router" {
   }
 }
 
-initHttpClient("admin")
+initHttpClient("web")
 renderApp(createAppRouter(routeTree))

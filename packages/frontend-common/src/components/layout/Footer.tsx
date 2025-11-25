@@ -1,6 +1,6 @@
 import { Divider, Text } from "@mantine/core"
 
-export default function Footer() {
+export function Footer() {
   return (
     <footer>
       <Divider my="md" />

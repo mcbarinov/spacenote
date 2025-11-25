@@ -34,9 +34,9 @@ async def login(login_data: LoginRequest, app: AppDep, response: Response) -> Lo
     """Authenticate user and create session."""
     token = await app.login(login_data.username, login_data.password)
 
-    # Set cookie for browser-based clients
+    # Set cookie for browser-based clients (different name for admin vs regular users)
     response.set_cookie(
-        key="token",
+        key="token_admin" if login_data.username == "admin" else "token_web",
         value=token,
         httponly=True,
         samesite="lax",
@@ -59,5 +59,6 @@ async def login(login_data: LoginRequest, app: AppDep, response: Response) -> Lo
     },
 )
 async def logout(app: AppDep, auth_token: AuthTokenDep, response: Response) -> None:
+    user = await app.get_current_user(auth_token)
     await app.logout(auth_token)
-    response.delete_cookie("token")
+    response.delete_cookie("token_admin" if user.username == "admin" else "token_web")

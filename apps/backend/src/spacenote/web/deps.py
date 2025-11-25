@@ -28,22 +28,14 @@ async def get_auth_token(
         if await app.is_auth_token_valid(auth_token):
             return auth_token
 
-    # Fallback to cookies - check with strict user type validation
-    for cookie_name in ("token_admin", "token_web"):
-        token = request.cookies.get(cookie_name)
-        if not token:
-            continue
+    # Fallback to cookie - check only the one matching client app
+    client_app = request.headers.get("X-Client-App")
+    cookie_name = "token_admin" if client_app == "admin" else "token_web"
 
+    token = request.cookies.get(cookie_name)
+    if token:
         auth_token = AuthToken(token)
-        if not await app.is_auth_token_valid(auth_token):
-            continue
-
-        # Validate cookie matches user type (admin cookie for admin, web cookie for others)
-        user = await app.get_current_user(auth_token)
-        is_admin_cookie = cookie_name == "token_admin"
-        is_admin_user = user.username == "admin"
-
-        if is_admin_cookie == is_admin_user:
+        if await app.is_auth_token_valid(auth_token):
             return auth_token
 
     raise AuthenticationError

@@ -9,3 +9,4 @@ export const api = {
 }
 
 export { queryClient } from "./queryClient"
+export { initHttpClient } from "./httpClient"

@@ -73,3 +73,24 @@ admin-outdated:
 [group("admin")]
 admin-update:
     pnpm --filter @spacenote/admin update
+
+
+[group("web")]
+web-dev:
+    pnpm --filter @spacenote/web run dev
+
+
+[group("web")]
+web-lint:
+    pnpm --filter @spacenote/web run format
+    pnpm --filter @spacenote/web run lint
+    pnpm --filter @spacenote/web run typecheck
+
+
+[group("web")]
+web-outdated:
+    pnpm --filter @spacenote/web outdated
+
+[group("web")]
+web-update:
+    pnpm --filter @spacenote/web update

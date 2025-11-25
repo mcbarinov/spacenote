@@ -1,0 +1,10 @@
+{
+  "extends": "@spacenote/common/configs/tsconfig.app.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": ["src"]
+}

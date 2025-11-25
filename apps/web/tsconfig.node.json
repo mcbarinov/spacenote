@@ -1,0 +1,4 @@
+{
+  "extends": "@spacenote/common/configs/tsconfig.node.json",
+  "include": ["vite.config.ts"]
+}

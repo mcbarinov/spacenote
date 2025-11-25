@@ -1,11 +1,11 @@
 {
-  "name": "@spacenote/admin",
+  "name": "@spacenote/web",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "prettier": "@spacenote/common/configs/prettier.json",
   "scripts": {
-    "dev": "vite --port 3200",
+    "dev": "vite --port 3000",
     "build": "tsc -b && vite build",
     "format": "prettier --write .",
     "lint": "eslint .",

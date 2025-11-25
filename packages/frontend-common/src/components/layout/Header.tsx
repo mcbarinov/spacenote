@@ -1,9 +1,9 @@
 import { Divider, Group, Text, Menu, UnstyledButton } from "@mantine/core"
 import { IconUser, IconChevronDown, IconLogout } from "@tabler/icons-react"
 import { Link, useNavigate } from "@tanstack/react-router"
-import { api } from "@spacenote/common/api"
+import { api } from "../../api"
 
-export default function Header() {
+export function Header() {
   const currentUser = api.cache.useCurrentUser()
   const navigate = useNavigate()
   const logoutMutation = api.mutations.useLogout()

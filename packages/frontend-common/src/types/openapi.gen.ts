@@ -44,6 +44,46 @@ export type paths = {
     patch?: never
     trace?: never
   }
+  "/api/v1/spaces/{space_slug}/fields": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Add field to space
+     * @description Add a new field definition to an existing space. Only accessible by admin users.
+     */
+    post: operations["addFieldToSpace"]
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  "/api/v1/spaces/{space_slug}/fields/{field_name}": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post?: never
+    /**
+     * Remove field from space
+     * @description Remove a field definition from a space. Only accessible by admin users.
+     */
+    delete: operations["removeFieldFromSpace"]
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   "/api/v1/profile": {
     parameters: {
       query?: never
@@ -340,6 +380,18 @@ export type components = {
        */
       type: string
     }
+    /**
+     * FieldOption
+     * @description Configuration options for field types.
+     * @enum {string}
+     */
+    FieldOption: "values" | "min" | "max" | "value_maps" | "max_width"
+    /**
+     * FieldType
+     * @description Available field types for space schemas.
+     * @enum {string}
+     */
+    FieldType: "string" | "markdown" | "boolean" | "select" | "tags" | "user" | "datetime" | "int" | "float" | "image"
     /** HTTPValidationError */
     HTTPValidationError: {
       /** Detail */
@@ -399,11 +451,54 @@ export type components = {
        */
       members: string[]
       /**
+       * Fields
+       * @description Field definitions for notes in this space
+       */
+      fields: components["schemas"]["SpaceField"][]
+      /**
        * Created At
        * Format: date-time
        * @description Timestamp when the space was created
        */
       created_at: string
+    }
+    /**
+     * SpaceField
+     * @description Field definition in a space schema.
+     */
+    SpaceField: {
+      /**
+       * Name
+       * @description Field identifier (must be unique within space)
+       */
+      name: string
+      /** @description Field data type */
+      type: components["schemas"]["FieldType"]
+      /**
+       * Required
+       * @description Whether this field is required
+       * @default false
+       */
+      required: boolean
+      /**
+       * Options
+       * @description Field type-specific options (e.g., 'values' for select, 'min'/'max' for numeric types, 'value_maps' for select metadata, 'max_width' for image)
+       */
+      options?: {
+        [key: string]:
+          | string[]
+          | number
+          | {
+              [key: string]: {
+                [key: string]: string
+              }
+            }
+      }
+      /**
+       * Default
+       * @description Default value for this field
+       */
+      default?: string | boolean | string[] | number | null
     }
     /**
      * UpdateDescriptionRequest
@@ -532,6 +627,134 @@ export interface operations {
         }
         content: {
           "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+    }
+  }
+  addFieldToSpace: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        space_slug: string
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["SpaceField"]
+      }
+    }
+    responses: {
+      /** @description Field added successfully */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["Space"]
+        }
+      }
+      /** @description Invalid field data or field name already exists */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Admin privileges required */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Space not found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  removeFieldFromSpace: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        space_slug: string
+        field_name: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Field removed successfully */
+      204: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Admin privileges required */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Space or field not found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
         }
       }
     }

@@ -5,6 +5,7 @@ from datetime import datetime
 from pydantic import Field
 
 from spacenote.core.db import MongoModel
+from spacenote.core.modules.field.models import SpaceField
 from spacenote.utils import SLUG_RE, now
 
 
@@ -31,7 +32,18 @@ class Space(MongoModel):
         default_factory=list,
         description="List of member usernames who have access to this space",
     )
+    fields: list[SpaceField] = Field(
+        default_factory=list,
+        description="Field definitions for notes in this space",
+    )
     created_at: datetime = Field(
         default_factory=now,
         description="Timestamp when the space was created",
     )
+
+    def get_field(self, name: str) -> SpaceField | None:
+        """Get field definition by name."""
+        for field in self.fields:
+            if field.name == name:
+                return field
+        return None

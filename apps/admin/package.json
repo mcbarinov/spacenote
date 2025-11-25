@@ -6,6 +6,7 @@
   "prettier": "@spacenote/common/configs/prettier.json",
   "scripts": {
     "dev": "vite --port 3200",
+    "agent-dev": "vite --port 3201",
     "build": "tsc -b && vite build",
     "format": "prettier --write .",
     "lint": "eslint .",

@@ -94,3 +94,16 @@ web-outdated:
 [group("web")]
 web-update:
     pnpm --filter @spacenote/web update
+
+
+[group("agent")]
+agent-web-dev:
+    pnpm --filter @spacenote/web run agent-dev
+
+[group("agent")]
+agent-admin-dev:
+    pnpm --filter @spacenote/admin run agent-dev
+
+[group("agent")]
+agent-backend-dev:
+    cd apps/backend && SPACENOTE_PORT=3101 uv run python -m watchfiles "python -m spacenote.main" src

@@ -208,6 +208,26 @@ export const Route = createFileRoute("/_auth")({
 })
 ```
 
+### Navigation
+
+**Type-safe navigation with params:**
+```tsx
+// ✅ Correct - type-safe
+void navigate({ to: "/spaces/$slug/fields", params: { slug } })
+
+// ❌ Wrong - loses type safety
+void navigate({ to: `/spaces/${slug}/fields` })
+```
+
+**CustomLink for anchors (from @spacenote/common/components):**
+```tsx
+<CustomLink to="/spaces/$slug/fields" params={{ slug }}>
+  View fields
+</CustomLink>
+```
+
+Uses Mantine's Anchor with TanStack Router integration, preload on intent.
+
 ### Form Handling Patterns
 
 **Mantine Form + Zod:**

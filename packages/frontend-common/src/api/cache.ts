@@ -1,4 +1,5 @@
 import { useSuspenseQuery } from "@tanstack/react-query"
+import { AppError } from "../errors"
 import type { Space, User } from "../types"
 import { currentUser, listSpaces, listUsers } from "./queries"
 
@@ -24,4 +25,22 @@ export function useUsers(): User[] {
 export function useSpaces(): Space[] {
   const { data } = useSuspenseQuery(listSpaces())
   return data
+}
+
+export function useSpace(slug: string): Space {
+  const spaces = useSpaces()
+  const space = spaces.find((s) => s.slug === slug)
+  if (!space) {
+    throw new AppError("not_found", "Space not found")
+  }
+  return space
+}
+
+export function useUser(username: string): User {
+  const users = useUsers()
+  const user = users.find((u) => u.username === username)
+  if (!user) {
+    throw new AppError("not_found", "User not found")
+  }
+  return user
 }

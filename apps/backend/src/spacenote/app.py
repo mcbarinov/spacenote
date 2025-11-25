@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 
 from spacenote.config import Config
 from spacenote.core.core import Core
+from spacenote.core.modules.field.models import SpaceField
 from spacenote.core.modules.session.models import AuthToken
 from spacenote.core.modules.space.models import Space
 from spacenote.core.modules.user.models import UserView
@@ -98,3 +99,14 @@ class App:
         """Delete space (admin only)."""
         await self._core.services.access.ensure_admin(auth_token)
         await self._core.services.space.delete_space(slug)
+
+    async def add_field_to_space(self, auth_token: AuthToken, slug: str, field: SpaceField) -> Space:
+        """Add field to space (admin only)."""
+        await self._core.services.access.ensure_admin(auth_token)
+        await self._core.services.field.add_field_to_space(slug, field)
+        return self._core.services.space.get_space(slug)
+
+    async def remove_field_from_space(self, auth_token: AuthToken, slug: str, field_name: str) -> None:
+        """Remove field from space (admin only)."""
+        await self._core.services.access.ensure_admin(auth_token)
+        await self._core.services.field.remove_field_from_space(slug, field_name)

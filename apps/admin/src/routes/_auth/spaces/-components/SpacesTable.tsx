@@ -2,6 +2,7 @@ import { Button, Paper, Table } from "@mantine/core"
 import { modals } from "@mantine/modals"
 import { notifications } from "@mantine/notifications"
 import { api } from "@spacenote/common/api"
+import { CustomLink } from "@spacenote/common/components"
 import type { Space } from "@spacenote/common/types"
 
 interface SpacesTableProps {
@@ -39,6 +40,7 @@ export function SpacesTable({ spaces }: SpacesTableProps) {
             <Table.Th>Title</Table.Th>
             <Table.Th>Description</Table.Th>
             <Table.Th>Members</Table.Th>
+            <Table.Th>Fields</Table.Th>
             <Table.Th>Actions</Table.Th>
           </Table.Tr>
         </Table.Thead>
@@ -51,6 +53,11 @@ export function SpacesTable({ spaces }: SpacesTableProps) {
                 {space.description.length > 100 ? `${space.description.slice(0, 100)}...` : space.description || "-"}
               </Table.Td>
               <Table.Td>{space.members.join(", ") || "-"}</Table.Td>
+              <Table.Td>
+                <CustomLink to="/spaces/$slug/fields" params={{ slug: space.slug }}>
+                  {space.fields.length} fields
+                </CustomLink>
+              </Table.Td>
               <Table.Td>
                 <Button
                   size="xs"

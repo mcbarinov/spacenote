@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { httpClient } from "./httpClient"
-import type { CreateSpaceRequest, CreateUserRequest, LoginRequest, Space, User } from "../types"
+import type { CreateSpaceRequest, CreateUserRequest, LoginRequest, Space, SpaceField, User } from "../types"
 
 export function useLogin() {
   const queryClient = useQueryClient()
@@ -63,6 +63,26 @@ export function useDeleteSpace() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (slug: string) => httpClient.delete(`api/v1/spaces/${slug}`),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["spaces"] })
+    },
+  })
+}
+
+export function useAddField(spaceSlug: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (field: SpaceField) => httpClient.post(`api/v1/spaces/${spaceSlug}/fields`, { json: field }).json<Space>(),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["spaces"] })
+    },
+  })
+}
+
+export function useDeleteField(spaceSlug: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (fieldName: string) => httpClient.delete(`api/v1/spaces/${spaceSlug}/fields/${fieldName}`),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["spaces"] })
     },

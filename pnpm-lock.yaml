@@ -130,6 +130,9 @@ importers:
       '@tanstack/eslint-plugin-query':
         specifier: ^5.91.2
         version: 5.91.2(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3)
+      '@tanstack/react-router':
+        specifier: ^1.139.1
+        version: 1.139.1(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@types/react':
         specifier: ^19.2.6
         version: 19.2.6

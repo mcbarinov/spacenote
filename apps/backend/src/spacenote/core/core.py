@@ -10,6 +10,7 @@ from pymongo.asynchronous.database import AsyncDatabase
 
 from spacenote.config import Config
 from spacenote.core.modules.access.service import AccessService
+from spacenote.core.modules.field.service import FieldService
 from spacenote.core.modules.session.service import SessionService
 from spacenote.core.modules.space.service import SpaceService
 from spacenote.core.modules.user.service import UserService
@@ -23,6 +24,7 @@ class ServiceRegistry:
     session: SessionService
     access: AccessService
     space: SpaceService
+    field: FieldService
 
     def __init__(self, database: AsyncDatabase[dict[str, Any]]) -> None:
         """Initialize all services."""
@@ -30,8 +32,9 @@ class ServiceRegistry:
         self.session = SessionService(database)
         self.access = AccessService(database)
         self.space = SpaceService(database)
+        self.field = FieldService(database)
 
-        self._services: list[Service] = [self.user, self.session, self.access, self.space]
+        self._services: list[Service] = [self.user, self.session, self.access, self.space, self.field]
 
     def set_core(self, core: Core) -> None:
         """Set core reference for all services."""

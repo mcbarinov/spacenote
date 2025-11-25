@@ -28,12 +28,12 @@ export const Route = createFileRoute("/_auth")({
       throw error
     }
   },
-  // loader: async ({ context }) => {
-  //   await Promise.all([
-  //     context.queryClient.ensureQueryData(api.queries.forums()),
-  //     context.queryClient.ensureQueryData(api.queries.users()),
-  //   ])
-  // },
+  loader: async ({ context }) => {
+    await Promise.all([
+      context.queryClient.ensureQueryData(api.queries.listUsers()),
+      context.queryClient.ensureQueryData(api.queries.listSpaces()),
+    ])
+  },
   errorComponent: ErrorComponent,
   pendingComponent: LoadingComponent,
   component: AuthLayoutComponent,

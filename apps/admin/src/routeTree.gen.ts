@@ -15,6 +15,8 @@ import { Route as AuthIndexRouteImport } from './routes/_auth/index'
 import { Route as AuthUsersRouteRouteImport } from './routes/_auth/users/route'
 import { Route as AuthSpacesIndexRouteImport } from './routes/_auth/spaces/index'
 import { Route as AuthSpacesNewRouteImport } from './routes/_auth/spaces/new'
+import { Route as AuthSpacesSlugFieldsIndexRouteImport } from './routes/_auth/spaces/$slug/fields/index'
+import { Route as AuthSpacesSlugFieldsNewRouteImport } from './routes/_auth/spaces/$slug/fields/new'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -45,6 +47,17 @@ const AuthSpacesNewRoute = AuthSpacesNewRouteImport.update({
   path: '/spaces/new',
   getParentRoute: () => AuthRouteRoute,
 } as any)
+const AuthSpacesSlugFieldsIndexRoute =
+  AuthSpacesSlugFieldsIndexRouteImport.update({
+    id: '/spaces/$slug/fields/',
+    path: '/spaces/$slug/fields/',
+    getParentRoute: () => AuthRouteRoute,
+  } as any)
+const AuthSpacesSlugFieldsNewRoute = AuthSpacesSlugFieldsNewRouteImport.update({
+  id: '/spaces/$slug/fields/new',
+  path: '/spaces/$slug/fields/new',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
@@ -52,6 +65,8 @@ export interface FileRoutesByFullPath {
   '/': typeof AuthIndexRoute
   '/spaces/new': typeof AuthSpacesNewRoute
   '/spaces': typeof AuthSpacesIndexRoute
+  '/spaces/$slug/fields/new': typeof AuthSpacesSlugFieldsNewRoute
+  '/spaces/$slug/fields': typeof AuthSpacesSlugFieldsIndexRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
@@ -59,6 +74,8 @@ export interface FileRoutesByTo {
   '/': typeof AuthIndexRoute
   '/spaces/new': typeof AuthSpacesNewRoute
   '/spaces': typeof AuthSpacesIndexRoute
+  '/spaces/$slug/fields/new': typeof AuthSpacesSlugFieldsNewRoute
+  '/spaces/$slug/fields': typeof AuthSpacesSlugFieldsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -68,12 +85,28 @@ export interface FileRoutesById {
   '/_auth/': typeof AuthIndexRoute
   '/_auth/spaces/new': typeof AuthSpacesNewRoute
   '/_auth/spaces/': typeof AuthSpacesIndexRoute
+  '/_auth/spaces/$slug/fields/new': typeof AuthSpacesSlugFieldsNewRoute
+  '/_auth/spaces/$slug/fields/': typeof AuthSpacesSlugFieldsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/login' | '/users' | '/' | '/spaces/new' | '/spaces'
+  fullPaths:
+    | '/login'
+    | '/users'
+    | '/'
+    | '/spaces/new'
+    | '/spaces'
+    | '/spaces/$slug/fields/new'
+    | '/spaces/$slug/fields'
   fileRoutesByTo: FileRoutesByTo
-  to: '/login' | '/users' | '/' | '/spaces/new' | '/spaces'
+  to:
+    | '/login'
+    | '/users'
+    | '/'
+    | '/spaces/new'
+    | '/spaces'
+    | '/spaces/$slug/fields/new'
+    | '/spaces/$slug/fields'
   id:
     | '__root__'
     | '/_auth'
@@ -82,6 +115,8 @@ export interface FileRouteTypes {
     | '/_auth/'
     | '/_auth/spaces/new'
     | '/_auth/spaces/'
+    | '/_auth/spaces/$slug/fields/new'
+    | '/_auth/spaces/$slug/fields/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -133,6 +168,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthSpacesNewRouteImport
       parentRoute: typeof AuthRouteRoute
     }
+    '/_auth/spaces/$slug/fields/': {
+      id: '/_auth/spaces/$slug/fields/'
+      path: '/spaces/$slug/fields'
+      fullPath: '/spaces/$slug/fields'
+      preLoaderRoute: typeof AuthSpacesSlugFieldsIndexRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
+    '/_auth/spaces/$slug/fields/new': {
+      id: '/_auth/spaces/$slug/fields/new'
+      path: '/spaces/$slug/fields/new'
+      fullPath: '/spaces/$slug/fields/new'
+      preLoaderRoute: typeof AuthSpacesSlugFieldsNewRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
   }
 }
 
@@ -141,6 +190,8 @@ interface AuthRouteRouteChildren {
   AuthIndexRoute: typeof AuthIndexRoute
   AuthSpacesNewRoute: typeof AuthSpacesNewRoute
   AuthSpacesIndexRoute: typeof AuthSpacesIndexRoute
+  AuthSpacesSlugFieldsNewRoute: typeof AuthSpacesSlugFieldsNewRoute
+  AuthSpacesSlugFieldsIndexRoute: typeof AuthSpacesSlugFieldsIndexRoute
 }
 
 const AuthRouteRouteChildren: AuthRouteRouteChildren = {
@@ -148,6 +199,8 @@ const AuthRouteRouteChildren: AuthRouteRouteChildren = {
   AuthIndexRoute: AuthIndexRoute,
   AuthSpacesNewRoute: AuthSpacesNewRoute,
   AuthSpacesIndexRoute: AuthSpacesIndexRoute,
+  AuthSpacesSlugFieldsNewRoute: AuthSpacesSlugFieldsNewRoute,
+  AuthSpacesSlugFieldsIndexRoute: AuthSpacesSlugFieldsIndexRoute,
 }
 
 const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(

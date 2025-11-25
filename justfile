@@ -1,6 +1,9 @@
 set dotenv-load
 set shell := ["bash", "-cu"]
 
+# Lint all projects
+lint: frontend-common-lint admin-lint web-lint backend-lint
+
 [group("backend")]
 backend-clean:
     cd apps/backend && rm -rf .pytest_cache .ruff_cache .mypy_cache build dist src/*.egg-info

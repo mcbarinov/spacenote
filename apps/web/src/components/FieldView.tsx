@@ -1,5 +1,6 @@
 import { Badge, Box, Group, Stack, Text } from "@mantine/core"
-import type { FieldType, SpaceField } from "../../types"
+import type { FieldType, SpaceField } from "@spacenote/common/types"
+import { MarkdownDisplay } from "./MarkdownDisplay"
 
 type FieldValue = string | boolean | string[] | number | null | undefined
 
@@ -52,7 +53,7 @@ function formatValue(type: FieldType, value: FieldValue): React.ReactNode {
       return <Text>{new Date(String(value)).toLocaleString()}</Text>
 
     case "markdown":
-      return <Text style={{ whiteSpace: "pre-wrap" }}>{String(value)}</Text>
+      return <MarkdownDisplay content={String(value)} />
 
     case "image":
       return <Text c="dimmed">Image display not implemented</Text>

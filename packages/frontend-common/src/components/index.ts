@@ -8,5 +8,3 @@ export { Footer } from "./layout/Footer"
 export { AuthLayout } from "./layout/AuthLayout"
 export { LoadingScreen } from "./layout/LoadingScreen"
 export { ErrorScreen } from "./layout/ErrorScreen"
-
-export { FieldView } from "./fields/FieldView"

@@ -2,7 +2,8 @@ import { createFileRoute } from "@tanstack/react-router"
 import { Group, Stack, Text, Title } from "@mantine/core"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { api } from "@spacenote/common/api"
-import { FieldView, LinkButton } from "@spacenote/common/components"
+import { LinkButton } from "@spacenote/common/components"
+import { FieldView } from "@/components/FieldView"
 
 export const Route = createFileRoute("/_auth/s/$slug/$noteNumber")({
   loader: async ({ context, params }) => {

@@ -1,6 +1,7 @@
-import { TextInput, Textarea, Checkbox, Select, NumberInput, TagsInput } from "@mantine/core"
+import { TextInput, Checkbox, Select, NumberInput, TagsInput } from "@mantine/core"
 import { DateTimePicker } from "@mantine/dates"
 import type { SpaceField } from "@spacenote/common/types"
+import { MarkdownEditor } from "./MarkdownEditor"
 
 interface FieldInputProps {
   field: SpaceField
@@ -49,13 +50,11 @@ export function FieldInput({ field, value, onChange, error }: FieldInputProps) {
 
     case "markdown":
       return (
-        <Textarea
+        <MarkdownEditor
           {...commonProps}
-          autosize
-          minRows={3}
           value={asString(value)}
-          onChange={(e) => {
-            onChange(e.currentTarget.value)
+          onChange={(v) => {
+            onChange(v)
           }}
         />
       )

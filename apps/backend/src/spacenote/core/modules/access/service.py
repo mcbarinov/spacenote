@@ -24,3 +24,11 @@ class AccessService(Service):
         if user.username != "admin":
             raise AccessDeniedError("Admin privileges required")
         return user
+
+    async def ensure_space_member(self, auth_token: AuthToken, space_slug: str) -> User:
+        """Verify user is a member of the specified space."""
+        user = await self.core.services.session.get_authenticated_user(auth_token)
+        space = self.core.services.space.get_space(space_slug)
+        if user.username not in space.members:
+            raise AccessDeniedError("Not a member of this space")
+        return user

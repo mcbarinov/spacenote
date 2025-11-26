@@ -3,8 +3,8 @@ from typing import Any
 import structlog
 from pymongo.asynchronous.database import AsyncDatabase
 
-from spacenote.core.modules.field.models import SpaceField
-from spacenote.core.modules.field.validators import VALIDATORS
+from spacenote.core.modules.field.models import FieldValueType, SpaceField
+from spacenote.core.modules.field.validators import VALIDATORS, ParseContext
 from spacenote.core.service import Service
 from spacenote.errors import NotFoundError, ValidationError
 
@@ -63,3 +63,49 @@ class FieldService(Service):
         await spaces_collection.update_one({"slug": slug}, {"$pull": {"fields": {"name": field_name}}})
         await self.core.services.space.update_space_cache(slug)
         logger.debug("field_removed_from_space", space_slug=slug, field_name=field_name)
+
+    def parse_raw_fields(
+        self,
+        space_slug: str,
+        raw_fields: dict[str, str],
+        current_user: str | None = None,
+        partial: bool = False,
+    ) -> dict[str, FieldValueType]:
+        """Parse raw string field values to typed values.
+
+        Args:
+            space_slug: The space slug to get field definitions
+            raw_fields: Dictionary of field names to raw string values
+            current_user: Current user for $me substitution
+            partial: If True, only validate provided fields (for partial updates)
+
+        Returns:
+            Dictionary of field names to parsed typed values
+        """
+        space = self.core.services.space.get_space(space_slug)
+        ctx = ParseContext(space=space, current_user=current_user)
+        parsed: dict[str, FieldValueType] = {}
+
+        # Check for unknown fields first
+        for field_name in raw_fields:
+            if space.get_field(field_name) is None:
+                raise ValidationError(f"Unknown field: {field_name}")
+
+        if partial:
+            # For updates: only parse provided fields
+            for field_name, raw_value in raw_fields.items():
+                field = space.get_field(field_name)
+                if field is not None:
+                    validator_class = VALIDATORS.get(field.type)
+                    if not validator_class:
+                        raise ValidationError(f"Unknown field type: {field.type}")
+                    parsed[field.name] = validator_class.parse_value(field, raw_value, ctx)
+        else:
+            # For creation: parse all fields (provided and missing)
+            for field in space.fields:
+                validator_class = VALIDATORS.get(field.type)
+                if not validator_class:
+                    raise ValidationError(f"Unknown field type: {field.type}")
+                parsed[field.name] = validator_class.parse_value(field, raw_fields.get(field.name), ctx)
+
+        return parsed

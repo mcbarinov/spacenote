@@ -4,9 +4,11 @@ from contextlib import asynccontextmanager
 from spacenote.config import Config
 from spacenote.core.core import Core
 from spacenote.core.modules.field.models import SpaceField
+from spacenote.core.modules.note.models import Note
 from spacenote.core.modules.session.models import AuthToken
 from spacenote.core.modules.space.models import Space
 from spacenote.core.modules.user.models import UserView
+from spacenote.core.pagination import PaginationResult
 from spacenote.errors import AuthenticationError
 
 
@@ -110,3 +112,23 @@ class App:
         """Remove field from space (admin only)."""
         await self._core.services.access.ensure_admin(auth_token)
         await self._core.services.field.remove_field_from_space(slug, field_name)
+
+    async def get_notes(self, auth_token: AuthToken, space_slug: str, limit: int = 50, offset: int = 0) -> PaginationResult[Note]:
+        """Get paginated notes in space (members only)."""
+        await self._core.services.access.ensure_space_member(auth_token, space_slug)
+        return await self._core.services.note.list_notes(space_slug, limit, offset)
+
+    async def get_note(self, auth_token: AuthToken, space_slug: str, number: int) -> Note:
+        """Get specific note by number (members only)."""
+        await self._core.services.access.ensure_space_member(auth_token, space_slug)
+        return await self._core.services.note.get_note(space_slug, number)
+
+    async def create_note(self, auth_token: AuthToken, space_slug: str, raw_fields: dict[str, str]) -> Note:
+        """Create note with custom fields (members only)."""
+        user = await self._core.services.access.ensure_space_member(auth_token, space_slug)
+        return await self._core.services.note.create_note(space_slug, user.username, raw_fields)
+
+    async def update_note(self, auth_token: AuthToken, space_slug: str, number: int, raw_fields: dict[str, str]) -> Note:
+        """Update specific note fields (partial update, members only)."""
+        user = await self._core.services.access.ensure_space_member(auth_token, space_slug)
+        return await self._core.services.note.update_note_fields(space_slug, number, raw_fields, user.username)

@@ -37,7 +37,7 @@ class FieldService(Service):
         if not validator_class:
             raise ValidationError(f"Unknown field type: {field.type}")
 
-        validated_field = validator_class.validate_definition(field, space)
+        validated_field = validator_class.validate_field(field, space)
 
         spaces_collection = self.database["spaces"]
         await spaces_collection.update_one({"slug": slug}, {"$push": {"fields": validated_field.model_dump()}})
@@ -83,7 +83,7 @@ class FieldService(Service):
             Dictionary of field names to parsed typed values
         """
         space = self.core.services.space.get_space(space_slug)
-        ctx = ParseContext(space=space, current_user=current_user)
+        ctx = ParseContext(current_user=current_user)
         parsed: dict[str, FieldValueType] = {}
 
         # Check for unknown fields first
@@ -99,13 +99,13 @@ class FieldService(Service):
                     validator_class = VALIDATORS.get(field.type)
                     if not validator_class:
                         raise ValidationError(f"Unknown field type: {field.type}")
-                    parsed[field.name] = validator_class.parse_value(field, raw_value, ctx)
+                    parsed[field.name] = validator_class.parse_value(field, space, raw_value, ctx)
         else:
             # For creation: parse all fields (provided and missing)
             for field in space.fields:
                 validator_class = VALIDATORS.get(field.type)
                 if not validator_class:
                     raise ValidationError(f"Unknown field type: {field.type}")
-                parsed[field.name] = validator_class.parse_value(field, raw_fields.get(field.name), ctx)
+                parsed[field.name] = validator_class.parse_value(field, space, raw_fields.get(field.name), ctx)
 
         return parsed

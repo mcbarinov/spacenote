@@ -13,7 +13,6 @@ from spacenote.errors import ValidationError
 class ParseContext:
     """Context for parsing field values."""
 
-    space: Space
     current_user: str | None = None
 
 
@@ -21,27 +20,27 @@ class FieldValidator(ABC):
     """Base validator with template methods for definition validation and value parsing."""
 
     @classmethod
-    def validate_definition(cls, field: SpaceField, space: Space) -> SpaceField:
+    def validate_field(cls, field: SpaceField, space: Space) -> SpaceField:
         """Validate field definition - checks name format and delegates to type-specific validation."""
         if not field.name or not field.name.replace("_", "").replace("-", "").isalnum():
             raise ValidationError(f"Invalid field name: {field.name}")
 
-        return cls._validate_type_specific(field, space)
+        return cls._validate_field(field, space)
 
     @classmethod
-    def parse_value(cls, field: SpaceField, raw: str | None, ctx: ParseContext) -> FieldValueType:
+    def parse_value(cls, field: SpaceField, space: Space, raw: str | None, ctx: ParseContext) -> FieldValueType:
         """Parse raw string value to typed value."""
-        return cls._parse_type_specific(field, raw, ctx)
+        return cls._parse_value(field, space, raw, ctx)
 
     @classmethod
     @abstractmethod
-    def _validate_type_specific(cls, field: SpaceField, space: Space) -> SpaceField:
+    def _validate_field(cls, field: SpaceField, space: Space) -> SpaceField:
         """Type-specific definition validation."""
         ...
 
     @classmethod
     @abstractmethod
-    def _parse_type_specific(cls, field: SpaceField, raw: str | None, ctx: ParseContext) -> FieldValueType:
+    def _parse_value(cls, field: SpaceField, space: Space, raw: str | None, ctx: ParseContext) -> FieldValueType:
         """Type-specific value parsing."""
         ...
 
@@ -50,11 +49,11 @@ class StringValidator(FieldValidator):
     """Validator for string fields."""
 
     @classmethod
-    def _validate_type_specific(cls, field: SpaceField, _space: Space) -> SpaceField:
+    def _validate_field(cls, field: SpaceField, _space: Space) -> SpaceField:
         return field
 
     @classmethod
-    def _parse_type_specific(cls, field: SpaceField, raw: str | None, _ctx: ParseContext) -> FieldValueType:
+    def _parse_value(cls, field: SpaceField, _space: Space, raw: str | None, _ctx: ParseContext) -> FieldValueType:
         if raw is None:
             if field.default is not None:
                 return field.default
@@ -72,11 +71,11 @@ class MarkdownValidator(FieldValidator):
     """Validator for markdown fields."""
 
     @classmethod
-    def _validate_type_specific(cls, field: SpaceField, _space: Space) -> SpaceField:
+    def _validate_field(cls, field: SpaceField, _space: Space) -> SpaceField:
         return field
 
     @classmethod
-    def _parse_type_specific(cls, field: SpaceField, raw: str | None, _ctx: ParseContext) -> FieldValueType:
+    def _parse_value(cls, field: SpaceField, _space: Space, raw: str | None, _ctx: ParseContext) -> FieldValueType:
         if raw is None:
             if field.default is not None:
                 return field.default
@@ -94,13 +93,13 @@ class BooleanValidator(FieldValidator):
     """Validator for boolean fields."""
 
     @classmethod
-    def _validate_type_specific(cls, field: SpaceField, _space: Space) -> SpaceField:
+    def _validate_field(cls, field: SpaceField, _space: Space) -> SpaceField:
         if field.default is not None and not isinstance(field.default, bool):
             raise ValidationError("Boolean field default must be boolean")
         return field
 
     @classmethod
-    def _parse_type_specific(cls, field: SpaceField, raw: str | None, _ctx: ParseContext) -> FieldValueType:
+    def _parse_value(cls, field: SpaceField, _space: Space, raw: str | None, _ctx: ParseContext) -> FieldValueType:
         if raw is None:
             if field.default is not None:
                 return field.default
@@ -123,7 +122,7 @@ class IntValidator(FieldValidator):
     """Validator for integer fields."""
 
     @classmethod
-    def _validate_type_specific(cls, field: SpaceField, _space: Space) -> SpaceField:
+    def _validate_field(cls, field: SpaceField, _space: Space) -> SpaceField:
         for opt in (FieldOption.MIN, FieldOption.MAX):
             if opt in field.options:
                 val = field.options[opt]
@@ -132,7 +131,7 @@ class IntValidator(FieldValidator):
         return field
 
     @classmethod
-    def _parse_type_specific(cls, field: SpaceField, raw: str | None, _ctx: ParseContext) -> FieldValueType:
+    def _parse_value(cls, field: SpaceField, _space: Space, raw: str | None, _ctx: ParseContext) -> FieldValueType:
         if raw is None:
             if field.default is not None:
                 return field.default
@@ -169,7 +168,7 @@ class FloatValidator(FieldValidator):
     """Validator for float fields."""
 
     @classmethod
-    def _validate_type_specific(cls, field: SpaceField, _space: Space) -> SpaceField:
+    def _validate_field(cls, field: SpaceField, _space: Space) -> SpaceField:
         for opt in (FieldOption.MIN, FieldOption.MAX):
             if opt in field.options:
                 val = field.options[opt]
@@ -178,7 +177,7 @@ class FloatValidator(FieldValidator):
         return field
 
     @classmethod
-    def _parse_type_specific(cls, field: SpaceField, raw: str | None, _ctx: ParseContext) -> FieldValueType:
+    def _parse_value(cls, field: SpaceField, _space: Space, raw: str | None, _ctx: ParseContext) -> FieldValueType:
         if raw is None:
             if field.default is not None:
                 return field.default
@@ -215,7 +214,7 @@ class SelectValidator(FieldValidator):
     """Validator for select fields."""
 
     @classmethod
-    def _validate_type_specific(cls, field: SpaceField, _space: Space) -> SpaceField:
+    def _validate_field(cls, field: SpaceField, _space: Space) -> SpaceField:
         if FieldOption.VALUES not in field.options:
             raise ValidationError("SELECT fields must have 'values' option")
 
@@ -259,7 +258,7 @@ class SelectValidator(FieldValidator):
                     raise ValidationError(f"value_maps['{map_name}']['{key}'] must be a string, got {type(value).__name__}")
 
     @classmethod
-    def _parse_type_specific(cls, field: SpaceField, raw: str | None, _ctx: ParseContext) -> FieldValueType:
+    def _parse_value(cls, field: SpaceField, _space: Space, raw: str | None, _ctx: ParseContext) -> FieldValueType:
         if raw is None:
             if field.default is not None:
                 return field.default
@@ -284,11 +283,11 @@ class TagsValidator(FieldValidator):
     """Validator for tags (multi-value) fields."""
 
     @classmethod
-    def _validate_type_specific(cls, field: SpaceField, _space: Space) -> SpaceField:
+    def _validate_field(cls, field: SpaceField, _space: Space) -> SpaceField:
         return field
 
     @classmethod
-    def _parse_type_specific(cls, field: SpaceField, raw: str | None, _ctx: ParseContext) -> FieldValueType:
+    def _parse_value(cls, field: SpaceField, _space: Space, raw: str | None, _ctx: ParseContext) -> FieldValueType:
         if raw is None:
             if field.default is not None:
                 return field.default
@@ -307,13 +306,13 @@ class DateTimeValidator(FieldValidator):
     """Validator for datetime fields."""
 
     @classmethod
-    def _validate_type_specific(cls, field: SpaceField, _space: Space) -> SpaceField:
+    def _validate_field(cls, field: SpaceField, _space: Space) -> SpaceField:
         if field.default and field.default != SpecialValue.NOW and not isinstance(field.default, datetime):
             raise ValidationError("DATETIME field default must be datetime or $now")
         return field
 
     @classmethod
-    def _parse_type_specific(cls, field: SpaceField, raw: str | None, _ctx: ParseContext) -> FieldValueType:
+    def _parse_value(cls, field: SpaceField, _space: Space, raw: str | None, _ctx: ParseContext) -> FieldValueType:
         if raw is None:
             if field.default is not None:
                 if field.default == SpecialValue.NOW:
@@ -349,7 +348,7 @@ class UserValidator(FieldValidator):
     """Validator for user reference fields."""
 
     @classmethod
-    def _validate_type_specific(cls, field: SpaceField, space: Space) -> SpaceField:
+    def _validate_field(cls, field: SpaceField, space: Space) -> SpaceField:
         if field.default is not None and isinstance(field.default, str):
             if field.default == SpecialValue.ME:
                 return field
@@ -360,13 +359,13 @@ class UserValidator(FieldValidator):
         return field
 
     @classmethod
-    def _parse_type_specific(cls, field: SpaceField, raw: str | None, ctx: ParseContext) -> FieldValueType:
+    def _parse_value(cls, field: SpaceField, space: Space, raw: str | None, ctx: ParseContext) -> FieldValueType:
         if raw is None:
             if field.default is not None:
                 if field.default == SpecialValue.ME:
                     if not ctx.current_user:
                         raise ValidationError(f"Cannot use '{SpecialValue.ME}' without a logged-in user context")
-                    if ctx.current_user not in ctx.space.members:
+                    if ctx.current_user not in space.members:
                         raise ValidationError("Current user is not a member of this space")
                     return ctx.current_user
                 return field.default
@@ -380,11 +379,11 @@ class UserValidator(FieldValidator):
         if raw == SpecialValue.ME:
             if not ctx.current_user:
                 raise ValidationError(f"Cannot use '{SpecialValue.ME}' without a logged-in user context")
-            if ctx.current_user not in ctx.space.members:
+            if ctx.current_user not in space.members:
                 raise ValidationError("Current user is not a member of this space")
             return ctx.current_user
 
-        if raw not in ctx.space.members:
+        if raw not in space.members:
             raise ValidationError(f"User '{raw}' is not a member of this space")
 
         return raw

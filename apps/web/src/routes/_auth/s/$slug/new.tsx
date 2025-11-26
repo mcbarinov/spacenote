@@ -5,7 +5,7 @@ import { notifications } from "@mantine/notifications"
 import { api } from "@spacenote/common/api"
 import { ErrorMessage, LinkButton } from "@spacenote/common/components"
 import type { SpaceField } from "@spacenote/common/types"
-import { FieldInput } from "../../../../components/FieldInput"
+import { FieldInput } from "@/components/FieldInput"
 
 function getDefaultValue(field: SpaceField): unknown {
   if (field.default !== undefined && field.default !== null) {

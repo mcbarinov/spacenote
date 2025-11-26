@@ -47,6 +47,24 @@ src/
 - Simple routes: `login.tsx` (single file)
 - Routes with components: `users/route.tsx` + `users/-components/` (folder)
 
+## Import Paths
+
+**Apps (`apps/web`, `apps/admin`):** Use `@/` alias for deep imports (2+ levels up).
+
+```typescript
+// ✅ In apps - use @/ for deep imports
+import { FieldInput } from "@/components/FieldInput"
+
+// ✅ Relative for 1 level up or same directory
+import { api } from "../api"
+import { Foo } from "./Foo"
+
+// ❌ Bad - too many levels
+import { FieldInput } from "../../../../components/FieldInput"
+```
+
+**Packages (`@spacenote/common`):** Always use relative imports. Packages are standalone - `@/` aliases break when consumed by apps with different tsconfig paths.
+
 ## Architecture
 
 ### Layout Simplicity
@@ -206,6 +224,50 @@ export const Route = createFileRoute("/_auth")({
   errorComponent: ErrorComponent,
   pendingComponent: LoadingComponent,
 })
+```
+
+### Data Loading (TanStack Query + Router)
+
+**Standard pattern** - prefetch in loader, read in component:
+```typescript
+// Route definition
+export const Route = createFileRoute("/s/$slug/$noteNumber")({
+  loader: async ({ context, params }) => {
+    await context.queryClient.ensureQueryData(
+      api.queries.getNote(params.slug, Number(params.noteNumber))
+    )
+  },
+  component: NoteDetailPage,
+})
+
+// Component
+function NoteDetailPage() {
+  const { slug, noteNumber } = Route.useParams()
+  const { data: note } = useSuspenseQuery(
+    api.queries.getNote(slug, Number(noteNumber))
+  )
+  // data is guaranteed, no loading state needed
+}
+```
+
+Why this pattern:
+- `ensureQueryData` in loader → prefetch during navigation (no waterfall)
+- `useSuspenseQuery` in component → read from cache + subscribe to updates
+- No "flash of loading" - data displays immediately
+
+**Exception: parent-loaded cache data**
+
+When parent route already loads shared data, child routes can read directly from cache:
+```typescript
+// _auth/route.tsx loads spaces in loader
+loader: async ({ context }) => {
+  await context.queryClient.ensureQueryData(api.queries.listSpaces())
+}
+
+// Child route reads from cache (no loader needed for this data)
+function SpacePage() {
+  const space = api.cache.useSpace(slug)  // reads from already-loaded cache
+}
 ```
 
 ### Navigation

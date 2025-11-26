@@ -14,6 +14,7 @@ import { Route as AuthRouteRouteImport } from './routes/_auth/route'
 import { Route as AuthIndexRouteImport } from './routes/_auth/index'
 import { Route as AuthSSlugIndexRouteImport } from './routes/_auth/s/$slug/index'
 import { Route as AuthSSlugNewRouteImport } from './routes/_auth/s/$slug/new'
+import { Route as AuthSSlugNoteNumberRouteImport } from './routes/_auth/s/$slug/$noteNumber'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -39,16 +40,23 @@ const AuthSSlugNewRoute = AuthSSlugNewRouteImport.update({
   path: '/s/$slug/new',
   getParentRoute: () => AuthRouteRoute,
 } as any)
+const AuthSSlugNoteNumberRoute = AuthSSlugNoteNumberRouteImport.update({
+  id: '/s/$slug/$noteNumber',
+  path: '/s/$slug/$noteNumber',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/': typeof AuthIndexRoute
+  '/s/$slug/$noteNumber': typeof AuthSSlugNoteNumberRoute
   '/s/$slug/new': typeof AuthSSlugNewRoute
   '/s/$slug': typeof AuthSSlugIndexRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/': typeof AuthIndexRoute
+  '/s/$slug/$noteNumber': typeof AuthSSlugNoteNumberRoute
   '/s/$slug/new': typeof AuthSSlugNewRoute
   '/s/$slug': typeof AuthSSlugIndexRoute
 }
@@ -57,19 +65,26 @@ export interface FileRoutesById {
   '/_auth': typeof AuthRouteRouteWithChildren
   '/login': typeof LoginRoute
   '/_auth/': typeof AuthIndexRoute
+  '/_auth/s/$slug/$noteNumber': typeof AuthSSlugNoteNumberRoute
   '/_auth/s/$slug/new': typeof AuthSSlugNewRoute
   '/_auth/s/$slug/': typeof AuthSSlugIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/login' | '/' | '/s/$slug/new' | '/s/$slug'
+  fullPaths:
+    | '/login'
+    | '/'
+    | '/s/$slug/$noteNumber'
+    | '/s/$slug/new'
+    | '/s/$slug'
   fileRoutesByTo: FileRoutesByTo
-  to: '/login' | '/' | '/s/$slug/new' | '/s/$slug'
+  to: '/login' | '/' | '/s/$slug/$noteNumber' | '/s/$slug/new' | '/s/$slug'
   id:
     | '__root__'
     | '/_auth'
     | '/login'
     | '/_auth/'
+    | '/_auth/s/$slug/$noteNumber'
     | '/_auth/s/$slug/new'
     | '/_auth/s/$slug/'
   fileRoutesById: FileRoutesById
@@ -116,17 +131,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthSSlugNewRouteImport
       parentRoute: typeof AuthRouteRoute
     }
+    '/_auth/s/$slug/$noteNumber': {
+      id: '/_auth/s/$slug/$noteNumber'
+      path: '/s/$slug/$noteNumber'
+      fullPath: '/s/$slug/$noteNumber'
+      preLoaderRoute: typeof AuthSSlugNoteNumberRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
   }
 }
 
 interface AuthRouteRouteChildren {
   AuthIndexRoute: typeof AuthIndexRoute
+  AuthSSlugNoteNumberRoute: typeof AuthSSlugNoteNumberRoute
   AuthSSlugNewRoute: typeof AuthSSlugNewRoute
   AuthSSlugIndexRoute: typeof AuthSSlugIndexRoute
 }
 
 const AuthRouteRouteChildren: AuthRouteRouteChildren = {
   AuthIndexRoute: AuthIndexRoute,
+  AuthSSlugNoteNumberRoute: AuthSSlugNoteNumberRoute,
   AuthSSlugNewRoute: AuthSSlugNewRoute,
   AuthSSlugIndexRoute: AuthSSlugIndexRoute,
 }

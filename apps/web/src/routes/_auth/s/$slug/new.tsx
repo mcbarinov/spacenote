@@ -37,6 +37,9 @@ function valueToString(value: unknown): string | null {
   if (Array.isArray(value)) {
     return value.length > 0 ? value.join(",") : null
   }
+  if (value instanceof Date) {
+    return value.toISOString()
+  }
   return null
 }
 
@@ -91,7 +94,7 @@ function NewNotePage() {
         <form onSubmit={handleSubmit}>
           <Stack gap="md">
             {space.fields.map((field) => (
-              <FieldInput key={field.name} field={field} {...form.getInputProps(field.name)} />
+              <FieldInput key={field.name} field={field} spaceMembers={space.members} {...form.getInputProps(field.name)} />
             ))}
             {createNoteMutation.error && <ErrorMessage error={createNoteMutation.error} />}
             <Group>

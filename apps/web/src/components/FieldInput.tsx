@@ -8,6 +8,7 @@ interface FieldInputProps {
   value?: unknown
   onChange: (value: unknown) => void
   error?: string
+  spaceMembers?: string[]
 }
 
 function asString(value: unknown): string {
@@ -29,7 +30,7 @@ function asStringArray(value: unknown): string[] {
   return []
 }
 
-export function FieldInput({ field, value, onChange, error }: FieldInputProps) {
+export function FieldInput({ field, value, onChange, error, spaceMembers }: FieldInputProps) {
   const commonProps = {
     label: field.name,
     required: field.required,
@@ -117,11 +118,25 @@ export function FieldInput({ field, value, onChange, error }: FieldInputProps) {
       return (
         <DateTimePicker
           {...commonProps}
-          value={value ? new Date(asString(value)) : null}
+          value={value instanceof Date ? value : value ? new Date(asString(value)) : null}
           onChange={(date) => {
             onChange(date)
           }}
           clearable={!field.required}
+        />
+      )
+
+    case "user":
+      return (
+        <Select
+          {...commonProps}
+          data={spaceMembers ?? []}
+          value={asString(value) || null}
+          onChange={(v) => {
+            onChange(v)
+          }}
+          clearable={!field.required}
+          searchable
         />
       )
 

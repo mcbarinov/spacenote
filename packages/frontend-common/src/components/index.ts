@@ -1,6 +1,7 @@
 export { ErrorBoundary } from "./errors/ErrorBoundary"
 export { ErrorMessage } from "./ui/ErrorMessage"
 export { CustomLink } from "./navigation/CustomLink"
+export { LinkButton } from "./navigation/LinkButton"
 
 export { Header } from "./layout/Header"
 export { Footer } from "./layout/Footer"

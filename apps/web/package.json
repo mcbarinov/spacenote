@@ -11,7 +11,8 @@
     "format": "prettier --write .",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit -p tsconfig.app.json",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "routes": "tsr generate"
   },
   "dependencies": {
     "@mantine/core": "^8.3.8",
@@ -32,6 +33,7 @@
   "devDependencies": {
     "@spacenote/common": "workspace:*",
     "@tanstack/devtools-vite": "^0.3.11",
+    "@tanstack/router-cli": "^1.139.1",
     "@tanstack/react-devtools": "^0.8.1",
     "@tanstack/react-query-devtools": "^5.91.0",
     "@tanstack/react-router-devtools": "^1.139.1",

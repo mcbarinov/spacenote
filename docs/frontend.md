@@ -210,23 +210,32 @@ export const Route = createFileRoute("/_auth")({
 
 ### Navigation
 
-**Type-safe navigation with params:**
-```tsx
-// ✅ Correct - type-safe
-void navigate({ to: "/spaces/$slug/fields", params: { slug } })
+Use type-safe navigation components from `@spacenote/common/components`.
 
-// ❌ Wrong - loses type safety
-void navigate({ to: `/spaces/${slug}/fields` })
+**Text links → CustomLink:**
+```tsx
+import { CustomLink } from "@spacenote/common/components"
+
+<CustomLink to="/s/$slug" params={{ slug }}>View space</CustomLink>
 ```
 
-**CustomLink for anchors (from @spacenote/common/components):**
+**Button links → LinkButton:**
 ```tsx
-<CustomLink to="/spaces/$slug/fields" params={{ slug }}>
-  View fields
-</CustomLink>
+import { LinkButton } from "@spacenote/common/components"
+
+<LinkButton to="/s/$slug/new" params={{ slug }}>New Note</LinkButton>
 ```
 
-Uses Mantine's Anchor with TanStack Router integration, preload on intent.
+**Programmatic navigation → useNavigate:**
+```tsx
+void navigate({ to: "/s/$slug", params: { slug } })
+```
+
+❌ **Don't use raw Link with Mantine components:**
+```tsx
+// Wrong - loses type safety for params
+<Button component={Link} to="/s/$slug" params={{ slug }}>
+```
 
 ### Form Handling Patterns
 

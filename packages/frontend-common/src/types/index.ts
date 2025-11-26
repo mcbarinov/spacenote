@@ -5,6 +5,10 @@ export type User = components["schemas"]["UserView"]
 export type Space = components["schemas"]["Space"]
 export type SpaceField = components["schemas"]["SpaceField"]
 export type FieldType = components["schemas"]["FieldType"]
+export type Note = components["schemas"]["Note"]
+
+// Pagination
+export type NotesList = components["schemas"]["PaginationResult_Note_"]
 
 // Request/Response types
 export type LoginRequest = components["schemas"]["LoginRequest"]

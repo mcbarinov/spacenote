@@ -72,10 +72,12 @@ class SpaceService(Service):
         return await self.update_space_cache(slug)
 
     async def delete_space(self, slug: str) -> None:
-        """Delete a space from the system."""
+        """Delete a space and all related data."""
         if not self.has_space(slug):
             raise NotFoundError(f"Space '{slug}' not found")
 
+        await self.core.services.note.delete_notes_by_space(slug)
+        await self.core.services.counter.delete_counters_by_space(slug)
         await self._collection.delete_one({"slug": slug})
         del self._spaces[slug]
 

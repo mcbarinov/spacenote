@@ -16,12 +16,12 @@ class CounterService(Service):
 
     async def on_start(self) -> None:
         """Create indexes on startup."""
-        await self._collection.create_index([("space_slug", 1), ("counter_type", 1)], unique=True)
+        await self._collection.create_index([("space_slug", 1), ("counter_type", 1), ("note_number", 1)], unique=True)
 
-    async def get_next_sequence(self, space_slug: str, counter_type: CounterType) -> int:
+    async def get_next_sequence(self, space_slug: str, counter_type: CounterType, note_number: int | None = None) -> int:
         """Atomically increment and return the next sequence number."""
         result = await self._collection.find_one_and_update(
-            {"space_slug": space_slug, "counter_type": counter_type},
+            {"space_slug": space_slug, "counter_type": counter_type, "note_number": note_number},
             {"$inc": {"seq": 1}},
             upsert=True,
             return_document=ReturnDocument.AFTER,
@@ -29,6 +29,11 @@ class CounterService(Service):
         return int(result["seq"])
 
     async def delete_counters_by_space(self, space_slug: str) -> int:
-        """Delete all counters for a space and return count of deleted counters."""
+        """Delete all counters for a space."""
         result = await self._collection.delete_many({"space_slug": space_slug})
+        return result.deleted_count
+
+    async def delete_counters_by_note(self, space_slug: str, note_number: int) -> int:
+        """Delete all counters for a note (e.g., comment counters)."""
+        result = await self._collection.delete_many({"space_slug": space_slug, "note_number": note_number})
         return result.deleted_count

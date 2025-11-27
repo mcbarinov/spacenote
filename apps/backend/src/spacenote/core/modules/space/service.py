@@ -76,6 +76,7 @@ class SpaceService(Service):
         if not self.has_space(slug):
             raise NotFoundError(f"Space '{slug}' not found")
 
+        await self.core.services.comment.delete_comments_by_space(slug)
         await self.core.services.note.delete_notes_by_space(slug)
         await self.core.services.counter.delete_counters_by_space(slug)
         await self._collection.delete_one({"slug": slug})

@@ -59,3 +59,10 @@ export function listSpaceAttachments(spaceSlug: string) {
     queryFn: () => httpClient.get(`api/v1/spaces/${spaceSlug}/attachments`).json<Attachment[]>(),
   })
 }
+
+export function listNoteAttachments(spaceSlug: string, noteNumber: number) {
+  return queryOptions({
+    queryKey: ["spaces", spaceSlug, "notes", noteNumber, "attachments"],
+    queryFn: () => httpClient.get(`api/v1/spaces/${spaceSlug}/notes/${String(noteNumber)}/attachments`).json<Attachment[]>(),
+  })
+}

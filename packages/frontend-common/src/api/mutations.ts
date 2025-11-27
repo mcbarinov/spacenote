@@ -135,3 +135,19 @@ export function useUploadSpaceAttachment(spaceSlug: string) {
     },
   })
 }
+
+export function useUploadNoteAttachment(spaceSlug: string, noteNumber: number) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (file: File) => {
+      const formData = new FormData()
+      formData.append("file", file)
+      return httpClient
+        .post(`api/v1/spaces/${spaceSlug}/notes/${String(noteNumber)}/attachments`, { body: formData })
+        .json<Attachment>()
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["spaces", spaceSlug, "notes", noteNumber, "attachments"] })
+    },
+  })
+}

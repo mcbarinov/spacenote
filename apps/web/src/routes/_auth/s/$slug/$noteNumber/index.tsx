@@ -7,7 +7,7 @@ import { CommentForm } from "./-components/CommentForm"
 import { CommentList } from "./-components/CommentList"
 import { NoteDetails } from "./-components/NoteDetails"
 
-export const Route = createFileRoute("/_auth/s/$slug/$noteNumber")({
+export const Route = createFileRoute("/_auth/s/$slug/$noteNumber/")({
   loader: async ({ context, params }) => {
     const noteNumber = Number(params.noteNumber)
     await Promise.all([
@@ -28,9 +28,14 @@ function NoteDetailPage() {
     <>
       <Group justify="space-between" mb="md">
         <Title order={1}>Note #{note.number}</Title>
-        <LinkButton to="/s/$slug" params={{ slug }} variant="subtle">
-          Back
-        </LinkButton>
+        <Group>
+          <LinkButton to="/s/$slug/$noteNumber/attachments" params={{ slug, noteNumber }}>
+            Attachments
+          </LinkButton>
+          <LinkButton to="/s/$slug" params={{ slug }} variant="light">
+            Back
+          </LinkButton>
+        </Group>
       </Group>
 
       <NoteDetails note={note} space={space} />

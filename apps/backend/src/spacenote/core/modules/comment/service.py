@@ -55,6 +55,8 @@ class CommentService(Service):
         parent_number: int | None = None,
     ) -> Comment:
         """Create a new comment on a note."""
+        await self.core.services.note.get_note(space_slug, note_number)  # Validate note exists
+
         # Validate parent exists if specified
         if parent_number is not None:
             parent = await self._collection.find_one(

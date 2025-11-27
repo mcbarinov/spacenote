@@ -283,6 +283,19 @@ function SpacePage() {
 }
 ```
 
+**Query key structure:**
+
+```typescript
+// Pagination params at the end
+queryKey: ["spaces", slug, "notes", noteNumber, "comments", { page, limit }]
+
+// Invalidation WITHOUT pagination (affects all pages)
+invalidateQueries({ queryKey: ["spaces", slug, "notes", noteNumber, "comments"] })
+```
+
+Pagination params (`page`, `limit`) excluded from invalidation — all pages refresh.
+Filter params (`search`, `status`) should be included if you only want to invalidate that specific filter.
+
 ### Navigation
 
 Use type-safe navigation components from `@spacenote/common/components`.

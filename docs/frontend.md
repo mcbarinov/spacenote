@@ -14,8 +14,8 @@
 
 ```
 apps/
-├── admin/              # Admin panel (implemented)
-└── web/                # User-facing app (planned)
+├── admin/              # Admin panel
+└── web/                # User-facing app
 
 packages/
 └── frontend-common/    # @spacenote/common - types, API layer, components, utilities
@@ -162,6 +162,19 @@ loginMutation.mutate(values, {
 })
 ```
 
+### Naming Conventions
+
+**Mutations:** Always use `Mutation` suffix for mutation variables:
+```typescript
+// ✅ Good
+const loginMutation = api.mutations.useLogin()
+const createNoteMutation = api.mutations.useCreateNote(slug)
+
+// ❌ Bad
+const login = api.mutations.useLogin()
+const createNote = api.mutations.useCreateNote(slug)
+```
+
 ### Type Generation from OpenAPI
 
 **Package:** `@spacenote/common`
@@ -269,6 +282,19 @@ function SpacePage() {
   const space = api.cache.useSpace(slug)  // reads from already-loaded cache
 }
 ```
+
+**Query key structure:**
+
+```typescript
+// Pagination params at the end
+queryKey: ["spaces", slug, "notes", noteNumber, "comments", { page, limit }]
+
+// Invalidation WITHOUT pagination (affects all pages)
+invalidateQueries({ queryKey: ["spaces", slug, "notes", noteNumber, "comments"] })
+```
+
+Pagination params (`page`, `limit`) excluded from invalidation — all pages refresh.
+Filter params (`search`, `status`) should be included if you only want to invalidate that specific filter.
 
 ### Navigation
 

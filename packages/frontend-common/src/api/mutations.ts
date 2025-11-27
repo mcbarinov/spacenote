@@ -1,6 +1,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { httpClient } from "./httpClient"
 import type {
+  Comment,
+  CreateCommentRequest,
   CreateNoteRequest,
   CreateSpaceRequest,
   CreateUserRequest,
@@ -104,6 +106,17 @@ export function useCreateNote(spaceSlug: string) {
     mutationFn: (data: CreateNoteRequest) => httpClient.post(`api/v1/spaces/${spaceSlug}/notes`, { json: data }).json<Note>(),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["spaces", spaceSlug, "notes"] })
+    },
+  })
+}
+
+export function useCreateComment(spaceSlug: string, noteNumber: number) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (data: CreateCommentRequest) =>
+      httpClient.post(`api/v1/spaces/${spaceSlug}/notes/${String(noteNumber)}/comments`, { json: data }).json<Comment>(),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["spaces", spaceSlug, "notes", noteNumber, "comments"] })
     },
   })
 }

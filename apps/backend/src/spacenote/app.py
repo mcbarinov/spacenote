@@ -3,13 +3,14 @@ from contextlib import asynccontextmanager
 
 from spacenote.config import Config
 from spacenote.core.core import Core
+from spacenote.core.modules.comment.models import Comment
 from spacenote.core.modules.field.models import SpaceField
 from spacenote.core.modules.note.models import Note
 from spacenote.core.modules.session.models import AuthToken
 from spacenote.core.modules.space.models import Space
 from spacenote.core.modules.user.models import UserView
 from spacenote.core.pagination import PaginationResult
-from spacenote.errors import AuthenticationError
+from spacenote.errors import AccessDeniedError, AuthenticationError
 
 
 class App:
@@ -132,3 +133,42 @@ class App:
         """Update specific note fields (partial update, members only)."""
         user = await self._core.services.access.ensure_space_member(auth_token, space_slug)
         return await self._core.services.note.update_note_fields(space_slug, number, raw_fields, user.username)
+
+    # Comments
+
+    async def get_comments(
+        self, auth_token: AuthToken, space_slug: str, note_number: int, limit: int = 50, offset: int = 0
+    ) -> PaginationResult[Comment]:
+        """Get paginated comments for a note (members only)."""
+        await self._core.services.access.ensure_space_member(auth_token, space_slug)
+        return await self._core.services.comment.list_comments(space_slug, note_number, limit, offset)
+
+    async def get_comment(self, auth_token: AuthToken, space_slug: str, note_number: int, number: int) -> Comment:
+        """Get specific comment (members only)."""
+        await self._core.services.access.ensure_space_member(auth_token, space_slug)
+        return await self._core.services.comment.get_comment(space_slug, note_number, number)
+
+    async def create_comment(
+        self, auth_token: AuthToken, space_slug: str, note_number: int, content: str, parent_number: int | None = None
+    ) -> Comment:
+        """Create comment on a note (members only)."""
+        user = await self._core.services.access.ensure_space_member(auth_token, space_slug)
+        return await self._core.services.comment.create_comment(space_slug, note_number, user.username, content, parent_number)
+
+    async def update_comment(
+        self, auth_token: AuthToken, space_slug: str, note_number: int, number: int, content: str
+    ) -> Comment:
+        """Update comment content (author only)."""
+        user = await self._core.services.access.ensure_space_member(auth_token, space_slug)
+        comment = await self._core.services.comment.get_comment(space_slug, note_number, number)
+        if comment.author != user.username:
+            raise AccessDeniedError("Only the author can edit this comment")
+        return await self._core.services.comment.update_comment(space_slug, note_number, number, content)
+
+    async def delete_comment(self, auth_token: AuthToken, space_slug: str, note_number: int, number: int) -> None:
+        """Delete comment (author only)."""
+        user = await self._core.services.access.ensure_space_member(auth_token, space_slug)
+        comment = await self._core.services.comment.get_comment(space_slug, note_number, number)
+        if comment.author != user.username:
+            raise AccessDeniedError("Only the author can delete this comment")
+        await self._core.services.comment.delete_comment(space_slug, note_number, number)

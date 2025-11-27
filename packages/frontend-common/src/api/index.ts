@@ -10,3 +10,4 @@ export const api = {
 
 export { queryClient } from "./queryClient"
 export { initHttpClient } from "./httpClient"
+export { COMMENTS_PAGE_LIMIT } from "./queries"

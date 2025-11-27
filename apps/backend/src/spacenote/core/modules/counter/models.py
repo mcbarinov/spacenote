@@ -7,11 +7,13 @@ class CounterType(StrEnum):
     """Types of entities that use sequential numbering."""
 
     NOTE = "note"
+    COMMENT = "comment"
 
 
 class Counter(MongoModel):
-    """Atomic counter for sequential numbers per space."""
+    """Atomic counter for sequential numbers per space or note."""
 
     space_slug: str
     counter_type: CounterType
+    note_number: int | None = None  # For note-scoped counters (e.g., comments)
     seq: int = 0

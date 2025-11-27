@@ -36,9 +36,23 @@
 
 #### `counters`
 - `_id`: ObjectId (surrogate key, MongoDB internal use only)
-- `space_slug`: string (indexed)
-- `counter_type`: string (e.g., "note")
+- `space_slug`: string
+- `counter_type`: string ("note" or "comment")
+- `note_number`: integer | null (for note-scoped counters like comments)
 - `seq`: integer
+- Unique index: `(space_slug, counter_type, note_number)`
+
+#### `comments`
+- `_id`: ObjectId (surrogate key, MongoDB internal use only)
+- `space_slug`: string
+- `note_number`: integer (references note)
+- `number`: integer (sequential per note)
+- `author`: string (username)
+- `content`: string
+- `created_at`: datetime
+- `edited_at`: datetime | null
+- `parent_number`: integer | null (for threading)
+- Unique index: `(space_slug, note_number, number)`
 
 ## Architecture Decisions
 
@@ -51,17 +65,6 @@
 - `Note` → identified by `space_slug + number`
 
 **Surrogate keys**: `_id: ObjectId` exists in all MongoDB documents but is used only internally by MongoDB, never in application code or API endpoints.
-
-**Benefits**:
-- Readable URLs: `/users/john-doe`, `/spaces/my-project/notes/42`
-- Semantic identifiers that convey meaning
-- Simplified caching with natural keys as cache indexes
-- Direct lookups without additional queries
-- User-friendly identifiers in logs and debugging
-
-**Trade-offs**:
-- Renaming requires updating all references (acceptable for project constraints)
-- Slightly larger document sizes due to denormalization
 
 ### Layered Architecture with App Facade
 
@@ -79,13 +82,6 @@ FastAPI Routers → App Facade → Core Container → Services → MongoDB
 - **Core Container** (`core/core.py`) manages lifecycle and provides ServiceRegistry
 - **Services** (`core/modules/*/service.py`) execute business logic and database operations
 
-**Benefits**:
-- Clear separation: web concerns vs business logic
-- Centralized permission enforcement - all operations go through App Facade
-- Web layer independent of Core internals
-- Simplified testing - layers can be tested in isolation
-- Type-safe service access through ServiceRegistry
-
 ### Service Registry & Lifecycle Management
 
 **Implementation**: Centralized service management with coordinated lifecycle:
@@ -95,6 +91,11 @@ class ServiceRegistry:
     user: UserService
     session: SessionService
     access: AccessService
+    space: SpaceService
+    field: FieldService
+    counter: CounterService
+    note: NoteService
+    comment: CommentService
 
     async def start_all()  # Initialize all services
     async def stop_all()   # Cleanup all services
@@ -105,13 +106,6 @@ class ServiceRegistry:
 2. `ServiceRegistry.start_all()` calls each service's `on_start()` hook
 3. Services create database indexes, load caches, ensure default data
 4. On shutdown, `stop_all()` performs cleanup in reverse order
-
-**Benefits**:
-- Centralized lifecycle coordination
-- Type-safe service access via typed attributes
-- Guaranteed initialization order
-- Single point of service registration
-- Clean startup/shutdown with proper resource management
 
 ### Inter-Service Communication via Core Reference
 
@@ -135,13 +129,6 @@ async def get_authenticated_user(self, auth_token: AuthToken) -> User:
 ```
 AccessService → SessionService → UserService
 ```
-
-**Benefits**:
-- Transparent access to other services
-- Type-safe calls through typed ServiceRegistry
-- Explicit dependency relationships
-- No additional DI framework needed
-- Clear service boundaries
 
 ### In-Memory Caching for Users and Spaces
 

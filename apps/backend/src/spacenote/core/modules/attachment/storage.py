@@ -27,9 +27,13 @@ def ensure_pending_attachments_dir(attachments_path: str) -> None:
 
 def get_attachment_dir(attachments_path: str, space_slug: str, note_number: int | None) -> Path:
     """Get directory for attachments (note-level or space-level)."""
-    if note_number is not None:
-        return Path(attachments_path) / space_slug / str(note_number)
-    return Path(attachments_path) / space_slug / SPACE_ATTACHMENTS_DIR
+    base = Path(attachments_path).resolve()
+    subdir = str(note_number) if note_number is not None else SPACE_ATTACHMENTS_DIR
+    result = base / space_slug / subdir
+    # Prevent path traversal attacks (e.g., space_slug="../../../etc" escaping base directory)
+    if not result.resolve().is_relative_to(base):
+        raise ValueError("Invalid attachment path")
+    return result
 
 
 def get_attachment_file_path(attachments_path: str, space_slug: str, note_number: int | None, number: int) -> Path:

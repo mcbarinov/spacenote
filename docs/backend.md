@@ -54,6 +54,29 @@
 - `parent_number`: integer | null (for threading)
 - Unique index: `(space_slug, note_number, number)`
 
+#### `pending_attachments`
+- `_id`: ObjectId (surrogate key, MongoDB internal use only)
+- `number`: integer (natural key, global sequential)
+- `author`: string (username)
+- `filename`: string (original filename)
+- `size`: integer (bytes)
+- `mime_type`: string
+- `created_at`: datetime
+- Storage: `pending/{number}`
+
+#### `attachments`
+- `_id`: ObjectId (surrogate key, MongoDB internal use only)
+- `space_slug`: string (references space)
+- `note_number`: integer | null (null = space-level attachment)
+- `number`: integer (sequential per note or per space)
+- `author`: string (username)
+- `filename`: string (original filename)
+- `size`: integer (bytes)
+- `mime_type`: string
+- `created_at`: datetime
+- Natural key: `(space_slug, note_number, number)`
+- Storage: `{space_slug}/{note_number}/{number}` or `{space_slug}/__space__/{number}`
+
 ## Architecture Decisions
 
 ### Natural Keys vs Surrogate Keys

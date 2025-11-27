@@ -1,6 +1,8 @@
 import { queryOptions } from "@tanstack/react-query"
 import { httpClient } from "./httpClient"
-import type { Note, NotesList, Space, User } from "../types"
+import type { CommentsList, Note, NotesList, Space, User } from "../types"
+
+export const COMMENTS_PAGE_LIMIT = 100
 
 export function currentUser() {
   return queryOptions({
@@ -36,5 +38,17 @@ export function getNote(spaceSlug: string, noteNumber: number) {
   return queryOptions({
     queryKey: ["spaces", spaceSlug, "notes", noteNumber],
     queryFn: () => httpClient.get(`api/v1/spaces/${spaceSlug}/notes/${String(noteNumber)}`).json<Note>(),
+  })
+}
+
+export function listComments(spaceSlug: string, noteNumber: number, page = 1, limit = COMMENTS_PAGE_LIMIT) {
+  return queryOptions({
+    queryKey: ["spaces", spaceSlug, "notes", noteNumber, "comments", { page, limit }],
+    queryFn: () =>
+      httpClient
+        .get(`api/v1/spaces/${spaceSlug}/notes/${String(noteNumber)}/comments`, {
+          searchParams: { limit, offset: (page - 1) * limit },
+        })
+        .json<CommentsList>(),
   })
 }

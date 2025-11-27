@@ -24,7 +24,12 @@ src/
         └── s/$slug/
             ├── index.tsx
             ├── new.tsx
-            └── $noteNumber.tsx
+            └── $noteNumber/
+                ├── route.tsx
+                └── -components/
+                    ├── CommentForm.tsx
+                    ├── CommentList.tsx
+                    └── NoteDetails.tsx
 ```
 
 ## Development

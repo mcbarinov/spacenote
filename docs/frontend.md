@@ -162,6 +162,19 @@ loginMutation.mutate(values, {
 })
 ```
 
+### Naming Conventions
+
+**Mutations:** Always use `Mutation` suffix for mutation variables:
+```typescript
+// ✅ Good
+const loginMutation = api.mutations.useLogin()
+const createNoteMutation = api.mutations.useCreateNote(slug)
+
+// ❌ Bad
+const login = api.mutations.useLogin()
+const createNote = api.mutations.useCreateNote(slug)
+```
+
 ### Type Generation from OpenAPI
 
 **Package:** `@spacenote/common`

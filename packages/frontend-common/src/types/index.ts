@@ -10,6 +10,11 @@ export type Note = components["schemas"]["Note"]
 // Pagination
 export type NotesList = components["schemas"]["PaginationResult_Note_"]
 
+// Comments
+export type Comment = components["schemas"]["Comment"]
+export type CommentsList = components["schemas"]["PaginationResult_Comment_"]
+export type CreateCommentRequest = components["schemas"]["CreateCommentRequest"]
+
 // Request/Response types
 export type LoginRequest = components["schemas"]["LoginRequest"]
 export type LoginResponse = components["schemas"]["LoginResponse"]

@@ -44,6 +44,58 @@ export type paths = {
     patch?: never
     trace?: never
   }
+  "/api/v1/spaces/{space_slug}/notes/{note_number}/comments": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * List note comments
+     * @description Get paginated comments for a note. Only space members can view comments.
+     */
+    get: operations["listComments"]
+    put?: never
+    /**
+     * Create new comment
+     * @description Create a new comment on a note. Only space members can comment.
+     */
+    post: operations["createComment"]
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  "/api/v1/spaces/{space_slug}/notes/{note_number}/comments/{number}": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Get comment by number
+     * @description Get a specific comment by its number. Only space members can view comments.
+     */
+    get: operations["getComment"]
+    put?: never
+    post?: never
+    /**
+     * Delete comment
+     * @description Delete a comment. Only the comment author can delete. Replies are orphaned.
+     */
+    delete: operations["deleteComment"]
+    options?: never
+    head?: never
+    /**
+     * Update comment
+     * @description Update comment content. Only the comment author can update.
+     */
+    patch: operations["updateComment"]
+    trace?: never
+  }
   "/api/v1/spaces/{space_slug}/fields": {
     parameters: {
       query?: never
@@ -358,6 +410,47 @@ export type components = {
       new_password: string
     }
     /**
+     * Comment
+     * @description Comment on a note with optional threading support.
+     */
+    Comment: {
+      /** Space Slug */
+      space_slug: string
+      /** Note Number */
+      note_number: number
+      /** Number */
+      number: number
+      /** Author */
+      author: string
+      /** Content */
+      content: string
+      /**
+       * Created At
+       * Format: date-time
+       */
+      created_at: string
+      /** Edited At */
+      edited_at: string | null
+      /** Parent Number */
+      parent_number: number | null
+    }
+    /**
+     * CreateCommentRequest
+     * @description Request to create a new comment.
+     */
+    CreateCommentRequest: {
+      /**
+       * Content
+       * @description Comment content
+       */
+      content: string
+      /**
+       * Parent Number
+       * @description Parent comment number for threading
+       */
+      parent_number?: number | null
+    }
+    /**
      * CreateNoteRequest
      * @description Request to create a new note.
      */
@@ -508,6 +601,29 @@ export type components = {
         [key: string]: string | boolean | string[] | number | null
       }
     }
+    /** PaginationResult[Comment] */
+    PaginationResult_Comment_: {
+      /**
+       * Items
+       * @description List of items in current page
+       */
+      items: components["schemas"]["Comment"][]
+      /**
+       * Total
+       * @description Total number of items across all pages
+       */
+      total: number
+      /**
+       * Limit
+       * @description Maximum items per page
+       */
+      limit: number
+      /**
+       * Offset
+       * @description Number of items skipped
+       */
+      offset: number
+    }
     /** PaginationResult[Note] */
     PaginationResult_Note_: {
       /**
@@ -606,6 +722,17 @@ export type components = {
        * @description Default value for this field
        */
       default?: string | boolean | string[] | number | null
+    }
+    /**
+     * UpdateCommentRequest
+     * @description Request to update comment content.
+     */
+    UpdateCommentRequest: {
+      /**
+       * Content
+       * @description Updated comment content
+       */
+      content: string
     }
     /**
      * UpdateDescriptionRequest
@@ -747,6 +874,324 @@ export interface operations {
         }
         content: {
           "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+    }
+  }
+  listComments: {
+    parameters: {
+      query?: {
+        /** @description Maximum items to return */
+        limit?: number
+        /** @description Number of items to skip */
+        offset?: number
+      }
+      header?: never
+      path: {
+        space_slug: string
+        note_number: number
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Paginated list of comments */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["PaginationResult_Comment_"]
+        }
+      }
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Not a member of this space */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Space or note not found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  createComment: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        space_slug: string
+        note_number: number
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateCommentRequest"]
+      }
+    }
+    responses: {
+      /** @description Comment created successfully */
+      201: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["Comment"]
+        }
+      }
+      /** @description Invalid parent comment */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Not a member of this space */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Space or note not found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  getComment: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        space_slug: string
+        note_number: number
+        number: number
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Comment details */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["Comment"]
+        }
+      }
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Not a member of this space */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Space, note, or comment not found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  deleteComment: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        space_slug: string
+        note_number: number
+        number: number
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Comment deleted successfully */
+      204: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Not the comment author */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Space, note, or comment not found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  updateComment: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        space_slug: string
+        note_number: number
+        number: number
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateCommentRequest"]
+      }
+    }
+    responses: {
+      /** @description Comment updated successfully */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["Comment"]
+        }
+      }
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Not the comment author */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Space, note, or comment not found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
         }
       }
     }

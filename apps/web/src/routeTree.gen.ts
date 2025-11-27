@@ -14,7 +14,7 @@ import { Route as AuthRouteRouteImport } from './routes/_auth/route'
 import { Route as AuthIndexRouteImport } from './routes/_auth/index'
 import { Route as AuthSSlugIndexRouteImport } from './routes/_auth/s/$slug/index'
 import { Route as AuthSSlugNewRouteImport } from './routes/_auth/s/$slug/new'
-import { Route as AuthSSlugNoteNumberRouteImport } from './routes/_auth/s/$slug/$noteNumber'
+import { Route as AuthSSlugNoteNumberRouteRouteImport } from './routes/_auth/s/$slug/$noteNumber/route'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -40,23 +40,24 @@ const AuthSSlugNewRoute = AuthSSlugNewRouteImport.update({
   path: '/s/$slug/new',
   getParentRoute: () => AuthRouteRoute,
 } as any)
-const AuthSSlugNoteNumberRoute = AuthSSlugNoteNumberRouteImport.update({
-  id: '/s/$slug/$noteNumber',
-  path: '/s/$slug/$noteNumber',
-  getParentRoute: () => AuthRouteRoute,
-} as any)
+const AuthSSlugNoteNumberRouteRoute =
+  AuthSSlugNoteNumberRouteRouteImport.update({
+    id: '/s/$slug/$noteNumber',
+    path: '/s/$slug/$noteNumber',
+    getParentRoute: () => AuthRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/': typeof AuthIndexRoute
-  '/s/$slug/$noteNumber': typeof AuthSSlugNoteNumberRoute
+  '/s/$slug/$noteNumber': typeof AuthSSlugNoteNumberRouteRoute
   '/s/$slug/new': typeof AuthSSlugNewRoute
   '/s/$slug': typeof AuthSSlugIndexRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/': typeof AuthIndexRoute
-  '/s/$slug/$noteNumber': typeof AuthSSlugNoteNumberRoute
+  '/s/$slug/$noteNumber': typeof AuthSSlugNoteNumberRouteRoute
   '/s/$slug/new': typeof AuthSSlugNewRoute
   '/s/$slug': typeof AuthSSlugIndexRoute
 }
@@ -65,7 +66,7 @@ export interface FileRoutesById {
   '/_auth': typeof AuthRouteRouteWithChildren
   '/login': typeof LoginRoute
   '/_auth/': typeof AuthIndexRoute
-  '/_auth/s/$slug/$noteNumber': typeof AuthSSlugNoteNumberRoute
+  '/_auth/s/$slug/$noteNumber': typeof AuthSSlugNoteNumberRouteRoute
   '/_auth/s/$slug/new': typeof AuthSSlugNewRoute
   '/_auth/s/$slug/': typeof AuthSSlugIndexRoute
 }
@@ -135,7 +136,7 @@ declare module '@tanstack/react-router' {
       id: '/_auth/s/$slug/$noteNumber'
       path: '/s/$slug/$noteNumber'
       fullPath: '/s/$slug/$noteNumber'
-      preLoaderRoute: typeof AuthSSlugNoteNumberRouteImport
+      preLoaderRoute: typeof AuthSSlugNoteNumberRouteRouteImport
       parentRoute: typeof AuthRouteRoute
     }
   }
@@ -143,14 +144,14 @@ declare module '@tanstack/react-router' {
 
 interface AuthRouteRouteChildren {
   AuthIndexRoute: typeof AuthIndexRoute
-  AuthSSlugNoteNumberRoute: typeof AuthSSlugNoteNumberRoute
+  AuthSSlugNoteNumberRouteRoute: typeof AuthSSlugNoteNumberRouteRoute
   AuthSSlugNewRoute: typeof AuthSSlugNewRoute
   AuthSSlugIndexRoute: typeof AuthSSlugIndexRoute
 }
 
 const AuthRouteRouteChildren: AuthRouteRouteChildren = {
   AuthIndexRoute: AuthIndexRoute,
-  AuthSSlugNoteNumberRoute: AuthSSlugNoteNumberRoute,
+  AuthSSlugNoteNumberRouteRoute: AuthSSlugNoteNumberRouteRoute,
   AuthSSlugNewRoute: AuthSSlugNewRoute,
   AuthSSlugIndexRoute: AuthSSlugIndexRoute,
 }

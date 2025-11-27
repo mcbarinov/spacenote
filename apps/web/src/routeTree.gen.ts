@@ -15,6 +15,8 @@ import { Route as AuthIndexRouteImport } from './routes/_auth/index'
 import { Route as AuthSSlugIndexRouteImport } from './routes/_auth/s/$slug/index'
 import { Route as AuthSSlugNewRouteImport } from './routes/_auth/s/$slug/new'
 import { Route as AuthSSlugNoteNumberRouteRouteImport } from './routes/_auth/s/$slug/$noteNumber/route'
+import { Route as AuthSSlugAttachmentsIndexRouteImport } from './routes/_auth/s/$slug/attachments/index'
+import { Route as AuthSSlugAttachmentsNewRouteImport } from './routes/_auth/s/$slug/attachments/new'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -46,6 +48,17 @@ const AuthSSlugNoteNumberRouteRoute =
     path: '/s/$slug/$noteNumber',
     getParentRoute: () => AuthRouteRoute,
   } as any)
+const AuthSSlugAttachmentsIndexRoute =
+  AuthSSlugAttachmentsIndexRouteImport.update({
+    id: '/s/$slug/attachments/',
+    path: '/s/$slug/attachments/',
+    getParentRoute: () => AuthRouteRoute,
+  } as any)
+const AuthSSlugAttachmentsNewRoute = AuthSSlugAttachmentsNewRouteImport.update({
+  id: '/s/$slug/attachments/new',
+  path: '/s/$slug/attachments/new',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
@@ -53,6 +66,8 @@ export interface FileRoutesByFullPath {
   '/s/$slug/$noteNumber': typeof AuthSSlugNoteNumberRouteRoute
   '/s/$slug/new': typeof AuthSSlugNewRoute
   '/s/$slug': typeof AuthSSlugIndexRoute
+  '/s/$slug/attachments/new': typeof AuthSSlugAttachmentsNewRoute
+  '/s/$slug/attachments': typeof AuthSSlugAttachmentsIndexRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
@@ -60,6 +75,8 @@ export interface FileRoutesByTo {
   '/s/$slug/$noteNumber': typeof AuthSSlugNoteNumberRouteRoute
   '/s/$slug/new': typeof AuthSSlugNewRoute
   '/s/$slug': typeof AuthSSlugIndexRoute
+  '/s/$slug/attachments/new': typeof AuthSSlugAttachmentsNewRoute
+  '/s/$slug/attachments': typeof AuthSSlugAttachmentsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -69,6 +86,8 @@ export interface FileRoutesById {
   '/_auth/s/$slug/$noteNumber': typeof AuthSSlugNoteNumberRouteRoute
   '/_auth/s/$slug/new': typeof AuthSSlugNewRoute
   '/_auth/s/$slug/': typeof AuthSSlugIndexRoute
+  '/_auth/s/$slug/attachments/new': typeof AuthSSlugAttachmentsNewRoute
+  '/_auth/s/$slug/attachments/': typeof AuthSSlugAttachmentsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -78,8 +97,17 @@ export interface FileRouteTypes {
     | '/s/$slug/$noteNumber'
     | '/s/$slug/new'
     | '/s/$slug'
+    | '/s/$slug/attachments/new'
+    | '/s/$slug/attachments'
   fileRoutesByTo: FileRoutesByTo
-  to: '/login' | '/' | '/s/$slug/$noteNumber' | '/s/$slug/new' | '/s/$slug'
+  to:
+    | '/login'
+    | '/'
+    | '/s/$slug/$noteNumber'
+    | '/s/$slug/new'
+    | '/s/$slug'
+    | '/s/$slug/attachments/new'
+    | '/s/$slug/attachments'
   id:
     | '__root__'
     | '/_auth'
@@ -88,6 +116,8 @@ export interface FileRouteTypes {
     | '/_auth/s/$slug/$noteNumber'
     | '/_auth/s/$slug/new'
     | '/_auth/s/$slug/'
+    | '/_auth/s/$slug/attachments/new'
+    | '/_auth/s/$slug/attachments/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -139,6 +169,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthSSlugNoteNumberRouteRouteImport
       parentRoute: typeof AuthRouteRoute
     }
+    '/_auth/s/$slug/attachments/': {
+      id: '/_auth/s/$slug/attachments/'
+      path: '/s/$slug/attachments'
+      fullPath: '/s/$slug/attachments'
+      preLoaderRoute: typeof AuthSSlugAttachmentsIndexRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
+    '/_auth/s/$slug/attachments/new': {
+      id: '/_auth/s/$slug/attachments/new'
+      path: '/s/$slug/attachments/new'
+      fullPath: '/s/$slug/attachments/new'
+      preLoaderRoute: typeof AuthSSlugAttachmentsNewRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
   }
 }
 
@@ -147,6 +191,8 @@ interface AuthRouteRouteChildren {
   AuthSSlugNoteNumberRouteRoute: typeof AuthSSlugNoteNumberRouteRoute
   AuthSSlugNewRoute: typeof AuthSSlugNewRoute
   AuthSSlugIndexRoute: typeof AuthSSlugIndexRoute
+  AuthSSlugAttachmentsNewRoute: typeof AuthSSlugAttachmentsNewRoute
+  AuthSSlugAttachmentsIndexRoute: typeof AuthSSlugAttachmentsIndexRoute
 }
 
 const AuthRouteRouteChildren: AuthRouteRouteChildren = {
@@ -154,6 +200,8 @@ const AuthRouteRouteChildren: AuthRouteRouteChildren = {
   AuthSSlugNoteNumberRouteRoute: AuthSSlugNoteNumberRouteRoute,
   AuthSSlugNewRoute: AuthSSlugNewRoute,
   AuthSSlugIndexRoute: AuthSSlugIndexRoute,
+  AuthSSlugAttachmentsNewRoute: AuthSSlugAttachmentsNewRoute,
+  AuthSSlugAttachmentsIndexRoute: AuthSSlugAttachmentsIndexRoute,
 }
 
 const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(

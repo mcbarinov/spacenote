@@ -43,3 +43,13 @@ def write_attachment_file(attachments_path: str, space_slug: str, note_number: i
     file_path.parent.mkdir(parents=True, exist_ok=True)
     file_path.write_bytes(content)
     return file_path
+
+
+def read_pending_attachment_file(attachments_path: str, number: int) -> bytes:
+    """Read pending attachment file from disk."""
+    return get_pending_attachment_path(attachments_path, number).read_bytes()
+
+
+def read_attachment_file(attachments_path: str, space_slug: str, note_number: int | None, number: int) -> bytes:
+    """Read attachment file from disk."""
+    return get_attachment_file_path(attachments_path, space_slug, note_number, number).read_bytes()

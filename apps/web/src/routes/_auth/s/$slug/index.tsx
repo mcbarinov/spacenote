@@ -21,9 +21,14 @@ function SpacePage() {
     <>
       <Group justify="space-between" mb="md">
         <Title order={1}>{space.title}</Title>
-        <LinkButton to="/s/$slug/new" params={{ slug }}>
-          New Note
-        </LinkButton>
+        <Group>
+          <LinkButton to="/s/$slug/attachments" params={{ slug }} variant="light">
+            Attachments
+          </LinkButton>
+          <LinkButton to="/s/$slug/new" params={{ slug }}>
+            New Note
+          </LinkButton>
+        </Group>
       </Group>
 
       <Table striped highlightOnHover>

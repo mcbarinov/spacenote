@@ -77,3 +77,12 @@ class AttachmentService(Service):
         """List all attachments for a specific note."""
         cursor = self._attachments_collection.find({"space_slug": space_slug, "note_number": note_number})
         return [Attachment.model_validate(doc) async for doc in cursor]
+
+    async def get_attachment(self, space_slug: str, note_number: int | None, number: int) -> Attachment:
+        """Get attachment by its identifiers."""
+        doc = await self._attachments_collection.find_one(
+            {"space_slug": space_slug, "note_number": note_number, "number": number}
+        )
+        if doc is None:
+            raise NotFoundError(f"Attachment not found: {space_slug}/{note_number}/{number}")
+        return Attachment.model_validate(doc)

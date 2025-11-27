@@ -15,6 +15,9 @@ export type Comment = components["schemas"]["Comment"]
 export type CommentsList = components["schemas"]["PaginationResult_Comment_"]
 export type CreateCommentRequest = components["schemas"]["CreateCommentRequest"]
 
+// Attachments
+export type Attachment = components["schemas"]["Attachment"]
+
 // Request/Response types
 export type LoginRequest = components["schemas"]["LoginRequest"]
 export type LoginResponse = components["schemas"]["LoginResponse"]

@@ -1,6 +1,6 @@
 import { queryOptions } from "@tanstack/react-query"
 import { httpClient } from "./httpClient"
-import type { CommentsList, Note, NotesList, Space, User } from "../types"
+import type { Attachment, CommentsList, Note, NotesList, Space, User } from "../types"
 
 export const COMMENTS_PAGE_LIMIT = 100
 
@@ -50,5 +50,12 @@ export function listComments(spaceSlug: string, noteNumber: number, page = 1, li
           searchParams: { limit, offset: (page - 1) * limit },
         })
         .json<CommentsList>(),
+  })
+}
+
+export function listSpaceAttachments(spaceSlug: string) {
+  return queryOptions({
+    queryKey: ["spaces", spaceSlug, "attachments"],
+    queryFn: () => httpClient.get(`api/v1/spaces/${spaceSlug}/attachments`).json<Attachment[]>(),
   })
 }

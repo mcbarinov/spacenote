@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { httpClient } from "./httpClient"
 import type {
+  Attachment,
   Comment,
   CreateCommentRequest,
   CreateNoteRequest,
@@ -117,6 +118,20 @@ export function useCreateComment(spaceSlug: string, noteNumber: number) {
       httpClient.post(`api/v1/spaces/${spaceSlug}/notes/${String(noteNumber)}/comments`, { json: data }).json<Comment>(),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["spaces", spaceSlug, "notes", noteNumber, "comments"] })
+    },
+  })
+}
+
+export function useUploadSpaceAttachment(spaceSlug: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (file: File) => {
+      const formData = new FormData()
+      formData.append("file", file)
+      return httpClient.post(`api/v1/spaces/${spaceSlug}/attachments`, { body: formData }).json<Attachment>()
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["spaces", spaceSlug, "attachments"] })
     },
   })
 }

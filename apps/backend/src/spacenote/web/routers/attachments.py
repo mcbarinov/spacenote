@@ -1,34 +1,11 @@
-from datetime import datetime
-
 from fastapi import APIRouter, UploadFile
-from pydantic import BaseModel
+from fastapi.responses import Response
 
+from spacenote.core.modules.attachment.models import Attachment, PendingAttachment
 from spacenote.web.deps import AppDep, AuthTokenDep
 from spacenote.web.openapi import ErrorResponse
 
 router = APIRouter(tags=["attachments"])
-
-
-class PendingAttachmentResponse(BaseModel):
-    """Response for pending attachment upload."""
-
-    number: int
-    filename: str
-    size: int
-    mime_type: str
-    created_at: datetime
-
-
-class AttachmentResponse(BaseModel):
-    """Response for attachment upload."""
-
-    space_slug: str
-    note_number: int | None
-    number: int
-    filename: str
-    size: int
-    mime_type: str
-    created_at: datetime
 
 
 @router.post(
@@ -46,20 +23,13 @@ async def upload_pending(
     file: UploadFile,
     app: AppDep,
     auth_token: AuthTokenDep,
-) -> PendingAttachmentResponse:
+) -> PendingAttachment:
     content = await file.read()
-    pending = await app.upload_pending_attachment(
+    return await app.upload_pending_attachment(
         auth_token,
         filename=file.filename or "unnamed",
         content=content,
         mime_type=file.content_type or "application/octet-stream",
-    )
-    return PendingAttachmentResponse(
-        number=pending.number,
-        filename=pending.filename,
-        size=pending.size,
-        mime_type=pending.mime_type,
-        created_at=pending.created_at,
     )
 
 
@@ -81,23 +51,14 @@ async def upload_space_attachment(
     file: UploadFile,
     app: AppDep,
     auth_token: AuthTokenDep,
-) -> AttachmentResponse:
+) -> Attachment:
     content = await file.read()
-    attachment = await app.upload_space_attachment(
+    return await app.upload_space_attachment(
         auth_token,
         space_slug,
         filename=file.filename or "unnamed",
         content=content,
         mime_type=file.content_type or "application/octet-stream",
-    )
-    return AttachmentResponse(
-        space_slug=attachment.space_slug,
-        note_number=attachment.note_number,
-        number=attachment.number,
-        filename=attachment.filename,
-        size=attachment.size,
-        mime_type=attachment.mime_type,
-        created_at=attachment.created_at,
     )
 
 
@@ -120,24 +81,15 @@ async def upload_note_attachment(
     file: UploadFile,
     app: AppDep,
     auth_token: AuthTokenDep,
-) -> AttachmentResponse:
+) -> Attachment:
     content = await file.read()
-    attachment = await app.upload_note_attachment(
+    return await app.upload_note_attachment(
         auth_token,
         space_slug,
         note_number,
         filename=file.filename or "unnamed",
         content=content,
         mime_type=file.content_type or "application/octet-stream",
-    )
-    return AttachmentResponse(
-        space_slug=attachment.space_slug,
-        note_number=attachment.note_number,
-        number=attachment.number,
-        filename=attachment.filename,
-        size=attachment.size,
-        mime_type=attachment.mime_type,
-        created_at=attachment.created_at,
     )
 
 
@@ -156,20 +108,8 @@ async def list_space_attachments(
     space_slug: str,
     app: AppDep,
     auth_token: AuthTokenDep,
-) -> list[AttachmentResponse]:
-    attachments = await app.get_space_attachments(auth_token, space_slug)
-    return [
-        AttachmentResponse(
-            space_slug=a.space_slug,
-            note_number=a.note_number,
-            number=a.number,
-            filename=a.filename,
-            size=a.size,
-            mime_type=a.mime_type,
-            created_at=a.created_at,
-        )
-        for a in attachments
-    ]
+) -> list[Attachment]:
+    return await app.get_space_attachments(auth_token, space_slug)
 
 
 @router.get(
@@ -188,17 +128,83 @@ async def list_note_attachments(
     note_number: int,
     app: AppDep,
     auth_token: AuthTokenDep,
-) -> list[AttachmentResponse]:
-    attachments = await app.get_note_attachments(auth_token, space_slug, note_number)
-    return [
-        AttachmentResponse(
-            space_slug=a.space_slug,
-            note_number=a.note_number,
-            number=a.number,
-            filename=a.filename,
-            size=a.size,
-            mime_type=a.mime_type,
-            created_at=a.created_at,
-        )
-        for a in attachments
-    ]
+) -> list[Attachment]:
+    return await app.get_note_attachments(auth_token, space_slug, note_number)
+
+
+@router.get(
+    "/attachments/pending/{number}",
+    summary="Download pending attachment",
+    description="Download a pending attachment file. Only the owner can download.",
+    operation_id="downloadPendingAttachment",
+    responses={
+        200: {"description": "File content", "content": {"application/octet-stream": {}}},
+        401: {"model": ErrorResponse, "description": "Not authenticated"},
+        403: {"model": ErrorResponse, "description": "Not the owner of this attachment"},
+        404: {"model": ErrorResponse, "description": "Attachment not found"},
+    },
+)
+async def download_pending_attachment(
+    number: int,
+    app: AppDep,
+    auth_token: AuthTokenDep,
+) -> Response:
+    pending, content = await app.download_pending_attachment(auth_token, number)
+    return Response(
+        content=content,
+        media_type=pending.mime_type,
+        headers={"Content-Disposition": f'attachment; filename="{pending.filename}"'},
+    )
+
+
+@router.get(
+    "/spaces/{space_slug}/attachments/{number}",
+    summary="Download space attachment",
+    description="Download a space-level attachment file.",
+    operation_id="downloadSpaceAttachment",
+    responses={
+        200: {"description": "File content", "content": {"application/octet-stream": {}}},
+        401: {"model": ErrorResponse, "description": "Not authenticated"},
+        403: {"model": ErrorResponse, "description": "Not a member of this space"},
+        404: {"model": ErrorResponse, "description": "Space or attachment not found"},
+    },
+)
+async def download_space_attachment(
+    space_slug: str,
+    number: int,
+    app: AppDep,
+    auth_token: AuthTokenDep,
+) -> Response:
+    attachment, content = await app.download_space_attachment(auth_token, space_slug, number)
+    return Response(
+        content=content,
+        media_type=attachment.mime_type,
+        headers={"Content-Disposition": f'attachment; filename="{attachment.filename}"'},
+    )
+
+
+@router.get(
+    "/spaces/{space_slug}/notes/{note_number}/attachments/{number}",
+    summary="Download note attachment",
+    description="Download an attachment file from a specific note.",
+    operation_id="downloadNoteAttachment",
+    responses={
+        200: {"description": "File content", "content": {"application/octet-stream": {}}},
+        401: {"model": ErrorResponse, "description": "Not authenticated"},
+        403: {"model": ErrorResponse, "description": "Not a member of this space"},
+        404: {"model": ErrorResponse, "description": "Space, note, or attachment not found"},
+    },
+)
+async def download_note_attachment(
+    space_slug: str,
+    note_number: int,
+    number: int,
+    app: AppDep,
+    auth_token: AuthTokenDep,
+) -> Response:
+    attachment, content = await app.download_note_attachment(auth_token, space_slug, note_number, number)
+    return Response(
+        content=content,
+        media_type=attachment.mime_type,
+        headers={"Content-Disposition": f'attachment; filename="{attachment.filename}"'},
+    )

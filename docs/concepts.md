@@ -46,6 +46,15 @@ Dynamic schema system where each space defines its own fields:
 - User attribution for all comments
 - Timestamp tracking for activity history
 
+### Attachments
+
+File attachments for notes and spaces:
+
+- **Note-level**: files attached to specific notes (images, documents, etc.)
+- **Space-level**: files attached to space itself, useful for AI context documents
+- Sequential numbering per note or per space
+- Stored on local filesystem
+
 ### AI Integration
 
 Built with AI agents in mind:

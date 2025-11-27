@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 
 from spacenote.config import Config
 from spacenote.core.core import Core
+from spacenote.core.modules.attachment.models import Attachment, PendingAttachment
 from spacenote.core.modules.comment.models import Comment
 from spacenote.core.modules.field.models import SpaceField
 from spacenote.core.modules.note.models import Note
@@ -172,3 +173,40 @@ class App:
         if comment.author != user.username:
             raise AccessDeniedError("Only the author can delete this comment")
         await self._core.services.comment.delete_comment(space_slug, note_number, number)
+
+    # Attachments
+
+    async def upload_pending_attachment(
+        self, auth_token: AuthToken, filename: str, content: bytes, mime_type: str
+    ) -> PendingAttachment:
+        """Upload file to pending storage (authenticated users only)."""
+        user = await self._core.services.access.ensure_authenticated(auth_token)
+        return await self._core.services.attachment.create_pending_attachment(user.username, filename, content, mime_type)
+
+    async def upload_space_attachment(
+        self, auth_token: AuthToken, space_slug: str, filename: str, content: bytes, mime_type: str
+    ) -> Attachment:
+        """Upload attachment to space (members only)."""
+        user = await self._core.services.access.ensure_space_member(auth_token, space_slug)
+        return await self._core.services.attachment.create_attachment(
+            space_slug, None, user.username, filename, content, mime_type
+        )
+
+    async def upload_note_attachment(
+        self, auth_token: AuthToken, space_slug: str, note_number: int, filename: str, content: bytes, mime_type: str
+    ) -> Attachment:
+        """Upload attachment to note (members only)."""
+        user = await self._core.services.access.ensure_space_member(auth_token, space_slug)
+        return await self._core.services.attachment.create_attachment(
+            space_slug, note_number, user.username, filename, content, mime_type
+        )
+
+    async def get_space_attachments(self, auth_token: AuthToken, space_slug: str) -> list[Attachment]:
+        """Get all space-level attachments (members only)."""
+        await self._core.services.access.ensure_space_member(auth_token, space_slug)
+        return await self._core.services.attachment.list_space_attachments(space_slug)
+
+    async def get_note_attachments(self, auth_token: AuthToken, space_slug: str, note_number: int) -> list[Attachment]:
+        """Get all attachments for a note (members only)."""
+        await self._core.services.access.ensure_space_member(auth_token, space_slug)
+        return await self._core.services.attachment.list_note_attachments(space_slug, note_number)

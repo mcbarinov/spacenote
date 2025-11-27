@@ -15,3 +15,4 @@ class Config(BaseSettings):
     port: int = Field(default=3100, description="Server port")
     debug: bool = Field(default=False, description="Debug mode")
     cors_origins: list[str] = Field(default=["http://localhost:3000"], description="CORS allowed origins")
+    attachments_path: str = Field(default="./data/attachments", description="Attachment storage path")

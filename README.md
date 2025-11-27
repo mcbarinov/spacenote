@@ -46,7 +46,7 @@ Shared frontend code for all React applications:
 ## Technology Stack
 
 **Backend:**
-- Python 3.13 + FastAPI + MongoDB
+- Python 3.14 + FastAPI + MongoDB
 - uv (package manager)
 - Pydantic (validation)
 - pytest (testing)

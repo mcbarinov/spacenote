@@ -19,7 +19,7 @@ src/
 ## Development
 
 ```bash
-# Start dev server (port 3000)
+# Start dev server (port 3200)
 pnpm dev
 
 # Type checking

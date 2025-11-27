@@ -14,8 +14,8 @@
 
 ```
 apps/
-├── admin/              # Admin panel (implemented)
-└── web/                # User-facing app (planned)
+├── admin/              # Admin panel
+└── web/                # User-facing app
 
 packages/
 └── frontend-common/    # @spacenote/common - types, API layer, components, utilities

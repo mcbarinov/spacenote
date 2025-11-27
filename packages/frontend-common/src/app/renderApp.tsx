@@ -2,7 +2,9 @@ import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
 import "@mantine/core/styles.css"
 import "@mantine/notifications/styles.css"
+import "@mantine/dates/styles.css"
 import { MantineProvider } from "@mantine/core"
+import { DatesProvider } from "@mantine/dates"
 import { Notifications } from "@mantine/notifications"
 import { ModalsProvider } from "@mantine/modals"
 import { RouterProvider, type AnyRouter } from "@tanstack/react-router"
@@ -19,18 +21,20 @@ export function renderApp(router: AnyRouter) {
   createRoot(rootElement).render(
     <StrictMode>
       <MantineProvider defaultColorScheme="light">
-        <ModalsProvider>
-          <Notifications />
-          <QueryClientProvider client={queryClient}>
-            <RouterProvider router={router} />
-            <TanStackDevtools
-              plugins={[
-                { name: "TanStack Query", render: <ReactQueryDevtoolsPanel />, defaultOpen: false },
-                { name: "TanStack Router", render: <TanStackRouterDevtoolsPanel router={router} />, defaultOpen: false },
-              ]}
-            />
-          </QueryClientProvider>
-        </ModalsProvider>
+        <DatesProvider settings={{ firstDayOfWeek: 1 }}>
+          <ModalsProvider>
+            <Notifications />
+            <QueryClientProvider client={queryClient}>
+              <RouterProvider router={router} />
+              <TanStackDevtools
+                plugins={[
+                  { name: "TanStack Query", render: <ReactQueryDevtoolsPanel />, defaultOpen: false },
+                  { name: "TanStack Router", render: <TanStackRouterDevtoolsPanel router={router} />, defaultOpen: false },
+                ]}
+              />
+            </QueryClientProvider>
+          </ModalsProvider>
+        </DatesProvider>
       </MantineProvider>
     </StrictMode>
   )

@@ -1,6 +1,6 @@
 import { queryOptions } from "@tanstack/react-query"
 import { httpClient } from "./httpClient"
-import type { Space, User } from "../types"
+import type { Note, NotesList, Space, User } from "../types"
 
 export function currentUser() {
   return queryOptions({
@@ -22,5 +22,19 @@ export function listSpaces() {
   return queryOptions({
     queryKey: ["spaces"],
     queryFn: () => httpClient.get("api/v1/spaces").json<Space[]>(),
+  })
+}
+
+export function listNotes(spaceSlug: string) {
+  return queryOptions({
+    queryKey: ["spaces", spaceSlug, "notes"],
+    queryFn: () => httpClient.get(`api/v1/spaces/${spaceSlug}/notes`).json<NotesList>(),
+  })
+}
+
+export function getNote(spaceSlug: string, noteNumber: number) {
+  return queryOptions({
+    queryKey: ["spaces", spaceSlug, "notes", noteNumber],
+    queryFn: () => httpClient.get(`api/v1/spaces/${spaceSlug}/notes/${String(noteNumber)}`).json<Note>(),
   })
 }

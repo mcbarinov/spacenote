@@ -4,7 +4,7 @@
 
 **IMPORTANT**: Always read README.md first to understand the project context and structure.
 
-**IMPORTANT**: Always read and follow local instructions from `.claude/rules.md` if this file exists.
+**IMPORTANT**: Always read and follow local instructions from `.claude/local-rules.md` if this file exists.
 
 ## Project Status
 

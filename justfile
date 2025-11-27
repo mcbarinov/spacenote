@@ -98,6 +98,10 @@ web-outdated:
 web-update:
     pnpm --filter @spacenote/web update
 
+[group("web")]
+web-routes:
+    pnpm --filter @spacenote/web run routes
+
 
 [group("agent")]
 agent-web-dev:

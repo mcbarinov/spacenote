@@ -12,7 +12,9 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthRouteRouteImport } from './routes/_auth/route'
 import { Route as AuthIndexRouteImport } from './routes/_auth/index'
-import { Route as AuthSSlugRouteRouteImport } from './routes/_auth/s/$slug/route'
+import { Route as AuthSSlugIndexRouteImport } from './routes/_auth/s/$slug/index'
+import { Route as AuthSSlugNewRouteImport } from './routes/_auth/s/$slug/new'
+import { Route as AuthSSlugNoteNumberRouteImport } from './routes/_auth/s/$slug/$noteNumber'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -28,35 +30,63 @@ const AuthIndexRoute = AuthIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthRouteRoute,
 } as any)
-const AuthSSlugRouteRoute = AuthSSlugRouteRouteImport.update({
-  id: '/s/$slug',
-  path: '/s/$slug',
+const AuthSSlugIndexRoute = AuthSSlugIndexRouteImport.update({
+  id: '/s/$slug/',
+  path: '/s/$slug/',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
+const AuthSSlugNewRoute = AuthSSlugNewRouteImport.update({
+  id: '/s/$slug/new',
+  path: '/s/$slug/new',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
+const AuthSSlugNoteNumberRoute = AuthSSlugNoteNumberRouteImport.update({
+  id: '/s/$slug/$noteNumber',
+  path: '/s/$slug/$noteNumber',
   getParentRoute: () => AuthRouteRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/': typeof AuthIndexRoute
-  '/s/$slug': typeof AuthSSlugRouteRoute
+  '/s/$slug/$noteNumber': typeof AuthSSlugNoteNumberRoute
+  '/s/$slug/new': typeof AuthSSlugNewRoute
+  '/s/$slug': typeof AuthSSlugIndexRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/': typeof AuthIndexRoute
-  '/s/$slug': typeof AuthSSlugRouteRoute
+  '/s/$slug/$noteNumber': typeof AuthSSlugNoteNumberRoute
+  '/s/$slug/new': typeof AuthSSlugNewRoute
+  '/s/$slug': typeof AuthSSlugIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_auth': typeof AuthRouteRouteWithChildren
   '/login': typeof LoginRoute
   '/_auth/': typeof AuthIndexRoute
-  '/_auth/s/$slug': typeof AuthSSlugRouteRoute
+  '/_auth/s/$slug/$noteNumber': typeof AuthSSlugNoteNumberRoute
+  '/_auth/s/$slug/new': typeof AuthSSlugNewRoute
+  '/_auth/s/$slug/': typeof AuthSSlugIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/login' | '/' | '/s/$slug'
+  fullPaths:
+    | '/login'
+    | '/'
+    | '/s/$slug/$noteNumber'
+    | '/s/$slug/new'
+    | '/s/$slug'
   fileRoutesByTo: FileRoutesByTo
-  to: '/login' | '/' | '/s/$slug'
-  id: '__root__' | '/_auth' | '/login' | '/_auth/' | '/_auth/s/$slug'
+  to: '/login' | '/' | '/s/$slug/$noteNumber' | '/s/$slug/new' | '/s/$slug'
+  id:
+    | '__root__'
+    | '/_auth'
+    | '/login'
+    | '/_auth/'
+    | '/_auth/s/$slug/$noteNumber'
+    | '/_auth/s/$slug/new'
+    | '/_auth/s/$slug/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -87,11 +117,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthIndexRouteImport
       parentRoute: typeof AuthRouteRoute
     }
-    '/_auth/s/$slug': {
-      id: '/_auth/s/$slug'
+    '/_auth/s/$slug/': {
+      id: '/_auth/s/$slug/'
       path: '/s/$slug'
       fullPath: '/s/$slug'
-      preLoaderRoute: typeof AuthSSlugRouteRouteImport
+      preLoaderRoute: typeof AuthSSlugIndexRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
+    '/_auth/s/$slug/new': {
+      id: '/_auth/s/$slug/new'
+      path: '/s/$slug/new'
+      fullPath: '/s/$slug/new'
+      preLoaderRoute: typeof AuthSSlugNewRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
+    '/_auth/s/$slug/$noteNumber': {
+      id: '/_auth/s/$slug/$noteNumber'
+      path: '/s/$slug/$noteNumber'
+      fullPath: '/s/$slug/$noteNumber'
+      preLoaderRoute: typeof AuthSSlugNoteNumberRouteImport
       parentRoute: typeof AuthRouteRoute
     }
   }
@@ -99,12 +143,16 @@ declare module '@tanstack/react-router' {
 
 interface AuthRouteRouteChildren {
   AuthIndexRoute: typeof AuthIndexRoute
-  AuthSSlugRouteRoute: typeof AuthSSlugRouteRoute
+  AuthSSlugNoteNumberRoute: typeof AuthSSlugNoteNumberRoute
+  AuthSSlugNewRoute: typeof AuthSSlugNewRoute
+  AuthSSlugIndexRoute: typeof AuthSSlugIndexRoute
 }
 
 const AuthRouteRouteChildren: AuthRouteRouteChildren = {
   AuthIndexRoute: AuthIndexRoute,
-  AuthSSlugRouteRoute: AuthSSlugRouteRoute,
+  AuthSSlugNoteNumberRoute: AuthSSlugNoteNumberRoute,
+  AuthSSlugNewRoute: AuthSSlugNewRoute,
+  AuthSSlugIndexRoute: AuthSSlugIndexRoute,
 }
 
 const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(

@@ -84,6 +84,54 @@ export type paths = {
     patch?: never
     trace?: never
   }
+  "/api/v1/spaces/{space_slug}/notes": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * List space notes
+     * @description Get paginated notes in a space. Only space members can view notes.
+     */
+    get: operations["listNotes"]
+    put?: never
+    /**
+     * Create new note
+     * @description Create a new note in a space with the provided field values. Only space members can create notes.
+     */
+    post: operations["createNote"]
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  "/api/v1/spaces/{space_slug}/notes/{number}": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Get note by number
+     * @description Get a specific note by its number within a space. Only space members can view notes.
+     */
+    get: operations["getNote"]
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    /**
+     * Update note fields
+     * @description Partially update note fields. Only provided fields will be updated. Members only.
+     */
+    patch: operations["updateNote"]
+    trace?: never
+  }
   "/api/v1/profile": {
     parameters: {
       query?: never
@@ -310,6 +358,19 @@ export type components = {
       new_password: string
     }
     /**
+     * CreateNoteRequest
+     * @description Request to create a new note.
+     */
+    CreateNoteRequest: {
+      /**
+       * Raw Fields
+       * @description Field values as raw strings (will be parsed according to field types)
+       */
+      raw_fields: {
+        [key: string]: string
+      }
+    }
+    /**
      * CreateSpaceRequest
      * @description Space creation request.
      */
@@ -425,6 +486,52 @@ export type components = {
       token: string
     }
     /**
+     * Note
+     * @description Note with custom fields stored in a space.
+     */
+    Note: {
+      /** Space Slug */
+      space_slug: string
+      /** Number */
+      number: number
+      /** Author */
+      author: string
+      /**
+       * Created At
+       * Format: date-time
+       */
+      created_at: string
+      /** Edited At */
+      edited_at: string | null
+      /** Fields */
+      fields: {
+        [key: string]: string | boolean | string[] | number | null
+      }
+    }
+    /** PaginationResult[Note] */
+    PaginationResult_Note_: {
+      /**
+       * Items
+       * @description List of items in current page
+       */
+      items: components["schemas"]["Note"][]
+      /**
+       * Total
+       * @description Total number of items across all pages
+       */
+      total: number
+      /**
+       * Limit
+       * @description Maximum items per page
+       */
+      limit: number
+      /**
+       * Offset
+       * @description Number of items skipped
+       */
+      offset: number
+    }
+    /**
      * Space
      * @description Space entity.
      */
@@ -521,6 +628,19 @@ export type components = {
        * @description New list of member usernames
        */
       members: string[]
+    }
+    /**
+     * UpdateNoteRequest
+     * @description Request to update note fields (partial update).
+     */
+    UpdateNoteRequest: {
+      /**
+       * Raw Fields
+       * @description Field values to update as raw strings. Only provided fields will be updated.
+       */
+      raw_fields: {
+        [key: string]: string
+      }
     }
     /**
      * UpdateTitleRequest
@@ -740,6 +860,271 @@ export interface operations {
         }
       }
       /** @description Space or field not found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  listNotes: {
+    parameters: {
+      query?: {
+        /** @description Maximum items to return */
+        limit?: number
+        /** @description Number of items to skip */
+        offset?: number
+      }
+      header?: never
+      path: {
+        space_slug: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Paginated list of notes */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["PaginationResult_Note_"]
+        }
+      }
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Not a member of this space */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Space not found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  createNote: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        space_slug: string
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateNoteRequest"]
+      }
+    }
+    responses: {
+      /** @description Note created successfully */
+      201: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["Note"]
+        }
+      }
+      /** @description Invalid field data or validation failed */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Not a member of this space */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Space not found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  getNote: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        space_slug: string
+        number: number
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Note details */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["Note"]
+        }
+      }
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Not a member of this space */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Space or note not found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  updateNote: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        space_slug: string
+        number: number
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateNoteRequest"]
+      }
+    }
+    responses: {
+      /** @description Note updated successfully */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["Note"]
+        }
+      }
+      /** @description Invalid field data or validation failed */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Not a member of this space */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Space or note not found */
       404: {
         headers: {
           [name: string]: unknown

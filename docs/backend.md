@@ -16,9 +16,29 @@
 - `auth_token`: string (unique index)
 - `created_at`: datetime (TTL index: 30 days)
 
-#### Planned Collections
-- `spaces` - Not yet implemented
-- `notes` - Not yet implemented
+#### `spaces`
+- `_id`: ObjectId (surrogate key, MongoDB internal use only)
+- `slug`: string (natural key, unique index)
+- `title`: string
+- `description`: string
+- `members`: array of strings (usernames)
+- `fields`: array of field definitions
+- `created_at`: datetime
+
+#### `notes`
+- `_id`: ObjectId (surrogate key, MongoDB internal use only)
+- `space_slug`: string (references space, indexed)
+- `number`: integer (sequential per space)
+- `author`: string (username of creator)
+- `created_at`: datetime
+- `edited_at`: datetime | null
+- `fields`: object (custom field values)
+
+#### `counters`
+- `_id`: ObjectId (surrogate key, MongoDB internal use only)
+- `space_slug`: string (indexed)
+- `counter_type`: string (e.g., "note")
+- `seq`: integer
 
 ## Architecture Decisions
 
@@ -27,8 +47,8 @@
 **Implementation**: Natural keys are used as primary identifiers throughout the API and application code:
 
 - `User` → identified by `username`
-- `Space` → identified by `slug` (planned)
-- `Note` → identified by `space_slug + number` (planned)
+- `Space` → identified by `slug`
+- `Note` → identified by `space_slug + number`
 
 **Surrogate keys**: `_id: ObjectId` exists in all MongoDB documents but is used only internally by MongoDB, never in application code or API endpoints.
 
@@ -54,7 +74,7 @@ FastAPI Routers → App Facade → Core Container → Services → MongoDB
 - **Web layer** (`web/routers/`) handles HTTP concerns only (request/response, validation)
 - **App Facade** (`app.py`) is the sole entry point to business logic
   - Validates authentication and permissions before delegating
-  - Composes operations from multiple services
+  - Delegates to services (no business logic here)
   - Provides simplified API hiding Core complexity
 - **Core Container** (`core/core.py`) manages lifecycle and provides ServiceRegistry
 - **Services** (`core/modules/*/service.py`) execute business logic and database operations

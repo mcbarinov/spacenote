@@ -24,8 +24,14 @@ src/
         └── s/$slug/
             ├── index.tsx
             ├── new.tsx
+            ├── attachments/
+            │   ├── index.tsx
+            │   └── new.tsx
             └── $noteNumber/
-                ├── route.tsx
+                ├── index.tsx
+                ├── attachments/
+                │   ├── index.tsx
+                │   └── new.tsx
                 └── -components/
                     ├── CommentForm.tsx
                     ├── CommentList.tsx

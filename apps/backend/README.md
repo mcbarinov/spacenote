@@ -20,6 +20,8 @@ All configuration uses the `SPACENOTE_` prefix. See `.env.example` for reference
 - `SPACENOTE_HOST` - Server host (default: `0.0.0.0`)
 - `SPACENOTE_PORT` - Server port (default: `3100`)
 - `SPACENOTE_DEBUG` - Debug mode (default: `false`)
+- `SPACENOTE_CORS_ORIGINS` - CORS allowed origins (default: `["http://localhost:3000"]`)
+- `SPACENOTE_ATTACHMENTS_PATH` - Attachment storage path (default: `./data/attachments`)
 
 ## Project Structure
 
@@ -28,6 +30,7 @@ src/spacenote/
 ├── core/                      # Business logic layer
 │   ├── modules/              # Domain modules
 │   │   ├── access/          # Access control & permissions
+│   │   ├── attachment/      # File attachments
 │   │   ├── comment/         # Note comments
 │   │   ├── counter/         # Sequential counters
 │   │   ├── field/           # Space field definitions
@@ -41,6 +44,7 @@ src/spacenote/
 │   └── service.py           # Base service class
 ├── web/                      # FastAPI application layer
 │   ├── routers/             # API endpoints
+│   │   ├── attachments.py   # File attachments
 │   │   ├── auth.py          # Login/logout
 │   │   ├── comments.py      # Note comments
 │   │   ├── fields.py        # Space fields

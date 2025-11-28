@@ -1,5 +1,6 @@
 import { Group, Stack, Text } from "@mantine/core"
 import type { Note, Space } from "@spacenote/common/types"
+import { formatDate } from "@spacenote/common/utils"
 import { FieldView } from "@/components/FieldView"
 
 interface NoteDetailsProps {
@@ -16,11 +17,11 @@ export function NoteDetails({ note, space }: NoteDetailsProps) {
             Author: {note.author}
           </Text>
           <Text size="sm" c="dimmed">
-            Created: {new Date(note.created_at).toLocaleString()}
+            Created: {formatDate(note.created_at)}
           </Text>
           {note.edited_at && (
             <Text size="sm" c="dimmed">
-              Edited: {new Date(note.edited_at).toLocaleString()}
+              Edited: {formatDate(note.edited_at)}
             </Text>
           )}
         </Group>

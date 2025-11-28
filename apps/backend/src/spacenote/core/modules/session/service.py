@@ -4,6 +4,7 @@ from typing import Any
 import structlog
 from pymongo.asynchronous.database import AsyncDatabase
 
+from spacenote.core.db import Collection
 from spacenote.core.modules.session.models import AuthToken, Session
 from spacenote.core.modules.user.models import User
 from spacenote.core.service import Service
@@ -15,12 +16,11 @@ logger = structlog.get_logger(__name__)
 class SessionService(Service):
     """Manages authentication sessions with in-memory cache."""
 
-    COLLECTION_NAME = "sessions"
     SESSION_TTL_SECONDS = 2592000  # 30 days
 
     def __init__(self, database: AsyncDatabase[dict[str, Any]]) -> None:
         super().__init__(database)
-        self._collection = database.get_collection(self.COLLECTION_NAME)
+        self._collection = database.get_collection(Collection.SESSIONS)
         self._authenticated_users: dict[AuthToken, User] = {}
 
     async def create_session(self, username: str) -> AuthToken:

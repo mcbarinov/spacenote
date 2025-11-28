@@ -3,6 +3,7 @@ from typing import Any
 import structlog
 from pymongo.asynchronous.database import AsyncDatabase
 
+from spacenote.core.db import Collection
 from spacenote.core.modules.counter.models import CounterType
 from spacenote.core.modules.field.models import FieldType
 from spacenote.core.modules.note.models import Note
@@ -19,7 +20,7 @@ class NoteService(Service):
 
     def __init__(self, database: AsyncDatabase[dict[str, Any]]) -> None:
         super().__init__(database)
-        self._collection = database.get_collection("notes")
+        self._collection = database.get_collection(Collection.NOTES)
 
     async def on_start(self) -> None:
         """Create indexes for space/number lookup and sorting."""

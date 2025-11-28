@@ -3,6 +3,7 @@ from typing import Any
 import structlog
 from pymongo.asynchronous.database import AsyncDatabase
 
+from spacenote.core.db import Collection
 from spacenote.core.modules.space.models import Space
 from spacenote.core.service import Service
 from spacenote.errors import NotFoundError, ValidationError
@@ -13,11 +14,9 @@ logger = structlog.get_logger(__name__)
 class SpaceService(Service):
     """Manages spaces with in-memory cache."""
 
-    COLLECTION_NAME = "spaces"
-
     def __init__(self, database: AsyncDatabase[dict[str, Any]]) -> None:
         super().__init__(database)
-        self._collection = database.get_collection(self.COLLECTION_NAME)
+        self._collection = database.get_collection(Collection.SPACES)
         self._spaces: dict[str, Space] = {}
 
     def get_space(self, slug: str) -> Space:
@@ -69,6 +68,20 @@ class SpaceService(Service):
         self._validate_members(members)
 
         await self._collection.update_one({"slug": slug}, {"$set": {"members": members}})
+        return await self.update_space_cache(slug)
+
+    async def update_space_document(self, slug: str, update: dict[str, Any]) -> Space:
+        """Low-level MongoDB update with automatic cache invalidation.
+
+        WARNING: This is a low-level method. Caller is responsible for:
+        - Validating the space exists (call get_space() first)
+        - Validating all data in the update operation
+        - Ensuring the update operation is safe and correct
+
+        Use this only from feature services (FieldService, FilterService, etc.)
+        that need to modify Space document.
+        """
+        await self._collection.update_one({"slug": slug}, update)
         return await self.update_space_cache(slug)
 
     async def delete_space(self, slug: str) -> None:

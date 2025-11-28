@@ -7,7 +7,12 @@ Shared frontend code for all React applications (admin, web).
 ```
 src/
 ├── api/              # API layer: queries, mutations, cache, HTTP client
-├── components/       # Reusable components (ErrorBoundary, ErrorMessage)
+├── app/              # App bootstrap: createAppRouter, renderApp
+├── components/       # Reusable components
+│   ├── errors/       # ErrorBoundary
+│   ├── layout/       # AuthLayout, Header, Footer, LoadingScreen, ErrorScreen
+│   ├── navigation/   # CustomLink, LinkButton
+│   └── ui/           # ErrorMessage
 ├── errors/           # AppError class for error handling
 └── types/            # TypeScript types from OpenAPI + custom types
 ```
@@ -15,11 +20,14 @@ src/
 ## Usage
 
 ```typescript
+// App bootstrap
+import { createAppRouter, renderApp } from "@spacenote/common/app"
+
 // API layer
 import { api, queryClient } from "@spacenote/common/api"
 
 // Components
-import { ErrorBoundary, ErrorMessage } from "@spacenote/common/components"
+import { ErrorBoundary, ErrorMessage, CustomLink, LinkButton } from "@spacenote/common/components"
 
 // Error handling
 import { AppError } from "@spacenote/common/errors"

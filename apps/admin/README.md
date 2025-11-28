@@ -6,14 +6,17 @@ Admin panel for Spacenote system management.
 
 ```
 src/
-├── main.tsx         # App entry point
-├── router.ts        # TanStack Router configuration
-└── routes/          # File-based routing
-    ├── __root.tsx   # Root layout
-    ├── _auth/       # Authenticated routes
-    │   ├── -components/  # Route-specific components
-    │   └── route.tsx     # Auth layout
-    └── login.tsx    # Login page
+├── main.tsx            # App entry point
+├── routeTree.gen.ts    # Auto-generated route tree
+└── routes/             # File-based routing
+    ├── __root.tsx      # Root layout
+    ├── login.tsx       # Login page
+    └── _auth/          # Authenticated routes
+        ├── route.tsx   # Auth layout
+        ├── index.tsx   # Dashboard
+        ├── users/      # User management
+        └── spaces/     # Space management
+            └── $slug/fields/  # Field configuration per space
 ```
 
 ## Development

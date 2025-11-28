@@ -39,7 +39,6 @@ src/
 │   │   └── route.tsx
 │   └── login.tsx       # Simple route (single file)
 ├── main.tsx
-├── router.ts
 └── routeTree.gen.ts    # Auto-generated
 ```
 
@@ -66,6 +65,23 @@ import { FieldInput } from "../../../../components/FieldInput"
 **Packages (`@spacenote/common`):** Always use relative imports. Packages are standalone - `@/` aliases break when consumed by apps with different tsconfig paths.
 
 ## Architecture
+
+### App Bootstrap
+
+Both apps use `@spacenote/common/app` for initialization:
+
+```typescript
+// main.tsx
+import { createAppRouter, renderApp } from "@spacenote/common/app"
+import { initHttpClient } from "@spacenote/common/api"
+import { routeTree } from "./routeTree.gen"
+
+initHttpClient("admin")  // or "web"
+renderApp(createAppRouter(routeTree))
+```
+
+- `createAppRouter(routeTree)` - creates TanStack Router with QueryClient context
+- `renderApp(router)` - renders React app with all providers (Mantine, Query, Router)
 
 ### Layout Simplicity
 

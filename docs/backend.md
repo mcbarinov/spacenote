@@ -119,6 +119,7 @@ class ServiceRegistry:
     counter: CounterService
     note: NoteService
     comment: CommentService
+    image: ImageService
 
     async def start_all()  # Initialize all services
     async def stop_all()   # Cleanup all services
@@ -161,3 +162,12 @@ Users and spaces are cached in memory (`dict[str, User]` and `dict[str, Space]`)
 - Reads served from cache (no DB queries)
 - Updates call `update_*_cache()` to reload from DB
 - Same approach used on frontend (TanStack Query cache)
+
+### Image Processing
+
+IMAGE fields store references to attachments and trigger WebP generation:
+
+- On note create/update: pending attachment → permanent attachment
+- Background task converts to WebP with optional resize (`max_width`)
+- Storage: `{images_path}/{space_slug}/{note_number}/{attachment_number}`
+- Originals preserved in attachment storage, processed WebP served via API

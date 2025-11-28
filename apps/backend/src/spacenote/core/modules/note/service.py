@@ -4,6 +4,7 @@ import structlog
 from pymongo.asynchronous.database import AsyncDatabase
 
 from spacenote.core.modules.counter.models import CounterType
+from spacenote.core.modules.field.models import FieldType
 from spacenote.core.modules.note.models import Note
 from spacenote.core.pagination import PaginationResult
 from spacenote.core.service import Service
@@ -46,8 +47,18 @@ class NoteService(Service):
 
     async def create_note(self, space_slug: str, author: str, raw_fields: dict[str, str]) -> Note:
         """Create note from raw fields."""
+        space = self.core.services.space.get_space(space_slug)
         parsed_fields = self.core.services.field.parse_raw_fields(space_slug, raw_fields, current_user=author)
         next_number = await self.core.services.counter.get_next_sequence(space_slug, CounterType.NOTE)
+
+        # Process IMAGE fields (if any): finalize pending attachments and schedule WebP generation
+        image_field_names = {f.name for f in space.fields if f.type == FieldType.IMAGE}
+        image_fields = {
+            name: value for name, value in parsed_fields.items() if name in image_field_names and isinstance(value, int)
+        }
+        if image_fields:
+            processed = await self.core.services.image.process_image_fields(space_slug, next_number, image_fields)
+            parsed_fields.update(processed)
 
         note = Note(space_slug=space_slug, number=next_number, author=author, fields=parsed_fields)
 

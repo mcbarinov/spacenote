@@ -22,6 +22,7 @@ All configuration uses the `SPACENOTE_` prefix. See `.env.example` for reference
 - `SPACENOTE_DEBUG` - Debug mode (default: `false`)
 - `SPACENOTE_CORS_ORIGINS` - CORS allowed origins (default: `["http://localhost:3000"]`)
 - `SPACENOTE_ATTACHMENTS_PATH` - Attachment storage path (default: `./data/attachments`)
+- `SPACENOTE_IMAGES_PATH` - Processed image storage path (default: `./data/images`)
 
 ## Project Structure
 
@@ -34,6 +35,7 @@ src/spacenote/
 │   │   ├── comment/         # Note comments
 │   │   ├── counter/         # Sequential counters
 │   │   ├── field/           # Space field definitions
+│   │   ├── image/           # Image processing (WebP conversion)
 │   │   ├── note/            # Notes
 │   │   ├── session/         # Authentication sessions
 │   │   ├── space/           # Spaces
@@ -48,6 +50,7 @@ src/spacenote/
 │   │   ├── auth.py          # Login/logout
 │   │   ├── comments.py      # Note comments
 │   │   ├── fields.py        # Space fields
+│   │   ├── images.py        # Image serving
 │   │   ├── notes.py         # Notes
 │   │   ├── profile.py       # User profile
 │   │   ├── spaces.py        # Spaces

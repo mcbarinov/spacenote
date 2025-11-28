@@ -55,6 +55,16 @@ File attachments for notes and spaces:
 - Sequential numbering per note or per space
 - Stored on local filesystem
 
+### Image Fields
+
+IMAGE field type for notes with automatic processing:
+
+- Accepts pending attachment number, converts to permanent attachment on note save
+- Auto-converts to WebP format (85% quality)
+- Optional `max_width` option for resizing
+- Async processing (doesn't block note creation)
+- Separate storage for originals (attachments) and processed images
+
 ### AI Integration
 
 Built with AI agents in mind:

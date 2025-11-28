@@ -28,7 +28,12 @@ export function NoteDetails({ note, space }: NoteDetailsProps) {
 
       <Stack gap="md" mb="xl">
         {space.fields.map((field) => (
-          <FieldView key={field.name} field={field} value={note.fields[field.name]} />
+          <FieldView
+            key={field.name}
+            field={field}
+            value={note.fields[field.name]}
+            noteContext={{ slug: space.slug, noteNumber: note.number }}
+          />
         ))}
       </Stack>
     </>

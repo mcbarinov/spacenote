@@ -1,5 +1,6 @@
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from spacenote.config import Config
 from spacenote.core.core import Core
@@ -7,6 +8,7 @@ from spacenote.core.modules.attachment import storage as attachment_storage
 from spacenote.core.modules.attachment.models import Attachment, PendingAttachment
 from spacenote.core.modules.comment.models import Comment
 from spacenote.core.modules.field.models import SpaceField
+from spacenote.core.modules.image.processor import WebpOptions
 from spacenote.core.modules.note.models import Note
 from spacenote.core.modules.session.models import AuthToken
 from spacenote.core.modules.space.models import Space
@@ -236,3 +238,26 @@ class App:
         attachment = await self._core.services.attachment.get_attachment(space_slug, note_number, number)
         content = attachment_storage.read_attachment_file(self._core.config.attachments_path, space_slug, note_number, number)
         return attachment, content
+
+    async def get_attachment_as_webp(
+        self,
+        auth_token: AuthToken,
+        space_slug: str | None,
+        note_number: int | None,
+        attachment_number: int,
+        options: WebpOptions,
+    ) -> bytes:
+        """Convert attachment to WebP. space_slug=None means pending attachment."""
+        if space_slug is None:
+            user = await self._core.services.access.ensure_authenticated(auth_token)
+            pending = await self._core.services.attachment.get_pending_attachment(attachment_number)
+            if pending.author != user.username:
+                raise AccessDeniedError("Only the owner can access this attachment")
+        else:
+            await self._core.services.access.ensure_space_member(auth_token, space_slug)
+        return await self._core.services.image.get_attachment_as_webp(space_slug, note_number, attachment_number, options)
+
+    async def get_image_path(self, auth_token: AuthToken, space_slug: str, note_number: int, field_name: str) -> Path:
+        """Get path to pre-generated WebP image (members only)."""
+        await self._core.services.access.ensure_space_member(auth_token, space_slug)
+        return await self._core.services.image.get_image_path(space_slug, note_number, field_name)

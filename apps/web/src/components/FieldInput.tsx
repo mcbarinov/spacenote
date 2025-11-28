@@ -2,6 +2,7 @@ import { TextInput, Checkbox, Select, NumberInput, TagsInput } from "@mantine/co
 import { DateTimePicker } from "@mantine/dates"
 import type { SpaceField } from "@spacenote/common/types"
 import { MarkdownEditor } from "./MarkdownEditor"
+import { ImageFieldInput } from "./ImageFieldInput"
 
 interface FieldInputProps {
   field: SpaceField
@@ -139,6 +140,13 @@ export function FieldInput({ field, value, onChange, error, spaceMembers }: Fiel
           searchable
         />
       )
+
+    case "image": {
+      const pendingNumber = typeof value === "number" ? value : null
+      return (
+        <ImageFieldInput label={field.name} required={field.required} error={error} value={pendingNumber} onChange={onChange} />
+      )
+    }
 
     default:
       return (

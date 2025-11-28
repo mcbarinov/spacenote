@@ -1,7 +1,11 @@
-from fastapi import APIRouter, UploadFile
+from typing import Annotated
+
+from fastapi import APIRouter, Query, UploadFile
 from fastapi.responses import Response
 
 from spacenote.core.modules.attachment.models import Attachment, PendingAttachment
+from spacenote.core.modules.image.processor import parse_webp_option
+from spacenote.errors import ValidationError
 from spacenote.web.deps import AppDep, AuthTokenDep
 from spacenote.web.openapi import ErrorResponse
 
@@ -135,7 +139,11 @@ async def list_note_attachments(
 @router.get(
     "/attachments/pending/{number}",
     summary="Download pending attachment",
-    description="Download a pending attachment file. Only the owner can download.",
+    description=(
+        "Download a pending attachment file. Only the owner can download. "
+        "Use `?format=webp` to convert images to WebP. "
+        "Optional `&option=max_width:800` to resize."
+    ),
     operation_id="downloadPendingAttachment",
     responses={
         200: {"description": "File content", "content": {"application/octet-stream": {}}},
@@ -148,7 +156,17 @@ async def download_pending_attachment(
     number: int,
     app: AppDep,
     auth_token: AuthTokenDep,
+    output_format: Annotated[str | None, Query(alias="format")] = None,
+    option: str | None = None,
 ) -> Response:
+    if output_format is not None and output_format != "webp":
+        raise ValidationError(f"Unsupported format: {output_format}")
+
+    if output_format == "webp":
+        options = parse_webp_option(option)
+        webp_data = await app.get_attachment_as_webp(auth_token, None, None, number, options)
+        return Response(content=webp_data, media_type="image/webp")
+
     pending, content = await app.download_pending_attachment(auth_token, number)
     return Response(
         content=content,
@@ -160,7 +178,11 @@ async def download_pending_attachment(
 @router.get(
     "/spaces/{space_slug}/attachments/{number}",
     summary="Download space attachment",
-    description="Download a space-level attachment file.",
+    description=(
+        "Download a space-level attachment file. "
+        "Use `?format=webp` to convert images to WebP. "
+        "Optional `&option=max_width:800` to resize."
+    ),
     operation_id="downloadSpaceAttachment",
     responses={
         200: {"description": "File content", "content": {"application/octet-stream": {}}},
@@ -174,7 +196,17 @@ async def download_space_attachment(
     number: int,
     app: AppDep,
     auth_token: AuthTokenDep,
+    output_format: Annotated[str | None, Query(alias="format")] = None,
+    option: str | None = None,
 ) -> Response:
+    if output_format is not None and output_format != "webp":
+        raise ValidationError(f"Unsupported format: {output_format}")
+
+    if output_format == "webp":
+        options = parse_webp_option(option)
+        webp_data = await app.get_attachment_as_webp(auth_token, space_slug, None, number, options)
+        return Response(content=webp_data, media_type="image/webp")
+
     attachment, content = await app.download_space_attachment(auth_token, space_slug, number)
     return Response(
         content=content,
@@ -186,7 +218,11 @@ async def download_space_attachment(
 @router.get(
     "/spaces/{space_slug}/notes/{note_number}/attachments/{number}",
     summary="Download note attachment",
-    description="Download an attachment file from a specific note.",
+    description=(
+        "Download an attachment file from a specific note. "
+        "Use `?format=webp` to convert images to WebP. "
+        "Optional `&option=max_width:800` to resize."
+    ),
     operation_id="downloadNoteAttachment",
     responses={
         200: {"description": "File content", "content": {"application/octet-stream": {}}},
@@ -201,7 +237,17 @@ async def download_note_attachment(
     number: int,
     app: AppDep,
     auth_token: AuthTokenDep,
+    output_format: Annotated[str | None, Query(alias="format")] = None,
+    option: str | None = None,
 ) -> Response:
+    if output_format is not None and output_format != "webp":
+        raise ValidationError(f"Unsupported format: {output_format}")
+
+    if output_format == "webp":
+        options = parse_webp_option(option)
+        webp_data = await app.get_attachment_as_webp(auth_token, space_slug, note_number, number, options)
+        return Response(content=webp_data, media_type="image/webp")
+
     attachment, content = await app.download_note_attachment(auth_token, space_slug, note_number, number)
     return Response(
         content=content,

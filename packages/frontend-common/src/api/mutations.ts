@@ -9,6 +9,7 @@ import type {
   CreateUserRequest,
   LoginRequest,
   Note,
+  PendingAttachment,
   Space,
   SpaceField,
   User,
@@ -148,6 +149,16 @@ export function useUploadNoteAttachment(spaceSlug: string, noteNumber: number) {
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["spaces", spaceSlug, "notes", noteNumber, "attachments"] })
+    },
+  })
+}
+
+export function useUploadPendingAttachment() {
+  return useMutation({
+    mutationFn: (file: File) => {
+      const formData = new FormData()
+      formData.append("file", file)
+      return httpClient.post("api/v1/attachments/pending", { body: formData }).json<PendingAttachment>()
     },
   })
 }

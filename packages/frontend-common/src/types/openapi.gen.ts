@@ -81,7 +81,7 @@ export type paths = {
     }
     /**
      * Download pending attachment
-     * @description Download a pending attachment file. Only the owner can download.
+     * @description Download a pending attachment file. Only the owner can download. Use `?format=webp` to convert images to WebP. Optional `&option=max_width:800` to resize.
      */
     get: operations["downloadPendingAttachment"]
     put?: never
@@ -101,7 +101,7 @@ export type paths = {
     }
     /**
      * Download space attachment
-     * @description Download a space-level attachment file.
+     * @description Download a space-level attachment file. Use `?format=webp` to convert images to WebP. Optional `&option=max_width:800` to resize.
      */
     get: operations["downloadSpaceAttachment"]
     put?: never
@@ -121,7 +121,7 @@ export type paths = {
     }
     /**
      * Download note attachment
-     * @description Download an attachment file from a specific note.
+     * @description Download an attachment file from a specific note. Use `?format=webp` to convert images to WebP. Optional `&option=max_width:800` to resize.
      */
     get: operations["downloadNoteAttachment"]
     put?: never
@@ -1304,7 +1304,10 @@ export interface operations {
   }
   downloadPendingAttachment: {
     parameters: {
-      query?: never
+      query?: {
+        format?: string | null
+        option?: string | null
+      }
       header?: never
       path: {
         number: number
@@ -1363,7 +1366,10 @@ export interface operations {
   }
   downloadSpaceAttachment: {
     parameters: {
-      query?: never
+      query?: {
+        format?: string | null
+        option?: string | null
+      }
       header?: never
       path: {
         space_slug: string
@@ -1423,7 +1429,10 @@ export interface operations {
   }
   downloadNoteAttachment: {
     parameters: {
-      query?: never
+      query?: {
+        format?: string | null
+        option?: string | null
+      }
       header?: never
       path: {
         space_slug: string

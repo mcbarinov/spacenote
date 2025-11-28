@@ -10,7 +10,12 @@
 - **Zod** (validation) + **mantine-form-zod-resolver**
 - **openapi-typescript** (type generation from OpenAPI)
 
-## Monorepo Structure
+
+---
+
+## Project Structure
+
+### Monorepo Structure
 
 ```
 apps/
@@ -21,23 +26,20 @@ packages/
 └── frontend-common/    # @spacenote/common - types, API layer, components, utilities
 ```
 
-## Project Structure
+### App Structure
 
 ```
 src/
-├── api/                # API layer (queries, mutations, cache, HTTP client)
-├── components/         # Reusable components
-│   ├── errors/         # ErrorBoundary
-│   └── ui/             # General UI (ErrorMessage, etc.)
-├── errors/             # AppError class
+├── components/         # App-specific reusable components
 ├── routes/             # File-based routing (TanStack Router)
 │   ├── __root.tsx      # Root layout
 │   ├── _auth/          # Authenticated routes
-│   │   ├── users/      # Route with components (folder structure)
-│   │   │   ├── -components/  # Route-specific components
-│   │   │   └── route.tsx
-│   │   └── route.tsx
-│   └── login.tsx       # Simple route (single file)
+│   │   ├── route.tsx   # Auth layout + data preloading
+│   │   ├── -components/  # Route-specific components
+│   │   └── users/
+│   │       ├── route.tsx
+│   │       └── -components/
+│   └── login.tsx       # Public route
 ├── main.tsx
 └── routeTree.gen.ts    # Auto-generated
 ```
@@ -46,7 +48,7 @@ src/
 - Simple routes: `login.tsx` (single file)
 - Routes with components: `users/route.tsx` + `users/-components/` (folder)
 
-## Import Paths
+### Import Paths
 
 **Apps (`apps/web`, `apps/admin`):** Use `@/` alias for deep imports (2+ levels up).
 
@@ -64,7 +66,10 @@ import { FieldInput } from "../../../../components/FieldInput"
 
 **Packages (`@spacenote/common`):** Always use relative imports. Packages are standalone - `@/` aliases break when consumed by apps with different tsconfig paths.
 
-## Architecture
+
+---
+
+## Setup
 
 ### App Bootstrap
 
@@ -83,80 +88,64 @@ renderApp(createAppRouter(routeTree))
 - `createAppRouter(routeTree)` - creates TanStack Router with QueryClient context
 - `renderApp(router)` - renders React app with all providers (Mantine, Query, Router)
 
-### Layout Simplicity
+### Type Generation from OpenAPI
 
-Avoid unnecessary nested containers.
+Types auto-generated from backend OpenAPI spec via `openapi-typescript`:
 
-❌ **Unnecessary nesting:**
-```tsx
-<Box style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
-  <Container size="lg">
-    <Header />
-    <Box component="main" style={{ flex: 1 }}>
-      <Outlet />
-    </Box>
-  </Container>
-</Box>
+```bash
+pnpm --filter @spacenote/common generate
+# or
+just frontend-common-generate
 ```
 
-✅ **Simplified:**
-```tsx
-<Container size="lg">
-  <Flex direction="column" mih="100vh">
-    <Header />
-    <Box component="main" flex={1}>
-      <Outlet />
-    </Box>
-  </Flex>
-</Container>
+```
+packages/frontend-common/src/types/
+├── openapi.gen.ts   # Auto-generated from OpenAPI
+└── index.ts         # Re-exports + custom types
 ```
 
-### Component Organization
-
-**Route-specific components** → `src/routes/[route]/-components/`
-- Used only in that route
-- Co-located with route definition
-
-**Reusable components** → `src/components/[category]/`
-- Used across multiple routes
-- Categories: `errors/`, `ui/`, `navigation/`
-
-**Decision flow:**
-1. Used in multiple routes? → `src/components/`
-2. Special app-wide purpose (error boundaries, auth)? → `src/components/`
-3. Otherwise → `src/routes/[route]/-components/`
-
-### Component Encapsulation
-
-**Principle:** Minimize props, maximize encapsulation. Components should own their logic.
-
-❌ **Passing callbacks:**
-```tsx
-// Parent passes callback
-<UsersTable users={users} onDeleteClick={(username) => setDeleteUser(username)} />
+Usage:
+```typescript
+import type { LoginRequest, User } from "@spacenote/common/types"
 ```
 
-✅ **Self-contained:**
-```tsx
-// Component owns delete logic with mutation and modal inside
-<UsersTable users={users} />
+
+---
+
+## Data Layer
+
+### API Structure
+
+```
+packages/frontend-common/src/api/
+├── queries.ts      # Query definitions (queryOptions)
+├── mutations.ts    # Mutation hooks (useMutation)
+├── cache.ts        # Cache read hooks (useSuspenseQuery wrappers)
+├── httpClient.ts   # ky instance
+└── index.ts        # Exports api object
 ```
 
-Keep parent components simple - they coordinate, not implement.
+Access via unified `api` object:
+```typescript
+import { api } from "@spacenote/common/api"
 
-### API Layer - Separation of Concerns
+api.queries.listSpaces()      // Query options
+api.mutations.useCreateNote() // Mutation hook
+api.cache.useSpace(slug)      // Cache read hook
+```
 
-**`api/mutations.ts` responsibilities:**
+**Separation of concerns:**
+
+`mutations.ts` responsibilities:
 - ✅ HTTP requests
 - ✅ Cache invalidation (`queryClient.invalidateQueries`)
 - ❌ Navigation, notifications, form resets
 
-**Component responsibilities:**
+Component responsibilities:
 - ✅ Navigation (`useNavigate`)
 - ✅ Notifications (`notifications.show`)
 - ✅ Form state, custom `onSuccess` logic
 
-**Example:**
 ```typescript
 // api/mutations.ts - data only
 export function useLogin() {
@@ -178,86 +167,10 @@ loginMutation.mutate(values, {
 })
 ```
 
-### Naming Conventions
-
-**Mutations:** Always use `Mutation` suffix for mutation variables:
-```typescript
-// ✅ Good
-const loginMutation = api.mutations.useLogin()
-const createNoteMutation = api.mutations.useCreateNote(slug)
-
-// ❌ Bad
-const login = api.mutations.useLogin()
-const createNote = api.mutations.useCreateNote(slug)
-```
-
-### Type Generation from OpenAPI
-
-**Package:** `@spacenote/common`
-
-Types auto-generated from backend OpenAPI spec via `openapi-typescript`:
-```bash
-pnpm --filter @spacenote/common generate
-# or
-just common-generate
-```
-
-**Structure:**
-```
-packages/frontend-common/src/types/
-├── openapi.gen.ts   # Auto-generated from OpenAPI
-└── index.ts         # Re-exports + custom types
-```
-
-**Usage:**
-```typescript
-import type { LoginRequest, User } from "@spacenote/common"
-```
-
-All frontend apps use these types for type-safe API communication.
-
-### Routing Patterns (TanStack Router)
-
-**Route protection via `beforeLoad`:**
-```typescript
-export const Route = createFileRoute("/_auth")({
-  beforeLoad: async ({ context, location }) => {
-    try {
-      const currentUser = await context.queryClient.ensureQueryData(
-        api.queries.currentUser()
-      )
-      return { currentUser }
-    } catch (error) {
-      const appError = AppError.fromUnknown(error)
-      if (appError.code === "unauthorized") {
-        throw redirect({ to: "/login", search: { redirect: location.href } })
-      }
-      throw error
-    }
-  },
-})
-```
-
-**Search params validation:**
-```typescript
-export const Route = createFileRoute("/login")({
-  validateSearch: z.object({
-    redirect: z.string().optional(),
-  }),
-})
-```
-
-**Error/loading states per route:**
-```typescript
-export const Route = createFileRoute("/_auth")({
-  errorComponent: ErrorComponent,
-  pendingComponent: LoadingComponent,
-})
-```
-
-### Data Loading (TanStack Query + Router)
+### Data Loading
 
 **Standard pattern** - prefetch in loader, read in component:
+
 ```typescript
 // Route definition
 export const Route = createFileRoute("/s/$slug/$noteNumber")({
@@ -284,22 +197,45 @@ Why this pattern:
 - `useSuspenseQuery` in component → read from cache + subscribe to updates
 - No "flash of loading" - data displays immediately
 
-**Exception: parent-loaded cache data**
+### Cache Hooks
 
-When parent route already loads shared data, child routes can read directly from cache:
+Global data is preloaded once in `_auth/route.tsx`:
+
+**web app:**
 ```typescript
-// _auth/route.tsx loads spaces in loader
 loader: async ({ context }) => {
   await context.queryClient.ensureQueryData(api.queries.listSpaces())
 }
+```
 
-// Child route reads from cache (no loader needed for this data)
-function SpacePage() {
-  const space = api.cache.useSpace(slug)  // reads from already-loaded cache
+**admin app:**
+```typescript
+loader: async ({ context }) => {
+  await Promise.all([
+    context.queryClient.ensureQueryData(api.queries.listUsers()),
+    context.queryClient.ensureQueryData(api.queries.listSpaces()),
+  ])
 }
 ```
 
-**Query key structure:**
+Child components read via cache hooks without additional requests:
+
+```typescript
+const space = api.cache.useSpace(slug)
+const currentUser = api.cache.useCurrentUser()
+const users = api.cache.useUsers()  // admin only
+```
+
+**Available hooks:**
+- `useCurrentUser()` → `User`
+- `useUsers()` → `User[]` (admin)
+- `useSpaces()` → `Space[]`
+- `useSpace(slug)` → `Space`
+- `useUser(username)` → `User` (admin)
+
+These hooks use `useSuspenseQuery` internally, but suspense doesn't trigger — data is already in cache.
+
+### Query Keys & Invalidation
 
 ```typescript
 // Pagination params at the end
@@ -311,6 +247,51 @@ invalidateQueries({ queryKey: ["spaces", slug, "notes", noteNumber, "comments"] 
 
 Pagination params (`page`, `limit`) excluded from invalidation — all pages refresh.
 Filter params (`search`, `status`) should be included if you only want to invalidate that specific filter.
+
+
+---
+
+## Routing
+
+### Route Protection
+
+```typescript
+export const Route = createFileRoute("/_auth")({
+  beforeLoad: async ({ context, location }) => {
+    try {
+      const currentUser = await context.queryClient.ensureQueryData(
+        api.queries.currentUser()
+      )
+      return { currentUser }
+    } catch (error) {
+      const appError = AppError.fromUnknown(error)
+      if (appError.code === "unauthorized") {
+        throw redirect({ to: "/login", search: { redirect: location.href } })
+      }
+      throw error
+    }
+  },
+})
+```
+
+### Search Params Validation
+
+```typescript
+export const Route = createFileRoute("/login")({
+  validateSearch: z.object({
+    redirect: z.string().optional(),
+  }),
+})
+```
+
+### Error/Loading States
+
+```typescript
+export const Route = createFileRoute("/_auth")({
+  errorComponent: ErrorScreen,
+  pendingComponent: LoadingScreen,
+})
+```
 
 ### Navigation
 
@@ -341,7 +322,77 @@ void navigate({ to: "/s/$slug", params: { slug } })
 <Button component={Link} to="/s/$slug" params={{ slug }}>
 ```
 
-### Form Handling Patterns
+
+---
+
+## Components
+
+### Organization
+
+**Route-specific components** → `src/routes/[route]/-components/`
+- Used only in that route
+- Co-located with route definition
+
+**Reusable components** → `src/components/[category]/`
+- Used across multiple routes
+- Categories: `errors/`, `ui/`, `navigation/`
+
+**Decision flow:**
+1. Used in multiple routes? → `src/components/`
+2. Special app-wide purpose (error boundaries, auth)? → `src/components/`
+3. Otherwise → `src/routes/[route]/-components/`
+
+### Encapsulation
+
+**Principle:** Minimize props, maximize encapsulation. Components should own their logic.
+
+❌ **Passing callbacks:**
+```tsx
+<UsersTable users={users} onDeleteClick={(username) => setDeleteUser(username)} />
+```
+
+✅ **Self-contained:**
+```tsx
+// Component owns delete logic with mutation and modal inside
+<UsersTable users={users} />
+```
+
+Keep parent components simple - they coordinate, not implement.
+
+### Layout Simplicity
+
+Avoid unnecessary nested containers.
+
+❌ **Unnecessary nesting:**
+```tsx
+<Box style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+  <Container size="lg">
+    <Header />
+    <Box component="main" style={{ flex: 1 }}>
+      <Outlet />
+    </Box>
+  </Container>
+</Box>
+```
+
+✅ **Simplified:**
+```tsx
+<Container size="lg">
+  <Flex direction="column" mih="100vh">
+    <Header />
+    <Box component="main" flex={1}>
+      <Outlet />
+    </Box>
+  </Flex>
+</Container>
+```
+
+
+---
+
+## UI Patterns
+
+### Forms
 
 **Mantine Form + Zod:**
 ```typescript
@@ -372,15 +423,13 @@ const handleSubmit = form.onSubmit((values) => {
 <Button type="submit" loading={mutation.isPending}>Submit</Button>
 ```
 
-### Modal Patterns
+### Modals
 
 **Controlled modals** (complex forms, custom UI):
 ```tsx
 const [opened, setOpened] = useState(false)
 <CreateUserModal opened={opened} onClose={() => setOpened(false)} />
 ```
-
-This is the standard React pattern. `useState(false)` + `opened`/`onClose` props is the minimum for controlled components.
 
 **Imperative confirmations** (simple yes/no):
 ```tsx
@@ -399,7 +448,7 @@ import { modals } from "@mantine/modals"
 
 No state, no modal component, no props. Use for simple confirmations.
 
-### Error Handling Patterns
+### Error Handling
 
 **AppError class** centralizes error parsing:
 ```typescript
@@ -440,4 +489,17 @@ errorComponent: ({ error }) => {
 **Mutation error display:**
 ```tsx
 {mutation.error && <ErrorMessage error={mutation.error} />}
+```
+
+### Naming Conventions
+
+**Mutations:** Always use `Mutation` suffix for mutation variables:
+```typescript
+// ✅ Good
+const loginMutation = api.mutations.useLogin()
+const createNoteMutation = api.mutations.useCreateNote(slug)
+
+// ❌ Bad
+const login = api.mutations.useLogin()
+const createNote = api.mutations.useCreateNote(slug)
 ```

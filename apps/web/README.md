@@ -7,35 +7,40 @@ User-facing web application for Spacenote.
 ```
 src/
 ├── main.tsx
-├── routeTree.gen.ts     # Auto-generated
-├── components/          # App-specific components
+├── components/
 │   ├── FieldInput.tsx
 │   ├── FieldView.tsx
+│   ├── ImageFieldInput.tsx
 │   ├── MarkdownDisplay.tsx
 │   └── MarkdownEditor.tsx
 └── routes/
     ├── __root.tsx
     ├── login.tsx
+    ├── routeTree.gen.ts         # Auto-generated
     └── _auth/
         ├── -components/
         │   └── SpaceCard.tsx
         ├── index.tsx
         ├── route.tsx
         └── s/$slug/
+            ├── -components/
+            │   ├── CommentForm.tsx
+            │   ├── CommentList.tsx
+            │   └── NoteDetails.tsx
             ├── index.tsx
             ├── new.tsx
             ├── attachments/
             │   ├── index.tsx
             │   └── new.tsx
             └── $noteNumber/
+                ├── -components/
+                │   ├── CommentForm.tsx
+                │   ├── CommentList.tsx
+                │   └── NoteDetails.tsx
                 ├── index.tsx
-                ├── attachments/
-                │   ├── index.tsx
-                │   └── new.tsx
-                └── -components/
-                    ├── CommentForm.tsx
-                    ├── CommentList.tsx
-                    └── NoteDetails.tsx
+                └── attachments/
+                    ├── index.tsx
+                    └── new.tsx
 ```
 
 ## Development

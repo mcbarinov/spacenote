@@ -21,10 +21,10 @@ const addFieldSchema = z.object({
     .regex(/^[a-zA-Z0-9_-]+$/, { message: "Name must contain only letters, numbers, hyphens and underscores" }),
   type: z.string().min(1, { message: "Type is required" }),
   required: z.boolean(),
-  selectValues: z.array(z.string()), // select
-  minValue: z.number().nullable(), // int, float
-  maxValue: z.number().nullable(), // int, float
-  maxWidth: z.number().nullable(), // image
+  selectValues: z.array(z.string()), // for "select" type
+  minValue: z.number().nullable(), // for "int", "float" types
+  maxValue: z.number().nullable(), // for "int", "float" types
+  maxWidth: z.number().nullable(), // for "image" type
 })
 
 type FormValues = z.infer<typeof addFieldSchema>
@@ -39,10 +39,10 @@ function AddFieldPage() {
       name: "",
       type: "string",
       required: false,
-      selectValues: [], // select
-      minValue: null, // int, float
-      maxValue: null, // int, float
-      maxWidth: null, // image
+      selectValues: [], // for "select" type
+      minValue: null, // for "int", "float" types
+      maxValue: null, // for "int", "float" types
+      maxWidth: null, // for "image" type
     },
     validate: zod4Resolver(addFieldSchema),
   })

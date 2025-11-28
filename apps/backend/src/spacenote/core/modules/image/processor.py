@@ -59,5 +59,4 @@ async def create_webp_image(source: Path, max_width: int | None) -> bytes:
         img.save(output, format="WEBP", quality=85)
         return output.getvalue()
 
-    loop = asyncio.get_event_loop()
-    return await loop.run_in_executor(None, _process)
+    return await asyncio.to_thread(_process)

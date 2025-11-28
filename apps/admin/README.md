@@ -15,8 +15,13 @@ src/
         ├── route.tsx   # Auth layout
         ├── index.tsx   # Dashboard
         ├── users/      # User management
+        │   └── -components/
         └── spaces/     # Space management
-            └── $slug/fields/  # Field configuration per space
+            ├── new.tsx
+            ├── -components/
+            └── $slug/fields/
+                ├── new.tsx
+                └── -components/
 ```
 
 ## Development

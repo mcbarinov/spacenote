@@ -1,7 +1,7 @@
-import { Badge, Button, Code, Paper, Table, Text } from "@mantine/core"
-import { modals } from "@mantine/modals"
+import { Badge, Code, Paper, Table, Text } from "@mantine/core"
 import { notifications } from "@mantine/notifications"
 import { api } from "@spacenote/common/api"
+import { DeleteButton } from "@spacenote/common/components"
 import type { SpaceField } from "@spacenote/common/types"
 
 interface FieldsTableProps {
@@ -11,25 +11,6 @@ interface FieldsTableProps {
 
 export function FieldsTable({ spaceSlug, fields }: FieldsTableProps) {
   const deleteFieldMutation = api.mutations.useDeleteField(spaceSlug)
-
-  const handleDeleteClick = (fieldName: string) => {
-    modals.openConfirmModal({
-      title: "Delete Field",
-      children: `Are you sure you want to delete field "${fieldName}"?`,
-      labels: { confirm: "Delete", cancel: "Cancel" },
-      confirmProps: { color: "red" },
-      onConfirm: () => {
-        deleteFieldMutation.mutate(fieldName, {
-          onSuccess: () => {
-            notifications.show({
-              message: "Field deleted successfully",
-              color: "green",
-            })
-          },
-        })
-      },
-    })
-  }
 
   if (fields.length === 0) {
     return (
@@ -63,15 +44,20 @@ export function FieldsTable({ spaceSlug, fields }: FieldsTableProps) {
                 <Code>{field.options ? JSON.stringify(field.options) : "-"}</Code>
               </Table.Td>
               <Table.Td>
-                <Button
-                  size="xs"
-                  color="red"
-                  onClick={() => {
-                    handleDeleteClick(field.name)
+                <DeleteButton
+                  title="Delete Field"
+                  message={`Are you sure you want to delete field "${field.name}"?`}
+                  onConfirm={() => {
+                    deleteFieldMutation.mutate(field.name, {
+                      onSuccess: () => {
+                        notifications.show({
+                          message: "Field deleted successfully",
+                          color: "green",
+                        })
+                      },
+                    })
                   }}
-                >
-                  Delete
-                </Button>
+                />
               </Table.Td>
             </Table.Tr>
           ))}

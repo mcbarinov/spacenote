@@ -7,8 +7,9 @@ from pymongo.asynchronous.database import AsyncDatabase
 from spacenote.core.modules.attachment import storage as attachment_storage
 from spacenote.core.modules.field.models import FieldOption, FieldType
 from spacenote.core.modules.image import storage as image_storage
-from spacenote.core.modules.image.processor import create_webp_image
+from spacenote.core.modules.image.processor import WebpOptions, create_webp_image
 from spacenote.core.service import Service
+from spacenote.errors import ValidationError
 
 logger = structlog.get_logger(__name__)
 
@@ -70,3 +71,29 @@ class ImageService(Service):
             logger.exception(
                 "image_generation_failed", space_slug=space_slug, note_number=note_number, attachment_number=attachment_number
             )
+
+    async def get_attachment_as_webp(
+        self, space_slug: str | None, note_number: int | None, attachment_number: int, options: WebpOptions
+    ) -> bytes:
+        """Convert attachment to WebP format on-the-fly.
+
+        Args:
+            space_slug: Space slug, or None for pending attachment
+            note_number: Note number (ignored if space_slug is None)
+            attachment_number: Attachment number
+            options: WebP conversion options
+        """
+        if space_slug is None:
+            pending = await self.core.services.attachment.get_pending_attachment(attachment_number)
+            if not pending.mime_type.startswith("image/"):
+                raise ValidationError(f"Pending attachment {attachment_number} is not an image")
+            file_path = attachment_storage.get_pending_attachment_path(self.core.config.attachments_path, attachment_number)
+        else:
+            attachment = await self.core.services.attachment.get_attachment(space_slug, note_number, attachment_number)
+            if not attachment.mime_type.startswith("image/"):
+                raise ValidationError(f"Attachment {attachment_number} is not an image")
+            file_path = attachment_storage.get_attachment_file_path(
+                self.core.config.attachments_path, space_slug, note_number, attachment_number
+            )
+
+        return await create_webp_image(file_path, options.max_width)

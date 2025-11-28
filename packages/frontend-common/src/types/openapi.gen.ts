@@ -264,6 +264,26 @@ export type paths = {
     patch?: never
     trace?: never
   }
+  "/api/v1/spaces/{space_slug}/notes/{note_number}/images/{field_name}": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Download image
+     * @description Download pre-generated WebP image for an IMAGE field.
+     */
+    get: operations["downloadImage"]
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   "/api/v1/spaces/{space_slug}/notes": {
     parameters: {
       query?: never
@@ -1893,13 +1913,13 @@ export interface operations {
       }
     }
     responses: {
-      /** @description Field added successfully */
+      /** @description Returns validated field */
       200: {
         headers: {
           [name: string]: unknown
         }
         content: {
-          "application/json": components["schemas"]["Space"]
+          "application/json": components["schemas"]["SpaceField"]
         }
       }
       /** @description Invalid field data or field name already exists */
@@ -1987,6 +2007,66 @@ export interface operations {
         }
       }
       /** @description Space or field not found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  downloadImage: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        space_slug: string
+        note_number: number
+        field_name: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Image (WebP format) */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": unknown
+        }
+      }
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Not a member of this space */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Space, note, field, or image not found */
       404: {
         headers: {
           [name: string]: unknown

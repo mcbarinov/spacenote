@@ -17,17 +17,8 @@ class FieldService(Service):
     def __init__(self, database: AsyncDatabase[dict[str, Any]]) -> None:
         super().__init__(database)
 
-    async def add_field_to_space(self, slug: str, field: SpaceField) -> None:
-        """Add a field to a space.
-
-        Args:
-            slug: The space slug
-            field: Field definition to add to the space
-
-        Raises:
-            ValidationError: If field with this name already exists or invalid
-            NotFoundError: If space not found
-        """
+    async def add_field_to_space(self, slug: str, field: SpaceField) -> SpaceField:
+        """Add a field to a space. Returns the validated field."""
         space = self.core.services.space.get_space(slug)
 
         if any(f.name == field.name for f in space.fields):
@@ -43,6 +34,7 @@ class FieldService(Service):
         await spaces_collection.update_one({"slug": slug}, {"$push": {"fields": validated_field.model_dump()}})
         await self.core.services.space.update_space_cache(slug)
         logger.debug("field_added_to_space", space_slug=slug, field_name=validated_field.name)
+        return validated_field
 
     async def remove_field_from_space(self, slug: str, field_name: str) -> None:
         """Remove a field from a space.

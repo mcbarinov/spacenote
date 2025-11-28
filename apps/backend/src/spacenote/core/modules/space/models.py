@@ -17,29 +17,11 @@ class Space(MongoModel):
         pattern=SLUG_RE.pattern,
         description="URL-friendly unique identifier for the space (lowercase, hyphens, alphanumeric)",
     )
-    title: str = Field(
-        ...,
-        min_length=1,
-        max_length=100,
-        description="Space title",
-    )
-    description: str = Field(
-        default="",
-        max_length=1000,
-        description="Space description",
-    )
-    members: list[str] = Field(
-        default_factory=list,
-        description="List of member usernames who have access to this space",
-    )
-    fields: list[SpaceField] = Field(
-        default_factory=list,
-        description="Field definitions for notes in this space",
-    )
-    created_at: datetime = Field(
-        default_factory=now,
-        description="Timestamp when the space was created",
-    )
+    title: str = Field(..., min_length=1, max_length=100, description="Space title")
+    description: str = Field(default="", max_length=1000, description="Space description")
+    members: list[str] = Field(default_factory=list, description="List of member usernames who have access to this space")
+    fields: list[SpaceField] = Field(default_factory=list, description="Field definitions for notes in this space")
+    created_at: datetime = Field(default_factory=now, description="Timestamp when the space was created")
 
     def get_field(self, name: str) -> SpaceField | None:
         """Get field definition by name."""

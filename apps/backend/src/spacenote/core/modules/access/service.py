@@ -2,6 +2,8 @@ from typing import Any
 
 from pymongo.asynchronous.database import AsyncDatabase
 
+from spacenote.core.modules.attachment.models import PendingAttachment
+from spacenote.core.modules.comment.models import Comment
 from spacenote.core.modules.session.models import AuthToken
 from spacenote.core.modules.user.models import User
 from spacenote.core.service import Service
@@ -32,3 +34,21 @@ class AccessService(Service):
         if user.username not in space.members:
             raise AccessDeniedError("Not a member of this space")
         return user
+
+    async def ensure_comment_author(
+        self, auth_token: AuthToken, space_slug: str, note_number: int, comment_number: int
+    ) -> tuple[User, Comment]:
+        """Verify user is space member AND comment author."""
+        user = await self.ensure_space_member(auth_token, space_slug)
+        comment = await self.core.services.comment.get_comment(space_slug, note_number, comment_number)
+        if comment.author != user.username:
+            raise AccessDeniedError("Only the author can modify this comment")
+        return user, comment
+
+    async def ensure_pending_attachment_owner(self, auth_token: AuthToken, number: int) -> tuple[User, PendingAttachment]:
+        """Verify user owns the pending attachment."""
+        user = await self.ensure_authenticated(auth_token)
+        pending = await self.core.services.attachment.get_pending_attachment(number)
+        if pending.author != user.username:
+            raise AccessDeniedError("Only the owner can access this attachment")
+        return user, pending

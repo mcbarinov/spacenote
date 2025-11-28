@@ -4,6 +4,134 @@
  */
 
 export type paths = {
+  "/api/v1/attachments/pending": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Upload pending attachment
+     * @description Upload a file to pending storage. Must be finalized when creating/updating a note.
+     */
+    post: operations["uploadPendingAttachment"]
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  "/api/v1/spaces/{space_slug}/attachments": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * List space attachments
+     * @description List all space-level attachments (e.g. AI context documents).
+     */
+    get: operations["listSpaceAttachments"]
+    put?: never
+    /**
+     * Upload space attachment
+     * @description Upload a file directly to space (e.g. AI context documents).
+     */
+    post: operations["uploadSpaceAttachment"]
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  "/api/v1/spaces/{space_slug}/notes/{note_number}/attachments": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * List note attachments
+     * @description List all attachments for a specific note.
+     */
+    get: operations["listNoteAttachments"]
+    put?: never
+    /**
+     * Upload note attachment
+     * @description Upload a file directly to a note.
+     */
+    post: operations["uploadNoteAttachment"]
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  "/api/v1/attachments/pending/{number}": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Download pending attachment
+     * @description Download a pending attachment file. Only the owner can download.
+     */
+    get: operations["downloadPendingAttachment"]
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  "/api/v1/spaces/{space_slug}/attachments/{number}": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Download space attachment
+     * @description Download a space-level attachment file.
+     */
+    get: operations["downloadSpaceAttachment"]
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  "/api/v1/spaces/{space_slug}/notes/{note_number}/attachments/{number}": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Download note attachment
+     * @description Download an attachment file from a specific note.
+     */
+    get: operations["downloadNoteAttachment"]
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   "/api/v1/auth/login": {
     parameters: {
       query?: never
@@ -394,6 +522,62 @@ export type webhooks = Record<string, never>
 export type components = {
   schemas: {
     /**
+     * Attachment
+     * @description File attachment belonging to a note or space.
+     *
+     *     Two types of attachments:
+     *     - Note-level: attached to specific note (note_number is set)
+     *     - Space-level: attached to space itself (note_number is None), e.g. AI context documents
+     *
+     *     Natural key: (space_slug, note_number, number)
+     *     Storage: {space_slug}/{note_number}/{number} or {space_slug}/__space__/{number}
+     */
+    Attachment: {
+      /** Space Slug */
+      space_slug: string
+      /** Note Number */
+      note_number: number | null
+      /** Number */
+      number: number
+      /** Author */
+      author: string
+      /** Filename */
+      filename: string
+      /** Size */
+      size: number
+      /** Mime Type */
+      mime_type: string
+      /**
+       * Created At
+       * Format: date-time
+       */
+      created_at: string
+    }
+    /** Body_uploadNoteAttachment */
+    Body_uploadNoteAttachment: {
+      /**
+       * File
+       * Format: binary
+       */
+      file: string
+    }
+    /** Body_uploadPendingAttachment */
+    Body_uploadPendingAttachment: {
+      /**
+       * File
+       * Format: binary
+       */
+      file: string
+    }
+    /** Body_uploadSpaceAttachment */
+    Body_uploadSpaceAttachment: {
+      /**
+       * File
+       * Format: binary
+       */
+      file: string
+    }
+    /**
      * ChangePasswordRequest
      * @description Password change request.
      */
@@ -648,6 +832,31 @@ export type components = {
       offset: number
     }
     /**
+     * PendingAttachment
+     * @description Temporary attachment waiting to be attached to a note.
+     *
+     *     Uploaded files live here until note is created/updated.
+     *     Then moved to Attachment collection.
+     *     Storage: pending/{number}
+     */
+    PendingAttachment: {
+      /** Number */
+      number: number
+      /** Author */
+      author: string
+      /** Filename */
+      filename: string
+      /** Size */
+      size: number
+      /** Mime Type */
+      mime_type: string
+      /**
+       * Created At
+       * Format: date-time
+       */
+      created_at: string
+    }
+    /**
      * Space
      * @description Space entity.
      */
@@ -809,6 +1018,470 @@ export type components = {
 }
 export type $defs = Record<string, never>
 export interface operations {
+  uploadPendingAttachment: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        "multipart/form-data": components["schemas"]["Body_uploadPendingAttachment"]
+      }
+    }
+    responses: {
+      /** @description File uploaded successfully */
+      201: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["PendingAttachment"]
+        }
+      }
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  listSpaceAttachments: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        space_slug: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["Attachment"][]
+        }
+      }
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Not a member of this space */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Space not found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  uploadSpaceAttachment: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        space_slug: string
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        "multipart/form-data": components["schemas"]["Body_uploadSpaceAttachment"]
+      }
+    }
+    responses: {
+      /** @description File uploaded successfully */
+      201: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["Attachment"]
+        }
+      }
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Not a member of this space */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Space not found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  listNoteAttachments: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        space_slug: string
+        note_number: number
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["Attachment"][]
+        }
+      }
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Not a member of this space */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Space or note not found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  uploadNoteAttachment: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        space_slug: string
+        note_number: number
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        "multipart/form-data": components["schemas"]["Body_uploadNoteAttachment"]
+      }
+    }
+    responses: {
+      /** @description File uploaded successfully */
+      201: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["Attachment"]
+        }
+      }
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Not a member of this space */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Space or note not found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  downloadPendingAttachment: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        number: number
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description File content */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": unknown
+          "application/octet-stream": unknown
+        }
+      }
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Not the owner of this attachment */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Attachment not found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  downloadSpaceAttachment: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        space_slug: string
+        number: number
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description File content */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": unknown
+          "application/octet-stream": unknown
+        }
+      }
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Not a member of this space */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Space or attachment not found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  downloadNoteAttachment: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        space_slug: string
+        note_number: number
+        number: number
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description File content */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": unknown
+          "application/octet-stream": unknown
+        }
+      }
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Not a member of this space */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Space, note, or attachment not found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
   login: {
     parameters: {
       query?: never

@@ -4,6 +4,8 @@ set shell := ["bash", "-cu"]
 # Lint all projects
 lint: frontend-common-lint admin-lint web-lint backend-lint
 
+outdated: backend-outdated admin-outdated web-outdated frontend-common-outdated
+
 [group("backend")]
 backend-clean:
     cd apps/backend && rm -rf .pytest_cache .ruff_cache .mypy_cache build dist src/*.egg-info
@@ -49,7 +51,7 @@ frontend-common-lint:
 
 [group("frontend-common")]
 frontend-common-outdated:
-    pnpm --filter @spacenote/common outdated
+    pnpm --filter @spacenote/common outdated || true
 
 
 [group("frontend-common")]
@@ -71,7 +73,7 @@ admin-lint:
 
 [group("admin")]
 admin-outdated:
-    pnpm --filter @spacenote/admin outdated
+    pnpm --filter @spacenote/admin outdated || true
 
 [group("admin")]
 admin-update:
@@ -92,7 +94,7 @@ web-lint:
 
 [group("web")]
 web-outdated:
-    pnpm --filter @spacenote/web outdated
+    pnpm --filter @spacenote/web outdated || true
 
 [group("web")]
 web-update:

@@ -20,7 +20,7 @@ spacenote/
 ## Applications
 
 ### backend
-- **Technology**: Python 3.13, FastAPI, MongoDB
+- **Technology**: Python 3.14, FastAPI, MongoDB
 - **Purpose**: REST API backend with OpenAPI documentation
 - **Key features**: User authentication, spaces, notes, comments, attachments, LLM integration, Telegram bot
 

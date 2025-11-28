@@ -86,3 +86,27 @@ class AttachmentService(Service):
         if doc is None:
             raise NotFoundError(f"Attachment not found: {space_slug}/{note_number}/{number}")
         return Attachment.model_validate(doc)
+
+    async def finalize_pending(self, pending_number: int, space_slug: str, note_number: int) -> Attachment:
+        """Move pending attachment to permanent storage for a note."""
+        pending = await self.get_pending_attachment(pending_number)
+
+        attachment_number = await self.core.services.counter.get_next_sequence(space_slug, CounterType.ATTACHMENT, note_number)
+
+        storage.move_pending_to_attachment(
+            self.core.config.attachments_path, pending_number, space_slug, note_number, attachment_number
+        )
+
+        attachment = Attachment(
+            space_slug=space_slug,
+            note_number=note_number,
+            number=attachment_number,
+            author=pending.author,
+            filename=pending.filename,
+            size=pending.size,
+            mime_type=pending.mime_type,
+        )
+        await self._attachments_collection.insert_one(attachment.to_mongo())
+        await self._pending_attachments_collection.delete_one({"number": pending_number})
+
+        return attachment

@@ -389,6 +389,35 @@ class UserValidator(FieldValidator):
         return raw
 
 
+class ImageValidator(FieldValidator):
+    """Validator for image fields (stores pending_number, converted to attachment_number)."""
+
+    @classmethod
+    def _validate_field(cls, field: SpaceField, _space: Space) -> SpaceField:
+        if FieldOption.MAX_WIDTH in field.options:
+            val = field.options[FieldOption.MAX_WIDTH]
+            if not isinstance(val, int) or val <= 0:
+                raise ValidationError("max_width must be a positive integer")
+        return field
+
+    @classmethod
+    def _parse_value(cls, field: SpaceField, _space: Space, raw: str | None, _ctx: ParseContext) -> FieldValueType:
+        if raw is None:
+            if field.default is not None:
+                return field.default
+            if field.required:
+                raise ValidationError(f"Required field '{field.name}' has no value")
+            return None
+
+        if raw == "" and not field.required:
+            return None
+
+        try:
+            return int(raw)
+        except ValueError as e:
+            raise ValidationError(f"Invalid image reference for field '{field.name}': {raw}") from e
+
+
 VALIDATORS: dict[FieldType, type[FieldValidator]] = {
     FieldType.STRING: StringValidator,
     FieldType.MARKDOWN: MarkdownValidator,
@@ -399,4 +428,5 @@ VALIDATORS: dict[FieldType, type[FieldValidator]] = {
     FieldType.TAGS: TagsValidator,
     FieldType.DATETIME: DateTimeValidator,
     FieldType.USER: UserValidator,
+    FieldType.IMAGE: ImageValidator,
 }

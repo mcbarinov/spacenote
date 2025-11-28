@@ -57,3 +57,14 @@ def read_pending_attachment_file(attachments_path: str, number: int) -> bytes:
 def read_attachment_file(attachments_path: str, space_slug: str, note_number: int | None, number: int) -> bytes:
     """Read attachment file from disk."""
     return get_attachment_file_path(attachments_path, space_slug, note_number, number).read_bytes()
+
+
+def move_pending_to_attachment(
+    attachments_path: str, pending_number: int, space_slug: str, note_number: int, attachment_number: int
+) -> Path:
+    """Move pending attachment file to permanent attachment location."""
+    src = get_pending_attachment_path(attachments_path, pending_number)
+    dst = get_attachment_file_path(attachments_path, space_slug, note_number, attachment_number)
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    src.rename(dst)
+    return dst

@@ -1,12 +1,18 @@
-import { Badge, Box, Group, Stack, Text } from "@mantine/core"
+import { Badge, Box, Group, Image, Stack, Text } from "@mantine/core"
 import type { FieldType, SpaceField } from "@spacenote/common/types"
 import { MarkdownDisplay } from "./MarkdownDisplay"
 
 type FieldValue = string | boolean | string[] | number | null | undefined
 
+interface NoteContext {
+  slug: string
+  noteNumber: number
+}
+
 interface FieldViewProps {
   field: SpaceField
   value: FieldValue
+  noteContext?: NoteContext
 }
 
 const FULL_WIDTH_TYPES: FieldType[] = ["markdown", "image"]
@@ -15,12 +21,12 @@ function isFullWidth(type: FieldType): boolean {
   return FULL_WIDTH_TYPES.includes(type)
 }
 
-function formatValue(type: FieldType, value: FieldValue): React.ReactNode {
+function formatValue(field: SpaceField, value: FieldValue, noteContext?: NoteContext): React.ReactNode {
   if (value === null || value === undefined) {
     return <Text c="dimmed">—</Text>
   }
 
-  switch (type) {
+  switch (field.type) {
     case "string":
     case "int":
     case "float":
@@ -55,15 +61,20 @@ function formatValue(type: FieldType, value: FieldValue): React.ReactNode {
     case "markdown":
       return <MarkdownDisplay content={String(value)} />
 
-    case "image":
-      return <Text c="dimmed">Image display not implemented</Text>
+    case "image": {
+      if (!noteContext) {
+        return <Text c="dimmed">—</Text>
+      }
+      const imageUrl = `/api/v1/spaces/${noteContext.slug}/notes/${String(noteContext.noteNumber)}/images/${field.name}`
+      return <Image src={imageUrl} maw={400} radius="sm" />
+    }
 
     default:
       return <Text>{String(value)}</Text>
   }
 }
 
-export function FieldView({ field, value }: FieldViewProps) {
+export function FieldView({ field, value, noteContext }: FieldViewProps) {
   const fullWidth = isFullWidth(field.type)
 
   if (fullWidth) {
@@ -72,7 +83,7 @@ export function FieldView({ field, value }: FieldViewProps) {
         <Text fw={500} c="dimmed" size="sm">
           {field.name}
         </Text>
-        <Box>{formatValue(field.type, value)}</Box>
+        <Box>{formatValue(field, value, noteContext)}</Box>
       </Stack>
     )
   }
@@ -82,7 +93,7 @@ export function FieldView({ field, value }: FieldViewProps) {
       <Text fw={500} c="dimmed" size="sm" w={120}>
         {field.name}
       </Text>
-      {formatValue(field.type, value)}
+      {formatValue(field, value, noteContext)}
     </Group>
   )
 }

@@ -1,5 +1,6 @@
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from spacenote.config import Config
 from spacenote.core.core import Core
@@ -255,3 +256,8 @@ class App:
         else:
             await self._core.services.access.ensure_space_member(auth_token, space_slug)
         return await self._core.services.image.get_attachment_as_webp(space_slug, note_number, attachment_number, options)
+
+    async def get_image_path(self, auth_token: AuthToken, space_slug: str, note_number: int, field_name: str) -> Path:
+        """Get path to pre-generated WebP image (members only)."""
+        await self._core.services.access.ensure_space_member(auth_token, space_slug)
+        return await self._core.services.image.get_image_path(space_slug, note_number, field_name)

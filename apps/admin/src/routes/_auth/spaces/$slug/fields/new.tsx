@@ -12,7 +12,7 @@ export const Route = createFileRoute("/_auth/spaces/$slug/fields/new")({
   component: AddFieldPage,
 })
 
-const FIELD_TYPES: FieldType[] = ["string", "markdown", "boolean", "select", "tags", "user", "datetime", "int", "float"]
+const FIELD_TYPES: FieldType[] = ["string", "markdown", "boolean", "select", "tags", "user", "datetime", "int", "float", "image"]
 
 const addFieldSchema = z.object({
   name: z
@@ -21,9 +21,10 @@ const addFieldSchema = z.object({
     .regex(/^[a-zA-Z0-9_-]+$/, { message: "Name must contain only letters, numbers, hyphens and underscores" }),
   type: z.string().min(1, { message: "Type is required" }),
   required: z.boolean(),
-  selectValues: z.array(z.string()),
-  minValue: z.number().nullable(),
-  maxValue: z.number().nullable(),
+  selectValues: z.array(z.string()), // select
+  minValue: z.number().nullable(), // int, float
+  maxValue: z.number().nullable(), // int, float
+  maxWidth: z.number().nullable(), // image
 })
 
 type FormValues = z.infer<typeof addFieldSchema>
@@ -38,9 +39,10 @@ function AddFieldPage() {
       name: "",
       type: "string",
       required: false,
-      selectValues: [],
-      minValue: null,
-      maxValue: null,
+      selectValues: [], // select
+      minValue: null, // int, float
+      maxValue: null, // int, float
+      maxWidth: null, // image
     },
     validate: zod4Resolver(addFieldSchema),
   })
@@ -48,6 +50,7 @@ function AddFieldPage() {
   const fieldType = form.values.type as FieldType
   const showSelectValues = fieldType === "select"
   const showMinMax = fieldType === "int" || fieldType === "float"
+  const showMaxWidth = fieldType === "image"
 
   const handleSubmit = form.onSubmit((values) => {
     const field: SpaceField = {
@@ -67,6 +70,10 @@ function AddFieldPage() {
       if (Object.keys(options).length > 0) {
         field.options = options
       }
+    }
+
+    if (showMaxWidth && values.maxWidth !== null) {
+      field.options = { max_width: values.maxWidth }
     }
 
     addFieldMutation.mutate(field, {
@@ -100,6 +107,10 @@ function AddFieldPage() {
                 <NumberInput label="Min" placeholder="Optional" {...form.getInputProps("minValue")} />
                 <NumberInput label="Max" placeholder="Optional" {...form.getInputProps("maxValue")} />
               </Group>
+            )}
+
+            {showMaxWidth && (
+              <NumberInput label="Max Width (px)" placeholder="Optional, e.g. 800" {...form.getInputProps("maxWidth")} />
             )}
 
             {addFieldMutation.error && <ErrorMessage error={addFieldMutation.error} />}

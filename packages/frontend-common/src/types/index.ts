@@ -17,6 +17,7 @@ export type CreateCommentRequest = components["schemas"]["CreateCommentRequest"]
 
 // Attachments
 export type Attachment = components["schemas"]["Attachment"]
+export type PendingAttachment = components["schemas"]["PendingAttachment"]
 
 // Request/Response types
 export type LoginRequest = components["schemas"]["LoginRequest"]

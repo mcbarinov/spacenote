@@ -1,4 +1,5 @@
 import asyncio
+from pathlib import Path
 from typing import Any
 
 import structlog
@@ -9,7 +10,7 @@ from spacenote.core.modules.field.models import FieldOption, FieldType
 from spacenote.core.modules.image import storage as image_storage
 from spacenote.core.modules.image.processor import WebpOptions, create_webp_image
 from spacenote.core.service import Service
-from spacenote.errors import ValidationError
+from spacenote.errors import NotFoundError, ValidationError
 
 logger = structlog.get_logger(__name__)
 
@@ -97,3 +98,18 @@ class ImageService(Service):
             )
 
         return await create_webp_image(file_path, options.max_width)
+
+    async def get_image_path(self, space_slug: str, note_number: int, field_name: str) -> Path:
+        """Get path to pre-generated WebP image for an IMAGE field."""
+        note = await self.core.services.note.get_note(space_slug, note_number)
+
+        attachment_number = note.fields.get(field_name)
+        if attachment_number is None:
+            raise NotFoundError(f"Field '{field_name}' not found or empty")
+        if not isinstance(attachment_number, int):
+            raise ValidationError(f"Field '{field_name}' is not an image field")
+
+        path = image_storage.get_image_path(self.core.config.images_path, space_slug, note_number, attachment_number)
+        if not path.exists():
+            raise NotFoundError("Image not found")
+        return path

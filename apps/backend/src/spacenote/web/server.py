@@ -15,6 +15,7 @@ from spacenote.web.routers import (
     auth_router,
     comments_router,
     fields_router,
+    images_router,
     notes_router,
     profile_router,
     spaces_router,
@@ -55,6 +56,7 @@ def create_fastapi_app(app_instance: App, config: Config) -> FastAPI:
     app.include_router(auth_router, prefix="/api/v1")
     app.include_router(comments_router, prefix="/api/v1")
     app.include_router(fields_router, prefix="/api/v1")
+    app.include_router(images_router, prefix="/api/v1")
     app.include_router(notes_router, prefix="/api/v1")
     app.include_router(profile_router, prefix="/api/v1")
     app.include_router(spaces_router, prefix="/api/v1")

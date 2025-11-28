@@ -1,9 +1,23 @@
+from enum import StrEnum
 from typing import Any, Self
 
 from bson import ObjectId
 from pydantic import BaseModel, ConfigDict, Field, GetCoreSchemaHandler
 from pydantic_core import core_schema
 from pymongo.asynchronous.cursor import AsyncCursor
+
+
+class Collection(StrEnum):
+    """MongoDB collection names."""
+
+    USERS = "users"
+    SESSIONS = "sessions"
+    SPACES = "spaces"
+    NOTES = "notes"
+    COMMENTS = "comments"
+    COUNTERS = "counters"
+    PENDING_ATTACHMENTS = "pending_attachments"
+    ATTACHMENTS = "attachments"
 
 
 class PyObjectId(ObjectId):

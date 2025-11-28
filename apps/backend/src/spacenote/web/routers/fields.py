@@ -1,7 +1,6 @@
 from fastapi import APIRouter
 
 from spacenote.core.modules.field.models import SpaceField
-from spacenote.core.modules.space.models import Space
 from spacenote.web.deps import AppDep, AuthTokenDep
 from spacenote.web.openapi import ErrorResponse
 
@@ -14,15 +13,15 @@ router = APIRouter(tags=["fields"])
     description="Add a new field definition to an existing space. Only accessible by admin users.",
     operation_id="addFieldToSpace",
     responses={
-        200: {"description": "Field added successfully"},
+        200: {"description": "Returns validated field"},
         400: {"model": ErrorResponse, "description": "Invalid field data or field name already exists"},
         401: {"model": ErrorResponse, "description": "Not authenticated"},
         403: {"model": ErrorResponse, "description": "Admin privileges required"},
         404: {"model": ErrorResponse, "description": "Space not found"},
     },
 )
-async def add_field_to_space(space_slug: str, field: SpaceField, app: AppDep, auth_token: AuthTokenDep) -> Space:
-    """Add field to space (admin only)."""
+async def add_field_to_space(space_slug: str, field: SpaceField, app: AppDep, auth_token: AuthTokenDep) -> SpaceField:
+    """Add field to space (admin only). Returns validated field."""
     return await app.add_field_to_space(auth_token, space_slug, field)
 
 

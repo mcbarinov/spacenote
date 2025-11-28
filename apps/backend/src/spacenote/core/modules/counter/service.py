@@ -3,6 +3,7 @@ from typing import Any
 from pymongo import ReturnDocument
 from pymongo.asynchronous.database import AsyncDatabase
 
+from spacenote.core.db import Collection
 from spacenote.core.modules.counter.models import CounterType
 from spacenote.core.service import Service
 
@@ -12,7 +13,7 @@ class CounterService(Service):
 
     def __init__(self, database: AsyncDatabase[dict[str, Any]]) -> None:
         super().__init__(database)
-        self._collection = database.get_collection("counters")
+        self._collection = database.get_collection(Collection.COUNTERS)
 
     async def on_start(self) -> None:
         """Create indexes on startup."""

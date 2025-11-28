@@ -4,6 +4,7 @@ import { IconDownload } from "@tabler/icons-react"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { api } from "@spacenote/common/api"
 import { LinkButton } from "@spacenote/common/components"
+import { formatDate, formatFileSize } from "@spacenote/common/utils"
 
 export const Route = createFileRoute("/_auth/s/$slug/attachments/")({
   loader: async ({ context, params }) => {
@@ -11,12 +12,6 @@ export const Route = createFileRoute("/_auth/s/$slug/attachments/")({
   },
   component: AttachmentsPage,
 })
-
-function formatFileSize(bytes: number): string {
-  if (bytes < 1024) return `${String(bytes)} B`
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
-}
 
 function AttachmentsPage() {
   const { slug } = Route.useParams()
@@ -60,7 +55,7 @@ function AttachmentsPage() {
                 <Table.Td>{formatFileSize(attachment.size)}</Table.Td>
                 <Table.Td>{attachment.mime_type}</Table.Td>
                 <Table.Td>{attachment.author}</Table.Td>
-                <Table.Td>{new Date(attachment.created_at).toLocaleString()}</Table.Td>
+                <Table.Td>{formatDate(attachment.created_at)}</Table.Td>
                 <Table.Td>
                   <ActionIcon
                     component="a"

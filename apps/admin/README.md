@@ -6,22 +6,29 @@ Admin panel for Spacenote system management.
 
 ```
 src/
-├── main.tsx            # App entry point
-├── routeTree.gen.ts    # Auto-generated route tree
-└── routes/             # File-based routing
-    ├── __root.tsx      # Root layout
-    ├── login.tsx       # Login page
-    └── _auth/          # Authenticated routes
-        ├── route.tsx   # Auth layout
-        ├── index.tsx   # Dashboard
-        ├── users/      # User management
-        │   └── -components/
-        └── spaces/     # Space management
-            ├── new.tsx
-            ├── -components/
-            └── $slug/fields/
-                ├── new.tsx
-                └── -components/
+├── main.tsx
+├── routeTree.gen.ts
+└── routes/
+    ├── __root.tsx
+    ├── login.tsx
+    └── _auth/
+        ├── index.tsx
+        ├── route.tsx
+        ├── spaces/
+        │   ├── index.tsx
+        │   ├── new.tsx
+        │   ├── -components/
+        │   │   └── SpacesTable.tsx
+        │   └── $slug/fields/
+        │       ├── index.tsx
+        │       ├── new.tsx
+        │       └── -components/
+        │           └── FieldsTable.tsx
+        └── users/
+            ├── route.tsx
+            └── -components/
+                ├── CreateUserModal.tsx
+                └── UsersTable.tsx
 ```
 
 ## Development

@@ -17,17 +17,8 @@ class FieldService(Service):
     def __init__(self, database: AsyncDatabase[dict[str, Any]]) -> None:
         super().__init__(database)
 
-    async def add_field_to_space(self, slug: str, field: SpaceField) -> None:
-        """Add a field to a space.
-
-        Args:
-            slug: The space slug
-            field: Field definition to add to the space
-
-        Raises:
-            ValidationError: If field with this name already exists or invalid
-            NotFoundError: If space not found
-        """
+    async def add_field_to_space(self, slug: str, field: SpaceField) -> SpaceField:
+        """Add a field to a space. Returns the validated field."""
         space = self.core.services.space.get_space(slug)
 
         if any(f.name == field.name for f in space.fields):
@@ -39,29 +30,18 @@ class FieldService(Service):
 
         validated_field = validator_class.validate_field(field, space)
 
-        spaces_collection = self.database["spaces"]
-        await spaces_collection.update_one({"slug": slug}, {"$push": {"fields": validated_field.model_dump()}})
-        await self.core.services.space.update_space_cache(slug)
+        await self.core.services.space.update_space_document(slug, {"$push": {"fields": validated_field.model_dump()}})
         logger.debug("field_added_to_space", space_slug=slug, field_name=validated_field.name)
+        return validated_field
 
     async def remove_field_from_space(self, slug: str, field_name: str) -> None:
-        """Remove a field from a space.
-
-        Args:
-            slug: The space slug
-            field_name: The name of the field to remove
-
-        Raises:
-            NotFoundError: If space or field not found
-        """
+        """Remove a field from a space."""
         space = self.core.services.space.get_space(slug)
 
         if not any(f.name == field_name for f in space.fields):
             raise NotFoundError(f"Field '{field_name}' not found in space")
 
-        spaces_collection = self.database["spaces"]
-        await spaces_collection.update_one({"slug": slug}, {"$pull": {"fields": {"name": field_name}}})
-        await self.core.services.space.update_space_cache(slug)
+        await self.core.services.space.update_space_document(slug, {"$pull": {"fields": {"name": field_name}}})
         logger.debug("field_removed_from_space", space_slug=slug, field_name=field_name)
 
     def parse_raw_fields(

@@ -1,7 +1,7 @@
-import { Button, Paper, Table } from "@mantine/core"
-import { modals } from "@mantine/modals"
+import { Paper, Table } from "@mantine/core"
 import { notifications } from "@mantine/notifications"
 import { api } from "@spacenote/common/api"
+import { DeleteButton } from "@spacenote/common/components"
 import type { User } from "@spacenote/common/types"
 
 interface UsersTableProps {
@@ -10,25 +10,6 @@ interface UsersTableProps {
 
 export function UsersTable({ users }: UsersTableProps) {
   const deleteUserMutation = api.mutations.useDeleteUser()
-
-  const handleDeleteClick = (username: string) => {
-    modals.openConfirmModal({
-      title: "Delete User",
-      children: `Are you sure you want to delete user "${username}"?`,
-      labels: { confirm: "Delete", cancel: "Cancel" },
-      confirmProps: { color: "red" },
-      onConfirm: () => {
-        deleteUserMutation.mutate(username, {
-          onSuccess: () => {
-            notifications.show({
-              message: "User deleted successfully",
-              color: "green",
-            })
-          },
-        })
-      },
-    })
-  }
 
   return (
     <Paper withBorder>
@@ -44,15 +25,20 @@ export function UsersTable({ users }: UsersTableProps) {
             <Table.Tr key={user.username}>
               <Table.Td>{user.username}</Table.Td>
               <Table.Td>
-                <Button
-                  size="xs"
-                  color="red"
-                  onClick={() => {
-                    handleDeleteClick(user.username)
+                <DeleteButton
+                  title="Delete User"
+                  message={`Are you sure you want to delete user "${user.username}"?`}
+                  onConfirm={() => {
+                    deleteUserMutation.mutate(user.username, {
+                      onSuccess: () => {
+                        notifications.show({
+                          message: "User deleted successfully",
+                          color: "green",
+                        })
+                      },
+                    })
                   }}
-                >
-                  Delete
-                </Button>
+                />
               </Table.Td>
             </Table.Tr>
           ))}

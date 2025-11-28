@@ -2,6 +2,7 @@ from typing import Any
 
 from pymongo.asynchronous.database import AsyncDatabase
 
+from spacenote.core.db import Collection
 from spacenote.core.modules.attachment import storage
 from spacenote.core.modules.attachment.models import Attachment, PendingAttachment
 from spacenote.core.modules.counter.models import CounterType
@@ -16,12 +17,12 @@ class AttachmentService(Service):
 
     def __init__(self, database: AsyncDatabase[dict[str, Any]]) -> None:
         super().__init__(database)
-        self._pending_attachments_collection = database.get_collection("pending_attachments")
-        self._attachments_collection = database.get_collection("attachments")
+        self._pending_collection = database.get_collection(Collection.PENDING_ATTACHMENTS)
+        self._attachments_collection = database.get_collection(Collection.ATTACHMENTS)
 
     async def on_start(self) -> None:
         """Create indexes and ensure storage directories exist."""
-        await self._pending_attachments_collection.create_index("number", unique=True)
+        await self._pending_collection.create_index("number", unique=True)
         await self._attachments_collection.create_index([("space_slug", 1), ("note_number", 1), ("number", 1)], unique=True)
         storage.ensure_pending_attachments_dir(self.core.config.attachments_path)
 
@@ -38,12 +39,12 @@ class AttachmentService(Service):
             size=len(content),
             mime_type=mime_type,
         )
-        await self._pending_attachments_collection.insert_one(pending.to_mongo())
+        await self._pending_collection.insert_one(pending.to_mongo())
         return pending
 
     async def get_pending_attachment(self, number: int) -> PendingAttachment:
         """Get pending attachment by number."""
-        doc = await self._pending_attachments_collection.find_one({"number": number})
+        doc = await self._pending_collection.find_one({"number": number})
         if doc is None:
             raise NotFoundError(f"Pending attachment not found: {number}")
         return PendingAttachment.model_validate(doc)
@@ -107,6 +108,6 @@ class AttachmentService(Service):
             mime_type=pending.mime_type,
         )
         await self._attachments_collection.insert_one(attachment.to_mongo())
-        await self._pending_attachments_collection.delete_one({"number": pending_number})
+        await self._pending_collection.delete_one({"number": pending_number})
 
         return attachment

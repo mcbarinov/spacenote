@@ -11,6 +11,7 @@
     "./components": "./src/components/index.ts",
     "./errors": "./src/errors/index.ts",
     "./types": "./src/types/index.ts",
+    "./utils": "./src/utils/index.ts",
     "./configs/*": "./configs/*"
   },
   "scripts": {

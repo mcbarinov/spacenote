@@ -3,6 +3,7 @@ import { Group, Table, Title } from "@mantine/core"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { api } from "@spacenote/common/api"
 import { LinkButton } from "@spacenote/common/components"
+import { formatDate } from "@spacenote/common/utils"
 
 export const Route = createFileRoute("/_auth/s/$slug/")({
   loader: async ({ context, params }) => {
@@ -52,7 +53,7 @@ function SpacePage() {
               }
             >
               <Table.Td>{note.number}</Table.Td>
-              <Table.Td>{new Date(note.created_at).toLocaleString()}</Table.Td>
+              <Table.Td>{formatDate(note.created_at)}</Table.Td>
               <Table.Td>{note.author}</Table.Td>
             </Table.Tr>
           ))}

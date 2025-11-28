@@ -4,6 +4,7 @@ from typing import Any
 import structlog
 from pymongo.asynchronous.database import AsyncDatabase
 
+from spacenote.core.db import Collection
 from spacenote.core.modules.user.models import User
 from spacenote.core.modules.user.password import hash_password, verify_password_hash
 from spacenote.core.modules.user.validators import validate_password, validate_username
@@ -16,11 +17,9 @@ logger = structlog.get_logger(__name__)
 class UserService(Service):
     """Manages users with in-memory cache."""
 
-    COLLECTION_NAME = "users"
-
     def __init__(self, database: AsyncDatabase[dict[str, Any]]) -> None:
         super().__init__(database)
-        self._collection = database.get_collection(self.COLLECTION_NAME)
+        self._collection = database.get_collection(Collection.USERS)
         self._users: dict[str, User] = {}
 
     def get_user(self, username: str) -> User:

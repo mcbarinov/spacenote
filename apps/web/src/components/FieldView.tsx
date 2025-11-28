@@ -1,5 +1,6 @@
 import { Badge, Box, Group, Image, Stack, Text } from "@mantine/core"
 import type { FieldType, SpaceField } from "@spacenote/common/types"
+import { formatDate } from "@spacenote/common/utils"
 import { MarkdownDisplay } from "./MarkdownDisplay"
 
 type FieldValue = string | boolean | string[] | number | null | undefined
@@ -56,7 +57,7 @@ function formatValue(field: SpaceField, value: FieldValue, noteContext?: NoteCon
       return <Text>{String(value)}</Text>
 
     case "datetime":
-      return <Text>{new Date(String(value)).toLocaleString()}</Text>
+      return <Text>{formatDate(String(value))}</Text>
 
     case "markdown":
       return <MarkdownDisplay content={String(value)} />

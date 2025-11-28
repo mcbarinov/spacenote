@@ -3,6 +3,7 @@ from typing import Any
 import structlog
 from pymongo.asynchronous.database import AsyncDatabase
 
+from spacenote.core.db import Collection
 from spacenote.core.modules.comment.models import Comment
 from spacenote.core.modules.counter.models import CounterType
 from spacenote.core.pagination import PaginationResult
@@ -18,7 +19,7 @@ class CommentService(Service):
 
     def __init__(self, database: AsyncDatabase[dict[str, Any]]) -> None:
         super().__init__(database)
-        self._collection = database.get_collection("comments")
+        self._collection = database.get_collection(Collection.COMMENTS)
 
     async def on_start(self) -> None:
         """Create indexes for comment lookup."""

@@ -1,5 +1,6 @@
 export { ErrorBoundary } from "./errors/ErrorBoundary"
 export { ErrorMessage } from "./ui/ErrorMessage"
+export { DeleteButton } from "./ui/DeleteButton"
 export { CustomLink } from "./navigation/CustomLink"
 export { LinkButton } from "./navigation/LinkButton"
 

@@ -1,8 +1,7 @@
-import { Button, Paper, Table } from "@mantine/core"
-import { modals } from "@mantine/modals"
+import { Paper, Table } from "@mantine/core"
 import { notifications } from "@mantine/notifications"
 import { api } from "@spacenote/common/api"
-import { CustomLink } from "@spacenote/common/components"
+import { CustomLink, DeleteButton } from "@spacenote/common/components"
 import type { Space } from "@spacenote/common/types"
 
 interface SpacesTableProps {
@@ -11,25 +10,6 @@ interface SpacesTableProps {
 
 export function SpacesTable({ spaces }: SpacesTableProps) {
   const deleteSpaceMutation = api.mutations.useDeleteSpace()
-
-  const handleDeleteClick = (slug: string, title: string) => {
-    modals.openConfirmModal({
-      title: "Delete Space",
-      children: `Are you sure you want to delete space "${title}"?`,
-      labels: { confirm: "Delete", cancel: "Cancel" },
-      confirmProps: { color: "red" },
-      onConfirm: () => {
-        deleteSpaceMutation.mutate(slug, {
-          onSuccess: () => {
-            notifications.show({
-              message: "Space deleted successfully",
-              color: "green",
-            })
-          },
-        })
-      },
-    })
-  }
 
   return (
     <Paper withBorder>
@@ -59,15 +39,20 @@ export function SpacesTable({ spaces }: SpacesTableProps) {
                 </CustomLink>
               </Table.Td>
               <Table.Td>
-                <Button
-                  size="xs"
-                  color="red"
-                  onClick={() => {
-                    handleDeleteClick(space.slug, space.title)
+                <DeleteButton
+                  title="Delete Space"
+                  message={`Are you sure you want to delete space "${space.title}"?`}
+                  onConfirm={() => {
+                    deleteSpaceMutation.mutate(space.slug, {
+                      onSuccess: () => {
+                        notifications.show({
+                          message: "Space deleted successfully",
+                          color: "green",
+                        })
+                      },
+                    })
                   }}
-                >
-                  Delete
-                </Button>
+                />
               </Table.Td>
             </Table.Tr>
           ))}

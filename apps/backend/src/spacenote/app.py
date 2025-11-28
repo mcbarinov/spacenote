@@ -14,11 +14,13 @@ from spacenote.core.modules.session.models import AuthToken
 from spacenote.core.modules.space.models import Space
 from spacenote.core.modules.user.models import UserView
 from spacenote.core.pagination import PaginationResult
-from spacenote.errors import AccessDeniedError, AuthenticationError
+from spacenote.errors import AuthenticationError
 
 
 class App:
     """Facade for all application operations, validates permissions before delegating to Core."""
+
+    # --- Lifecycle ---
 
     def __init__(self, config: Config) -> None:
         self._core = Core(config)
@@ -32,6 +34,8 @@ class App:
     async def check_database_health(self) -> bool:
         """Check if database is available (no authentication required)."""
         return await self._core.check_database_health()
+
+    # --- Auth ---
 
     async def is_auth_token_valid(self, auth_token: AuthToken) -> bool:
         """Check if authentication token is valid."""
@@ -47,6 +51,8 @@ class App:
         """Invalidate user session."""
         await self._core.services.session.invalidate_session(auth_token)
 
+    # --- Profile ---
+
     async def get_current_user(self, auth_token: AuthToken) -> UserView:
         """Get current authenticated user profile."""
         user = await self._core.services.access.ensure_authenticated(auth_token)
@@ -56,6 +62,8 @@ class App:
         """Change password for the current authenticated user."""
         user = await self._core.services.access.ensure_authenticated(auth_token)
         await self._core.services.user.change_password(user.username, old_password, new_password)
+
+    # --- Users ---
 
     async def get_all_users(self, auth_token: AuthToken) -> list[UserView]:
         """Get all users (requires authentication)."""
@@ -73,6 +81,8 @@ class App:
         """Delete user (admin only)."""
         await self._core.services.access.ensure_admin(auth_token)
         await self._core.services.user.delete_user(username)
+
+    # --- Spaces ---
 
     async def get_spaces(self, auth_token: AuthToken) -> list[Space]:
         """Get spaces - all for admin, only member spaces for users."""
@@ -107,16 +117,19 @@ class App:
         await self._core.services.access.ensure_admin(auth_token)
         await self._core.services.space.delete_space(slug)
 
-    async def add_field_to_space(self, auth_token: AuthToken, slug: str, field: SpaceField) -> Space:
-        """Add field to space (admin only)."""
+    # --- Fields ---
+
+    async def add_field_to_space(self, auth_token: AuthToken, slug: str, field: SpaceField) -> SpaceField:
+        """Add field to space (admin only). Returns validated field."""
         await self._core.services.access.ensure_admin(auth_token)
-        await self._core.services.field.add_field_to_space(slug, field)
-        return self._core.services.space.get_space(slug)
+        return await self._core.services.field.add_field_to_space(slug, field)
 
     async def remove_field_from_space(self, auth_token: AuthToken, slug: str, field_name: str) -> None:
         """Remove field from space (admin only)."""
         await self._core.services.access.ensure_admin(auth_token)
         await self._core.services.field.remove_field_from_space(slug, field_name)
+
+    # --- Notes ---
 
     async def get_notes(self, auth_token: AuthToken, space_slug: str, limit: int = 50, offset: int = 0) -> PaginationResult[Note]:
         """Get paginated notes in space (members only)."""
@@ -138,7 +151,7 @@ class App:
         user = await self._core.services.access.ensure_space_member(auth_token, space_slug)
         return await self._core.services.note.update_note_fields(space_slug, number, raw_fields, user.username)
 
-    # Comments
+    # --- Comments ---
 
     async def get_comments(
         self, auth_token: AuthToken, space_slug: str, note_number: int, limit: int = 50, offset: int = 0
@@ -163,21 +176,15 @@ class App:
         self, auth_token: AuthToken, space_slug: str, note_number: int, number: int, content: str
     ) -> Comment:
         """Update comment content (author only)."""
-        user = await self._core.services.access.ensure_space_member(auth_token, space_slug)
-        comment = await self._core.services.comment.get_comment(space_slug, note_number, number)
-        if comment.author != user.username:
-            raise AccessDeniedError("Only the author can edit this comment")
+        await self._core.services.access.ensure_comment_author(auth_token, space_slug, note_number, number)
         return await self._core.services.comment.update_comment(space_slug, note_number, number, content)
 
     async def delete_comment(self, auth_token: AuthToken, space_slug: str, note_number: int, number: int) -> None:
         """Delete comment (author only)."""
-        user = await self._core.services.access.ensure_space_member(auth_token, space_slug)
-        comment = await self._core.services.comment.get_comment(space_slug, note_number, number)
-        if comment.author != user.username:
-            raise AccessDeniedError("Only the author can delete this comment")
+        await self._core.services.access.ensure_comment_author(auth_token, space_slug, note_number, number)
         await self._core.services.comment.delete_comment(space_slug, note_number, number)
 
-    # Attachments
+    # --- Attachments ---
 
     async def upload_pending_attachment(
         self, auth_token: AuthToken, filename: str, content: bytes, mime_type: str
@@ -216,10 +223,7 @@ class App:
 
     async def download_pending_attachment(self, auth_token: AuthToken, number: int) -> tuple[PendingAttachment, bytes]:
         """Download pending attachment (owner only)."""
-        user = await self._core.services.access.ensure_authenticated(auth_token)
-        pending = await self._core.services.attachment.get_pending_attachment(number)
-        if pending.author != user.username:
-            raise AccessDeniedError("Only the owner can download this attachment")
+        _, pending = await self._core.services.access.ensure_pending_attachment_owner(auth_token, number)
         content = attachment_storage.read_pending_attachment_file(self._core.config.attachments_path, number)
         return pending, content
 
@@ -239,6 +243,8 @@ class App:
         content = attachment_storage.read_attachment_file(self._core.config.attachments_path, space_slug, note_number, number)
         return attachment, content
 
+    # --- Images ---
+
     async def get_attachment_as_webp(
         self,
         auth_token: AuthToken,
@@ -249,10 +255,7 @@ class App:
     ) -> bytes:
         """Convert attachment to WebP. space_slug=None means pending attachment."""
         if space_slug is None:
-            user = await self._core.services.access.ensure_authenticated(auth_token)
-            pending = await self._core.services.attachment.get_pending_attachment(attachment_number)
-            if pending.author != user.username:
-                raise AccessDeniedError("Only the owner can access this attachment")
+            await self._core.services.access.ensure_pending_attachment_owner(auth_token, attachment_number)
         else:
             await self._core.services.access.ensure_space_member(auth_token, space_slug)
         return await self._core.services.image.get_attachment_as_webp(space_slug, note_number, attachment_number, options)

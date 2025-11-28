@@ -12,9 +12,10 @@ src/
 │   ├── errors/       # ErrorBoundary
 │   ├── layout/       # AuthLayout, Header, Footer, LoadingScreen, ErrorScreen
 │   ├── navigation/   # CustomLink, LinkButton
-│   └── ui/           # ErrorMessage
+│   └── ui/           # DeleteButton, ErrorMessage
 ├── errors/           # AppError class for error handling
-└── types/            # TypeScript types from OpenAPI + custom types
+├── types/            # TypeScript types from OpenAPI + custom types
+└── utils/            # Utility functions (format, etc.)
 ```
 
 ## Usage
@@ -34,6 +35,9 @@ import { AppError } from "@spacenote/common/errors"
 
 // Types
 import type { User, LoginRequest } from "@spacenote/common/types"
+
+// Utilities
+import { formatDate } from "@spacenote/common/utils"
 ```
 
 ## Scripts

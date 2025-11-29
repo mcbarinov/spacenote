@@ -3,6 +3,7 @@ from typing import Any
 import structlog
 from pymongo.asynchronous.database import AsyncDatabase
 
+from spacenote.core.modules.filter import query_builder
 from spacenote.core.modules.filter.models import Filter
 from spacenote.core.modules.filter.validators import validate_filter
 from spacenote.core.service import Service
@@ -39,3 +40,13 @@ class FilterService(Service):
 
         await self.core.services.space.update_space_document(slug, {"$pull": {"filters": {"name": filter_name}}})
         logger.debug("filter_removed_from_space", space_slug=slug, filter_name=filter_name)
+
+    def build_query(self, space_slug: str, filter_name: str, current_user: str) -> tuple[dict[str, Any], list[tuple[str, int]]]:
+        """Build MongoDB query and sort spec for a filter."""
+        space = self.core.services.space.get_space(space_slug)
+        filter_def = space.get_filter(filter_name)
+        if not filter_def:
+            raise NotFoundError(f"Filter '{filter_name}' not found")
+        query = query_builder.build_mongo_query(filter_def.conditions, space_slug, current_user)
+        sort_spec = query_builder.build_mongo_sort(filter_def.sort)
+        return query, sort_spec

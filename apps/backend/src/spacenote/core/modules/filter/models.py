@@ -1,9 +1,14 @@
+from __future__ import annotations
+
 from enum import StrEnum
+from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, Field
 
 from spacenote.core.modules.field.models import FieldType, FieldValueType, SpaceField
-from spacenote.core.modules.space.models import Space
+
+if TYPE_CHECKING:
+    from spacenote.core.modules.space.models import Space
 
 
 class FilterOperator(StrEnum):

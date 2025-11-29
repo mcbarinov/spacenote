@@ -144,10 +144,17 @@ class App:
 
     # --- Notes ---
 
-    async def get_notes(self, auth_token: AuthToken, space_slug: str, limit: int = 50, offset: int = 0) -> PaginationResult[Note]:
+    async def get_notes(
+        self,
+        auth_token: AuthToken,
+        space_slug: str,
+        filter_name: str | None = None,
+        limit: int = 50,
+        offset: int = 0,
+    ) -> PaginationResult[Note]:
         """Get paginated notes in space (members only)."""
-        await self._core.services.access.ensure_space_member(auth_token, space_slug)
-        return await self._core.services.note.list_notes(space_slug, limit, offset)
+        user = await self._core.services.access.ensure_space_member(auth_token, space_slug)
+        return await self._core.services.note.list_notes(space_slug, user.username, filter_name, limit, offset)
 
     async def get_note(self, auth_token: AuthToken, space_slug: str, number: int) -> Note:
         """Get specific note by number (members only)."""

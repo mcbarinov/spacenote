@@ -47,8 +47,9 @@ async def list_notes(
     auth_token: AuthTokenDep,
     limit: Annotated[int, Query(ge=1, le=100, description="Maximum items to return")] = 50,
     offset: Annotated[int, Query(ge=0, description="Number of items to skip")] = 0,
+    filter_name: Annotated[str | None, Query(alias="filter", description="Filter name to apply")] = None,
 ) -> PaginationResult[Note]:
-    return await app.get_notes(auth_token, space_slug, limit, offset)
+    return await app.get_notes(auth_token, space_slug, filter_name, limit, offset)
 
 
 @router.get(

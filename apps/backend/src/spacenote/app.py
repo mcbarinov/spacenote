@@ -8,6 +8,7 @@ from spacenote.core.modules.attachment import storage as attachment_storage
 from spacenote.core.modules.attachment.models import Attachment, PendingAttachment
 from spacenote.core.modules.comment.models import Comment
 from spacenote.core.modules.field.models import SpaceField
+from spacenote.core.modules.filter.models import Filter
 from spacenote.core.modules.image.processor import WebpOptions
 from spacenote.core.modules.note.models import Note
 from spacenote.core.modules.session.models import AuthToken
@@ -119,15 +120,27 @@ class App:
 
     # --- Fields ---
 
-    async def add_field_to_space(self, auth_token: AuthToken, slug: str, field: SpaceField) -> SpaceField:
+    async def add_field(self, auth_token: AuthToken, slug: str, field: SpaceField) -> SpaceField:
         """Add field to space (admin only). Returns validated field."""
         await self._core.services.access.ensure_admin(auth_token)
-        return await self._core.services.field.add_field_to_space(slug, field)
+        return await self._core.services.field.add_field(slug, field)
 
-    async def remove_field_from_space(self, auth_token: AuthToken, slug: str, field_name: str) -> None:
+    async def remove_field(self, auth_token: AuthToken, slug: str, field_name: str) -> None:
         """Remove field from space (admin only)."""
         await self._core.services.access.ensure_admin(auth_token)
-        await self._core.services.field.remove_field_from_space(slug, field_name)
+        await self._core.services.field.remove_field(slug, field_name)
+
+    # --- Filters ---
+
+    async def add_filter(self, auth_token: AuthToken, slug: str, filter: Filter) -> Filter:
+        """Add filter to space (admin only). Returns validated filter."""
+        await self._core.services.access.ensure_admin(auth_token)
+        return await self._core.services.filter.add_filter(slug, filter)
+
+    async def remove_filter(self, auth_token: AuthToken, slug: str, filter_name: str) -> None:
+        """Remove filter from space (admin only)."""
+        await self._core.services.access.ensure_admin(auth_token)
+        await self._core.services.filter.remove_filter(slug, filter_name)
 
     # --- Notes ---
 

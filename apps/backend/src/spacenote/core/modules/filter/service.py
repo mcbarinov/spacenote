@@ -1,0 +1,46 @@
+from typing import Any
+
+import structlog
+from pymongo.asynchronous.database import AsyncDatabase
+
+from spacenote.core.modules.filter.models import Filter
+from spacenote.core.service import Service
+from spacenote.errors import NotFoundError, ValidationError
+
+logger = structlog.get_logger(__name__)
+
+
+class FilterService(Service):
+    """Service for filter management."""
+
+    def __init__(self, database: AsyncDatabase[dict[str, Any]]) -> None:
+        super().__init__(database)
+
+    async def add_filter(self, slug: str, filter: Filter) -> Filter:
+        """Add a filter to a space. Returns the validated filter."""
+        space = self.core.services.space.get_space(slug)
+
+        # Validate name: alphanumeric, underscore, hyphen only
+        if not filter.name or not filter.name.replace("_", "").replace("-", "").isalnum():
+            raise ValidationError(f"Invalid filter name: {filter.name}")
+
+        if any(f.name == filter.name for f in space.filters):
+            raise ValidationError(f"Filter '{filter.name}' already exists in space")
+
+        for field_name in filter.display_fields:
+            if space.get_field(field_name) is None:
+                raise ValidationError(f"Unknown field in display_fields: {field_name}")
+
+        await self.core.services.space.update_space_document(slug, {"$push": {"filters": filter.model_dump()}})
+        logger.debug("filter_added_to_space", space_slug=slug, filter_name=filter.name)
+        return filter
+
+    async def remove_filter(self, slug: str, filter_name: str) -> None:
+        """Remove a filter from a space."""
+        space = self.core.services.space.get_space(slug)
+
+        if not any(f.name == filter_name for f in space.filters):
+            raise NotFoundError(f"Filter '{filter_name}' not found in space")
+
+        await self.core.services.space.update_space_document(slug, {"$pull": {"filters": {"name": filter_name}}})
+        logger.debug("filter_removed_from_space", space_slug=slug, filter_name=filter_name)

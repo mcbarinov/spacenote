@@ -4,6 +4,7 @@ import structlog
 from pymongo.asynchronous.database import AsyncDatabase
 
 from spacenote.core.modules.filter.models import Filter
+from spacenote.core.modules.filter.validators import validate_filter
 from spacenote.core.service import Service
 from spacenote.errors import NotFoundError, ValidationError
 
@@ -17,23 +18,17 @@ class FilterService(Service):
         super().__init__(database)
 
     async def add_filter(self, slug: str, filter: Filter) -> Filter:
-        """Add a filter to a space. Returns the validated filter."""
+        """Add a filter to a space."""
         space = self.core.services.space.get_space(slug)
-
-        # Validate name: alphanumeric, underscore, hyphen only
-        if not filter.name or not filter.name.replace("_", "").replace("-", "").isalnum():
-            raise ValidationError(f"Invalid filter name: {filter.name}")
 
         if any(f.name == filter.name for f in space.filters):
             raise ValidationError(f"Filter '{filter.name}' already exists in space")
 
-        for field_name in filter.display_fields:
-            if space.get_field(field_name) is None:
-                raise ValidationError(f"Unknown field in display_fields: {field_name}")
+        validated_filter = validate_filter(space, filter)
 
-        await self.core.services.space.update_space_document(slug, {"$push": {"filters": filter.model_dump()}})
+        await self.core.services.space.update_space_document(slug, {"$push": {"filters": validated_filter.model_dump()}})
         logger.debug("filter_added_to_space", space_slug=slug, filter_name=filter.name)
-        return filter
+        return validated_filter
 
     async def remove_filter(self, slug: str, filter_name: str) -> None:
         """Remove a filter from a space."""

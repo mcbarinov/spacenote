@@ -21,6 +21,7 @@ export function SpacesTable({ spaces }: SpacesTableProps) {
             <Table.Th>Description</Table.Th>
             <Table.Th>Members</Table.Th>
             <Table.Th>Fields</Table.Th>
+            <Table.Th>Filters</Table.Th>
             <Table.Th>Actions</Table.Th>
           </Table.Tr>
         </Table.Thead>
@@ -36,6 +37,11 @@ export function SpacesTable({ spaces }: SpacesTableProps) {
               <Table.Td>
                 <CustomLink to="/spaces/$slug/fields" params={{ slug: space.slug }}>
                   {space.fields.length} fields
+                </CustomLink>
+              </Table.Td>
+              <Table.Td>
+                <CustomLink to="/spaces/$slug/filters" params={{ slug: space.slug }}>
+                  {space.filters.length} filters
                 </CustomLink>
               </Table.Td>
               <Table.Td>

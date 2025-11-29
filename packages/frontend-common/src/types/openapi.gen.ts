@@ -264,6 +264,46 @@ export type paths = {
     patch?: never
     trace?: never
   }
+  "/api/v1/spaces/{space_slug}/filters": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Add filter to space
+     * @description Add a new filter to an existing space. Only accessible by admin users.
+     */
+    post: operations["addFilterToSpace"]
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  "/api/v1/spaces/{space_slug}/filters/{filter_name}": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post?: never
+    /**
+     * Remove filter from space
+     * @description Remove a filter from a space. Only accessible by admin users.
+     */
+    delete: operations["removeFilterFromSpace"]
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   "/api/v1/spaces/{space_slug}/notes/{note_number}/images/{field_name}": {
     parameters: {
       query?: never
@@ -750,6 +790,56 @@ export type components = {
      * @enum {string}
      */
     FieldType: "string" | "markdown" | "boolean" | "select" | "tags" | "user" | "datetime" | "int" | "float" | "image"
+    /**
+     * Filter
+     * @description Filter definition for a space.
+     */
+    Filter: {
+      /**
+       * Name
+       * @description Filter identifier (must be unique within space)
+       */
+      name: string
+      /**
+       * Display Fields
+       * @description Field names to show in list view
+       */
+      display_fields: string[]
+      /**
+       * Conditions
+       * @description Filter conditions (combined with AND)
+       */
+      conditions: components["schemas"]["FilterCondition"][]
+      /**
+       * Sort
+       * @description Sort order - field names with optional '-' prefix for descending
+       */
+      sort: string[]
+    }
+    /**
+     * FilterCondition
+     * @description Single filter condition for querying notes.
+     */
+    FilterCondition: {
+      /**
+       * Field
+       * @description Field name to filter on
+       */
+      field: string
+      /** @description Comparison operator */
+      operator: components["schemas"]["FilterOperator"]
+      /**
+       * Value
+       * @description Value to compare against
+       */
+      value: string | boolean | string[] | number | null
+    }
+    /**
+     * FilterOperator
+     * @description Query operators for filtering notes.
+     * @enum {string}
+     */
+    FilterOperator: "eq" | "ne" | "contains" | "startswith" | "endswith" | "in" | "nin" | "all" | "gt" | "gte" | "lt" | "lte"
     /** HTTPValidationError */
     HTTPValidationError: {
       /** Detail */
@@ -908,6 +998,11 @@ export type components = {
        */
       fields: components["schemas"]["SpaceField"][]
       /**
+       * Filters
+       * @description Filter definitions for this space
+       */
+      filters: components["schemas"]["Filter"][]
+      /**
        * Created At
        * Format: date-time
        * @description Timestamp when the space was created
@@ -936,7 +1031,7 @@ export type components = {
        * Options
        * @description Field type-specific options (e.g., 'values' for select, 'min'/'max' for numeric types, 'value_maps' for select metadata, 'max_width' for image)
        */
-      options?: {
+      options: {
         [key: string]:
           | string[]
           | number
@@ -950,7 +1045,7 @@ export type components = {
        * Default
        * @description Default value for this field
        */
-      default?: string | boolean | string[] | number | null
+      default: string | boolean | string[] | number | null
     }
     /**
      * UpdateCommentRequest
@@ -2026,6 +2121,134 @@ export interface operations {
       }
     }
   }
+  addFilterToSpace: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        space_slug: string
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["Filter"]
+      }
+    }
+    responses: {
+      /** @description Returns validated filter */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["Filter"]
+        }
+      }
+      /** @description Invalid filter data or filter name already exists */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Admin privileges required */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Space not found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  removeFilterFromSpace: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        space_slug: string
+        filter_name: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Filter removed successfully */
+      204: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Admin privileges required */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Space or filter not found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
   downloadImage: {
     parameters: {
       query?: never
@@ -2093,6 +2316,8 @@ export interface operations {
         limit?: number
         /** @description Number of items to skip */
         offset?: number
+        /** @description Filter name to apply */
+        filter?: string | null
       }
       header?: never
       path: {

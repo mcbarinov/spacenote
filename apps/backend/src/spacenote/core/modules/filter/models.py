@@ -3,9 +3,10 @@ from __future__ import annotations
 from enum import StrEnum
 from typing import TYPE_CHECKING
 
-from pydantic import BaseModel, Field
+from pydantic import Field
 
 from spacenote.core.modules.field.models import FieldType, FieldValueType, SpaceField
+from spacenote.core.schema import OpenAPIModel
 
 if TYPE_CHECKING:
     from spacenote.core.modules.space.models import Space
@@ -32,7 +33,7 @@ class FilterOperator(StrEnum):
     LTE = "lte"
 
 
-class FilterCondition(BaseModel):
+class FilterCondition(OpenAPIModel):
     """Single filter condition for querying notes."""
 
     field: str = Field(..., description="Field name to filter on")
@@ -40,7 +41,7 @@ class FilterCondition(BaseModel):
     value: FieldValueType = Field(..., description="Value to compare against")
 
 
-class Filter(BaseModel):
+class Filter(OpenAPIModel):
     """Filter definition for a space."""
 
     name: str = Field(..., description="Filter identifier (must be unique within space)")

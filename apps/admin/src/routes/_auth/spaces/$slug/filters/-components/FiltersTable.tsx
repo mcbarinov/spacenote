@@ -37,7 +37,7 @@ export function FiltersTable({ spaceSlug, filters }: FiltersTableProps) {
             <Table.Tr key={filter.name}>
               <Table.Td>{filter.name}</Table.Td>
               <Table.Td>
-                <Code>{filter.display_fields.join(", ") || "-"}</Code>
+                <Code>{filter.notes_list_default_columns.join(", ") || "-"}</Code>
               </Table.Td>
               <Table.Td>
                 {filter.conditions.map((c, i) => (

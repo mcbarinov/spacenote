@@ -16,6 +16,8 @@ def get_field_path(field_name: str) -> str:
     """Map field name to MongoDB document path."""
     if field_name in SYSTEM_FIELD_MAP:
         return SYSTEM_FIELD_MAP[field_name]
+    if field_name.startswith("note.fields."):
+        return f"fields.{field_name[len('note.fields.') :]}"
     return f"fields.{field_name}"
 
 

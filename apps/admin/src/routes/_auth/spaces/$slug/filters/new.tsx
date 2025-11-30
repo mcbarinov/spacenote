@@ -50,7 +50,7 @@ const addFilterSchema = z.object({
     .string()
     .min(1, { message: "Name is required" })
     .regex(/^[a-zA-Z0-9_-]+$/, { message: "Name must contain only letters, numbers, hyphens and underscores" }),
-  displayFields: z.string(),
+  notesListDefaultColumns: z.string(),
   conditions: z
     .array(
       z.object({
@@ -74,10 +74,14 @@ interface ConditionValue {
 }
 
 function getFieldDefinition(fieldName: string, spaceFields: SpaceField[]): SpaceField | undefined {
+  if (fieldName.startsWith("note.fields.")) {
+    const customFieldName = fieldName.slice("note.fields.".length)
+    return spaceFields.find((f) => f.name === customFieldName)
+  }
   if (fieldName.startsWith("note.")) {
     return SYSTEM_FIELDS.find((f) => f.name === fieldName)
   }
-  return spaceFields.find((f) => f.name === fieldName)
+  return undefined
 }
 
 let conditionIdCounter = 0
@@ -88,12 +92,12 @@ function AddFilterPage() {
   const space = api.cache.useSpace(slug)
   const addFilterMutation = api.mutations.useAddFilter(slug)
 
-  const allFields = [...space.fields, ...SYSTEM_FIELDS]
+  const allFields = [...space.fields.map((f) => ({ ...f, name: `note.fields.${f.name}` })), ...SYSTEM_FIELDS]
 
   const form = useForm<FormValues>({
     initialValues: {
       name: "",
-      displayFields: "",
+      notesListDefaultColumns: "",
       conditions: [],
       sort: [],
     },
@@ -115,7 +119,7 @@ function AddFilterPage() {
   }
 
   const handleSubmit = form.onSubmit((values) => {
-    const displayFields = values.displayFields
+    const notesListDefaultColumns = values.notesListDefaultColumns
       .split(",")
       .map((s) => s.trim())
       .filter(Boolean)
@@ -131,7 +135,7 @@ function AddFilterPage() {
     addFilterMutation.mutate(
       {
         name: values.name,
-        display_fields: displayFields,
+        notes_list_default_columns: notesListDefaultColumns,
         conditions,
         sort: values.sort,
       },
@@ -157,10 +161,10 @@ function AddFilterPage() {
             <TextInput label="Name" placeholder="filter_name" autoFocus withAsterisk {...form.getInputProps("name")} />
 
             <TextInput
-              label="Display Fields"
-              placeholder="field1, field2, note.created_at"
+              label="Notes List Columns"
+              placeholder="note.fields.title, note.fields.status, note.created_at"
               description="Comma-separated field names to show in list view"
-              {...form.getInputProps("displayFields")}
+              {...form.getInputProps("notesListDefaultColumns")}
             />
 
             <Stack gap="xs">
@@ -178,6 +182,7 @@ function AddFilterPage() {
                   condition={condition}
                   index={index}
                   allFields={allFields}
+                  spaceFields={space.fields}
                   spaceMembers={space.members}
                   form={form}
                   onRemove={() => {
@@ -224,13 +229,14 @@ interface ConditionRowProps {
   condition: ConditionValue
   index: number
   allFields: SpaceField[]
+  spaceFields: SpaceField[]
   spaceMembers: string[]
   form: ReturnType<typeof useForm<FormValues>>
   onRemove: () => void
 }
 
-function ConditionRow({ condition, index, allFields, spaceMembers, form, onRemove }: ConditionRowProps) {
-  const selectedField = getFieldDefinition(condition.field, allFields)
+function ConditionRow({ condition, index, allFields, spaceFields, spaceMembers, form, onRemove }: ConditionRowProps) {
+  const selectedField = getFieldDefinition(condition.field, spaceFields)
   const operators = selectedField ? OPERATORS_BY_TYPE[selectedField.type] : []
   const indexStr = String(index)
 

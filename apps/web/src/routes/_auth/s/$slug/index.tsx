@@ -18,10 +18,11 @@ const SYSTEM_FIELD_LABELS: Record<string, string> = {
 }
 
 function getFieldLabel(field: string, spaceFields: SpaceField[]): string {
-  if (field.startsWith("note.")) {
-    return SYSTEM_FIELD_LABELS[field] ?? field
+  if (field in SYSTEM_FIELD_LABELS) {
+    return SYSTEM_FIELD_LABELS[field]
   }
-  return spaceFields.find((f) => f.name === field)?.name ?? field
+  const fieldName = field.startsWith("note.fields.") ? field.slice("note.fields.".length) : field
+  return spaceFields.find((f) => f.name === fieldName)?.name ?? fieldName
 }
 
 function renderFieldValue(field: string, note: Note): React.ReactNode {
@@ -29,7 +30,8 @@ function renderFieldValue(field: string, note: Note): React.ReactNode {
   if (field === "note.created_at") return formatDate(note.created_at)
   if (field === "note.author") return note.author
 
-  const value = note.fields[field]
+  const fieldName = field.startsWith("note.fields.") ? field.slice("note.fields.".length) : field
+  const value = note.fields[fieldName]
   if (value == null) return ""
   if (Array.isArray(value)) return value.join(", ")
   if (typeof value === "boolean") return value ? "Yes" : "No"

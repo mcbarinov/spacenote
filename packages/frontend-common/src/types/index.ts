@@ -25,3 +25,14 @@ export type LoginResponse = components["schemas"]["LoginResponse"]
 export type CreateUserRequest = components["schemas"]["CreateUserRequest"]
 export type CreateSpaceRequest = components["schemas"]["CreateSpaceRequest"]
 export type CreateNoteRequest = components["schemas"]["CreateNoteRequest"]
+
+// Filters
+export type Filter = components["schemas"]["Filter"]
+export type FilterCondition = components["schemas"]["FilterCondition"]
+export type FilterOperator = components["schemas"]["FilterOperator"]
+
+// Space update requests
+export type UpdateTitleRequest = components["schemas"]["UpdateTitleRequest"]
+export type UpdateDescriptionRequest = components["schemas"]["UpdateDescriptionRequest"]
+export type UpdateHiddenFieldsOnCreateRequest = components["schemas"]["UpdateHiddenFieldsOnCreateRequest"]
+export type UpdateNotesListDefaultColumnsRequest = components["schemas"]["UpdateNotesListDefaultColumnsRequest"]

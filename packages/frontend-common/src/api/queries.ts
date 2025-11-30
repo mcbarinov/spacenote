@@ -27,10 +27,13 @@ export function listSpaces() {
   })
 }
 
-export function listNotes(spaceSlug: string) {
+export function listNotes(spaceSlug: string, filter?: string) {
   return queryOptions({
-    queryKey: ["spaces", spaceSlug, "notes"],
-    queryFn: () => httpClient.get(`api/v1/spaces/${spaceSlug}/notes`).json<NotesList>(),
+    queryKey: ["spaces", spaceSlug, "notes", { filter }],
+    queryFn: () => {
+      const searchParams = filter ? { filter } : undefined
+      return httpClient.get(`api/v1/spaces/${spaceSlug}/notes`, { searchParams }).json<NotesList>()
+    },
   })
 }
 

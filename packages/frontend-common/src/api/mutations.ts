@@ -7,11 +7,16 @@ import type {
   CreateNoteRequest,
   CreateSpaceRequest,
   CreateUserRequest,
+  Filter,
   LoginRequest,
   Note,
   PendingAttachment,
   Space,
   SpaceField,
+  UpdateDescriptionRequest,
+  UpdateHiddenFieldsOnCreateRequest,
+  UpdateNotesListDefaultColumnsRequest,
+  UpdateTitleRequest,
   User,
 } from "../types"
 
@@ -82,6 +87,49 @@ export function useDeleteSpace() {
   })
 }
 
+export function useUpdateSpaceTitle(slug: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (data: UpdateTitleRequest) => httpClient.patch(`api/v1/spaces/${slug}/title`, { json: data }).json<Space>(),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["spaces"] })
+    },
+  })
+}
+
+export function useUpdateSpaceDescription(slug: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (data: UpdateDescriptionRequest) =>
+      httpClient.patch(`api/v1/spaces/${slug}/description`, { json: data }).json<Space>(),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["spaces"] })
+    },
+  })
+}
+
+export function useUpdateSpaceHiddenFieldsOnCreate(slug: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (data: UpdateHiddenFieldsOnCreateRequest) =>
+      httpClient.patch(`api/v1/spaces/${slug}/hidden-fields-on-create`, { json: data }).json<Space>(),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["spaces"] })
+    },
+  })
+}
+
+export function useUpdateSpaceNotesListDefaultColumns(slug: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (data: UpdateNotesListDefaultColumnsRequest) =>
+      httpClient.patch(`api/v1/spaces/${slug}/notes-list-default-columns`, { json: data }).json<Space>(),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["spaces"] })
+    },
+  })
+}
+
 export function useAddField(spaceSlug: string) {
   const queryClient = useQueryClient()
   return useMutation({
@@ -96,6 +144,26 @@ export function useDeleteField(spaceSlug: string) {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (fieldName: string) => httpClient.delete(`api/v1/spaces/${spaceSlug}/fields/${fieldName}`),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["spaces"] })
+    },
+  })
+}
+
+export function useAddFilter(spaceSlug: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (filter: Filter) => httpClient.post(`api/v1/spaces/${spaceSlug}/filters`, { json: filter }).json<Filter>(),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["spaces"] })
+    },
+  })
+}
+
+export function useDeleteFilter(spaceSlug: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (filterName: string) => httpClient.delete(`api/v1/spaces/${spaceSlug}/filters/${filterName}`),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["spaces"] })
     },

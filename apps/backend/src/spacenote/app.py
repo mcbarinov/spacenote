@@ -8,6 +8,7 @@ from spacenote.core.modules.attachment import storage as attachment_storage
 from spacenote.core.modules.attachment.models import Attachment, PendingAttachment
 from spacenote.core.modules.comment.models import Comment
 from spacenote.core.modules.field.models import SpaceField
+from spacenote.core.modules.filter.models import Filter
 from spacenote.core.modules.image.processor import WebpOptions
 from spacenote.core.modules.note.models import Note
 from spacenote.core.modules.session.models import AuthToken
@@ -112,6 +113,16 @@ class App:
         await self._core.services.access.ensure_admin(auth_token)
         return await self._core.services.space.update_members(slug, members)
 
+    async def update_hidden_fields_on_create(self, auth_token: AuthToken, slug: str, field_names: list[str]) -> Space:
+        """Update hidden fields on create (admin only)."""
+        await self._core.services.access.ensure_admin(auth_token)
+        return await self._core.services.space.update_hidden_fields_on_create(slug, field_names)
+
+    async def update_notes_list_default_columns(self, auth_token: AuthToken, slug: str, columns: list[str]) -> Space:
+        """Update default columns for notes list (admin only)."""
+        await self._core.services.access.ensure_admin(auth_token)
+        return await self._core.services.space.update_notes_list_default_columns(slug, columns)
+
     async def delete_space(self, auth_token: AuthToken, slug: str) -> None:
         """Delete space (admin only)."""
         await self._core.services.access.ensure_admin(auth_token)
@@ -119,22 +130,41 @@ class App:
 
     # --- Fields ---
 
-    async def add_field_to_space(self, auth_token: AuthToken, slug: str, field: SpaceField) -> SpaceField:
+    async def add_field(self, auth_token: AuthToken, slug: str, field: SpaceField) -> SpaceField:
         """Add field to space (admin only). Returns validated field."""
         await self._core.services.access.ensure_admin(auth_token)
-        return await self._core.services.field.add_field_to_space(slug, field)
+        return await self._core.services.field.add_field(slug, field)
 
-    async def remove_field_from_space(self, auth_token: AuthToken, slug: str, field_name: str) -> None:
+    async def remove_field(self, auth_token: AuthToken, slug: str, field_name: str) -> None:
         """Remove field from space (admin only)."""
         await self._core.services.access.ensure_admin(auth_token)
-        await self._core.services.field.remove_field_from_space(slug, field_name)
+        await self._core.services.field.remove_field(slug, field_name)
+
+    # --- Filters ---
+
+    async def add_filter(self, auth_token: AuthToken, slug: str, filter: Filter) -> Filter:
+        """Add filter to space (admin only). Returns validated filter."""
+        await self._core.services.access.ensure_admin(auth_token)
+        return await self._core.services.filter.add_filter(slug, filter)
+
+    async def remove_filter(self, auth_token: AuthToken, slug: str, filter_name: str) -> None:
+        """Remove filter from space (admin only)."""
+        await self._core.services.access.ensure_admin(auth_token)
+        await self._core.services.filter.remove_filter(slug, filter_name)
 
     # --- Notes ---
 
-    async def get_notes(self, auth_token: AuthToken, space_slug: str, limit: int = 50, offset: int = 0) -> PaginationResult[Note]:
+    async def get_notes(
+        self,
+        auth_token: AuthToken,
+        space_slug: str,
+        filter_name: str | None = None,
+        limit: int = 50,
+        offset: int = 0,
+    ) -> PaginationResult[Note]:
         """Get paginated notes in space (members only)."""
-        await self._core.services.access.ensure_space_member(auth_token, space_slug)
-        return await self._core.services.note.list_notes(space_slug, limit, offset)
+        user = await self._core.services.access.ensure_space_member(auth_token, space_slug)
+        return await self._core.services.note.list_notes(space_slug, user.username, filter_name, limit, offset)
 
     async def get_note(self, auth_token: AuthToken, space_slug: str, number: int) -> Note:
         """Get specific note by number (members only)."""

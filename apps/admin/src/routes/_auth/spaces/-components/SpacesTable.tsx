@@ -1,7 +1,5 @@
 import { Paper, Table } from "@mantine/core"
-import { notifications } from "@mantine/notifications"
-import { api } from "@spacenote/common/api"
-import { CustomLink, DeleteButton } from "@spacenote/common/components"
+import { CustomLink } from "@spacenote/common/components"
 import type { Space } from "@spacenote/common/types"
 
 interface SpacesTableProps {
@@ -9,8 +7,6 @@ interface SpacesTableProps {
 }
 
 export function SpacesTable({ spaces }: SpacesTableProps) {
-  const deleteSpaceMutation = api.mutations.useDeleteSpace()
-
   return (
     <Paper withBorder>
       <Table>
@@ -21,7 +17,8 @@ export function SpacesTable({ spaces }: SpacesTableProps) {
             <Table.Th>Description</Table.Th>
             <Table.Th>Members</Table.Th>
             <Table.Th>Fields</Table.Th>
-            <Table.Th>Actions</Table.Th>
+            <Table.Th>Filters</Table.Th>
+            <Table.Th>Settings</Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
@@ -39,20 +36,14 @@ export function SpacesTable({ spaces }: SpacesTableProps) {
                 </CustomLink>
               </Table.Td>
               <Table.Td>
-                <DeleteButton
-                  title="Delete Space"
-                  message={`Are you sure you want to delete space "${space.title}"?`}
-                  onConfirm={() => {
-                    deleteSpaceMutation.mutate(space.slug, {
-                      onSuccess: () => {
-                        notifications.show({
-                          message: "Space deleted successfully",
-                          color: "green",
-                        })
-                      },
-                    })
-                  }}
-                />
+                <CustomLink to="/spaces/$slug/filters" params={{ slug: space.slug }}>
+                  {space.filters.length} filters
+                </CustomLink>
+              </Table.Td>
+              <Table.Td>
+                <CustomLink to="/spaces/$slug/settings" params={{ slug: space.slug }}>
+                  Settings
+                </CustomLink>
               </Table.Td>
             </Table.Tr>
           ))}

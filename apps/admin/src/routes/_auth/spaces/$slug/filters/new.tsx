@@ -420,7 +420,7 @@ function ValueInput({ field, operator, value, onChange, spaceMembers }: ValueInp
         <Select
           label="Value"
           placeholder="Select user"
-          data={spaceMembers}
+          data={["$me", ...spaceMembers]}
           value={typeof value === "string" ? value : null}
           onChange={(v) => {
             onChange(v)

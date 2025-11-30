@@ -4,6 +4,7 @@ import structlog
 from pymongo.asynchronous.database import AsyncDatabase
 
 from spacenote.core.db import Collection
+from spacenote.core.modules.filter.validators import validate_notes_list_columns
 from spacenote.core.modules.space.models import Space
 from spacenote.core.service import Service
 from spacenote.errors import NotFoundError, ValidationError
@@ -84,6 +85,13 @@ class SpaceService(Service):
                 raise ValidationError(f"Field '{name}' is required and has no default value, cannot be hidden")
 
         await self._collection.update_one({"slug": slug}, {"$set": {"hidden_fields_on_create": field_names}})
+        return await self.update_space_cache(slug)
+
+    async def update_notes_list_default_columns(self, slug: str, columns: list[str]) -> Space:
+        """Update default columns for notes list."""
+        space = self.get_space(slug)
+        validate_notes_list_columns(space, columns)
+        await self._collection.update_one({"slug": slug}, {"$set": {"notes_list_default_columns": columns}})
         return await self.update_space_cache(slug)
 
     async def update_space_document(self, slug: str, update: dict[str, Any]) -> Space:

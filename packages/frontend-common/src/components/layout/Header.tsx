@@ -1,9 +1,11 @@
-import { Divider, Group, Text, Menu, UnstyledButton } from "@mantine/core"
+import { Badge, Divider, Group, Text, Menu, UnstyledButton } from "@mantine/core"
 import { IconUser, IconChevronDown, IconLogout } from "@tabler/icons-react"
 import { Link, useNavigate } from "@tanstack/react-router"
 import { api } from "../../api"
+import { useAppConfig } from "../../app/AppContext"
 
 export function Header() {
+  const { isAdmin } = useAppConfig()
   const currentUser = api.cache.useCurrentUser()
   const navigate = useNavigate()
   const logoutMutation = api.mutations.useLogout()
@@ -13,9 +15,12 @@ export function Header() {
       <Divider mb="md" />
       <Group justify="space-between" py="sm">
         {/* Left: Site name */}
-        <Text component={Link} to="/" size="xl" fw={700}>
-          SpaceNote
-        </Text>
+        <Group gap="xs">
+          <Text component={Link} to="/" size="xl" fw={700}>
+            SpaceNote
+          </Text>
+          {isAdmin && <Badge variant="light">Admin</Badge>}
+        </Group>
 
         {/* Right: User dropdown menu */}
         <Menu>
@@ -45,6 +50,7 @@ export function Header() {
           </Menu.Dropdown>
         </Menu>
       </Group>
+      <Divider/>
     </header>
   )
 }

@@ -1,5 +1,4 @@
-import { initHttpClient } from "@spacenote/common/api"
-import { renderApp, createAppRouter } from "@spacenote/common/app"
+import { runApp, createAppRouter } from "@spacenote/common/app"
 import { routeTree } from "./routeTree.gen"
 
 declare module "@tanstack/react-router" {
@@ -8,5 +7,4 @@ declare module "@tanstack/react-router" {
   }
 }
 
-initHttpClient("admin")
-renderApp(createAppRouter(routeTree))
+runApp({ isAdmin: true }, routeTree)

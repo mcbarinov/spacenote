@@ -45,7 +45,10 @@ class Filter(OpenAPIModel):
     """Filter definition for a space."""
 
     name: str = Field(..., description="Filter identifier (must be unique within space)")
-    display_fields: list[str] = Field(default_factory=list, description="Field names to show in list view")
+    notes_list_default_columns: list[str] = Field(
+        default_factory=list,
+        description="Columns for notes list when no template is set. If empty, uses Space.notes_list_default_columns",
+    )
     conditions: list[FilterCondition] = Field(default_factory=list, description="Filter conditions (combined with AND)")
     sort: list[str] = Field(default_factory=list, description="Sort order - field names with optional '-' prefix for descending")
 
@@ -130,10 +133,14 @@ def get_system_field_definitions() -> dict[str, SpaceField]:
 def get_field(space: Space, field_name: str) -> SpaceField | None:
     """Get field definition from space or system fields.
 
-    System fields use 'note.' prefix (e.g., note.number, note.author).
-    Custom fields have no prefix.
+    Syntax:
+    - note.number, note.author, note.created_at → system fields
+    - note.fields.{name} → custom fields
     """
+    if field_name.startswith("note.fields."):
+        custom_field_name = field_name[len("note.fields.") :]
+        return space.get_field(custom_field_name)
     if field_name.startswith("note."):
         system_fields = get_system_field_definitions()
         return system_fields.get(field_name)
-    return space.get_field(field_name)
+    return None

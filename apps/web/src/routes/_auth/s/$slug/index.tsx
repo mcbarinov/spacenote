@@ -53,7 +53,14 @@ function SpacePage() {
   const { data: notesList } = useSuspenseQuery(api.queries.listNotes(slug, filter))
 
   const selectedFilter = filter ? space.filters.find((f) => f.name === filter) : undefined
-  const displayFields = selectedFilter?.display_fields ?? ["note.number", "note.created_at", "note.author"]
+  const filterColumns = selectedFilter?.notes_list_default_columns ?? []
+  const spaceColumns = space.notes_list_default_columns
+  const displayFields =
+    filterColumns.length > 0
+      ? filterColumns
+      : spaceColumns.length > 0
+        ? spaceColumns
+        : ["note.number", "note.created_at", "note.author"]
 
   return (
     <>

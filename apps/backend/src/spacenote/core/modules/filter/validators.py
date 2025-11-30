@@ -14,6 +14,14 @@ from spacenote.core.modules.space.models import Space
 from spacenote.errors import ValidationError
 
 
+def validate_notes_list_columns(space: Space, columns: list[str]) -> list[str]:
+    """Validate column references for notes list."""
+    for column in columns:
+        if not get_field(space, column):
+            raise ValidationError(f"Unknown column: {column}")
+    return columns
+
+
 def validate_filter(space: Space, filter: Filter) -> Filter:
     """Validate filter and return normalized version."""
     if not filter.name or not filter.name.replace("_", "").replace("-", "").isalnum():
@@ -21,14 +29,11 @@ def validate_filter(space: Space, filter: Filter) -> Filter:
 
     validated_conditions = [_validate_condition(c, space) for c in filter.conditions]
     validated_sort = [_validate_sort_field(s, space) for s in filter.sort]
-
-    for field_name in filter.display_fields:
-        if not get_field(space, field_name):
-            raise ValidationError(f"Unknown field in display_fields: {field_name}")
+    validate_notes_list_columns(space, filter.notes_list_default_columns)
 
     return Filter(
         name=filter.name,
-        display_fields=filter.display_fields,
+        notes_list_default_columns=filter.notes_list_default_columns,
         conditions=validated_conditions,
         sort=validated_sort,
     )

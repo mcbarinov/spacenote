@@ -15,6 +15,7 @@ import { Route as AuthIndexRouteImport } from './routes/_auth/index'
 import { Route as AuthUsersRouteRouteImport } from './routes/_auth/users/route'
 import { Route as AuthSpacesIndexRouteImport } from './routes/_auth/spaces/index'
 import { Route as AuthSpacesNewRouteImport } from './routes/_auth/spaces/new'
+import { Route as AuthSpacesSlugSettingsIndexRouteImport } from './routes/_auth/spaces/$slug/settings/index'
 import { Route as AuthSpacesSlugFiltersIndexRouteImport } from './routes/_auth/spaces/$slug/filters/index'
 import { Route as AuthSpacesSlugFieldsIndexRouteImport } from './routes/_auth/spaces/$slug/fields/index'
 import { Route as AuthSpacesSlugFiltersNewRouteImport } from './routes/_auth/spaces/$slug/filters/new'
@@ -49,6 +50,12 @@ const AuthSpacesNewRoute = AuthSpacesNewRouteImport.update({
   path: '/spaces/new',
   getParentRoute: () => AuthRouteRoute,
 } as any)
+const AuthSpacesSlugSettingsIndexRoute =
+  AuthSpacesSlugSettingsIndexRouteImport.update({
+    id: '/spaces/$slug/settings/',
+    path: '/spaces/$slug/settings/',
+    getParentRoute: () => AuthRouteRoute,
+  } as any)
 const AuthSpacesSlugFiltersIndexRoute =
   AuthSpacesSlugFiltersIndexRouteImport.update({
     id: '/spaces/$slug/filters/',
@@ -83,6 +90,7 @@ export interface FileRoutesByFullPath {
   '/spaces/$slug/filters/new': typeof AuthSpacesSlugFiltersNewRoute
   '/spaces/$slug/fields': typeof AuthSpacesSlugFieldsIndexRoute
   '/spaces/$slug/filters': typeof AuthSpacesSlugFiltersIndexRoute
+  '/spaces/$slug/settings': typeof AuthSpacesSlugSettingsIndexRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
@@ -94,6 +102,7 @@ export interface FileRoutesByTo {
   '/spaces/$slug/filters/new': typeof AuthSpacesSlugFiltersNewRoute
   '/spaces/$slug/fields': typeof AuthSpacesSlugFieldsIndexRoute
   '/spaces/$slug/filters': typeof AuthSpacesSlugFiltersIndexRoute
+  '/spaces/$slug/settings': typeof AuthSpacesSlugSettingsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -107,6 +116,7 @@ export interface FileRoutesById {
   '/_auth/spaces/$slug/filters/new': typeof AuthSpacesSlugFiltersNewRoute
   '/_auth/spaces/$slug/fields/': typeof AuthSpacesSlugFieldsIndexRoute
   '/_auth/spaces/$slug/filters/': typeof AuthSpacesSlugFiltersIndexRoute
+  '/_auth/spaces/$slug/settings/': typeof AuthSpacesSlugSettingsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -120,6 +130,7 @@ export interface FileRouteTypes {
     | '/spaces/$slug/filters/new'
     | '/spaces/$slug/fields'
     | '/spaces/$slug/filters'
+    | '/spaces/$slug/settings'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
@@ -131,6 +142,7 @@ export interface FileRouteTypes {
     | '/spaces/$slug/filters/new'
     | '/spaces/$slug/fields'
     | '/spaces/$slug/filters'
+    | '/spaces/$slug/settings'
   id:
     | '__root__'
     | '/_auth'
@@ -143,6 +155,7 @@ export interface FileRouteTypes {
     | '/_auth/spaces/$slug/filters/new'
     | '/_auth/spaces/$slug/fields/'
     | '/_auth/spaces/$slug/filters/'
+    | '/_auth/spaces/$slug/settings/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -194,6 +207,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthSpacesNewRouteImport
       parentRoute: typeof AuthRouteRoute
     }
+    '/_auth/spaces/$slug/settings/': {
+      id: '/_auth/spaces/$slug/settings/'
+      path: '/spaces/$slug/settings'
+      fullPath: '/spaces/$slug/settings'
+      preLoaderRoute: typeof AuthSpacesSlugSettingsIndexRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
     '/_auth/spaces/$slug/filters/': {
       id: '/_auth/spaces/$slug/filters/'
       path: '/spaces/$slug/filters'
@@ -234,6 +254,7 @@ interface AuthRouteRouteChildren {
   AuthSpacesSlugFiltersNewRoute: typeof AuthSpacesSlugFiltersNewRoute
   AuthSpacesSlugFieldsIndexRoute: typeof AuthSpacesSlugFieldsIndexRoute
   AuthSpacesSlugFiltersIndexRoute: typeof AuthSpacesSlugFiltersIndexRoute
+  AuthSpacesSlugSettingsIndexRoute: typeof AuthSpacesSlugSettingsIndexRoute
 }
 
 const AuthRouteRouteChildren: AuthRouteRouteChildren = {
@@ -245,6 +266,7 @@ const AuthRouteRouteChildren: AuthRouteRouteChildren = {
   AuthSpacesSlugFiltersNewRoute: AuthSpacesSlugFiltersNewRoute,
   AuthSpacesSlugFieldsIndexRoute: AuthSpacesSlugFieldsIndexRoute,
   AuthSpacesSlugFiltersIndexRoute: AuthSpacesSlugFiltersIndexRoute,
+  AuthSpacesSlugSettingsIndexRoute: AuthSpacesSlugSettingsIndexRoute,
 }
 
 const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(

@@ -29,7 +29,11 @@ export function SpacesTable({ spaces }: SpacesTableProps) {
               <Table.Td>
                 {space.description.length > 100 ? `${space.description.slice(0, 100)}...` : space.description || "-"}
               </Table.Td>
-              <Table.Td>{space.members.join(", ") || "-"}</Table.Td>
+              <Table.Td>
+                <CustomLink to="/spaces/$slug/members" params={{ slug: space.slug }}>
+                  {space.members.length} members
+                </CustomLink>
+              </Table.Td>
               <Table.Td>
                 <CustomLink to="/spaces/$slug/fields" params={{ slug: space.slug }}>
                   {space.fields.length} fields

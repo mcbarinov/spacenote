@@ -115,19 +115,9 @@ function AddFieldPage() {
             )}
 
             {addFieldMutation.error && <ErrorMessage error={addFieldMutation.error} />}
-            <Group justify="flex-end">
-              <Button
-                variant="subtle"
-                onClick={() => {
-                  void navigate({ to: "/spaces/$slug/fields", params: { slug } })
-                }}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" loading={addFieldMutation.isPending}>
-                Add Field
-              </Button>
-            </Group>
+            <Button type="submit" loading={addFieldMutation.isPending}>
+              Add Field
+            </Button>
           </Stack>
         </form>
       </Paper>

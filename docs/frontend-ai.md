@@ -20,3 +20,23 @@ const fieldOptions = space.fields
   .filter((f) => !f.required || f.default !== null)
   .map((f) => f.name)
 ```
+
+## Simplify After Changes
+
+- **Review parent structure after removal** — When removing elements from JSX, check if remaining wrappers or containers are still necessary. A component that grouped multiple children may become redundant with only one child.
+
+```tsx
+// Before: Group justified two buttons
+<Group justify="flex-end">
+  <Button variant="subtle">Cancel</Button>
+  <Button type="submit">Save</Button>
+</Group>
+
+// Bad - Group with single child is redundant
+<Group justify="flex-end">
+  <Button type="submit">Save</Button>
+</Group>
+
+// Good - removed unnecessary wrapper
+<Button type="submit">Save</Button>
+```

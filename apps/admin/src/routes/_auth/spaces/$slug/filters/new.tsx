@@ -206,19 +206,9 @@ function AddFilterPage() {
 
             {addFilterMutation.error && <ErrorMessage error={addFilterMutation.error} />}
 
-            <Group justify="flex-end">
-              <Button
-                variant="subtle"
-                onClick={() => {
-                  void navigate({ to: "/spaces/$slug/filters", params: { slug } })
-                }}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" loading={addFilterMutation.isPending}>
-                Add Filter
-              </Button>
-            </Group>
+            <Button type="submit" loading={addFilterMutation.isPending}>
+              Add Filter
+            </Button>
           </Stack>
         </form>
       </Paper>

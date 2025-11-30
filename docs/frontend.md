@@ -235,6 +235,24 @@ const users = api.cache.useUsers()  // admin only
 
 These hooks use `useSuspenseQuery` internally, but suspense doesn't trigger — data is already in cache.
 
+**Important:** Routes under `/_auth/` should NOT add loaders for global data. Use cache hooks directly:
+
+```typescript
+// ❌ Wrong - redundant, data already in cache
+export const Route = createFileRoute("/_auth/spaces/$slug/members")({
+  loader: async ({ context }) => {
+    await context.queryClient.ensureQueryData(api.queries.listSpaces())
+  },
+})
+
+// ✅ Correct - no loader, use cache hook
+export const Route = createFileRoute("/_auth/spaces/$slug/members")({
+  component: SpaceMembersPage,
+})
+```
+
+Only add loaders for route-specific data not in global cache (notes, comments, etc).
+
 ### Query Keys & Invalidation
 
 ```typescript

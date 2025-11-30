@@ -20,6 +20,7 @@ import { notifications } from "@mantine/notifications"
 import { IconPlus, IconTrash } from "@tabler/icons-react"
 import { api } from "@spacenote/common/api"
 import { ErrorMessage } from "@spacenote/common/components"
+import { SpaceHeader } from "@/components/SpaceHeader"
 import type { FieldType, FilterOperator, SpaceField } from "@spacenote/common/types"
 
 export const Route = createFileRoute("/_auth/spaces/$slug/filters/new")({
@@ -153,7 +154,7 @@ function AddFilterPage() {
 
   return (
     <Stack gap="md">
-      <Title order={1}>Add Filter</Title>
+      <SpaceHeader slug={slug} title="New Filter" parents={[{ label: "Filters", to: "/spaces/$slug/filters" }]} />
 
       <Paper withBorder p="md">
         <form onSubmit={handleSubmit}>

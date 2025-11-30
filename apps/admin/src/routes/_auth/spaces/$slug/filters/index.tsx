@@ -1,6 +1,8 @@
-import { createFileRoute, Link } from "@tanstack/react-router"
-import { Button, Group, Stack, Title } from "@mantine/core"
+import { createFileRoute } from "@tanstack/react-router"
+import { Stack } from "@mantine/core"
 import { api } from "@spacenote/common/api"
+import { LinkButton } from "@spacenote/common/components"
+import { SpaceHeader } from "@/components/SpaceHeader"
 import { FiltersTable } from "./-components/FiltersTable"
 
 export const Route = createFileRoute("/_auth/spaces/$slug/filters/")({
@@ -13,12 +15,15 @@ function FiltersPage() {
 
   return (
     <Stack gap="md">
-      <Group justify="space-between">
-        <Title order={1}>Filters: {space.title}</Title>
-        <Link to="/spaces/$slug/filters/new" params={{ slug }}>
-          <Button>Add Filter</Button>
-        </Link>
-      </Group>
+      <SpaceHeader
+        slug={slug}
+        title="Filters"
+        actions={
+          <LinkButton to="/spaces/$slug/filters/new" params={{ slug }}>
+            Add Filter
+          </LinkButton>
+        }
+      />
 
       <FiltersTable spaceSlug={slug} filters={space.filters} />
     </Stack>

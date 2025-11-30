@@ -2,10 +2,11 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { useForm } from "@mantine/form"
 import { zod4Resolver } from "mantine-form-zod-resolver"
 import { z } from "zod"
-import { Button, Checkbox, Group, NumberInput, Paper, Select, Stack, TagsInput, TextInput, Title } from "@mantine/core"
+import { Button, Checkbox, Group, NumberInput, Paper, Select, Stack, TagsInput, TextInput } from "@mantine/core"
 import { notifications } from "@mantine/notifications"
 import { api } from "@spacenote/common/api"
 import { ErrorMessage } from "@spacenote/common/components"
+import { SpaceHeader } from "@/components/SpaceHeader"
 import type { FieldType, SpaceField } from "@spacenote/common/types"
 
 export const Route = createFileRoute("/_auth/spaces/$slug/fields/new")({
@@ -89,7 +90,7 @@ function AddFieldPage() {
 
   return (
     <Stack gap="md">
-      <Title order={1}>Add Field</Title>
+      <SpaceHeader slug={slug} title="New Field" parents={[{ label: "Fields", to: "/spaces/$slug/fields" }]} />
 
       <Paper withBorder p="md">
         <form onSubmit={handleSubmit}>

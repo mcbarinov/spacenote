@@ -50,7 +50,7 @@ export function Header() {
           </Menu.Dropdown>
         </Menu>
       </Group>
-      <Divider/>
+      <Divider />
     </header>
   )
 }

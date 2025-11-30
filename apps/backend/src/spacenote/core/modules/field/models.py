@@ -3,7 +3,9 @@
 from datetime import datetime
 from enum import StrEnum
 
-from pydantic import BaseModel, Field
+from pydantic import Field
+
+from spacenote.core.schema import OpenAPIModel
 
 FieldOptionValueType = list[str] | int | float | dict[str, dict[str, str]]
 FieldValueType = str | bool | list[str] | int | float | datetime | None
@@ -41,7 +43,7 @@ class SpecialValue(StrEnum):
     NOW = "$now"
 
 
-class SpaceField(BaseModel):
+class SpaceField(OpenAPIModel):
     """Field definition in a space schema."""
 
     name: str = Field(..., description="Field identifier (must be unique within space)")

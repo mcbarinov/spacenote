@@ -41,7 +41,7 @@ export function FieldsTable({ spaceSlug, fields }: FieldsTableProps) {
               </Table.Td>
               <Table.Td>{field.required ? "Yes" : "No"}</Table.Td>
               <Table.Td>
-                <Code>{field.options ? JSON.stringify(field.options) : "-"}</Code>
+                <Code>{Object.keys(field.options).length > 0 ? JSON.stringify(field.options) : "-"}</Code>
               </Table.Td>
               <Table.Td>
                 <DeleteButton

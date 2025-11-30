@@ -8,7 +8,7 @@ import type { SpaceField } from "@spacenote/common/types"
 import { FieldInput } from "@/components/FieldInput"
 
 function getDefaultValue(field: SpaceField): unknown {
-  if (field.default !== undefined && field.default !== null) {
+  if (field.default !== null) {
     return field.default
   }
   switch (field.type) {

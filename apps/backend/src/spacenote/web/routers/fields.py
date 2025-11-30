@@ -22,7 +22,7 @@ router = APIRouter(tags=["fields"])
 )
 async def add_field_to_space(space_slug: str, field: SpaceField, app: AppDep, auth_token: AuthTokenDep) -> SpaceField:
     """Add field to space (admin only). Returns validated field."""
-    return await app.add_field_to_space(auth_token, space_slug, field)
+    return await app.add_field(auth_token, space_slug, field)
 
 
 @router.delete(
@@ -40,4 +40,4 @@ async def add_field_to_space(space_slug: str, field: SpaceField, app: AppDep, au
 )
 async def remove_field_from_space(space_slug: str, field_name: str, app: AppDep, auth_token: AuthTokenDep) -> None:
     """Remove field from space (admin only)."""
-    await app.remove_field_from_space(auth_token, space_slug, field_name)
+    await app.remove_field(auth_token, space_slug, field_name)

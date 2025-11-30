@@ -17,7 +17,7 @@ class FieldService(Service):
     def __init__(self, database: AsyncDatabase[dict[str, Any]]) -> None:
         super().__init__(database)
 
-    async def add_field_to_space(self, slug: str, field: SpaceField) -> SpaceField:
+    async def add_field(self, slug: str, field: SpaceField) -> SpaceField:
         """Add a field to a space. Returns the validated field."""
         space = self.core.services.space.get_space(slug)
 
@@ -34,7 +34,7 @@ class FieldService(Service):
         logger.debug("field_added_to_space", space_slug=slug, field_name=validated_field.name)
         return validated_field
 
-    async def remove_field_from_space(self, slug: str, field_name: str) -> None:
+    async def remove_field(self, slug: str, field_name: str) -> None:
         """Remove a field from a space."""
         space = self.core.services.space.get_space(slug)
 

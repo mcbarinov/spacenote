@@ -53,27 +53,27 @@ function AddFieldPage() {
   const showMaxWidth = fieldType === "image"
 
   const handleSubmit = form.onSubmit((values) => {
+    let options: SpaceField["options"] = {}
+
+    if (showSelectValues && values.selectValues.length > 0) {
+      options = { values: values.selectValues }
+    } else if (showMinMax) {
+      const numOptions: Record<string, number> = {}
+      if (values.minValue !== null) numOptions.min = values.minValue
+      if (values.maxValue !== null) numOptions.max = values.maxValue
+      if (Object.keys(numOptions).length > 0) {
+        options = numOptions
+      }
+    } else if (showMaxWidth && values.maxWidth !== null) {
+      options = { max_width: values.maxWidth }
+    }
+
     const field: SpaceField = {
       name: values.name,
       type: values.type as FieldType,
       required: values.required,
-    }
-
-    if (showSelectValues && values.selectValues.length > 0) {
-      field.options = { values: values.selectValues }
-    }
-
-    if (showMinMax) {
-      const options: Record<string, number> = {}
-      if (values.minValue !== null) options.min = values.minValue
-      if (values.maxValue !== null) options.max = values.maxValue
-      if (Object.keys(options).length > 0) {
-        field.options = options
-      }
-    }
-
-    if (showMaxWidth && values.maxWidth !== null) {
-      field.options = { max_width: values.maxWidth }
+      options,
+      default: null,
     }
 
     addFieldMutation.mutate(field, {

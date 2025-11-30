@@ -7,6 +7,7 @@ import type {
   CreateNoteRequest,
   CreateSpaceRequest,
   CreateUserRequest,
+  Filter,
   LoginRequest,
   Note,
   PendingAttachment,
@@ -96,6 +97,26 @@ export function useDeleteField(spaceSlug: string) {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (fieldName: string) => httpClient.delete(`api/v1/spaces/${spaceSlug}/fields/${fieldName}`),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["spaces"] })
+    },
+  })
+}
+
+export function useAddFilter(spaceSlug: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (filter: Filter) => httpClient.post(`api/v1/spaces/${spaceSlug}/filters`, { json: filter }).json<Filter>(),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["spaces"] })
+    },
+  })
+}
+
+export function useDeleteFilter(spaceSlug: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (filterName: string) => httpClient.delete(`api/v1/spaces/${spaceSlug}/filters/${filterName}`),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["spaces"] })
     },

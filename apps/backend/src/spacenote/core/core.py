@@ -14,6 +14,7 @@ from spacenote.core.modules.attachment.service import AttachmentService
 from spacenote.core.modules.comment.service import CommentService
 from spacenote.core.modules.counter.service import CounterService
 from spacenote.core.modules.field.service import FieldService
+from spacenote.core.modules.filter.service import FilterService
 from spacenote.core.modules.image.service import ImageService
 from spacenote.core.modules.note.service import NoteService
 from spacenote.core.modules.session.service import SessionService
@@ -30,6 +31,7 @@ class ServiceRegistry:
     access: AccessService
     space: SpaceService
     field: FieldService
+    filter: FilterService
     counter: CounterService
     note: NoteService
     comment: CommentService
@@ -43,6 +45,7 @@ class ServiceRegistry:
         self.access = AccessService(database)
         self.space = SpaceService(database)
         self.field = FieldService(database)
+        self.filter = FilterService(database)
         self.counter = CounterService(database)
         self.note = NoteService(database)
         self.comment = CommentService(database)
@@ -55,6 +58,7 @@ class ServiceRegistry:
             self.access,
             self.space,
             self.field,
+            self.filter,
             self.counter,
             self.note,
             self.comment,

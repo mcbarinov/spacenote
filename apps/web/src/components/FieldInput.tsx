@@ -75,7 +75,7 @@ export function FieldInput({ field, value, onChange, error, spaceMembers }: Fiel
       )
 
     case "select": {
-      const options = (field.options?.values as string[] | undefined) ?? []
+      const options = (field.options.values as string[] | undefined) ?? []
       return (
         <Select
           {...commonProps}
@@ -109,8 +109,8 @@ export function FieldInput({ field, value, onChange, error, spaceMembers }: Fiel
           onChange={(v) => {
             onChange(v)
           }}
-          min={field.options?.min as number | undefined}
-          max={field.options?.max as number | undefined}
+          min={field.options.min as number | undefined}
+          max={field.options.max as number | undefined}
           allowDecimal={field.type === "float"}
         />
       )

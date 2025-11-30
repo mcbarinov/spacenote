@@ -26,6 +26,9 @@ class Space(MongoModel):
     notes_list_default_columns: list[str] = Field(
         default_factory=list, description="Columns for notes list when no template is set"
     )
+    hidden_fields_on_create: list[str] = Field(
+        default_factory=list, description="Field names to hide on note creation form (will use defaults or null)"
+    )
     created_at: datetime = Field(default_factory=now, description="Timestamp when the space was created")
 
     def get_field(self, name: str) -> SpaceField | None:

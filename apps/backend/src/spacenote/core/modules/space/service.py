@@ -70,6 +70,22 @@ class SpaceService(Service):
         await self._collection.update_one({"slug": slug}, {"$set": {"members": members}})
         return await self.update_space_cache(slug)
 
+    async def update_hidden_fields_on_create(self, slug: str, field_names: list[str]) -> Space:
+        """Update hidden fields on create list."""
+        space = self.get_space(slug)
+
+        # Validate field names exist and can be hidden (optional or has default)
+        fields_by_name = {f.name: f for f in space.fields}
+        for name in field_names:
+            field = fields_by_name.get(name)
+            if field is None:
+                raise ValidationError(f"Field '{name}' not found in space fields")
+            if field.required and field.default is None:
+                raise ValidationError(f"Field '{name}' is required and has no default value, cannot be hidden")
+
+        await self._collection.update_one({"slug": slug}, {"$set": {"hidden_fields_on_create": field_names}})
+        return await self.update_space_cache(slug)
+
     async def update_space_document(self, slug: str, update: dict[str, Any]) -> Space:
         """Low-level MongoDB update with automatic cache invalidation.
 

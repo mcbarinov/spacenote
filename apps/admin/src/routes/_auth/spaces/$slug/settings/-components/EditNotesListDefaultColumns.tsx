@@ -24,7 +24,10 @@ export function EditNotesListDefaultColumns({ space }: EditNotesListDefaultColum
     })
   })
 
-  const fieldOptions = space.fields.map((f) => f.name)
+  // Column format: note.number, note.created_at, note.author (system) or note.fields.{name} (custom)
+  const systemColumns = ["note.number", "note.created_at", "note.author"]
+  const customColumns = space.fields.map((f) => `note.fields.${f.name}`)
+  const fieldOptions = [...systemColumns, ...customColumns]
 
   return (
     <Paper withBorder p="md">

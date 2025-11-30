@@ -24,7 +24,8 @@ export function EditHiddenFieldsOnCreate({ space }: EditHiddenFieldsOnCreateProp
     })
   })
 
-  const fieldOptions = space.fields.map((f) => f.name)
+  // Only optional fields or fields with defaults can be hidden
+  const fieldOptions = space.fields.filter((f) => !f.required || f.default !== null).map((f) => f.name)
 
   return (
     <Paper withBorder p="md">

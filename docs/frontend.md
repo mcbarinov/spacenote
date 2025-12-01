@@ -23,7 +23,7 @@ apps/
 └── web/                # User-facing app
 
 packages/
-└── frontend-common/    # @spacenote/common - types, API layer, components, utilities
+└── common/             # @spacenote/common - types, API layer, components, utilities
 ```
 
 ### App Structure
@@ -95,11 +95,11 @@ Types auto-generated from backend OpenAPI spec via `openapi-typescript`:
 ```bash
 pnpm --filter @spacenote/common generate
 # or
-just frontend-common-generate
+just common-generate
 ```
 
 ```
-packages/frontend-common/src/types/
+packages/common/src/types/
 ├── openapi.gen.ts   # Auto-generated from OpenAPI
 └── index.ts         # Re-exports + custom types
 ```
@@ -117,7 +117,7 @@ import type { LoginRequest, User } from "@spacenote/common/types"
 ### API Structure
 
 ```
-packages/frontend-common/src/api/
+packages/common/src/api/
 ├── queries.ts      # Query definitions (queryOptions)
 ├── mutations.ts    # Mutation hooks (useMutation)
 ├── cache.ts        # Cache read hooks (useSuspenseQuery wrappers)
@@ -234,6 +234,24 @@ const users = api.cache.useUsers()  // admin only
 - `useUser(username)` → `User` (admin)
 
 These hooks use `useSuspenseQuery` internally, but suspense doesn't trigger — data is already in cache.
+
+**Important:** Routes under `/_auth/` should NOT add loaders for global data. Use cache hooks directly:
+
+```typescript
+// ❌ Wrong - redundant, data already in cache
+export const Route = createFileRoute("/_auth/spaces/$slug/members")({
+  loader: async ({ context }) => {
+    await context.queryClient.ensureQueryData(api.queries.listSpaces())
+  },
+})
+
+// ✅ Correct - no loader, use cache hook
+export const Route = createFileRoute("/_auth/spaces/$slug/members")({
+  component: SpaceMembersPage,
+})
+```
+
+Only add loaders for route-specific data not in global cache (notes, comments, etc).
 
 ### Query Keys & Invalidation
 

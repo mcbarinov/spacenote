@@ -12,32 +12,28 @@ src/
 │   ├── FieldView.tsx
 │   ├── ImageFieldInput.tsx
 │   ├── MarkdownDisplay.tsx
-│   └── MarkdownEditor.tsx
+│   ├── MarkdownEditor.tsx
+│   └── SpaceHeader.tsx
 └── routes/
     ├── __root.tsx
     ├── login.tsx
-    ├── routeTree.gen.ts         # Auto-generated
     └── _auth/
         ├── -components/
         │   └── SpaceCard.tsx
         ├── index.tsx
         ├── route.tsx
         └── s/$slug/
-            ├── -components/
-            │   ├── CommentForm.tsx
-            │   ├── CommentList.tsx
-            │   └── NoteDetails.tsx
             ├── index.tsx
             ├── new.tsx
             ├── attachments/
             │   ├── index.tsx
             │   └── new.tsx
             └── $noteNumber/
+                ├── index.tsx
                 ├── -components/
                 │   ├── CommentForm.tsx
                 │   ├── CommentList.tsx
                 │   └── NoteDetails.tsx
-                ├── index.tsx
                 └── attachments/
                     ├── index.tsx
                     └── new.tsx

@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router"
-import { Stack, Title } from "@mantine/core"
+import { Stack } from "@mantine/core"
 import { api } from "@spacenote/common/api"
+import { SpaceHeader } from "@/components/SpaceHeader"
 import { DeleteSpace } from "./-components/DeleteSpace"
 import { EditDescription } from "./-components/EditDescription"
 import { EditHiddenFieldsOnCreate } from "./-components/EditHiddenFieldsOnCreate"
@@ -11,13 +12,14 @@ export const Route = createFileRoute("/_auth/spaces/$slug/settings/")({
   component: SettingsPage,
 })
 
+/** Space settings page with title, description, and danger zone */
 function SettingsPage() {
   const { slug } = Route.useParams()
   const space = api.cache.useSpace(slug)
 
   return (
     <Stack gap="md">
-      <Title order={1}>Settings: {space.title}</Title>
+      <SpaceHeader space={space} title="Settings" />
       <EditTitle space={space} />
       <EditDescription space={space} />
       <EditHiddenFieldsOnCreate space={space} />

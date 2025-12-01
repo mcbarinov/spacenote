@@ -2,10 +2,11 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { useForm } from "@mantine/form"
 import { zod4Resolver } from "mantine-form-zod-resolver"
 import { z } from "zod"
-import { Button, Checkbox, Group, NumberInput, Paper, Select, Stack, TagsInput, TextInput, Title } from "@mantine/core"
+import { Button, Checkbox, Group, NumberInput, Paper, Select, Stack, TagsInput, TextInput } from "@mantine/core"
 import { notifications } from "@mantine/notifications"
 import { api } from "@spacenote/common/api"
 import { ErrorMessage } from "@spacenote/common/components"
+import { SpaceHeader } from "@/components/SpaceHeader"
 import type { FieldType, SpaceField } from "@spacenote/common/types"
 
 export const Route = createFileRoute("/_auth/spaces/$slug/fields/new")({
@@ -29,9 +30,11 @@ const addFieldSchema = z.object({
 
 type FormValues = z.infer<typeof addFieldSchema>
 
+/** Form to add a new field to a space */
 function AddFieldPage() {
   const { slug } = Route.useParams()
   const navigate = useNavigate()
+  const space = api.cache.useSpace(slug)
   const addFieldMutation = api.mutations.useAddField(slug)
 
   const form = useForm<FormValues>({
@@ -89,7 +92,7 @@ function AddFieldPage() {
 
   return (
     <Stack gap="md">
-      <Title order={1}>Add Field</Title>
+      <SpaceHeader space={space} title="New Field" />
 
       <Paper withBorder p="md">
         <form onSubmit={handleSubmit}>
@@ -114,19 +117,9 @@ function AddFieldPage() {
             )}
 
             {addFieldMutation.error && <ErrorMessage error={addFieldMutation.error} />}
-            <Group justify="flex-end">
-              <Button
-                variant="subtle"
-                onClick={() => {
-                  void navigate({ to: "/spaces/$slug/fields", params: { slug } })
-                }}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" loading={addFieldMutation.isPending}>
-                Add Field
-              </Button>
-            </Group>
+            <Button type="submit" loading={addFieldMutation.isPending}>
+              Add Field
+            </Button>
           </Stack>
         </form>
       </Paper>

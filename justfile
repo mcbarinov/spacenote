@@ -2,9 +2,9 @@ set dotenv-load
 set shell := ["bash", "-cu"]
 
 # Lint all projects
-lint: frontend-common-lint admin-lint web-lint backend-lint
+lint: common-lint admin-lint web-lint backend-lint
 
-outdated: backend-outdated admin-outdated web-outdated frontend-common-outdated
+outdated: backend-outdated admin-outdated web-outdated common-outdated
 
 [group("backend")]
 backend-clean:
@@ -38,24 +38,24 @@ backend-test:
     cd apps/backend && uv run pytest tests
 
 
-[group("frontend-common")]
-frontend-common-generate:
+[group("common")]
+common-generate:
     pnpm --filter @spacenote/common generate
 
-[group("frontend-common")]
-frontend-common-lint:
+[group("common")]
+common-lint:
     pnpm --filter @spacenote/common run format
     pnpm --filter @spacenote/common run lint
     pnpm --filter @spacenote/common run typecheck
 
 
-[group("frontend-common")]
-frontend-common-outdated:
+[group("common")]
+common-outdated:
     pnpm --filter @spacenote/common outdated || true
 
 
-[group("frontend-common")]
-frontend-common-update:
+[group("common")]
+common-update:
     pnpm --filter @spacenote/common update
 
 

@@ -1,23 +1,21 @@
-import { createFileRoute, Link } from "@tanstack/react-router"
-import { Button, Group, Stack, Title } from "@mantine/core"
+import { createFileRoute } from "@tanstack/react-router"
+import { Stack } from "@mantine/core"
 import { api } from "@spacenote/common/api"
+import { LinkButton } from "@spacenote/common/components"
+import { SpaceHeader } from "@/components/SpaceHeader"
 import { SpacesTable } from "./-components/SpacesTable"
 
 export const Route = createFileRoute("/_auth/spaces/")({
   component: SpacesPage,
 })
 
+/** Spaces list page with create space button */
 function SpacesPage() {
   const spaces = api.cache.useSpaces()
 
   return (
     <Stack gap="md">
-      <Group justify="space-between">
-        <Title order={1}>Spaces</Title>
-        <Button component={Link} to="/spaces/new">
-          Create Space
-        </Button>
-      </Group>
+      <SpaceHeader title="Spaces" actions={<LinkButton to="/spaces/new">Create Space</LinkButton>} />
 
       <SpacesTable spaces={spaces} />
     </Stack>

@@ -20,6 +20,7 @@ import { notifications } from "@mantine/notifications"
 import { IconPlus, IconTrash } from "@tabler/icons-react"
 import { api } from "@spacenote/common/api"
 import { ErrorMessage } from "@spacenote/common/components"
+import { SpaceHeader } from "@/components/SpaceHeader"
 import type { FieldType, FilterOperator, SpaceField } from "@spacenote/common/types"
 
 export const Route = createFileRoute("/_auth/spaces/$slug/filters/new")({
@@ -73,6 +74,7 @@ interface ConditionValue {
   value: unknown
 }
 
+/** Resolves field definition from field name (handles both system and custom fields) */
 function getFieldDefinition(fieldName: string, spaceFields: SpaceField[]): SpaceField | undefined {
   if (fieldName.startsWith("note.fields.")) {
     const customFieldName = fieldName.slice("note.fields.".length)
@@ -86,6 +88,7 @@ function getFieldDefinition(fieldName: string, spaceFields: SpaceField[]): Space
 
 let conditionIdCounter = 0
 
+/** Form to add a new filter to a space */
 function AddFilterPage() {
   const { slug } = Route.useParams()
   const navigate = useNavigate()
@@ -153,7 +156,7 @@ function AddFilterPage() {
 
   return (
     <Stack gap="md">
-      <Title order={1}>Add Filter</Title>
+      <SpaceHeader space={space} title="New Filter" />
 
       <Paper withBorder p="md">
         <form onSubmit={handleSubmit}>
@@ -205,19 +208,9 @@ function AddFilterPage() {
 
             {addFilterMutation.error && <ErrorMessage error={addFilterMutation.error} />}
 
-            <Group justify="flex-end">
-              <Button
-                variant="subtle"
-                onClick={() => {
-                  void navigate({ to: "/spaces/$slug/filters", params: { slug } })
-                }}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" loading={addFilterMutation.isPending}>
-                Add Filter
-              </Button>
-            </Group>
+            <Button type="submit" loading={addFilterMutation.isPending}>
+              Add Filter
+            </Button>
           </Stack>
         </form>
       </Paper>
@@ -235,6 +228,7 @@ interface ConditionRowProps {
   onRemove: () => void
 }
 
+/** Single condition row with field, operator, and value inputs */
 function ConditionRow({ condition, index, allFields, spaceFields, spaceMembers, form, onRemove }: ConditionRowProps) {
   const selectedField = getFieldDefinition(condition.field, spaceFields)
   const operators = selectedField ? OPERATORS_BY_TYPE[selectedField.type] : []
@@ -295,6 +289,7 @@ interface ValueInputProps {
   spaceMembers: string[]
 }
 
+/** Dynamic value input based on field type (text, number, date, select, etc.) */
 function ValueInput({ field, operator, value, onChange, spaceMembers }: ValueInputProps) {
   if (!field || !operator) {
     return <TextInput label="Value" placeholder="Select field and operator first" disabled style={{ flex: 1 }} />

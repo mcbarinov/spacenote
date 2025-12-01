@@ -9,6 +9,7 @@ import { rehype } from "rehype"
 const processor = remark().use(remarkGfm).use(remarkHtml, { sanitize: false })
 const sanitizer = rehype().use(rehypeSanitize)
 
+/** Converts markdown to sanitized HTML */
 async function markdownToHtml(markdown: string): Promise<string> {
   if (!markdown) return ""
   const html = await processor.process(markdown)
@@ -20,6 +21,7 @@ interface MarkdownDisplayProps {
   content: string
 }
 
+/** Renders markdown content as sanitized HTML */
 export function MarkdownDisplay({ content }: MarkdownDisplayProps) {
   const [html, setHtml] = useState("")
 

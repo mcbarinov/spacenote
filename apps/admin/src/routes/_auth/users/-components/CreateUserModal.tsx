@@ -17,6 +17,7 @@ interface CreateUserModalProps {
   onClose: () => void
 }
 
+/** Modal form to create a new user */
 export function CreateUserModal({ opened, onClose }: CreateUserModalProps) {
   const createUserMutation = api.mutations.useCreateUser()
 

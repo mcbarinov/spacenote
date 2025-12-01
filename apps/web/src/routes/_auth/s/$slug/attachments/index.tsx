@@ -1,10 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router"
-import { ActionIcon, Group, Table, Title, Text } from "@mantine/core"
+import { ActionIcon, Table, Text } from "@mantine/core"
 import { IconDownload } from "@tabler/icons-react"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { api } from "@spacenote/common/api"
 import { LinkButton } from "@spacenote/common/components"
 import { formatDate, formatFileSize } from "@spacenote/common/utils"
+import { SpaceHeader } from "@/components/SpaceHeader"
 
 export const Route = createFileRoute("/_auth/s/$slug/attachments/")({
   loader: async ({ context, params }) => {
@@ -13,6 +14,7 @@ export const Route = createFileRoute("/_auth/s/$slug/attachments/")({
   component: AttachmentsPage,
 })
 
+/** Space attachments list page */
 function AttachmentsPage() {
   const { slug } = Route.useParams()
   const space = api.cache.useSpace(slug)
@@ -20,17 +22,15 @@ function AttachmentsPage() {
 
   return (
     <>
-      <Group justify="space-between" mb="md">
-        <Title order={1}>{space.title} - Attachments</Title>
-        <Group>
+      <SpaceHeader
+        space={space}
+        title="Attachments"
+        actions={
           <LinkButton to="/s/$slug/attachments/new" params={{ slug }}>
             Upload
           </LinkButton>
-          <LinkButton to="/s/$slug" params={{ slug }} variant="light">
-            Back
-          </LinkButton>
-        </Group>
-      </Group>
+        }
+      />
 
       {attachments.length === 0 ? (
         <Text c="dimmed">No attachments yet</Text>

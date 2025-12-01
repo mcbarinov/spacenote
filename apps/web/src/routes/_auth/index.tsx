@@ -7,6 +7,7 @@ export const Route = createFileRoute("/_auth/")({
   component: HomePage,
 })
 
+/** Home page showing user's spaces grid */
 function HomePage() {
   const spaces = api.cache.useSpaces()
 

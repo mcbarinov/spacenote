@@ -1,49 +1,57 @@
 import { Paper, Table } from "@mantine/core"
-import { CustomLink } from "@spacenote/common/components"
+import { SpaceSlug, Username } from "@spacenote/common/components"
 import type { Space } from "@spacenote/common/types"
+
+import { SpaceMenu } from "@/components/SpaceMenu"
 
 interface SpacesTableProps {
   spaces: Space[]
 }
 
+/** Table displaying spaces with members, fields, and filters */
 export function SpacesTable({ spaces }: SpacesTableProps) {
   return (
     <Paper withBorder>
       <Table>
         <Table.Thead>
           <Table.Tr>
-            <Table.Th>Slug</Table.Th>
-            <Table.Th>Title</Table.Th>
-            <Table.Th>Description</Table.Th>
+            <Table.Th>Space</Table.Th>
             <Table.Th>Members</Table.Th>
             <Table.Th>Fields</Table.Th>
             <Table.Th>Filters</Table.Th>
-            <Table.Th>Settings</Table.Th>
+            <Table.Th>Actions</Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
           {spaces.map((space) => (
             <Table.Tr key={space.slug}>
-              <Table.Td>{space.slug}</Table.Td>
-              <Table.Td>{space.title}</Table.Td>
-              <Table.Td>
-                {space.description.length > 100 ? `${space.description.slice(0, 100)}...` : space.description || "-"}
+              <Table.Td valign="top">
+                <SpaceSlug slug={space.slug} />
+                <div>{space.title}</div>
               </Table.Td>
-              <Table.Td>{space.members.join(", ") || "-"}</Table.Td>
-              <Table.Td>
-                <CustomLink to="/spaces/$slug/fields" params={{ slug: space.slug }}>
-                  {space.fields.length} fields
-                </CustomLink>
+              <Table.Td valign="top">
+                {space.members.length > 0
+                  ? space.members.map((member) => (
+                      <div key={member}>
+                        <Username username={member} />
+                      </div>
+                    ))
+                  : "-"}
               </Table.Td>
-              <Table.Td>
-                <CustomLink to="/spaces/$slug/filters" params={{ slug: space.slug }}>
-                  {space.filters.length} filters
-                </CustomLink>
+              <Table.Td valign="top">
+                {space.fields.length > 0
+                  ? space.fields.map((f) => (
+                      <div key={f.name}>
+                        {f.name}: {f.type}
+                      </div>
+                    ))
+                  : "-"}
               </Table.Td>
-              <Table.Td>
-                <CustomLink to="/spaces/$slug/settings" params={{ slug: space.slug }}>
-                  Settings
-                </CustomLink>
+              <Table.Td valign="top">
+                {space.filters.length > 0 ? space.filters.map((f) => <div key={f.name}>{f.name}</div>) : "-"}
+              </Table.Td>
+              <Table.Td valign="top">
+                <SpaceMenu space={space} />
               </Table.Td>
             </Table.Tr>
           ))}

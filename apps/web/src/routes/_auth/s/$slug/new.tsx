@@ -1,12 +1,14 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { useForm } from "@mantine/form"
-import { Button, Paper, Title, Stack, Group } from "@mantine/core"
+import { Button, Paper, Stack } from "@mantine/core"
 import { notifications } from "@mantine/notifications"
 import { api } from "@spacenote/common/api"
-import { ErrorMessage, LinkButton } from "@spacenote/common/components"
+import { ErrorMessage } from "@spacenote/common/components"
 import type { SpaceField } from "@spacenote/common/types"
 import { FieldInput } from "@/components/FieldInput"
+import { SpaceHeader } from "@/components/SpaceHeader"
 
+/** Gets initial form value for field based on type and default */
 function getDefaultValue(field: SpaceField): unknown {
   if (field.default !== null) {
     return field.default
@@ -24,6 +26,7 @@ function getDefaultValue(field: SpaceField): unknown {
   }
 }
 
+/** Converts form value to raw_fields string format for API */
 function valueToString(value: unknown): string | null {
   if (value === "" || value === null || value === undefined) {
     return null
@@ -47,6 +50,7 @@ export const Route = createFileRoute("/_auth/s/$slug/new")({
   component: NewNotePage,
 })
 
+/** New note creation page */
 function NewNotePage() {
   const navigate = useNavigate()
   const { slug } = Route.useParams()
@@ -87,9 +91,7 @@ function NewNotePage() {
 
   return (
     <>
-      <Title order={1} mb="md">
-        New Note
-      </Title>
+      <SpaceHeader space={space} title="New Note" />
       <Paper withBorder p="xl">
         <form onSubmit={handleSubmit}>
           <Stack gap="md">
@@ -97,14 +99,9 @@ function NewNotePage() {
               <FieldInput key={field.name} field={field} spaceMembers={space.members} {...form.getInputProps(field.name)} />
             ))}
             {createNoteMutation.error && <ErrorMessage error={createNoteMutation.error} />}
-            <Group>
-              <Button type="submit" loading={createNoteMutation.isPending}>
-                Create
-              </Button>
-              <LinkButton to="/s/$slug" params={{ slug }} variant="subtle">
-                Cancel
-              </LinkButton>
-            </Group>
+            <Button type="submit" loading={createNoteMutation.isPending}>
+              Create
+            </Button>
           </Stack>
         </form>
       </Paper>

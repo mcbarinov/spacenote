@@ -9,6 +9,7 @@ interface CommentListProps {
   noteNumber: number
 }
 
+/** Paginated list of comments for a note */
 export function CommentList({ spaceSlug, noteNumber }: CommentListProps) {
   const [page, setPage] = useState(1)
   const { data } = useSuspenseQuery(api.queries.listComments(spaceSlug, noteNumber, page, COMMENTS_PAGE_LIMIT))

@@ -15,6 +15,7 @@ const schema = z.object({
   description: z.string().max(1000, { message: "Description must be at most 1000 characters" }),
 })
 
+/** Form to edit space description */
 export function EditDescription({ space }: EditDescriptionProps) {
   const updateMutation = api.mutations.useUpdateSpaceDescription(space.slug)
 

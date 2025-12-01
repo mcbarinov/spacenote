@@ -9,6 +9,7 @@ export const Route = createFileRoute("/_auth/users")({
   component: UsersPage,
 })
 
+/** Users list page with create user button */
 function UsersPage() {
   const users = api.cache.useUsers()
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)

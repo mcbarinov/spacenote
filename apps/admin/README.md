@@ -7,7 +7,9 @@ Admin panel for Spacenote system management.
 ```
 src/
 ├── main.tsx
-├── routeTree.gen.ts
+├── components/
+│   ├── SpaceHeader.tsx
+│   └── SpaceMenu.tsx
 └── routes/
     ├── __root.tsx
     ├── login.tsx
@@ -19,11 +21,27 @@ src/
         │   ├── new.tsx
         │   ├── -components/
         │   │   └── SpacesTable.tsx
-        │   └── $slug/fields/
-        │       ├── index.tsx
-        │       ├── new.tsx
-        │       └── -components/
-        │           └── FieldsTable.tsx
+        │   └── $slug/
+        │       ├── members/
+        │       │   └── route.tsx
+        │       ├── fields/
+        │       │   ├── index.tsx
+        │       │   ├── new.tsx
+        │       │   └── -components/
+        │       │       └── FieldsTable.tsx
+        │       ├── filters/
+        │       │   ├── index.tsx
+        │       │   ├── new.tsx
+        │       │   └── -components/
+        │       │       └── FiltersTable.tsx
+        │       └── settings/
+        │           ├── index.tsx
+        │           └── -components/
+        │               ├── DeleteSpace.tsx
+        │               ├── EditDescription.tsx
+        │               ├── EditHiddenFieldsOnCreate.tsx
+        │               ├── EditNotesListDefaultColumns.tsx
+        │               └── EditTitle.tsx
         └── users/
             ├── route.tsx
             └── -components/

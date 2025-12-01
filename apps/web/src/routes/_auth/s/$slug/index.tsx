@@ -1,22 +1,25 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
-import { Group, Select, Table, Title } from "@mantine/core"
+import { Group, Select, Table } from "@mantine/core"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { api } from "@spacenote/common/api"
 import { LinkButton } from "@spacenote/common/components"
 import type { Note, SpaceField } from "@spacenote/common/types"
 import { formatDate } from "@spacenote/common/utils"
 import { z } from "zod"
+import { SpaceHeader } from "@/components/SpaceHeader"
 
 const searchSchema = z.object({
   filter: z.string().optional(),
 })
 
+// Labels for system fields (note.number, etc.) vs custom fields (note.fields.*)
 const SYSTEM_FIELD_LABELS: Record<string, string> = {
   "note.number": "Number",
   "note.created_at": "Created",
   "note.author": "Author",
 }
 
+/** Gets display label for field column */
 function getFieldLabel(field: string, spaceFields: SpaceField[]): string {
   if (field in SYSTEM_FIELD_LABELS) {
     return SYSTEM_FIELD_LABELS[field]
@@ -25,6 +28,7 @@ function getFieldLabel(field: string, spaceFields: SpaceField[]): string {
   return spaceFields.find((f) => f.name === fieldName)?.name ?? fieldName
 }
 
+/** Renders field value for table cell */
 function renderFieldValue(field: string, note: Note): React.ReactNode {
   if (field === "note.number") return note.number
   if (field === "note.created_at") return formatDate(note.created_at)
@@ -47,6 +51,7 @@ export const Route = createFileRoute("/_auth/s/$slug/")({
   component: SpacePage,
 })
 
+/** Space page with notes table */
 function SpacePage() {
   const { slug } = Route.useParams()
   const { filter } = Route.useSearch()
@@ -54,6 +59,7 @@ function SpacePage() {
   const space = api.cache.useSpace(slug)
   const { data: notesList } = useSuspenseQuery(api.queries.listNotes(slug, filter))
 
+  // Column priority: filter columns > space columns > defaults
   const selectedFilter = filter ? space.filters.find((f) => f.name === filter) : undefined
   const filterColumns = selectedFilter?.notes_list_default_columns ?? []
   const spaceColumns = space.notes_list_default_columns
@@ -66,32 +72,32 @@ function SpacePage() {
 
   return (
     <>
-      <Group justify="space-between" mb="md">
-        <Title order={1}>{space.title}</Title>
-        <Group>
-          {space.filters.length > 0 && (
-            <Select
-              placeholder="All notes"
-              clearable
-              data={space.filters.map((f) => ({ value: f.name, label: f.name }))}
-              value={filter ?? null}
-              onChange={(value) =>
-                void navigate({
-                  to: "/s/$slug",
-                  params: { slug },
-                  search: value ? { filter: value } : {},
-                })
-              }
-            />
-          )}
-          <LinkButton to="/s/$slug/attachments" params={{ slug }} variant="light">
-            Attachments
-          </LinkButton>
-          <LinkButton to="/s/$slug/new" params={{ slug }}>
-            New Note
-          </LinkButton>
-        </Group>
-      </Group>
+      <SpaceHeader
+        space={space}
+        title={space.title}
+        actions={
+          <Group>
+            {space.filters.length > 0 && (
+              <Select
+                placeholder="All notes"
+                clearable
+                data={space.filters.map((f) => ({ value: f.name, label: f.name }))}
+                value={filter ?? null}
+                onChange={(value) =>
+                  void navigate({
+                    to: "/s/$slug",
+                    params: { slug },
+                    search: value ? { filter: value } : {},
+                  })
+                }
+              />
+            )}
+            <LinkButton to="/s/$slug/new" params={{ slug }}>
+              New Note
+            </LinkButton>
+          </Group>
+        }
+      />
 
       <Table striped highlightOnHover>
         <Table.Thead>

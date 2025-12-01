@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { useForm } from "@mantine/form"
 import { zod4Resolver } from "mantine-form-zod-resolver"
 import { z } from "zod"
-import { Button, Group, MultiSelect, Paper, Stack, TextInput, Textarea, Title } from "@mantine/core"
+import { Button, MultiSelect, Paper, Stack, TextInput, Textarea, Title } from "@mantine/core"
 import { notifications } from "@mantine/notifications"
 import { api } from "@spacenote/common/api"
 import { ErrorMessage } from "@spacenote/common/components"
@@ -22,6 +22,7 @@ const createSpaceSchema = z.object({
   members: z.array(z.string()),
 })
 
+/** Form to create a new space */
 function CreateSpacePage() {
   const navigate = useNavigate()
   const users = api.cache.useUsers()
@@ -49,6 +50,7 @@ function CreateSpacePage() {
     })
   })
 
+  // Admins manage system, not content - they cannot be space members
   const userOptions = users.filter((user) => user.username !== "admin").map((user) => user.username)
 
   return (
@@ -76,19 +78,9 @@ function CreateSpacePage() {
               {...form.getInputProps("members")}
             />
             {createSpaceMutation.error && <ErrorMessage error={createSpaceMutation.error} />}
-            <Group justify="flex-end">
-              <Button
-                variant="subtle"
-                onClick={() => {
-                  void navigate({ to: "/spaces" })
-                }}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" loading={createSpaceMutation.isPending}>
-                Create Space
-              </Button>
-            </Group>
+            <Button type="submit" loading={createSpaceMutation.isPending}>
+              Create Space
+            </Button>
           </Stack>
         </form>
       </Paper>

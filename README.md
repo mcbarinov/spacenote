@@ -11,7 +11,7 @@ spacenote/
 │   ├── web/                # React frontend for users
 │   └── admin/              # React frontend for admins
 ├── packages/               # Shared packages
-│   └── frontend-common/    # @spacenote/common - shared frontend code
+│   └── common/             # @spacenote/common - shared frontend code
 ├── pnpm-workspace.yaml     # pnpm workspace configuration
 ├── package.json            # Root package.json
 └── README.md

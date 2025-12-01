@@ -9,6 +9,7 @@ interface EditHiddenFieldsOnCreateProps {
   space: Space
 }
 
+/** Form to configure which fields are hidden when creating notes */
 export function EditHiddenFieldsOnCreate({ space }: EditHiddenFieldsOnCreateProps) {
   const updateMutation = api.mutations.useUpdateSpaceHiddenFieldsOnCreate(space.slug)
 

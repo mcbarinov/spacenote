@@ -9,6 +9,7 @@ interface MarkdownEditorProps {
   error?: string
 }
 
+/** Markdown input with edit/preview tabs */
 export function MarkdownEditor({ label, value, onChange, required, error }: MarkdownEditorProps) {
   return (
     <Input.Wrapper label={label} required={required} error={error}>

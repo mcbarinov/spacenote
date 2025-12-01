@@ -9,6 +9,7 @@ interface EditNotesListDefaultColumnsProps {
   space: Space
 }
 
+/** Form to configure default columns in notes list view */
 export function EditNotesListDefaultColumns({ space }: EditNotesListDefaultColumnsProps) {
   const updateMutation = api.mutations.useUpdateSpaceNotesListDefaultColumns(space.slug)
 

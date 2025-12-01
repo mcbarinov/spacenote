@@ -7,6 +7,7 @@ from spacenote.core.core import Core
 from spacenote.core.modules.attachment import storage as attachment_storage
 from spacenote.core.modules.attachment.models import Attachment, PendingAttachment
 from spacenote.core.modules.comment.models import Comment
+from spacenote.core.modules.export.models import ExportData
 from spacenote.core.modules.field.models import SpaceField
 from spacenote.core.modules.filter.models import Filter
 from spacenote.core.modules.image.processor import WebpOptions
@@ -294,3 +295,10 @@ class App:
         """Get path to pre-generated WebP image (members only)."""
         await self._core.services.access.ensure_space_member(auth_token, space_slug)
         return await self._core.services.image.get_image_path(space_slug, note_number, field_name)
+
+    # --- Export ---
+
+    async def export_space(self, auth_token: AuthToken, space_slug: str, include_data: bool) -> ExportData:
+        """Export space configuration and optionally all data (members only)."""
+        await self._core.services.access.ensure_space_member(auth_token, space_slug)
+        return await self._core.services.export.export_space(space_slug, include_data)

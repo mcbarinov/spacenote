@@ -79,6 +79,11 @@ class AttachmentService(Service):
         cursor = self._attachments_collection.find({"space_slug": space_slug, "note_number": note_number})
         return [Attachment.model_validate(doc) async for doc in cursor]
 
+    async def list_all_attachments(self, space_slug: str) -> list[Attachment]:
+        """Get all attachments in space without pagination."""
+        cursor = self._attachments_collection.find({"space_slug": space_slug}).sort([("note_number", 1), ("number", 1)])
+        return await Attachment.list_cursor(cursor)
+
     async def get_attachment(self, space_slug: str, note_number: int | None, number: int) -> Attachment:
         """Get attachment by its identifiers."""
         doc = await self._attachments_collection.find_one(

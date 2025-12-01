@@ -44,6 +44,11 @@ class NoteService(Service):
 
         return PaginationResult(items=items, total=total, limit=limit, offset=offset)
 
+    async def list_all_notes(self, space_slug: str) -> list[Note]:
+        """Get all notes in space without pagination."""
+        cursor = self._collection.find({"space_slug": space_slug}).sort("number", 1)
+        return await Note.list_cursor(cursor)
+
     async def get_note(self, space_slug: str, number: int) -> Note:
         """Get note by space and sequential number."""
         doc = await self._collection.find_one({"space_slug": space_slug, "number": number})

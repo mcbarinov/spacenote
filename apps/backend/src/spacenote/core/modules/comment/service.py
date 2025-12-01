@@ -40,6 +40,11 @@ class CommentService(Service):
 
         return PaginationResult(items=items, total=total, limit=limit, offset=offset)
 
+    async def list_all_comments(self, space_slug: str) -> list[Comment]:
+        """Get all comments in space without pagination."""
+        cursor = self._collection.find({"space_slug": space_slug}).sort([("note_number", 1), ("number", 1)])
+        return await Comment.list_cursor(cursor)
+
     async def get_comment(self, space_slug: str, note_number: int, number: int) -> Comment:
         """Get comment by natural key."""
         doc = await self._collection.find_one({"space_slug": space_slug, "note_number": note_number, "number": number})

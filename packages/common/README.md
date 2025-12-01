@@ -12,7 +12,7 @@ src/
 │   ├── errors/       # ErrorBoundary
 │   ├── layout/       # AuthLayout, Header, Footer, LoadingScreen, ErrorScreen
 │   ├── navigation/   # CustomLink, LinkButton
-│   └── ui/           # DeleteButton, ErrorMessage
+│   └── ui/           # DeleteButton, ErrorMessage, Username, SpaceSlug
 ├── errors/           # AppError class for error handling
 ├── types/            # TypeScript types from OpenAPI + custom types
 └── utils/            # Utility functions (format, etc.)

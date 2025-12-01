@@ -1,11 +1,12 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
-import { Group, Select, Table, Title } from "@mantine/core"
+import { Group, Select, Table } from "@mantine/core"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { api } from "@spacenote/common/api"
 import { LinkButton } from "@spacenote/common/components"
 import type { Note, SpaceField } from "@spacenote/common/types"
 import { formatDate } from "@spacenote/common/utils"
 import { z } from "zod"
+import { SpaceHeader } from "@/components/SpaceHeader"
 
 const searchSchema = z.object({
   filter: z.string().optional(),
@@ -66,32 +67,32 @@ function SpacePage() {
 
   return (
     <>
-      <Group justify="space-between" mb="md">
-        <Title order={1}>{space.title}</Title>
-        <Group>
-          {space.filters.length > 0 && (
-            <Select
-              placeholder="All notes"
-              clearable
-              data={space.filters.map((f) => ({ value: f.name, label: f.name }))}
-              value={filter ?? null}
-              onChange={(value) =>
-                void navigate({
-                  to: "/s/$slug",
-                  params: { slug },
-                  search: value ? { filter: value } : {},
-                })
-              }
-            />
-          )}
-          <LinkButton to="/s/$slug/attachments" params={{ slug }} variant="light">
-            Attachments
-          </LinkButton>
-          <LinkButton to="/s/$slug/new" params={{ slug }}>
-            New Note
-          </LinkButton>
-        </Group>
-      </Group>
+      <SpaceHeader
+        space={space}
+        title={space.title}
+        actions={
+          <Group>
+            {space.filters.length > 0 && (
+              <Select
+                placeholder="All notes"
+                clearable
+                data={space.filters.map((f) => ({ value: f.name, label: f.name }))}
+                value={filter ?? null}
+                onChange={(value) =>
+                  void navigate({
+                    to: "/s/$slug",
+                    params: { slug },
+                    search: value ? { filter: value } : {},
+                  })
+                }
+              />
+            )}
+            <LinkButton to="/s/$slug/new" params={{ slug }}>
+              New Note
+            </LinkButton>
+          </Group>
+        }
+      />
 
       <Table striped highlightOnHover>
         <Table.Thead>

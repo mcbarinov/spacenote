@@ -1,11 +1,12 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { useForm } from "@mantine/form"
-import { Button, Paper, Title, Stack, Group } from "@mantine/core"
+import { Button, Paper, Stack } from "@mantine/core"
 import { notifications } from "@mantine/notifications"
 import { api } from "@spacenote/common/api"
-import { ErrorMessage, LinkButton } from "@spacenote/common/components"
+import { ErrorMessage } from "@spacenote/common/components"
 import type { SpaceField } from "@spacenote/common/types"
 import { FieldInput } from "@/components/FieldInput"
+import { SpaceHeader } from "@/components/SpaceHeader"
 
 function getDefaultValue(field: SpaceField): unknown {
   if (field.default !== null) {
@@ -87,9 +88,7 @@ function NewNotePage() {
 
   return (
     <>
-      <Title order={1} mb="md">
-        New Note
-      </Title>
+      <SpaceHeader space={space} title="New Note" />
       <Paper withBorder p="xl">
         <form onSubmit={handleSubmit}>
           <Stack gap="md">
@@ -97,14 +96,9 @@ function NewNotePage() {
               <FieldInput key={field.name} field={field} spaceMembers={space.members} {...form.getInputProps(field.name)} />
             ))}
             {createNoteMutation.error && <ErrorMessage error={createNoteMutation.error} />}
-            <Group>
-              <Button type="submit" loading={createNoteMutation.isPending}>
-                Create
-              </Button>
-              <LinkButton to="/s/$slug" params={{ slug }} variant="subtle">
-                Cancel
-              </LinkButton>
-            </Group>
+            <Button type="submit" loading={createNoteMutation.isPending}>
+              Create
+            </Button>
           </Stack>
         </form>
       </Paper>

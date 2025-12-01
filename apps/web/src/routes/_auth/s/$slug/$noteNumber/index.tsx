@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router"
-import { Divider, Group, Title } from "@mantine/core"
+import { Divider, Title } from "@mantine/core"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { api, COMMENTS_PAGE_LIMIT } from "@spacenote/common/api"
-import { LinkButton } from "@spacenote/common/components"
+import { SpaceHeader } from "@/components/SpaceHeader"
 import { CommentForm } from "./-components/CommentForm"
 import { CommentList } from "./-components/CommentList"
 import { NoteDetails } from "./-components/NoteDetails"
@@ -26,17 +26,7 @@ function NoteDetailPage() {
 
   return (
     <>
-      <Group justify="space-between" mb="md">
-        <Title order={1}>Note #{note.number}</Title>
-        <Group>
-          <LinkButton to="/s/$slug/$noteNumber/attachments" params={{ slug, noteNumber }}>
-            Attachments
-          </LinkButton>
-          <LinkButton to="/s/$slug" params={{ slug }} variant="light">
-            Back
-          </LinkButton>
-        </Group>
-      </Group>
+      <SpaceHeader space={space} note={{ number: note.number }} title={`Note #${String(note.number)}`} />
 
       <NoteDetails note={note} space={space} />
 

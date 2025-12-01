@@ -1,6 +1,6 @@
 import type { ReactNode } from "react"
-import { Breadcrumbs, Button, Group, Stack, Text, Title } from "@mantine/core"
-import { CustomLink } from "@spacenote/common/components"
+import { Breadcrumbs, Button, Group, Stack, Title } from "@mantine/core"
+import { CustomLink, SpaceSlug } from "@spacenote/common/components"
 import type { Space } from "@spacenote/common/types"
 import { useLocation, useNavigate } from "@tanstack/react-router"
 
@@ -21,7 +21,7 @@ export function SpaceHeader({ title, space, actions }: SpaceHeaderProps) {
             <CustomLink to="/spaces" underline="hover" c="blue">
               Spaces
             </CustomLink>
-            <Text>● {space.slug}</Text>
+            <SpaceSlug slug={space.slug} />
           </Breadcrumbs>
           <SpaceTabs space={space} />
         </Group>

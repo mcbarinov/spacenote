@@ -1,4 +1,5 @@
 import { Paper, Table } from "@mantine/core"
+import { SpaceSlug, Username } from "@spacenote/common/components"
 import type { Space } from "@spacenote/common/types"
 
 import { SpaceMenu } from "@/components/SpaceMenu"
@@ -23,12 +24,20 @@ export function SpacesTable({ spaces }: SpacesTableProps) {
         <Table.Tbody>
           {spaces.map((space) => (
             <Table.Tr key={space.slug}>
-              <Table.Td>
-                <div>{space.slug}</div>
+              <Table.Td valign="top">
+                <SpaceSlug slug={space.slug} />
                 <div>{space.title}</div>
               </Table.Td>
-              <Table.Td>{space.members.join(", ") || "-"}</Table.Td>
-              <Table.Td>
+              <Table.Td valign="top">
+                {space.members.length > 0
+                  ? space.members.map((member) => (
+                      <div key={member}>
+                        <Username username={member} />
+                      </div>
+                    ))
+                  : "-"}
+              </Table.Td>
+              <Table.Td valign="top">
                 {space.fields.length > 0
                   ? space.fields.map((f) => (
                       <div key={f.name}>
@@ -37,8 +46,10 @@ export function SpacesTable({ spaces }: SpacesTableProps) {
                     ))
                   : "-"}
               </Table.Td>
-              <Table.Td>{space.filters.length > 0 ? space.filters.map((f) => <div key={f.name}>{f.name}</div>) : "-"}</Table.Td>
-              <Table.Td>
+              <Table.Td valign="top">
+                {space.filters.length > 0 ? space.filters.map((f) => <div key={f.name}>{f.name}</div>) : "-"}
+              </Table.Td>
+              <Table.Td valign="top">
                 <SpaceMenu space={space} />
               </Table.Td>
             </Table.Tr>

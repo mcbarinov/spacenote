@@ -1,7 +1,7 @@
 import { Paper, Table } from "@mantine/core"
 import { notifications } from "@mantine/notifications"
 import { api } from "@spacenote/common/api"
-import { DeleteButton } from "@spacenote/common/components"
+import { DeleteButton, Username } from "@spacenote/common/components"
 import type { User } from "@spacenote/common/types"
 
 interface UsersTableProps {
@@ -23,7 +23,9 @@ export function UsersTable({ users }: UsersTableProps) {
         <Table.Tbody>
           {users.map((user) => (
             <Table.Tr key={user.username}>
-              <Table.Td>{user.username}</Table.Td>
+              <Table.Td>
+                <Username username={user.username} />
+              </Table.Td>
               <Table.Td>
                 <DeleteButton
                   title="Delete User"

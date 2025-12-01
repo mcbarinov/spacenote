@@ -40,3 +40,10 @@ const fieldOptions = space.fields
 // Good - removed unnecessary wrapper
 <Button type="submit">Save</Button>
 ```
+
+## Documentation
+
+- **Document components and functions** — Add brief JSDoc comments:
+  - Component: what it renders
+  - Function: what it does
+  - Parameters: explain non-obvious arguments

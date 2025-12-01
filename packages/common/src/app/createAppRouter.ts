@@ -1,6 +1,7 @@
 import { createRouter, type AnyRoute } from "@tanstack/react-router"
 import { queryClient } from "../api"
 
+/** Creates TanStack Router with QueryClient context */
 export function createAppRouter<T extends AnyRoute>(routeTree: T) {
   return createRouter({
     routeTree,

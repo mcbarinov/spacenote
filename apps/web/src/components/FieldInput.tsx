@@ -12,18 +12,22 @@ interface FieldInputProps {
   spaceMembers?: string[]
 }
 
+/** Type-safe string coercion for form values */
 function asString(value: unknown): string {
   return typeof value === "string" ? value : ""
 }
 
+/** Type-safe boolean coercion for form values */
 function asBoolean(value: unknown): boolean {
   return typeof value === "boolean" ? value : false
 }
 
+/** Type-safe number coercion, returns empty string for non-numbers (Mantine NumberInput requirement) */
 function asNumber(value: unknown): number | string {
   return typeof value === "number" ? value : ""
 }
 
+/** Type-safe string array coercion for tags field */
 function asStringArray(value: unknown): string[] {
   if (Array.isArray(value)) {
     return value.filter((v): v is string => typeof v === "string")
@@ -31,6 +35,7 @@ function asStringArray(value: unknown): string[] {
   return []
 }
 
+/** Renders appropriate input control based on field type */
 export function FieldInput({ field, value, onChange, error, spaceMembers }: FieldInputProps) {
   const commonProps = {
     label: field.name,

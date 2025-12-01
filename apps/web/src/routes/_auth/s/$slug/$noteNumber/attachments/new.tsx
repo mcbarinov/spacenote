@@ -10,6 +10,7 @@ export const Route = createFileRoute("/_auth/s/$slug/$noteNumber/attachments/new
   component: UploadNoteAttachmentPage,
 })
 
+/** Upload attachment to note page */
 function UploadNoteAttachmentPage() {
   const navigate = useNavigate()
   const { slug, noteNumber } = Route.useParams()
@@ -18,6 +19,7 @@ function UploadNoteAttachmentPage() {
   const uploadMutation = api.mutations.useUploadNoteAttachment(slug, noteNum)
   const [file, setFile] = useState<File | null>(null)
 
+  /** Uploads file and navigates to attachments list on success */
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!file) return

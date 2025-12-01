@@ -6,6 +6,7 @@ interface SpaceCardProps {
   space: Space
 }
 
+/** Card link to a space with title and description */
 export default function SpaceCard({ space }: SpaceCardProps) {
   return (
     <Link to="/s/$slug" params={{ slug: space.slug }} style={{ textDecoration: "none" }}>

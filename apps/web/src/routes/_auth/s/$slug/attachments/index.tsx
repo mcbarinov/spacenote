@@ -14,6 +14,7 @@ export const Route = createFileRoute("/_auth/s/$slug/attachments/")({
   component: AttachmentsPage,
 })
 
+/** Space attachments list page */
 function AttachmentsPage() {
   const { slug } = Route.useParams()
   const space = api.cache.useSpace(slug)

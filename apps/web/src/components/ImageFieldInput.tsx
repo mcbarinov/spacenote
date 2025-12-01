@@ -6,13 +6,17 @@ export interface ImageFieldInputProps {
   label: string
   required: boolean
   error?: string
+  /** Pending attachment number or null if no image selected */
   value: number | null
+  /** Called with pending attachment number after upload, or null on removal */
   onChange: (value: number | null) => void
 }
 
+/** Image upload input with preview, loading, and error states */
 export function ImageFieldInput({ label, required, error, value, onChange }: ImageFieldInputProps) {
   const uploadMutation = api.mutations.useUploadPendingAttachment()
 
+  /** Uploads file as pending attachment and updates value with attachment number */
   const handleFileChange = (file: File | null) => {
     if (!file) return
     uploadMutation.mutate(file, {
@@ -22,6 +26,7 @@ export function ImageFieldInput({ label, required, error, value, onChange }: Ima
     })
   }
 
+  /** Clears the selected image */
   const handleRemove = () => {
     onChange(null)
   }

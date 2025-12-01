@@ -4,6 +4,7 @@ import { AppError } from "@spacenote/common/errors"
 import { AuthLayout, LoadingScreen, ErrorScreen } from "@spacenote/common/components"
 
 export const Route = createFileRoute("/_auth")({
+  // Validates auth and redirects to login if unauthorized
   beforeLoad: async ({ context, location }) => {
     try {
       const currentUser = await context.queryClient.ensureQueryData(api.queries.currentUser())
@@ -11,6 +12,7 @@ export const Route = createFileRoute("/_auth")({
     } catch (error) {
       const appError = AppError.fromUnknown(error)
 
+      // Redirect to login for both unauthorized (not logged in) and forbidden (wrong role)
       if (appError.code === "unauthorized" || appError.code === "forbidden") {
         // eslint-disable-next-line @typescript-eslint/only-throw-error
         throw redirect({

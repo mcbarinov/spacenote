@@ -8,6 +8,7 @@ import type { SpaceField } from "@spacenote/common/types"
 import { FieldInput } from "@/components/FieldInput"
 import { SpaceHeader } from "@/components/SpaceHeader"
 
+/** Gets initial form value for field based on type and default */
 function getDefaultValue(field: SpaceField): unknown {
   if (field.default !== null) {
     return field.default
@@ -25,6 +26,7 @@ function getDefaultValue(field: SpaceField): unknown {
   }
 }
 
+/** Converts form value to raw_fields string format for API */
 function valueToString(value: unknown): string | null {
   if (value === "" || value === null || value === undefined) {
     return null
@@ -48,6 +50,7 @@ export const Route = createFileRoute("/_auth/s/$slug/new")({
   component: NewNotePage,
 })
 
+/** New note creation page */
 function NewNotePage() {
   const navigate = useNavigate()
   const { slug } = Route.useParams()

@@ -8,6 +8,7 @@ interface CommentFormProps {
   noteNumber: number
 }
 
+/** Form for creating a new comment */
 export function CommentForm({ spaceSlug, noteNumber }: CommentFormProps) {
   const createCommentMutation = api.mutations.useCreateComment(spaceSlug, noteNumber)
 
@@ -17,6 +18,7 @@ export function CommentForm({ spaceSlug, noteNumber }: CommentFormProps) {
     },
   })
 
+  /** Submits comment and resets form on success */
   const handleSubmit = form.onSubmit((values) => {
     createCommentMutation.mutate(values, {
       onSuccess: () => {

@@ -10,10 +10,12 @@ export const Route = createRootRouteWithContext<RouterContext>()({
   notFoundComponent: NotFoundComponent,
 })
 
+/** Root layout component */
 function RootComponent() {
   return <Outlet />
 }
 
+/** 404 page component */
 function NotFoundComponent() {
   return (
     <div>

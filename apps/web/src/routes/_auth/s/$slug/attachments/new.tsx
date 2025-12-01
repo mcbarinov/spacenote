@@ -10,6 +10,7 @@ export const Route = createFileRoute("/_auth/s/$slug/attachments/new")({
   component: UploadAttachmentPage,
 })
 
+/** Upload attachment to space page */
 function UploadAttachmentPage() {
   const navigate = useNavigate()
   const { slug } = Route.useParams()
@@ -17,6 +18,7 @@ function UploadAttachmentPage() {
   const uploadMutation = api.mutations.useUploadSpaceAttachment(slug)
   const [file, setFile] = useState<File | null>(null)
 
+  /** Uploads file and navigates to attachments list on success */
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!file) return

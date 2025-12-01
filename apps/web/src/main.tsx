@@ -1,3 +1,4 @@
+/** Web app entry point */
 import { runApp, createAppRouter } from "@spacenote/common/app"
 import { routeTree } from "./routeTree.gen"
 

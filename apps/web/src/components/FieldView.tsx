@@ -18,10 +18,12 @@ interface FieldViewProps {
 
 const FULL_WIDTH_TYPES: FieldType[] = ["markdown", "image"]
 
+/** Checks if field type requires full-width layout (markdown and image need more space) */
 function isFullWidth(type: FieldType): boolean {
   return FULL_WIDTH_TYPES.includes(type)
 }
 
+/** Formats field value for display based on field type */
 function formatValue(field: SpaceField, value: FieldValue, noteContext?: NoteContext): React.ReactNode {
   if (value === null || value === undefined) {
     return <Text c="dimmed">—</Text>
@@ -66,6 +68,7 @@ function formatValue(field: SpaceField, value: FieldValue, noteContext?: NoteCon
       if (!noteContext) {
         return <Text c="dimmed">—</Text>
       }
+      // Image fields are stored as processed images, served via note-specific endpoint
       const imageUrl = `/api/v1/spaces/${noteContext.slug}/notes/${String(noteContext.noteNumber)}/images/${field.name}`
       return <Image src={imageUrl} maw={400} radius="sm" />
     }
@@ -75,6 +78,7 @@ function formatValue(field: SpaceField, value: FieldValue, noteContext?: NoteCon
   }
 }
 
+/** Displays field value in read-only mode with appropriate formatting */
 export function FieldView({ field, value, noteContext }: FieldViewProps) {
   const fullWidth = isFullWidth(field.type)
 

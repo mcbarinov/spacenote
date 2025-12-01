@@ -13,6 +13,7 @@ interface SpaceHeaderProps {
   actions?: ReactNode
 }
 
+/** Page header with breadcrumbs and navigation tabs */
 export function SpaceHeader({ title, space, note, actions }: SpaceHeaderProps) {
   return (
     <Stack gap="xs" mb="md">
@@ -40,6 +41,7 @@ export function SpaceHeader({ title, space, note, actions }: SpaceHeaderProps) {
   )
 }
 
+/** Navigation tabs for switching between notes and attachments views */
 function SpaceTabs({ slug, note }: { slug: string; note?: { number: number } }) {
   const location = useLocation()
   const navigate = useNavigate()
@@ -69,6 +71,7 @@ function SpaceTabs({ slug, note }: { slug: string; note?: { number: number } }) 
   }
 
   // Space-level pages: Notes | Space Attachments
+  // Check both exact match and prefix to handle /attachments/new and similar routes
   const isSpaceAttachments =
     location.pathname === `/s/${slug}/attachments` || location.pathname.startsWith(`/s/${slug}/attachments/`)
 

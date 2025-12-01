@@ -8,6 +8,7 @@ interface NoteDetailsProps {
   space: Space
 }
 
+/** Displays note metadata and field values */
 export function NoteDetails({ note, space }: NoteDetailsProps) {
   return (
     <>

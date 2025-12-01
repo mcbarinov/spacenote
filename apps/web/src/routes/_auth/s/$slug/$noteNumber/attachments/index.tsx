@@ -15,6 +15,7 @@ export const Route = createFileRoute("/_auth/s/$slug/$noteNumber/attachments/")(
   component: NoteAttachmentsPage,
 })
 
+/** Note attachments list page */
 function NoteAttachmentsPage() {
   const { slug, noteNumber } = Route.useParams()
   const noteNum = Number(noteNumber)

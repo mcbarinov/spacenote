@@ -23,7 +23,7 @@ apps/
 └── web/                # User-facing app
 
 packages/
-└── frontend-common/    # @spacenote/common - types, API layer, components, utilities
+└── common/             # @spacenote/common - types, API layer, components, utilities
 ```
 
 ### App Structure
@@ -95,11 +95,11 @@ Types auto-generated from backend OpenAPI spec via `openapi-typescript`:
 ```bash
 pnpm --filter @spacenote/common generate
 # or
-just frontend-common-generate
+just common-generate
 ```
 
 ```
-packages/frontend-common/src/types/
+packages/common/src/types/
 ├── openapi.gen.ts   # Auto-generated from OpenAPI
 └── index.ts         # Re-exports + custom types
 ```
@@ -117,7 +117,7 @@ import type { LoginRequest, User } from "@spacenote/common/types"
 ### API Structure
 
 ```
-packages/frontend-common/src/api/
+packages/common/src/api/
 ├── queries.ts      # Query definitions (queryOptions)
 ├── mutations.ts    # Mutation hooks (useMutation)
 ├── cache.ts        # Cache read hooks (useSuspenseQuery wrappers)

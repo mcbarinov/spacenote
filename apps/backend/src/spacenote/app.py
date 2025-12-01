@@ -299,6 +299,6 @@ class App:
     # --- Export ---
 
     async def export_space(self, auth_token: AuthToken, space_slug: str, include_data: bool) -> ExportData:
-        """Export space configuration and optionally all data (members only)."""
-        await self._core.services.access.ensure_space_member(auth_token, space_slug)
+        """Export space configuration and optionally all data (admin only)."""
+        await self._core.services.access.ensure_admin(auth_token)
         return await self._core.services.export.export_space(space_slug, include_data)

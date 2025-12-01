@@ -3,6 +3,7 @@ import { Breadcrumbs, Button, Group, Stack, Title } from "@mantine/core"
 import { CustomLink, SpaceSlug } from "@spacenote/common/components"
 import type { Space } from "@spacenote/common/types"
 import { useLocation, useNavigate } from "@tanstack/react-router"
+import type { FileRouteTypes } from "@/routeTree.gen"
 
 interface SpaceHeaderProps {
   title: string
@@ -35,17 +36,24 @@ export function SpaceHeader({ title, space, actions }: SpaceHeaderProps) {
   )
 }
 
+interface SpaceTab {
+  label: string
+  path: string
+  to: FileRouteTypes["to"]
+}
+
 /** Navigation tabs for space sections (members, fields, filters, settings) */
 function SpaceTabs({ space }: { space: Space }) {
   const location = useLocation()
   const navigate = useNavigate()
   const { slug } = space
 
-  const tabs = [
-    { label: `Members (${String(space.members.length)})`, path: "members", to: "/spaces/$slug/members" as const },
-    { label: `Fields (${String(space.fields.length)})`, path: "fields", to: "/spaces/$slug/fields" as const },
-    { label: `Filters (${String(space.filters.length)})`, path: "filters", to: "/spaces/$slug/filters" as const },
-    { label: "Settings", path: "settings", to: "/spaces/$slug/settings" as const },
+  const tabs: SpaceTab[] = [
+    { label: `Members (${String(space.members.length)})`, path: "members", to: "/spaces/$slug/members" },
+    { label: `Fields (${String(space.fields.length)})`, path: "fields", to: "/spaces/$slug/fields" },
+    { label: `Filters (${String(space.filters.length)})`, path: "filters", to: "/spaces/$slug/filters" },
+    { label: "Export", path: "export", to: "/spaces/$slug/export" },
+    { label: "Settings", path: "settings", to: "/spaces/$slug/settings" },
   ]
 
   return (

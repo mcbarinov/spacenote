@@ -15,7 +15,7 @@ router = APIRouter(tags=["export"])
     responses={
         200: {"description": "Space export data"},
         401: {"model": ErrorResponse, "description": "Not authenticated"},
-        403: {"model": ErrorResponse, "description": "Not a member of this space"},
+        403: {"model": ErrorResponse, "description": "Not an admin"},
         404: {"model": ErrorResponse, "description": "Space not found"},
     },
 )

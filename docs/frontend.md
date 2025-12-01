@@ -196,6 +196,7 @@ Why this pattern:
 - `ensureQueryData` in loader → prefetch during navigation (no waterfall)
 - `useSuspenseQuery` in component → read from cache + subscribe to updates
 - No "flash of loading" - data displays immediately
+- **Always `useSuspenseQuery`, never `useQuery`** — loading/error states handled by route's Suspense and ErrorBoundary, no need to handle in each component
 
 ### Cache Hooks
 

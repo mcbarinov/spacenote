@@ -40,7 +40,7 @@ function SpaceMembersPage() {
 
   return (
     <Stack gap="md">
-      <SpaceHeader slug={slug} title="Members" />
+      <SpaceHeader space={space} title="Members" />
 
       <Paper withBorder p="md">
         <form onSubmit={handleSubmit}>

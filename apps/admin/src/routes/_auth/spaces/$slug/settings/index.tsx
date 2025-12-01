@@ -18,7 +18,7 @@ function SettingsPage() {
 
   return (
     <Stack gap="md">
-      <SpaceHeader slug={slug} title="Settings" />
+      <SpaceHeader space={space} title="Settings" />
       <EditTitle space={space} />
       <EditDescription space={space} />
       <EditHiddenFieldsOnCreate space={space} />

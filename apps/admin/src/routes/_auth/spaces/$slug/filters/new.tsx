@@ -154,7 +154,7 @@ function AddFilterPage() {
 
   return (
     <Stack gap="md">
-      <SpaceHeader slug={slug} title="New Filter" parents={[{ label: "Filters", to: "/spaces/$slug/filters" }]} />
+      <SpaceHeader space={space} title="New Filter" />
 
       <Paper withBorder p="md">
         <form onSubmit={handleSubmit}>

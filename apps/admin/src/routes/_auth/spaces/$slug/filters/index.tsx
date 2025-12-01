@@ -16,7 +16,7 @@ function FiltersPage() {
   return (
     <Stack gap="md">
       <SpaceHeader
-        slug={slug}
+        space={space}
         title="Filters"
         actions={
           <LinkButton to="/spaces/$slug/filters/new" params={{ slug }}>

@@ -1,6 +1,7 @@
 import { Paper, Table } from "@mantine/core"
-import { CustomLink } from "@spacenote/common/components"
 import type { Space } from "@spacenote/common/types"
+
+import { SpaceMenu } from "@/components/SpaceMenu"
 
 interface SpacesTableProps {
   spaces: Space[]
@@ -12,42 +13,33 @@ export function SpacesTable({ spaces }: SpacesTableProps) {
       <Table>
         <Table.Thead>
           <Table.Tr>
-            <Table.Th>Slug</Table.Th>
-            <Table.Th>Title</Table.Th>
-            <Table.Th>Description</Table.Th>
+            <Table.Th>Space</Table.Th>
             <Table.Th>Members</Table.Th>
             <Table.Th>Fields</Table.Th>
             <Table.Th>Filters</Table.Th>
-            <Table.Th>Settings</Table.Th>
+            <Table.Th>Actions</Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
           {spaces.map((space) => (
             <Table.Tr key={space.slug}>
-              <Table.Td>{space.slug}</Table.Td>
-              <Table.Td>{space.title}</Table.Td>
               <Table.Td>
-                {space.description.length > 100 ? `${space.description.slice(0, 100)}...` : space.description || "-"}
+                <div>{space.slug}</div>
+                <div>{space.title}</div>
               </Table.Td>
+              <Table.Td>{space.members.join(", ") || "-"}</Table.Td>
               <Table.Td>
-                <CustomLink to="/spaces/$slug/members" params={{ slug: space.slug }}>
-                  {space.members.length} members
-                </CustomLink>
+                {space.fields.length > 0
+                  ? space.fields.map((f) => (
+                      <div key={f.name}>
+                        {f.name}: {f.type}
+                      </div>
+                    ))
+                  : "-"}
               </Table.Td>
+              <Table.Td>{space.filters.length > 0 ? space.filters.map((f) => <div key={f.name}>{f.name}</div>) : "-"}</Table.Td>
               <Table.Td>
-                <CustomLink to="/spaces/$slug/fields" params={{ slug: space.slug }}>
-                  {space.fields.length} fields
-                </CustomLink>
-              </Table.Td>
-              <Table.Td>
-                <CustomLink to="/spaces/$slug/filters" params={{ slug: space.slug }}>
-                  {space.filters.length} filters
-                </CustomLink>
-              </Table.Td>
-              <Table.Td>
-                <CustomLink to="/spaces/$slug/settings" params={{ slug: space.slug }}>
-                  Settings
-                </CustomLink>
+                <SpaceMenu space={space} />
               </Table.Td>
             </Table.Tr>
           ))}

@@ -16,7 +16,7 @@ function FieldsPage() {
   return (
     <Stack gap="md">
       <SpaceHeader
-        slug={slug}
+        space={space}
         title="Fields"
         actions={
           <LinkButton to="/spaces/$slug/fields/new" params={{ slug }}>

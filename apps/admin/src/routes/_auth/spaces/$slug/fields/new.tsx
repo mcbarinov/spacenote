@@ -33,6 +33,7 @@ type FormValues = z.infer<typeof addFieldSchema>
 function AddFieldPage() {
   const { slug } = Route.useParams()
   const navigate = useNavigate()
+  const space = api.cache.useSpace(slug)
   const addFieldMutation = api.mutations.useAddField(slug)
 
   const form = useForm<FormValues>({
@@ -90,7 +91,7 @@ function AddFieldPage() {
 
   return (
     <Stack gap="md">
-      <SpaceHeader slug={slug} title="New Field" parents={[{ label: "Fields", to: "/spaces/$slug/fields" }]} />
+      <SpaceHeader space={space} title="New Field" />
 
       <Paper withBorder p="md">
         <form onSubmit={handleSubmit}>

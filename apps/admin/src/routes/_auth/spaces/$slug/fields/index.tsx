@@ -9,6 +9,7 @@ export const Route = createFileRoute("/_auth/spaces/$slug/fields/")({
   component: FieldsPage,
 })
 
+/** Space fields list with add field button */
 function FieldsPage() {
   const { slug } = Route.useParams()
   const space = api.cache.useSpace(slug)

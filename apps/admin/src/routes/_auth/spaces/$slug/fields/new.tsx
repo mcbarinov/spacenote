@@ -30,6 +30,7 @@ const addFieldSchema = z.object({
 
 type FormValues = z.infer<typeof addFieldSchema>
 
+/** Form to add a new field to a space */
 function AddFieldPage() {
   const { slug } = Route.useParams()
   const navigate = useNavigate()

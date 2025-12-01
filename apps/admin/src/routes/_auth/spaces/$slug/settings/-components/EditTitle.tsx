@@ -15,6 +15,7 @@ const schema = z.object({
   title: z.string().min(1, { message: "Title is required" }).max(100, { message: "Title must be at most 100 characters" }),
 })
 
+/** Form to edit space title */
 export function EditTitle({ space }: EditTitleProps) {
   const updateMutation = api.mutations.useUpdateSpaceTitle(space.slug)
 

@@ -8,6 +8,7 @@ interface UsersTableProps {
   users: User[]
 }
 
+/** Table displaying users with delete action */
 export function UsersTable({ users }: UsersTableProps) {
   const deleteUserMutation = api.mutations.useDeleteUser()
 

@@ -12,6 +12,7 @@ export const Route = createFileRoute("/_auth/spaces/$slug/settings/")({
   component: SettingsPage,
 })
 
+/** Space settings page with title, description, and danger zone */
 function SettingsPage() {
   const { slug } = Route.useParams()
   const space = api.cache.useSpace(slug)

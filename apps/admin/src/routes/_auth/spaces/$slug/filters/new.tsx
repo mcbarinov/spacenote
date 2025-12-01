@@ -74,6 +74,7 @@ interface ConditionValue {
   value: unknown
 }
 
+/** Resolves field definition from field name (handles both system and custom fields) */
 function getFieldDefinition(fieldName: string, spaceFields: SpaceField[]): SpaceField | undefined {
   if (fieldName.startsWith("note.fields.")) {
     const customFieldName = fieldName.slice("note.fields.".length)
@@ -87,6 +88,7 @@ function getFieldDefinition(fieldName: string, spaceFields: SpaceField[]): Space
 
 let conditionIdCounter = 0
 
+/** Form to add a new filter to a space */
 function AddFilterPage() {
   const { slug } = Route.useParams()
   const navigate = useNavigate()
@@ -226,6 +228,7 @@ interface ConditionRowProps {
   onRemove: () => void
 }
 
+/** Single condition row with field, operator, and value inputs */
 function ConditionRow({ condition, index, allFields, spaceFields, spaceMembers, form, onRemove }: ConditionRowProps) {
   const selectedField = getFieldDefinition(condition.field, spaceFields)
   const operators = selectedField ? OPERATORS_BY_TYPE[selectedField.type] : []
@@ -286,6 +289,7 @@ interface ValueInputProps {
   spaceMembers: string[]
 }
 
+/** Dynamic value input based on field type (text, number, date, select, etc.) */
 function ValueInput({ field, operator, value, onChange, spaceMembers }: ValueInputProps) {
   if (!field || !operator) {
     return <TextInput label="Value" placeholder="Select field and operator first" disabled style={{ flex: 1 }} />

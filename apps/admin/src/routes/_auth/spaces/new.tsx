@@ -22,6 +22,7 @@ const createSpaceSchema = z.object({
   members: z.array(z.string()),
 })
 
+/** Form to create a new space */
 function CreateSpacePage() {
   const navigate = useNavigate()
   const users = api.cache.useUsers()

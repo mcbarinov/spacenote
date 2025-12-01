@@ -5,6 +5,7 @@ export const Route = createFileRoute("/_auth/")({
   component: HomePage,
 })
 
+/** Admin dashboard with navigation links */
 function HomePage() {
   return (
     <Stack gap="md">

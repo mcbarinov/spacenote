@@ -9,6 +9,7 @@ interface DeleteSpaceProps {
   space: Space
 }
 
+/** Danger zone section with space delete button */
 export function DeleteSpace({ space }: DeleteSpaceProps) {
   const navigate = useNavigate()
   const deleteMutation = api.mutations.useDeleteSpace()

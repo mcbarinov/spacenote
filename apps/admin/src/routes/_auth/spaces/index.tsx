@@ -9,6 +9,7 @@ export const Route = createFileRoute("/_auth/spaces/")({
   component: SpacesPage,
 })
 
+/** Spaces list page with create space button */
 function SpacesPage() {
   const spaces = api.cache.useSpaces()
 

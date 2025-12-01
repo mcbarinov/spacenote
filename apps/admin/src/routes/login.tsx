@@ -19,6 +19,7 @@ const loginSchema = z.object({
   password: z.string().min(2, { message: "Password must be at least 2 characters" }),
 })
 
+/** Admin login form */
 function LoginPage() {
   const navigate = useNavigate()
   const { redirect } = Route.useSearch()

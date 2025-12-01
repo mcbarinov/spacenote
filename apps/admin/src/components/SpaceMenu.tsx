@@ -7,6 +7,7 @@ interface SpaceMenuProps {
   space: Space
 }
 
+/** Dropdown menu with links to space sections */
 export function SpaceMenu({ space }: SpaceMenuProps) {
   const navigate = useNavigate()
   const { slug } = space

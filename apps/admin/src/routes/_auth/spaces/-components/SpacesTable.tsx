@@ -8,6 +8,7 @@ interface SpacesTableProps {
   spaces: Space[]
 }
 
+/** Table displaying spaces with members, fields, and filters */
 export function SpacesTable({ spaces }: SpacesTableProps) {
   return (
     <Paper withBorder>

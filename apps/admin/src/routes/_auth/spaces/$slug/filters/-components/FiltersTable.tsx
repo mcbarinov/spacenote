@@ -9,6 +9,7 @@ interface FiltersTableProps {
   filters: Filter[]
 }
 
+/** Table displaying space filters with delete action */
 export function FiltersTable({ spaceSlug, filters }: FiltersTableProps) {
   const deleteFilterMutation = api.mutations.useDeleteFilter(spaceSlug)
 

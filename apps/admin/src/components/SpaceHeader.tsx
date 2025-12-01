@@ -12,6 +12,7 @@ interface SpaceHeaderProps {
   actions?: ReactNode
 }
 
+/** Header with breadcrumbs and navigation tabs for space pages */
 export function SpaceHeader({ title, space, actions }: SpaceHeaderProps) {
   return (
     <Stack gap="xs">
@@ -34,6 +35,7 @@ export function SpaceHeader({ title, space, actions }: SpaceHeaderProps) {
   )
 }
 
+/** Navigation tabs for space sections (members, fields, filters, settings) */
 function SpaceTabs({ space }: { space: Space }) {
   const location = useLocation()
   const navigate = useNavigate()

@@ -9,6 +9,7 @@ interface FieldsTableProps {
   fields: SpaceField[]
 }
 
+/** Table displaying space fields with delete action */
 export function FieldsTable({ spaceSlug, fields }: FieldsTableProps) {
   const deleteFieldMutation = api.mutations.useDeleteField(spaceSlug)
 

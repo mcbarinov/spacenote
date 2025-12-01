@@ -9,6 +9,7 @@ export const Route = createFileRoute("/_auth/spaces/$slug/filters/")({
   component: FiltersPage,
 })
 
+/** Space filters list with add filter button */
 function FiltersPage() {
   const { slug } = Route.useParams()
   const space = api.cache.useSpace(slug)

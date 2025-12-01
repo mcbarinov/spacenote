@@ -10,6 +10,7 @@ export const Route = createFileRoute("/_auth/spaces/$slug/members")({
   component: SpaceMembersPage,
 })
 
+/** Form to manage space members */
 function SpaceMembersPage() {
   const navigate = useNavigate()
   const { slug } = Route.useParams()

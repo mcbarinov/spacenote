@@ -2,6 +2,7 @@ import { QueryClient, QueryCache, MutationCache } from "@tanstack/react-query"
 import { notifications } from "@mantine/notifications"
 import { AppError } from "../errors/AppError"
 
+/** Configured QueryClient with retry logic and error handling */
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {

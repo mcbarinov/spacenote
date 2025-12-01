@@ -27,6 +27,7 @@ export function useSpaces(): Space[] {
   return data
 }
 
+/** Gets a space by slug from cache */
 export function useSpace(slug: string): Space {
   const spaces = useSpaces()
   const space = spaces.find((s) => s.slug === slug)
@@ -36,6 +37,7 @@ export function useSpace(slug: string): Space {
   return space
 }
 
+/** Gets a user by username from cache */
 export function useUser(username: string): User {
   const users = useUsers()
   const user = users.find((u) => u.username === username)

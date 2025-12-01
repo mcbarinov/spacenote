@@ -21,6 +21,7 @@ import type {
   User,
 } from "../types"
 
+/** Authenticates user with credentials */
 export function useLogin() {
   const queryClient = useQueryClient()
   return useMutation({
@@ -33,6 +34,7 @@ export function useLogin() {
   })
 }
 
+/** Logs out current user */
 export function useLogout() {
   return useMutation({
     mutationFn: () => httpClient.post("api/v1/auth/logout"),
@@ -48,6 +50,7 @@ export function useLogout() {
   })
 }
 
+/** Creates a new user (admin only) */
 export function useCreateUser() {
   const queryClient = useQueryClient()
   return useMutation({
@@ -58,6 +61,7 @@ export function useCreateUser() {
   })
 }
 
+/** Deletes a user (admin only) */
 export function useDeleteUser() {
   const queryClient = useQueryClient()
   return useMutation({
@@ -68,6 +72,7 @@ export function useDeleteUser() {
   })
 }
 
+/** Creates a new space */
 export function useCreateSpace() {
   const queryClient = useQueryClient()
   return useMutation({
@@ -78,6 +83,7 @@ export function useCreateSpace() {
   })
 }
 
+/** Deletes a space */
 export function useDeleteSpace() {
   const queryClient = useQueryClient()
   return useMutation({
@@ -88,6 +94,7 @@ export function useDeleteSpace() {
   })
 }
 
+/** Updates space title */
 export function useUpdateSpaceTitle(slug: string) {
   const queryClient = useQueryClient()
   return useMutation({
@@ -98,6 +105,7 @@ export function useUpdateSpaceTitle(slug: string) {
   })
 }
 
+/** Updates space description */
 export function useUpdateSpaceDescription(slug: string) {
   const queryClient = useQueryClient()
   return useMutation({
@@ -109,6 +117,7 @@ export function useUpdateSpaceDescription(slug: string) {
   })
 }
 
+/** Updates hidden fields on note create form */
 export function useUpdateSpaceHiddenFieldsOnCreate(slug: string) {
   const queryClient = useQueryClient()
   return useMutation({
@@ -120,6 +129,7 @@ export function useUpdateSpaceHiddenFieldsOnCreate(slug: string) {
   })
 }
 
+/** Updates default columns for notes list */
 export function useUpdateSpaceNotesListDefaultColumns(slug: string) {
   const queryClient = useQueryClient()
   return useMutation({
@@ -131,6 +141,7 @@ export function useUpdateSpaceNotesListDefaultColumns(slug: string) {
   })
 }
 
+/** Updates space members */
 export function useUpdateSpaceMembers(slug: string) {
   const queryClient = useQueryClient()
   return useMutation({
@@ -141,6 +152,7 @@ export function useUpdateSpaceMembers(slug: string) {
   })
 }
 
+/** Adds a field to space schema */
 export function useAddField(spaceSlug: string) {
   const queryClient = useQueryClient()
   return useMutation({
@@ -151,6 +163,7 @@ export function useAddField(spaceSlug: string) {
   })
 }
 
+/** Deletes a field from space schema */
 export function useDeleteField(spaceSlug: string) {
   const queryClient = useQueryClient()
   return useMutation({
@@ -161,6 +174,7 @@ export function useDeleteField(spaceSlug: string) {
   })
 }
 
+/** Adds a filter to space */
 export function useAddFilter(spaceSlug: string) {
   const queryClient = useQueryClient()
   return useMutation({
@@ -171,6 +185,7 @@ export function useAddFilter(spaceSlug: string) {
   })
 }
 
+/** Deletes a filter from space */
 export function useDeleteFilter(spaceSlug: string) {
   const queryClient = useQueryClient()
   return useMutation({
@@ -181,6 +196,7 @@ export function useDeleteFilter(spaceSlug: string) {
   })
 }
 
+/** Creates a new note in space */
 export function useCreateNote(spaceSlug: string) {
   const queryClient = useQueryClient()
   return useMutation({
@@ -191,6 +207,7 @@ export function useCreateNote(spaceSlug: string) {
   })
 }
 
+/** Creates a comment on a note */
 export function useCreateComment(spaceSlug: string, noteNumber: number) {
   const queryClient = useQueryClient()
   return useMutation({
@@ -202,6 +219,7 @@ export function useCreateComment(spaceSlug: string, noteNumber: number) {
   })
 }
 
+/** Uploads attachment to space */
 export function useUploadSpaceAttachment(spaceSlug: string) {
   const queryClient = useQueryClient()
   return useMutation({
@@ -216,6 +234,7 @@ export function useUploadSpaceAttachment(spaceSlug: string) {
   })
 }
 
+/** Uploads attachment to note */
 export function useUploadNoteAttachment(spaceSlug: string, noteNumber: number) {
   const queryClient = useQueryClient()
   return useMutation({
@@ -232,6 +251,7 @@ export function useUploadNoteAttachment(spaceSlug: string, noteNumber: number) {
   })
 }
 
+/** Uploads pending attachment for image fields */
 export function useUploadPendingAttachment() {
   return useMutation({
     mutationFn: (file: File) => {

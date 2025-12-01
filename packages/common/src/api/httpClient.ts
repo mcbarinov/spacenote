@@ -7,8 +7,10 @@ if (!baseUrl) {
   throw new Error("VITE_API_BASE_URL environment variable is required")
 }
 
+/** Configured ky instance for API requests */
 export let httpClient: KyInstance
 
+/** Initializes HTTP client with app-specific config */
 export function initHttpClient(clientApp: "admin" | "web") {
   httpClient = ky.create({
     prefixUrl: baseUrl,

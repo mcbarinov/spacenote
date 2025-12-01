@@ -2,8 +2,10 @@ import { queryOptions } from "@tanstack/react-query"
 import { httpClient } from "./httpClient"
 import type { Attachment, CommentsList, Note, NotesList, Space, User } from "../types"
 
+/** Default page size for comments pagination */
 export const COMMENTS_PAGE_LIMIT = 100
 
+/** Fetches current authenticated user */
 export function currentUser() {
   return queryOptions({
     queryKey: ["currentUser"],
@@ -13,6 +15,7 @@ export function currentUser() {
   })
 }
 
+/** Fetches all users (admin only) */
 export function listUsers() {
   return queryOptions({
     queryKey: ["users"],
@@ -20,6 +23,7 @@ export function listUsers() {
   })
 }
 
+/** Fetches all spaces */
 export function listSpaces() {
   return queryOptions({
     queryKey: ["spaces"],
@@ -27,6 +31,7 @@ export function listSpaces() {
   })
 }
 
+/** Fetches notes for a space with optional filter */
 export function listNotes(spaceSlug: string, filter?: string) {
   return queryOptions({
     queryKey: ["spaces", spaceSlug, "notes", { filter }],
@@ -37,6 +42,7 @@ export function listNotes(spaceSlug: string, filter?: string) {
   })
 }
 
+/** Fetches a single note by number */
 export function getNote(spaceSlug: string, noteNumber: number) {
   return queryOptions({
     queryKey: ["spaces", spaceSlug, "notes", noteNumber],
@@ -44,6 +50,7 @@ export function getNote(spaceSlug: string, noteNumber: number) {
   })
 }
 
+/** Fetches paginated comments for a note */
 export function listComments(spaceSlug: string, noteNumber: number, page = 1, limit = COMMENTS_PAGE_LIMIT) {
   return queryOptions({
     queryKey: ["spaces", spaceSlug, "notes", noteNumber, "comments", { page, limit }],
@@ -56,6 +63,7 @@ export function listComments(spaceSlug: string, noteNumber: number, page = 1, li
   })
 }
 
+/** Fetches attachments for a space */
 export function listSpaceAttachments(spaceSlug: string) {
   return queryOptions({
     queryKey: ["spaces", spaceSlug, "attachments"],
@@ -63,6 +71,7 @@ export function listSpaceAttachments(spaceSlug: string) {
   })
 }
 
+/** Fetches attachments for a note */
 export function listNoteAttachments(spaceSlug: string, noteNumber: number) {
   return queryOptions({
     queryKey: ["spaces", spaceSlug, "notes", noteNumber, "attachments"],

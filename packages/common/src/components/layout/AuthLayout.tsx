@@ -4,6 +4,7 @@ import { ErrorBoundary } from "../errors/ErrorBoundary"
 import { Header } from "./Header"
 import { Footer } from "./Footer"
 
+/** Layout for authenticated pages with header, footer, and error handling */
 export function AuthLayout() {
   const location = useLocation()
   const navigate = useNavigate()

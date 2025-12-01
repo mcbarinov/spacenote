@@ -1,5 +1,6 @@
 import { HTTPError } from "ky"
 
+/** Application error codes */
 export type ErrorCode =
   | "bad_request"
   | "unauthorized"
@@ -10,6 +11,7 @@ export type ErrorCode =
   | "network_error"
   | "unknown"
 
+/** Centralized error class with code and message */
 export class AppError extends Error {
   readonly code: ErrorCode
 
@@ -21,6 +23,7 @@ export class AppError extends Error {
 
   // ---------- Static helpers ----------
 
+  /** Maps HTTP status to error code */
   static codeFromStatus(statusCode: number): ErrorCode {
     switch (statusCode) {
       case 400:
@@ -41,6 +44,7 @@ export class AppError extends Error {
     }
   }
 
+  /** Converts any error to AppError */
   static fromUnknown(error: unknown): AppError {
     if (error instanceof AppError) {
       return error
@@ -60,6 +64,8 @@ export class AppError extends Error {
   }
 
   // ---------- Instance helpers ----------
+
+  /** Human-readable error title */
   get title(): string {
     return errorTitleByCode[this.code]
   }
@@ -67,6 +73,7 @@ export class AppError extends Error {
 
 // Note: legacy async parseError has been removed in favor of AppError.fromUnknown
 
+/** Maps error codes to display titles */
 export const errorTitleByCode: Record<ErrorCode, string> = {
   bad_request: "Invalid Request",
   unauthorized: "Authentication Required",

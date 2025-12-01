@@ -4,6 +4,7 @@ import { Link, useNavigate } from "@tanstack/react-router"
 import { api } from "../../api"
 import { useAppConfig } from "../../app/AppContext"
 
+/** App header with logo and user menu */
 export function Header() {
   const { isAdmin } = useAppConfig()
   const currentUser = api.cache.useCurrentUser()

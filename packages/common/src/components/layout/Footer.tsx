@@ -1,5 +1,6 @@
 import { Divider, Text } from "@mantine/core"
 
+/** App footer with copyright */
 export function Footer() {
   return (
     <footer>

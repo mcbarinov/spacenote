@@ -2,6 +2,7 @@ import { Alert, Center } from "@mantine/core"
 import { IconAlertCircle } from "@tabler/icons-react"
 import { AppError } from "../../errors"
 
+/** Full-screen error display */
 export function ErrorScreen({ error }: { error: Error }) {
   const appError = AppError.fromUnknown(error)
   return (

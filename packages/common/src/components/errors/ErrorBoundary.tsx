@@ -3,12 +3,16 @@ import { Alert, Container } from "@mantine/core"
 import { IconAlertCircle } from "@tabler/icons-react"
 import { AppError } from "../../errors/AppError"
 
+/** Props for ErrorBoundary component */
 interface Props {
   children: ReactNode
+  /** Key to reset error state on change */
   resetKey?: unknown
+  /** Callback when unauthorized error is caught */
   onUnauthorized?: () => void
 }
 
+/** Error boundary that catches render errors and displays alert */
 export class ErrorBoundary extends Component<Props, { error: Error | null }> {
   state: { error: Error | null } = { error: null }
 

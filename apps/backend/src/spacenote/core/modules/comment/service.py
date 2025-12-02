@@ -120,3 +120,11 @@ class CommentService(Service):
         """Delete all comments in a space."""
         result = await self._collection.delete_many({"space_slug": space_slug})
         return result.deleted_count
+
+    async def import_comments(self, comments: list[Comment]) -> int:
+        """Bulk insert pre-built comments (for import)."""
+        if not comments:
+            return 0
+
+        await self._collection.insert_many([c.to_mongo() for c in comments])
+        return len(comments)

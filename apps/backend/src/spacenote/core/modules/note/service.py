@@ -99,3 +99,11 @@ class NoteService(Service):
         """Delete all notes in a space and return count of deleted notes."""
         result = await self._collection.delete_many({"space_slug": space_slug})
         return result.deleted_count
+
+    async def import_notes(self, notes: list[Note]) -> int:
+        """Bulk insert pre-built notes (for import)."""
+        if not notes:
+            return 0
+
+        await self._collection.insert_many([n.to_mongo() for n in notes])
+        return len(notes)

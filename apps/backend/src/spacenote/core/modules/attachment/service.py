@@ -116,3 +116,11 @@ class AttachmentService(Service):
         await self._pending_collection.delete_one({"number": pending_number})
 
         return attachment
+
+    async def import_attachments(self, attachments: list[Attachment]) -> int:
+        """Bulk insert pre-built attachments (for import, metadata only)."""
+        if not attachments:
+            return 0
+
+        await self._attachments_collection.insert_many([a.to_mongo() for a in attachments])
+        return len(attachments)

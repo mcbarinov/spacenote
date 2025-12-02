@@ -296,9 +296,14 @@ class App:
         await self._core.services.access.ensure_space_member(auth_token, space_slug)
         return await self._core.services.image.get_image_path(space_slug, note_number, field_name)
 
-    # --- Export ---
+    # --- Export/Import ---
 
     async def export_space(self, auth_token: AuthToken, space_slug: str, include_data: bool) -> ExportData:
         """Export space configuration and optionally all data (admin only)."""
         await self._core.services.access.ensure_admin(auth_token)
         return await self._core.services.export.export_space(space_slug, include_data)
+
+    async def import_space(self, auth_token: AuthToken, data: ExportData) -> Space:
+        """Import space from export data (admin only)."""
+        await self._core.services.access.ensure_admin(auth_token)
+        return await self._core.services.export.import_space(data)

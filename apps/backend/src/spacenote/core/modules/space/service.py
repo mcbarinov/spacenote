@@ -49,6 +49,16 @@ class SpaceService(Service):
         await self._collection.insert_one(space.to_mongo())
         return await self.update_space_cache(slug)
 
+    async def import_space(self, space: Space) -> Space:
+        """Insert pre-built space (for import)."""
+        if self.has_space(space.slug):
+            raise ValidationError(f"Space '{space.slug}' already exists")
+
+        self._validate_members(space.members)
+
+        await self._collection.insert_one(space.to_mongo())
+        return await self.update_space_cache(space.slug)
+
     async def update_title(self, slug: str, title: str) -> Space:
         """Update space title."""
         self.get_space(slug)

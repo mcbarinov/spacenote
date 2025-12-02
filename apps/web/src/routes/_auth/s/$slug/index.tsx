@@ -58,16 +58,14 @@ function SpacePage() {
   const space = api.cache.useSpace(slug)
   const { data: notesList } = useSuspenseQuery(api.queries.listNotes(slug, filter))
 
-  // Column priority: filter columns > space columns > defaults
+  // Column priority: selected filter > "all" filter > hardcoded defaults
   const selectedFilter = filter ? space.filters.find((f) => f.name === filter) : undefined
-  const filterColumns = selectedFilter?.notes_list_default_columns ?? []
-  const spaceColumns = space.notes_list_default_columns
-  const displayFields =
-    filterColumns.length > 0
-      ? filterColumns
-      : spaceColumns.length > 0
-        ? spaceColumns
-        : ["note.number", "note.created_at", "note.author"]
+  const allFilter = space.filters.find((f) => f.name === "all")
+  const displayFields = selectedFilter?.notes_list_default_columns.length
+    ? selectedFilter.notes_list_default_columns
+    : allFilter?.notes_list_default_columns.length
+      ? allFilter.notes_list_default_columns
+      : ["note.number", "note.created_at", "note.author"]
 
   return (
     <>

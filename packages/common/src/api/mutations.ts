@@ -17,7 +17,6 @@ import type {
   UpdateDescriptionRequest,
   UpdateHiddenFieldsOnCreateRequest,
   UpdateMembersRequest,
-  UpdateNotesListDefaultColumnsRequest,
   UpdateTitleRequest,
   User,
 } from "../types"
@@ -135,18 +134,6 @@ export function useUpdateSpaceHiddenFieldsOnCreate(slug: string) {
   return useMutation({
     mutationFn: (data: UpdateHiddenFieldsOnCreateRequest) =>
       httpClient.patch(`api/v1/spaces/${slug}/hidden-fields-on-create`, { json: data }).json<Space>(),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["spaces"] })
-    },
-  })
-}
-
-/** Updates default columns for notes list */
-export function useUpdateSpaceNotesListDefaultColumns(slug: string) {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: (data: UpdateNotesListDefaultColumnsRequest) =>
-      httpClient.patch(`api/v1/spaces/${slug}/notes-list-default-columns`, { json: data }).json<Space>(),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["spaces"] })
     },

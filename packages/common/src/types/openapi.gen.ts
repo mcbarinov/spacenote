@@ -556,26 +556,6 @@ export type paths = {
     patch: operations["updateSpaceHiddenFieldsOnCreate"]
     trace?: never
   }
-  "/api/v1/spaces/{slug}/notes-list-default-columns": {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    get?: never
-    put?: never
-    post?: never
-    delete?: never
-    options?: never
-    head?: never
-    /**
-     * Update notes list default columns
-     * @description Update default columns for notes list view. Only accessible by admin users.
-     */
-    patch: operations["updateSpaceNotesListDefaultColumns"]
-    trace?: never
-  }
   "/api/v1/spaces/{slug}": {
     parameters: {
       query?: never
@@ -952,7 +932,7 @@ export type components = {
       name: string
       /**
        * Notes List Default Columns
-       * @description Columns for notes list when no template is set. If empty, uses Space.notes_list_default_columns
+       * @description Columns for notes list
        */
       notes_list_default_columns: string[]
       /**
@@ -1174,11 +1154,6 @@ export type components = {
        */
       filters: components["schemas"]["Filter"][]
       /**
-       * Notes List Default Columns
-       * @description Columns for notes list when no template is set
-       */
-      notes_list_default_columns: string[]
-      /**
        * Hidden Fields On Create
        * @description Field names to hide on note creation form (will use defaults or null)
        */
@@ -1207,8 +1182,6 @@ export type components = {
       fields: components["schemas"]["SpaceField"][]
       /** Filters */
       filters: components["schemas"]["Filter"][]
-      /** Notes List Default Columns */
-      notes_list_default_columns: string[]
       /** Hidden Fields On Create */
       hidden_fields_on_create: string[]
       /**
@@ -1311,17 +1284,6 @@ export type components = {
       raw_fields: {
         [key: string]: string
       }
-    }
-    /**
-     * UpdateNotesListDefaultColumnsRequest
-     * @description Space notes list default columns update request.
-     */
-    UpdateNotesListDefaultColumnsRequest: {
-      /**
-       * Notes List Default Columns
-       * @description Default columns for notes list
-       */
-      notes_list_default_columns: string[]
     }
     /**
      * UpdateTitleRequest
@@ -2667,7 +2629,7 @@ export interface operations {
         /** @description Number of items to skip */
         offset?: number
         /** @description Filter name to apply */
-        filter?: string | null
+        filter?: string
       }
       header?: never
       path: {
@@ -3322,77 +3284,6 @@ export interface operations {
     }
     responses: {
       /** @description Hidden fields on create updated successfully */
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          "application/json": components["schemas"]["Space"]
-        }
-      }
-      /** @description Invalid request */
-      400: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          "application/json": components["schemas"]["ErrorResponse"]
-        }
-      }
-      /** @description Not authenticated */
-      401: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          "application/json": components["schemas"]["ErrorResponse"]
-        }
-      }
-      /** @description Admin privileges required */
-      403: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          "application/json": components["schemas"]["ErrorResponse"]
-        }
-      }
-      /** @description Space not found */
-      404: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          "application/json": components["schemas"]["ErrorResponse"]
-        }
-      }
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"]
-        }
-      }
-    }
-  }
-  updateSpaceNotesListDefaultColumns: {
-    parameters: {
-      query?: never
-      header?: never
-      path: {
-        slug: string
-      }
-      cookie?: never
-    }
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["UpdateNotesListDefaultColumnsRequest"]
-      }
-    }
-    responses: {
-      /** @description Notes list default columns updated successfully */
       200: {
         headers: {
           [name: string]: unknown

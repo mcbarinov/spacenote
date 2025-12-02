@@ -117,9 +117,11 @@ function AddFieldPage() {
             )}
 
             {addFieldMutation.error && <ErrorMessage error={addFieldMutation.error} />}
-            <Button type="submit" loading={addFieldMutation.isPending}>
-              Add Field
-            </Button>
+            <Group justify="flex-end">
+              <Button type="submit" loading={addFieldMutation.isPending}>
+                Add Field
+              </Button>
+            </Group>
           </Stack>
         </form>
       </Paper>

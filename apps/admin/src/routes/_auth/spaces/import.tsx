@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
-import { Alert, Button, Paper, Stack, Textarea, Title } from "@mantine/core"
+import { Alert, Button, Group, Paper, Stack, Textarea, Title } from "@mantine/core"
 import { notifications } from "@mantine/notifications"
 import { api } from "@spacenote/common/api"
 import { ErrorMessage } from "@spacenote/common/components"
@@ -62,9 +62,11 @@ function ImportSpacePage() {
             />
             {parseError && <Alert color="red">{parseError}</Alert>}
             {importSpaceMutation.error && <ErrorMessage error={importSpaceMutation.error} />}
-            <Button type="submit" loading={importSpaceMutation.isPending}>
-              Import Space
-            </Button>
+            <Group justify="flex-end">
+              <Button type="submit" loading={importSpaceMutation.isPending}>
+                Import Space
+              </Button>
+            </Group>
           </Stack>
         </form>
       </Paper>

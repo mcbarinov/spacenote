@@ -1,6 +1,5 @@
-import type { ReactNode } from "react"
-import { Breadcrumbs, Button, Group, Stack, Title } from "@mantine/core"
-import { CustomLink, SpaceSlug } from "@spacenote/common/components"
+import { Breadcrumbs, Button, Group, Stack } from "@mantine/core"
+import { CustomLink, PageHeader, SpaceSlug, type PageHeaderNavItem } from "@spacenote/common/components"
 import type { Space } from "@spacenote/common/types"
 import { useLocation, useNavigate } from "@tanstack/react-router"
 import type { FileRouteTypes } from "@/routeTree.gen"
@@ -9,12 +8,12 @@ interface SpaceHeaderProps {
   title: string
   /** If provided, shows breadcrumbs and navigation tabs */
   space?: Space
-  /** Action buttons displayed on the right side of the header */
-  actions?: ReactNode
+  /** Navigation links displayed on the right side of the header */
+  nav?: PageHeaderNavItem[]
 }
 
 /** Header with breadcrumbs and navigation tabs for space pages */
-export function SpaceHeader({ title, space, actions }: SpaceHeaderProps) {
+export function SpaceHeader({ title, space, nav }: SpaceHeaderProps) {
   return (
     <Stack gap="xs">
       {space && (
@@ -28,10 +27,7 @@ export function SpaceHeader({ title, space, actions }: SpaceHeaderProps) {
           <SpaceTabs space={space} />
         </Group>
       )}
-      <Group justify="space-between">
-        <Title order={1}>{title}</Title>
-        {actions}
-      </Group>
+      <PageHeader title={title} nav={nav} />
     </Stack>
   )
 }

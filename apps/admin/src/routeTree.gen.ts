@@ -12,8 +12,9 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthRouteRouteImport } from './routes/_auth/route'
 import { Route as AuthIndexRouteImport } from './routes/_auth/index'
-import { Route as AuthUsersRouteRouteImport } from './routes/_auth/users/route'
+import { Route as AuthUsersIndexRouteImport } from './routes/_auth/users/index'
 import { Route as AuthSpacesIndexRouteImport } from './routes/_auth/spaces/index'
+import { Route as AuthUsersNewRouteImport } from './routes/_auth/users/new'
 import { Route as AuthSpacesNewRouteImport } from './routes/_auth/spaces/new'
 import { Route as AuthSpacesImportRouteImport } from './routes/_auth/spaces/import'
 import { Route as AuthSpacesSlugMembersRouteRouteImport } from './routes/_auth/spaces/$slug/members/route'
@@ -38,14 +39,19 @@ const AuthIndexRoute = AuthIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthRouteRoute,
 } as any)
-const AuthUsersRouteRoute = AuthUsersRouteRouteImport.update({
-  id: '/users',
-  path: '/users',
+const AuthUsersIndexRoute = AuthUsersIndexRouteImport.update({
+  id: '/users/',
+  path: '/users/',
   getParentRoute: () => AuthRouteRoute,
 } as any)
 const AuthSpacesIndexRoute = AuthSpacesIndexRouteImport.update({
   id: '/spaces/',
   path: '/spaces/',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
+const AuthUsersNewRoute = AuthUsersNewRouteImport.update({
+  id: '/users/new',
+  path: '/users/new',
   getParentRoute: () => AuthRouteRoute,
 } as any)
 const AuthSpacesNewRoute = AuthSpacesNewRouteImport.update({
@@ -102,11 +108,12 @@ const AuthSpacesSlugFieldsNewRoute = AuthSpacesSlugFieldsNewRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
-  '/users': typeof AuthUsersRouteRoute
   '/': typeof AuthIndexRoute
   '/spaces/import': typeof AuthSpacesImportRoute
   '/spaces/new': typeof AuthSpacesNewRoute
+  '/users/new': typeof AuthUsersNewRoute
   '/spaces': typeof AuthSpacesIndexRoute
+  '/users': typeof AuthUsersIndexRoute
   '/spaces/$slug/members': typeof AuthSpacesSlugMembersRouteRoute
   '/spaces/$slug/fields/new': typeof AuthSpacesSlugFieldsNewRoute
   '/spaces/$slug/filters/new': typeof AuthSpacesSlugFiltersNewRoute
@@ -117,11 +124,12 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
-  '/users': typeof AuthUsersRouteRoute
   '/': typeof AuthIndexRoute
   '/spaces/import': typeof AuthSpacesImportRoute
   '/spaces/new': typeof AuthSpacesNewRoute
+  '/users/new': typeof AuthUsersNewRoute
   '/spaces': typeof AuthSpacesIndexRoute
+  '/users': typeof AuthUsersIndexRoute
   '/spaces/$slug/members': typeof AuthSpacesSlugMembersRouteRoute
   '/spaces/$slug/fields/new': typeof AuthSpacesSlugFieldsNewRoute
   '/spaces/$slug/filters/new': typeof AuthSpacesSlugFiltersNewRoute
@@ -134,11 +142,12 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_auth': typeof AuthRouteRouteWithChildren
   '/login': typeof LoginRoute
-  '/_auth/users': typeof AuthUsersRouteRoute
   '/_auth/': typeof AuthIndexRoute
   '/_auth/spaces/import': typeof AuthSpacesImportRoute
   '/_auth/spaces/new': typeof AuthSpacesNewRoute
+  '/_auth/users/new': typeof AuthUsersNewRoute
   '/_auth/spaces/': typeof AuthSpacesIndexRoute
+  '/_auth/users/': typeof AuthUsersIndexRoute
   '/_auth/spaces/$slug/members': typeof AuthSpacesSlugMembersRouteRoute
   '/_auth/spaces/$slug/fields/new': typeof AuthSpacesSlugFieldsNewRoute
   '/_auth/spaces/$slug/filters/new': typeof AuthSpacesSlugFiltersNewRoute
@@ -151,11 +160,12 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/login'
-    | '/users'
     | '/'
     | '/spaces/import'
     | '/spaces/new'
+    | '/users/new'
     | '/spaces'
+    | '/users'
     | '/spaces/$slug/members'
     | '/spaces/$slug/fields/new'
     | '/spaces/$slug/filters/new'
@@ -166,11 +176,12 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
-    | '/users'
     | '/'
     | '/spaces/import'
     | '/spaces/new'
+    | '/users/new'
     | '/spaces'
+    | '/users'
     | '/spaces/$slug/members'
     | '/spaces/$slug/fields/new'
     | '/spaces/$slug/filters/new'
@@ -182,11 +193,12 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_auth'
     | '/login'
-    | '/_auth/users'
     | '/_auth/'
     | '/_auth/spaces/import'
     | '/_auth/spaces/new'
+    | '/_auth/users/new'
     | '/_auth/spaces/'
+    | '/_auth/users/'
     | '/_auth/spaces/$slug/members'
     | '/_auth/spaces/$slug/fields/new'
     | '/_auth/spaces/$slug/filters/new'
@@ -224,11 +236,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthIndexRouteImport
       parentRoute: typeof AuthRouteRoute
     }
-    '/_auth/users': {
-      id: '/_auth/users'
+    '/_auth/users/': {
+      id: '/_auth/users/'
       path: '/users'
       fullPath: '/users'
-      preLoaderRoute: typeof AuthUsersRouteRouteImport
+      preLoaderRoute: typeof AuthUsersIndexRouteImport
       parentRoute: typeof AuthRouteRoute
     }
     '/_auth/spaces/': {
@@ -236,6 +248,13 @@ declare module '@tanstack/react-router' {
       path: '/spaces'
       fullPath: '/spaces'
       preLoaderRoute: typeof AuthSpacesIndexRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
+    '/_auth/users/new': {
+      id: '/_auth/users/new'
+      path: '/users/new'
+      fullPath: '/users/new'
+      preLoaderRoute: typeof AuthUsersNewRouteImport
       parentRoute: typeof AuthRouteRoute
     }
     '/_auth/spaces/new': {
@@ -305,11 +324,12 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthRouteRouteChildren {
-  AuthUsersRouteRoute: typeof AuthUsersRouteRoute
   AuthIndexRoute: typeof AuthIndexRoute
   AuthSpacesImportRoute: typeof AuthSpacesImportRoute
   AuthSpacesNewRoute: typeof AuthSpacesNewRoute
+  AuthUsersNewRoute: typeof AuthUsersNewRoute
   AuthSpacesIndexRoute: typeof AuthSpacesIndexRoute
+  AuthUsersIndexRoute: typeof AuthUsersIndexRoute
   AuthSpacesSlugMembersRouteRoute: typeof AuthSpacesSlugMembersRouteRoute
   AuthSpacesSlugFieldsNewRoute: typeof AuthSpacesSlugFieldsNewRoute
   AuthSpacesSlugFiltersNewRoute: typeof AuthSpacesSlugFiltersNewRoute
@@ -320,11 +340,12 @@ interface AuthRouteRouteChildren {
 }
 
 const AuthRouteRouteChildren: AuthRouteRouteChildren = {
-  AuthUsersRouteRoute: AuthUsersRouteRoute,
   AuthIndexRoute: AuthIndexRoute,
   AuthSpacesImportRoute: AuthSpacesImportRoute,
   AuthSpacesNewRoute: AuthSpacesNewRoute,
+  AuthUsersNewRoute: AuthUsersNewRoute,
   AuthSpacesIndexRoute: AuthSpacesIndexRoute,
+  AuthUsersIndexRoute: AuthUsersIndexRoute,
   AuthSpacesSlugMembersRouteRoute: AuthSpacesSlugMembersRouteRoute,
   AuthSpacesSlugFieldsNewRoute: AuthSpacesSlugFieldsNewRoute,
   AuthSpacesSlugFiltersNewRoute: AuthSpacesSlugFiltersNewRoute,

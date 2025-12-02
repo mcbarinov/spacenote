@@ -1,12 +1,13 @@
 from datetime import datetime
 
-from pydantic import BaseModel, Field
+from pydantic import Field
 
 from spacenote.core.modules.field.models import FieldValueType, SpaceField
 from spacenote.core.modules.filter.models import Filter
+from spacenote.core.schema import OpenAPIModel
 
 
-class SpaceExport(BaseModel):
+class SpaceExport(OpenAPIModel):
     """Space configuration for export."""
 
     slug: str
@@ -20,7 +21,7 @@ class SpaceExport(BaseModel):
     created_at: datetime
 
 
-class NoteExport(BaseModel):
+class NoteExport(OpenAPIModel):
     """Note data for export."""
 
     number: int
@@ -30,7 +31,7 @@ class NoteExport(BaseModel):
     fields: dict[str, FieldValueType]
 
 
-class CommentExport(BaseModel):
+class CommentExport(OpenAPIModel):
     """Comment data for export."""
 
     note_number: int
@@ -42,7 +43,7 @@ class CommentExport(BaseModel):
     parent_number: int | None
 
 
-class AttachmentExport(BaseModel):
+class AttachmentExport(OpenAPIModel):
     """Attachment metadata for export."""
 
     note_number: int | None
@@ -54,7 +55,7 @@ class AttachmentExport(BaseModel):
     created_at: datetime
 
 
-class ExportData(BaseModel):
+class ExportData(OpenAPIModel):
     """Complete space export data."""
 
     version: int = Field(default=1, description="Export schema version")

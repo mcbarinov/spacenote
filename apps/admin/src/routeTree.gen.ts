@@ -15,6 +15,7 @@ import { Route as AuthIndexRouteImport } from './routes/_auth/index'
 import { Route as AuthUsersRouteRouteImport } from './routes/_auth/users/route'
 import { Route as AuthSpacesIndexRouteImport } from './routes/_auth/spaces/index'
 import { Route as AuthSpacesNewRouteImport } from './routes/_auth/spaces/new'
+import { Route as AuthSpacesImportRouteImport } from './routes/_auth/spaces/import'
 import { Route as AuthSpacesSlugMembersRouteRouteImport } from './routes/_auth/spaces/$slug/members/route'
 import { Route as AuthSpacesSlugSettingsIndexRouteImport } from './routes/_auth/spaces/$slug/settings/index'
 import { Route as AuthSpacesSlugFiltersIndexRouteImport } from './routes/_auth/spaces/$slug/filters/index'
@@ -50,6 +51,11 @@ const AuthSpacesIndexRoute = AuthSpacesIndexRouteImport.update({
 const AuthSpacesNewRoute = AuthSpacesNewRouteImport.update({
   id: '/spaces/new',
   path: '/spaces/new',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
+const AuthSpacesImportRoute = AuthSpacesImportRouteImport.update({
+  id: '/spaces/import',
+  path: '/spaces/import',
   getParentRoute: () => AuthRouteRoute,
 } as any)
 const AuthSpacesSlugMembersRouteRoute =
@@ -98,6 +104,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/users': typeof AuthUsersRouteRoute
   '/': typeof AuthIndexRoute
+  '/spaces/import': typeof AuthSpacesImportRoute
   '/spaces/new': typeof AuthSpacesNewRoute
   '/spaces': typeof AuthSpacesIndexRoute
   '/spaces/$slug/members': typeof AuthSpacesSlugMembersRouteRoute
@@ -112,6 +119,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/users': typeof AuthUsersRouteRoute
   '/': typeof AuthIndexRoute
+  '/spaces/import': typeof AuthSpacesImportRoute
   '/spaces/new': typeof AuthSpacesNewRoute
   '/spaces': typeof AuthSpacesIndexRoute
   '/spaces/$slug/members': typeof AuthSpacesSlugMembersRouteRoute
@@ -128,6 +136,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/_auth/users': typeof AuthUsersRouteRoute
   '/_auth/': typeof AuthIndexRoute
+  '/_auth/spaces/import': typeof AuthSpacesImportRoute
   '/_auth/spaces/new': typeof AuthSpacesNewRoute
   '/_auth/spaces/': typeof AuthSpacesIndexRoute
   '/_auth/spaces/$slug/members': typeof AuthSpacesSlugMembersRouteRoute
@@ -144,6 +153,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/users'
     | '/'
+    | '/spaces/import'
     | '/spaces/new'
     | '/spaces'
     | '/spaces/$slug/members'
@@ -158,6 +168,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/users'
     | '/'
+    | '/spaces/import'
     | '/spaces/new'
     | '/spaces'
     | '/spaces/$slug/members'
@@ -173,6 +184,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/_auth/users'
     | '/_auth/'
+    | '/_auth/spaces/import'
     | '/_auth/spaces/new'
     | '/_auth/spaces/'
     | '/_auth/spaces/$slug/members'
@@ -233,6 +245,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthSpacesNewRouteImport
       parentRoute: typeof AuthRouteRoute
     }
+    '/_auth/spaces/import': {
+      id: '/_auth/spaces/import'
+      path: '/spaces/import'
+      fullPath: '/spaces/import'
+      preLoaderRoute: typeof AuthSpacesImportRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
     '/_auth/spaces/$slug/members': {
       id: '/_auth/spaces/$slug/members'
       path: '/spaces/$slug/members'
@@ -288,6 +307,7 @@ declare module '@tanstack/react-router' {
 interface AuthRouteRouteChildren {
   AuthUsersRouteRoute: typeof AuthUsersRouteRoute
   AuthIndexRoute: typeof AuthIndexRoute
+  AuthSpacesImportRoute: typeof AuthSpacesImportRoute
   AuthSpacesNewRoute: typeof AuthSpacesNewRoute
   AuthSpacesIndexRoute: typeof AuthSpacesIndexRoute
   AuthSpacesSlugMembersRouteRoute: typeof AuthSpacesSlugMembersRouteRoute
@@ -302,6 +322,7 @@ interface AuthRouteRouteChildren {
 const AuthRouteRouteChildren: AuthRouteRouteChildren = {
   AuthUsersRouteRoute: AuthUsersRouteRoute,
   AuthIndexRoute: AuthIndexRoute,
+  AuthSpacesImportRoute: AuthSpacesImportRoute,
   AuthSpacesNewRoute: AuthSpacesNewRoute,
   AuthSpacesIndexRoute: AuthSpacesIndexRoute,
   AuthSpacesSlugMembersRouteRoute: AuthSpacesSlugMembersRouteRoute,

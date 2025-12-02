@@ -2,10 +2,10 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { useForm } from "@mantine/form"
 import { zod4Resolver } from "mantine-form-zod-resolver"
 import { z } from "zod"
-import { Button, MultiSelect, Paper, Stack, TextInput, Textarea, Title } from "@mantine/core"
+import { Button, Group, MultiSelect, Paper, Stack, TextInput, Textarea, Title } from "@mantine/core"
 import { notifications } from "@mantine/notifications"
 import { api } from "@spacenote/common/api"
-import { ErrorMessage } from "@spacenote/common/components"
+import { ErrorMessage, LinkButton } from "@spacenote/common/components"
 import type { CreateSpaceRequest } from "@spacenote/common/types"
 
 export const Route = createFileRoute("/_auth/spaces/new")({
@@ -55,7 +55,12 @@ function CreateSpacePage() {
 
   return (
     <Stack gap="md">
-      <Title order={1}>Create Space</Title>
+      <Group justify="space-between">
+        <Title order={1}>Create Space</Title>
+        <LinkButton to="/spaces/import" variant="light">
+          Import
+        </LinkButton>
+      </Group>
 
       <Paper withBorder p="md">
         <form onSubmit={handleSubmit}>

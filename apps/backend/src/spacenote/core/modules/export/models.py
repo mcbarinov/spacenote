@@ -16,7 +16,6 @@ class SpaceExport(OpenAPIModel):
     members: list[str]
     fields: list[SpaceField]
     filters: list[Filter]
-    notes_list_default_columns: list[str]
     hidden_fields_on_create: list[str]
     created_at: datetime
 

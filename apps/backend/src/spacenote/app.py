@@ -119,11 +119,6 @@ class App:
         await self._core.services.access.ensure_admin(auth_token)
         return await self._core.services.space.update_hidden_fields_on_create(slug, field_names)
 
-    async def update_notes_list_default_columns(self, auth_token: AuthToken, slug: str, columns: list[str]) -> Space:
-        """Update default columns for notes list (admin only)."""
-        await self._core.services.access.ensure_admin(auth_token)
-        return await self._core.services.space.update_notes_list_default_columns(slug, columns)
-
     async def delete_space(self, auth_token: AuthToken, slug: str) -> None:
         """Delete space (admin only)."""
         await self._core.services.access.ensure_admin(auth_token)
@@ -159,7 +154,7 @@ class App:
         self,
         auth_token: AuthToken,
         space_slug: str,
-        filter_name: str | None = None,
+        filter_name: str,
         limit: int = 50,
         offset: int = 0,
     ) -> PaginationResult[Note]:

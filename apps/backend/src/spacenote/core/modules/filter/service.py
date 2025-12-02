@@ -4,7 +4,7 @@ import structlog
 from pymongo.asynchronous.database import AsyncDatabase
 
 from spacenote.core.modules.filter import query_builder
-from spacenote.core.modules.filter.models import Filter
+from spacenote.core.modules.filter.models import ALL_FILTER_NAME, Filter
 from spacenote.core.modules.filter.validators import validate_filter
 from spacenote.core.service import Service
 from spacenote.errors import NotFoundError, ValidationError
@@ -33,6 +33,9 @@ class FilterService(Service):
 
     async def remove_filter(self, slug: str, filter_name: str) -> None:
         """Remove a filter from a space."""
+        if filter_name == ALL_FILTER_NAME:
+            raise ValidationError(f"Cannot delete the '{ALL_FILTER_NAME}' filter")
+
         space = self.core.services.space.get_space(slug)
 
         if not any(f.name == filter_name for f in space.filters):

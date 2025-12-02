@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router"
-import { SimpleGrid, Title, Text } from "@mantine/core"
+import { SimpleGrid, Text } from "@mantine/core"
 import { api } from "@spacenote/common/api"
+import { PageHeader } from "@spacenote/common/components"
 import SpaceCard from "./-components/SpaceCard"
 
 export const Route = createFileRoute("/_auth/")({
@@ -13,9 +14,7 @@ function HomePage() {
 
   return (
     <>
-      <Title order={1} mb="lg">
-        Your Spaces
-      </Title>
+      <PageHeader title="Your Spaces" />
 
       {spaces.length === 0 ? (
         <Text c="dimmed">You don't have access to any spaces yet.</Text>

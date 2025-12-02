@@ -3,7 +3,6 @@ import { ActionIcon, Table, Text } from "@mantine/core"
 import { IconDownload } from "@tabler/icons-react"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { api } from "@spacenote/common/api"
-import { LinkButton } from "@spacenote/common/components"
 import { formatDate, formatFileSize } from "@spacenote/common/utils"
 import { SpaceHeader } from "@/components/SpaceHeader"
 
@@ -28,11 +27,7 @@ function NoteAttachmentsPage() {
         space={space}
         note={{ number: noteNum }}
         title={`Note #${noteNumber} Attachments`}
-        actions={
-          <LinkButton to="/s/$slug/$noteNumber/attachments/new" params={{ slug, noteNumber }}>
-            Upload
-          </LinkButton>
-        }
+        nav={[{ label: "Upload", to: "/s/$slug/$noteNumber/attachments/new", params: { slug, noteNumber } }]}
       />
 
       {attachments.length === 0 ? (

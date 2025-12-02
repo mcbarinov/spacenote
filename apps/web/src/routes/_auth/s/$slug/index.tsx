@@ -1,8 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
-import { Group, Select, Table } from "@mantine/core"
+import { Select, Table } from "@mantine/core"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { api } from "@spacenote/common/api"
-import { LinkButton } from "@spacenote/common/components"
 import type { Note, SpaceField } from "@spacenote/common/types"
 import { formatDate } from "@spacenote/common/utils"
 import { z } from "zod"
@@ -76,27 +75,23 @@ function SpacePage() {
         space={space}
         title={space.title}
         actions={
-          <Group>
-            {space.filters.length > 0 && (
-              <Select
-                placeholder="All notes"
-                clearable
-                data={space.filters.map((f) => ({ value: f.name, label: f.name }))}
-                value={filter ?? null}
-                onChange={(value) =>
-                  void navigate({
-                    to: "/s/$slug",
-                    params: { slug },
-                    search: value ? { filter: value } : {},
-                  })
-                }
-              />
-            )}
-            <LinkButton to="/s/$slug/new" params={{ slug }}>
-              New Note
-            </LinkButton>
-          </Group>
+          space.filters.length > 0 ? (
+            <Select
+              placeholder="All notes"
+              clearable
+              data={space.filters.map((f) => ({ value: f.name, label: f.name }))}
+              value={filter ?? null}
+              onChange={(value) =>
+                void navigate({
+                  to: "/s/$slug",
+                  params: { slug },
+                  search: value ? { filter: value } : {},
+                })
+              }
+            />
+          ) : undefined
         }
+        nav={[{ label: "New Note", to: "/s/$slug/new", params: { slug } }]}
       />
 
       <Table striped highlightOnHover>

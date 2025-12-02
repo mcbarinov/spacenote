@@ -1,9 +1,9 @@
 import { useState } from "react"
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
-import { Alert, Button, Group, Paper, Stack, Textarea, Title } from "@mantine/core"
+import { Alert, Button, Group, Paper, Stack, Textarea } from "@mantine/core"
 import { notifications } from "@mantine/notifications"
 import { api } from "@spacenote/common/api"
-import { ErrorMessage } from "@spacenote/common/components"
+import { ErrorMessage, PageHeader } from "@spacenote/common/components"
 import type { ExportData } from "@spacenote/common/types"
 
 export const Route = createFileRoute("/_auth/spaces/import")({
@@ -43,7 +43,7 @@ function ImportSpacePage() {
 
   return (
     <Stack gap="md">
-      <Title order={1}>Import Space</Title>
+      <PageHeader title="Import Space" />
 
       <Paper withBorder p="md">
         <form onSubmit={handleSubmit}>

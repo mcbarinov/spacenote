@@ -2,9 +2,11 @@ from enum import StrEnum
 from typing import Any, Self
 
 from bson import ObjectId
-from pydantic import BaseModel, ConfigDict, Field, GetCoreSchemaHandler
+from pydantic import ConfigDict, Field, GetCoreSchemaHandler
 from pydantic_core import core_schema
 from pymongo.asynchronous.cursor import AsyncCursor
+
+from spacenote.core.schema import OpenAPIModel
 
 
 class Collection(StrEnum):
@@ -41,14 +43,13 @@ class PyObjectId(ObjectId):
         return core_schema.no_info_plain_validator_function(validate_object_id)
 
 
-class MongoModel(BaseModel):
+class MongoModel(OpenAPIModel):
     """Base model for MongoDB documents using ObjectId as primary key."""
 
     id: PyObjectId = Field(alias="_id", default_factory=PyObjectId, exclude=True)
     model_config = ConfigDict(
         populate_by_name=True,
         arbitrary_types_allowed=True,
-        json_schema_serialization_defaults_required=True,
     )
 
     def to_mongo(self) -> dict[str, Any]:

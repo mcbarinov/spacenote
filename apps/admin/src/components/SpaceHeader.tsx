@@ -1,19 +1,19 @@
-import type { ReactNode } from "react"
-import { Breadcrumbs, Button, Group, Stack, Title } from "@mantine/core"
-import { CustomLink, SpaceSlug } from "@spacenote/common/components"
+import { Breadcrumbs, Button, Group, Stack } from "@mantine/core"
+import { CustomLink, PageHeader, SpaceSlug, type PageHeaderNavItem } from "@spacenote/common/components"
 import type { Space } from "@spacenote/common/types"
 import { useLocation, useNavigate } from "@tanstack/react-router"
+import type { FileRouteTypes } from "@/routeTree.gen"
 
 interface SpaceHeaderProps {
   title: string
   /** If provided, shows breadcrumbs and navigation tabs */
   space?: Space
-  /** Action buttons displayed on the right side of the header */
-  actions?: ReactNode
+  /** Navigation links displayed on the right side of the header */
+  nav?: PageHeaderNavItem[]
 }
 
 /** Header with breadcrumbs and navigation tabs for space pages */
-export function SpaceHeader({ title, space, actions }: SpaceHeaderProps) {
+export function SpaceHeader({ title, space, nav }: SpaceHeaderProps) {
   return (
     <Stack gap="xs">
       {space && (
@@ -27,12 +27,15 @@ export function SpaceHeader({ title, space, actions }: SpaceHeaderProps) {
           <SpaceTabs space={space} />
         </Group>
       )}
-      <Group justify="space-between">
-        <Title order={1}>{title}</Title>
-        {actions}
-      </Group>
+      <PageHeader title={title} nav={nav} />
     </Stack>
   )
+}
+
+interface SpaceTab {
+  label: string
+  path: string
+  to: FileRouteTypes["to"]
 }
 
 /** Navigation tabs for space sections (members, fields, filters, settings) */
@@ -41,11 +44,12 @@ function SpaceTabs({ space }: { space: Space }) {
   const navigate = useNavigate()
   const { slug } = space
 
-  const tabs = [
-    { label: `Members (${String(space.members.length)})`, path: "members", to: "/spaces/$slug/members" as const },
-    { label: `Fields (${String(space.fields.length)})`, path: "fields", to: "/spaces/$slug/fields" as const },
-    { label: `Filters (${String(space.filters.length)})`, path: "filters", to: "/spaces/$slug/filters" as const },
-    { label: "Settings", path: "settings", to: "/spaces/$slug/settings" as const },
+  const tabs: SpaceTab[] = [
+    { label: `Members (${String(space.members.length)})`, path: "members", to: "/spaces/$slug/members" },
+    { label: `Fields (${String(space.fields.length)})`, path: "fields", to: "/spaces/$slug/fields" },
+    { label: `Filters (${String(space.filters.length)})`, path: "filters", to: "/spaces/$slug/filters" },
+    { label: "Export", path: "export", to: "/spaces/$slug/export" },
+    { label: "Settings", path: "settings", to: "/spaces/$slug/settings" },
   ]
 
   return (

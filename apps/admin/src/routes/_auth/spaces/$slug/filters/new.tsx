@@ -208,9 +208,11 @@ function AddFilterPage() {
 
             {addFilterMutation.error && <ErrorMessage error={addFilterMutation.error} />}
 
-            <Button type="submit" loading={addFilterMutation.isPending}>
-              Add Filter
-            </Button>
+            <Group justify="flex-end">
+              <Button type="submit" loading={addFilterMutation.isPending}>
+                Add Filter
+              </Button>
+            </Group>
           </Stack>
         </form>
       </Paper>

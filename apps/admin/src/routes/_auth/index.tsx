@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router"
-import { Button, Group, Paper, Stack, Text, Title } from "@mantine/core"
+import { Button, Group, Paper, Stack, Text } from "@mantine/core"
+import { PageHeader } from "@spacenote/common/components"
 
 export const Route = createFileRoute("/_auth/")({
   component: HomePage,
@@ -9,7 +10,7 @@ export const Route = createFileRoute("/_auth/")({
 function HomePage() {
   return (
     <Stack gap="md">
-      <Title order={1}>Welcome to Spacenote Admin</Title>
+      <PageHeader title="Welcome to Spacenote Admin" />
 
       <Paper withBorder p="md">
         <Stack gap="md">

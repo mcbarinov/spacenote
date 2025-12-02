@@ -224,6 +224,46 @@ export type paths = {
     patch: operations["updateComment"]
     trace?: never
   }
+  "/api/v1/spaces/{space_slug}/export": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Export space data
+     * @description Export space configuration and optionally all data (notes, comments, attachments).
+     */
+    get: operations["exportSpace"]
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  "/api/v1/spaces/import": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Import space
+     * @description Import space from export data. Creates missing users with random passwords.
+     */
+    post: operations["importSpace"]
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   "/api/v1/spaces/{space_slug}/fields": {
     parameters: {
       query?: never
@@ -653,6 +693,29 @@ export type components = {
        */
       created_at: string
     }
+    /**
+     * AttachmentExport
+     * @description Attachment metadata for export.
+     */
+    AttachmentExport: {
+      /** Note Number */
+      note_number: number | null
+      /** Number */
+      number: number
+      /** Author */
+      author: string
+      /** Filename */
+      filename: string
+      /** Size */
+      size: number
+      /** Mime Type */
+      mime_type: string
+      /**
+       * Created At
+       * Format: date-time
+       */
+      created_at: string
+    }
     /** Body_uploadNoteAttachment */
     Body_uploadNoteAttachment: {
       /**
@@ -700,6 +763,29 @@ export type components = {
     Comment: {
       /** Space Slug */
       space_slug: string
+      /** Note Number */
+      note_number: number
+      /** Number */
+      number: number
+      /** Author */
+      author: string
+      /** Content */
+      content: string
+      /**
+       * Created At
+       * Format: date-time
+       */
+      created_at: string
+      /** Edited At */
+      edited_at: string | null
+      /** Parent Number */
+      parent_number: number | null
+    }
+    /**
+     * CommentExport
+     * @description Comment data for export.
+     */
+    CommentExport: {
       /** Note Number */
       note_number: number
       /** Number */
@@ -819,6 +905,30 @@ export type components = {
       type: string
     }
     /**
+     * ExportData
+     * @description Complete space export data.
+     */
+    ExportData: {
+      /**
+       * Version
+       * @description Export schema version
+       * @default 1
+       */
+      version: number
+      /**
+       * Exported At
+       * Format: date-time
+       */
+      exported_at: string
+      space: components["schemas"]["SpaceExport"]
+      /** Notes */
+      notes: components["schemas"]["NoteExport"][] | null
+      /** Comments */
+      comments: components["schemas"]["CommentExport"][] | null
+      /** Attachments */
+      attachments: components["schemas"]["AttachmentExport"][] | null
+    }
+    /**
      * FieldOption
      * @description Configuration options for field types.
      * @enum {string}
@@ -919,6 +1029,27 @@ export type components = {
     Note: {
       /** Space Slug */
       space_slug: string
+      /** Number */
+      number: number
+      /** Author */
+      author: string
+      /**
+       * Created At
+       * Format: date-time
+       */
+      created_at: string
+      /** Edited At */
+      edited_at: string | null
+      /** Fields */
+      fields: {
+        [key: string]: string | boolean | string[] | number | null
+      }
+    }
+    /**
+     * NoteExport
+     * @description Note data for export.
+     */
+    NoteExport: {
       /** Number */
       number: number
       /** Author */
@@ -1056,6 +1187,33 @@ export type components = {
        * Created At
        * Format: date-time
        * @description Timestamp when the space was created
+       */
+      created_at: string
+    }
+    /**
+     * SpaceExport
+     * @description Space configuration for export.
+     */
+    SpaceExport: {
+      /** Slug */
+      slug: string
+      /** Title */
+      title: string
+      /** Description */
+      description: string
+      /** Members */
+      members: string[]
+      /** Fields */
+      fields: components["schemas"]["SpaceField"][]
+      /** Filters */
+      filters: components["schemas"]["Filter"][]
+      /** Notes List Default Columns */
+      notes_list_default_columns: string[]
+      /** Hidden Fields On Create */
+      hidden_fields_on_create: string[]
+      /**
+       * Created At
+       * Format: date-time
        */
       created_at: string
     }
@@ -2047,6 +2205,126 @@ export interface operations {
       }
       /** @description Space, note, or comment not found */
       404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  exportSpace: {
+    parameters: {
+      query?: {
+        include_data?: boolean
+      }
+      header?: never
+      path: {
+        space_slug: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Space export data */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ExportData"]
+        }
+      }
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Not an admin */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Space not found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  importSpace: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ExportData"]
+      }
+    }
+    responses: {
+      /** @description Space created */
+      201: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["Space"]
+        }
+      }
+      /** @description Validation error (e.g., space already exists) */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Not an admin */
+      403: {
         headers: {
           [name: string]: unknown
         }

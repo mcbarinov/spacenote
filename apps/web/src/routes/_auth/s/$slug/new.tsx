@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { useForm } from "@mantine/form"
-import { Button, Paper, Stack } from "@mantine/core"
+import { Button, Group, Paper, Stack } from "@mantine/core"
 import { notifications } from "@mantine/notifications"
 import { api } from "@spacenote/common/api"
 import { ErrorMessage } from "@spacenote/common/components"
@@ -99,9 +99,11 @@ function NewNotePage() {
               <FieldInput key={field.name} field={field} spaceMembers={space.members} {...form.getInputProps(field.name)} />
             ))}
             {createNoteMutation.error && <ErrorMessage error={createNoteMutation.error} />}
-            <Button type="submit" loading={createNoteMutation.isPending}>
-              Create
-            </Button>
+            <Group justify="flex-end">
+              <Button type="submit" loading={createNoteMutation.isPending}>
+                Create
+              </Button>
+            </Group>
           </Stack>
         </form>
       </Paper>

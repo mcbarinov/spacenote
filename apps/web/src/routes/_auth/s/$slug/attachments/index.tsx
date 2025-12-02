@@ -3,7 +3,6 @@ import { ActionIcon, Table, Text } from "@mantine/core"
 import { IconDownload } from "@tabler/icons-react"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { api } from "@spacenote/common/api"
-import { LinkButton } from "@spacenote/common/components"
 import { formatDate, formatFileSize } from "@spacenote/common/utils"
 import { SpaceHeader } from "@/components/SpaceHeader"
 
@@ -25,11 +24,7 @@ function AttachmentsPage() {
       <SpaceHeader
         space={space}
         title="Attachments"
-        actions={
-          <LinkButton to="/s/$slug/attachments/new" params={{ slug }}>
-            Upload
-          </LinkButton>
-        }
+        nav={[{ label: "Upload", to: "/s/$slug/attachments/new", params: { slug } }]}
       />
 
       {attachments.length === 0 ? (

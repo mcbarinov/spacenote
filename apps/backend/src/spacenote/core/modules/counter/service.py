@@ -38,3 +38,11 @@ class CounterService(Service):
         """Delete all counters for a note (e.g., comment counters)."""
         result = await self._collection.delete_many({"space_slug": space_slug, "note_number": note_number})
         return result.deleted_count
+
+    async def set_sequence(self, space_slug: str, counter_type: CounterType, value: int, note_number: int | None = None) -> None:
+        """Set counter sequence to specific value (for import)."""
+        await self._collection.update_one(
+            {"space_slug": space_slug, "counter_type": counter_type, "note_number": note_number},
+            {"$set": {"seq": value}},
+            upsert=True,
+        )

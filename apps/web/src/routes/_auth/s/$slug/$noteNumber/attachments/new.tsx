@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { useState } from "react"
-import { Button, Paper, Stack, FileInput } from "@mantine/core"
+import { Button, Group, Paper, Stack, FileInput } from "@mantine/core"
 import { notifications } from "@mantine/notifications"
 import { api } from "@spacenote/common/api"
 import { ErrorMessage } from "@spacenote/common/components"
@@ -43,9 +43,11 @@ function UploadNoteAttachmentPage() {
           <Stack gap="md">
             <FileInput label="File" placeholder="Select file" value={file} onChange={setFile} required />
             {uploadMutation.error && <ErrorMessage error={uploadMutation.error} />}
-            <Button type="submit" loading={uploadMutation.isPending} disabled={!file}>
-              Upload
-            </Button>
+            <Group justify="flex-end">
+              <Button type="submit" loading={uploadMutation.isPending} disabled={!file}>
+                Upload
+              </Button>
+            </Group>
           </Stack>
         </form>
       </Paper>

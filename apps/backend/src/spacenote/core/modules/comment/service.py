@@ -40,6 +40,11 @@ class CommentService(Service):
 
         return PaginationResult(items=items, total=total, limit=limit, offset=offset)
 
+    async def list_all_comments(self, space_slug: str) -> list[Comment]:
+        """Get all comments in space without pagination."""
+        cursor = self._collection.find({"space_slug": space_slug}).sort([("note_number", 1), ("number", 1)])
+        return await Comment.list_cursor(cursor)
+
     async def get_comment(self, space_slug: str, note_number: int, number: int) -> Comment:
         """Get comment by natural key."""
         doc = await self._collection.find_one({"space_slug": space_slug, "note_number": note_number, "number": number})
@@ -115,3 +120,11 @@ class CommentService(Service):
         """Delete all comments in a space."""
         result = await self._collection.delete_many({"space_slug": space_slug})
         return result.deleted_count
+
+    async def import_comments(self, comments: list[Comment]) -> int:
+        """Bulk insert pre-built comments (for import)."""
+        if not comments:
+            return 0
+
+        await self._collection.insert_many([c.to_mongo() for c in comments])
+        return len(comments)

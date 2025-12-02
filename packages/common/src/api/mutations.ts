@@ -7,6 +7,7 @@ import type {
   CreateNoteRequest,
   CreateSpaceRequest,
   CreateUserRequest,
+  ExportData,
   Filter,
   LoginRequest,
   Note,
@@ -77,6 +78,17 @@ export function useCreateSpace() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (data: CreateSpaceRequest) => httpClient.post("api/v1/spaces", { json: data }).json<Space>(),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["spaces"] })
+    },
+  })
+}
+
+/** Imports a space from JSON export */
+export function useImportSpace() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (data: ExportData) => httpClient.post("api/v1/spaces/import", { json: data }).json<Space>(),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["spaces"] })
     },

@@ -54,7 +54,7 @@ function SpaceMembersPage() {
               {...form.getInputProps("members")}
             />
             {updateMembersMutation.error && <ErrorMessage error={updateMembersMutation.error} />}
-            <Button type="submit" loading={updateMembersMutation.isPending}>
+            <Button type="submit" loading={updateMembersMutation.isPending} w="fit-content">
               Save
             </Button>
           </Stack>

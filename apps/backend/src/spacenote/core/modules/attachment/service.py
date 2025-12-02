@@ -79,6 +79,11 @@ class AttachmentService(Service):
         cursor = self._attachments_collection.find({"space_slug": space_slug, "note_number": note_number})
         return [Attachment.model_validate(doc) async for doc in cursor]
 
+    async def list_all_attachments(self, space_slug: str) -> list[Attachment]:
+        """Get all attachments in space without pagination."""
+        cursor = self._attachments_collection.find({"space_slug": space_slug}).sort([("note_number", 1), ("number", 1)])
+        return await Attachment.list_cursor(cursor)
+
     async def get_attachment(self, space_slug: str, note_number: int | None, number: int) -> Attachment:
         """Get attachment by its identifiers."""
         doc = await self._attachments_collection.find_one(
@@ -111,3 +116,11 @@ class AttachmentService(Service):
         await self._pending_collection.delete_one({"number": pending_number})
 
         return attachment
+
+    async def import_attachments(self, attachments: list[Attachment]) -> int:
+        """Bulk insert pre-built attachments (for import, metadata only)."""
+        if not attachments:
+            return 0
+
+        await self._attachments_collection.insert_many([a.to_mongo() for a in attachments])
+        return len(attachments)

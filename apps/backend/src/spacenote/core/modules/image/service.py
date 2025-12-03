@@ -3,7 +3,6 @@ from pathlib import Path
 from typing import Any
 
 import structlog
-from pymongo.asynchronous.database import AsyncDatabase
 
 from spacenote.core.modules.attachment import storage as attachment_storage
 from spacenote.core.modules.field.models import FieldOption, FieldType
@@ -18,8 +17,7 @@ logger = structlog.get_logger(__name__)
 class ImageService(Service):
     """Handles IMAGE field processing and WebP generation."""
 
-    def __init__(self, database: AsyncDatabase[dict[str, Any]]) -> None:
-        super().__init__(database)
+    def __init__(self) -> None:
         self._background_tasks: set[asyncio.Task[Any]] = set()
 
     async def on_start(self) -> None:

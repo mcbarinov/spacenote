@@ -1,7 +1,4 @@
-from typing import Any
-
 import structlog
-from pymongo.asynchronous.database import AsyncDatabase
 
 from spacenote.core.modules.space.models import Space
 from spacenote.core.service import Service
@@ -12,9 +9,6 @@ logger = structlog.get_logger(__name__)
 
 class TemplateService(Service):
     """Service for template management."""
-
-    def __init__(self, database: AsyncDatabase[dict[str, Any]]) -> None:
-        super().__init__(database)
 
     async def set_template(self, slug: str, key: str, content: str) -> Space:
         """Set a template for the space."""

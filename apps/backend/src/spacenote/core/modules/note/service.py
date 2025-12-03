@@ -1,7 +1,8 @@
+from functools import cached_property
 from typing import Any
 
 import structlog
-from pymongo.asynchronous.database import AsyncDatabase
+from pymongo.asynchronous.collection import AsyncCollection
 
 from spacenote.core.db import Collection
 from spacenote.core.modules.counter.models import CounterType
@@ -18,9 +19,9 @@ logger = structlog.get_logger(__name__)
 class NoteService(Service):
     """Manages notes with custom fields in spaces."""
 
-    def __init__(self, database: AsyncDatabase[dict[str, Any]]) -> None:
-        super().__init__(database)
-        self._collection = database.get_collection(Collection.NOTES)
+    @cached_property
+    def _collection(self) -> AsyncCollection[dict[str, Any]]:
+        return self.database.get_collection(Collection.NOTES)
 
     async def on_start(self) -> None:
         """Create indexes for space/number lookup and sorting."""

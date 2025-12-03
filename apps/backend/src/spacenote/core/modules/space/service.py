@@ -1,7 +1,8 @@
+from functools import cached_property
 from typing import Any
 
 import structlog
-from pymongo.asynchronous.database import AsyncDatabase
+from pymongo.asynchronous.collection import AsyncCollection
 
 from spacenote.core.db import Collection
 from spacenote.core.modules.filter.models import ALL_FILTER_NAME, create_default_all_filter
@@ -15,10 +16,12 @@ logger = structlog.get_logger(__name__)
 class SpaceService(Service):
     """Manages spaces with in-memory cache."""
 
-    def __init__(self, database: AsyncDatabase[dict[str, Any]]) -> None:
-        super().__init__(database)
-        self._collection = database.get_collection(Collection.SPACES)
+    def __init__(self) -> None:
         self._spaces: dict[str, Space] = {}
+
+    @cached_property
+    def _collection(self) -> AsyncCollection[dict[str, Any]]:
+        return self.database.get_collection(Collection.SPACES)
 
     def get_space(self, slug: str) -> Space:
         """Get space by slug from cache."""

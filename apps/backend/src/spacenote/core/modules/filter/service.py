@@ -1,7 +1,6 @@
 from typing import Any
 
 import structlog
-from pymongo.asynchronous.database import AsyncDatabase
 
 from spacenote.core.modules.filter import query_builder
 from spacenote.core.modules.filter.models import ALL_FILTER_NAME, Filter
@@ -14,9 +13,6 @@ logger = structlog.get_logger(__name__)
 
 class FilterService(Service):
     """Service for filter management."""
-
-    def __init__(self, database: AsyncDatabase[dict[str, Any]]) -> None:
-        super().__init__(database)
 
     async def add_filter(self, slug: str, filter: Filter) -> Filter:
         """Add a filter to a space."""

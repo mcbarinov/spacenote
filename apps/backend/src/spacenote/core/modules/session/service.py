@@ -1,8 +1,9 @@
 import secrets
+from functools import cached_property
 from typing import Any
 
 import structlog
-from pymongo.asynchronous.database import AsyncDatabase
+from pymongo.asynchronous.collection import AsyncCollection
 
 from spacenote.core.db import Collection
 from spacenote.core.modules.session.models import AuthToken, Session
@@ -18,10 +19,12 @@ class SessionService(Service):
 
     SESSION_TTL_SECONDS = 2592000  # 30 days
 
-    def __init__(self, database: AsyncDatabase[dict[str, Any]]) -> None:
-        super().__init__(database)
-        self._collection = database.get_collection(Collection.SESSIONS)
+    def __init__(self) -> None:
         self._authenticated_users: dict[AuthToken, User] = {}
+
+    @cached_property
+    def _collection(self) -> AsyncCollection[dict[str, Any]]:
+        return self.database.get_collection(Collection.SESSIONS)
 
     async def create_session(self, username: str) -> AuthToken:
         """Create new session and return authentication token."""

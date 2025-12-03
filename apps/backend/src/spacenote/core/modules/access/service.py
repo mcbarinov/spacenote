@@ -1,7 +1,3 @@
-from typing import Any
-
-from pymongo.asynchronous.database import AsyncDatabase
-
 from spacenote.core.modules.attachment.models import PendingAttachment
 from spacenote.core.modules.comment.models import Comment
 from spacenote.core.modules.session.models import AuthToken
@@ -12,9 +8,6 @@ from spacenote.errors import AccessDeniedError
 
 class AccessService(Service):
     """Centralized access control and permission management."""
-
-    def __init__(self, database: AsyncDatabase[dict[str, Any]]) -> None:
-        super().__init__(database)
 
     async def ensure_authenticated(self, auth_token: AuthToken) -> User:
         """Verify user is authenticated."""

@@ -1,7 +1,8 @@
+from functools import cached_property
 from typing import Any
 
 from pymongo import ReturnDocument
-from pymongo.asynchronous.database import AsyncDatabase
+from pymongo.asynchronous.collection import AsyncCollection
 
 from spacenote.core.db import Collection
 from spacenote.core.modules.counter.models import CounterType
@@ -11,9 +12,9 @@ from spacenote.core.service import Service
 class CounterService(Service):
     """Service for managing auto-incrementing counters per space."""
 
-    def __init__(self, database: AsyncDatabase[dict[str, Any]]) -> None:
-        super().__init__(database)
-        self._collection = database.get_collection(Collection.COUNTERS)
+    @cached_property
+    def _collection(self) -> AsyncCollection[dict[str, Any]]:
+        return self.database.get_collection(Collection.COUNTERS)
 
     async def on_start(self) -> None:
         """Create indexes on startup."""

@@ -589,20 +589,14 @@ export type paths = {
      * @description Set a Liquid template for the space. Admin only.
      *
      *     Valid template keys:
-     *     - `web.note.detail` — note detail view
-     *     - `web.note.list.{filter}` — note list for a filter (e.g., `web.note.list.all`)
+     *     - `web:note:detail` — note detail view
+     *     - `web:note:list:{filter}` — note list for a filter (e.g., `web:note:list:all`)
+     *
+     *     Empty content removes the template.
      */
     put: operations["setSpaceTemplate"]
     post?: never
-    /**
-     * Remove space template
-     * @description Remove a template from the space. Admin only.
-     *
-     *     Valid template keys:
-     *     - `web.note.detail` — note detail view
-     *     - `web.note.list.{filter}` — note list for a filter (e.g., `web.note.list.all`)
-     */
-    delete: operations["removeSpaceTemplate"]
+    delete?: never
     options?: never
     head?: never
     patch?: never
@@ -3498,63 +3492,6 @@ export interface operations {
         }
       }
       /** @description Space not found */
-      404: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          "application/json": components["schemas"]["ErrorResponse"]
-        }
-      }
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"]
-        }
-      }
-    }
-  }
-  removeSpaceTemplate: {
-    parameters: {
-      query?: never
-      header?: never
-      path: {
-        slug: string
-        key: string
-      }
-      cookie?: never
-    }
-    requestBody?: never
-    responses: {
-      /** @description Template removed successfully */
-      204: {
-        headers: {
-          [name: string]: unknown
-        }
-        content?: never
-      }
-      /** @description Not authenticated */
-      401: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          "application/json": components["schemas"]["ErrorResponse"]
-        }
-      }
-      /** @description Admin privileges required */
-      403: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          "application/json": components["schemas"]["ErrorResponse"]
-        }
-      }
-      /** @description Space or template not found */
       404: {
         headers: {
           [name: string]: unknown

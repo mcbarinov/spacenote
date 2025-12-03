@@ -361,6 +361,10 @@ void navigate({ to: "/s/$slug", params: { slug } })
 2. Special app-wide purpose (error boundaries, auth)? → `src/components/`
 3. Otherwise → `src/routes/[route]/-components/`
 
+**When to extract to `-components/`:**
+Route has 2+ distinct components → extract each to `-components/`
+Single component → keep in route file
+
 ### Encapsulation
 
 **Principle:** Minimize props, maximize encapsulation. Components should own their logic.
@@ -412,6 +416,24 @@ Avoid unnecessary nested containers.
 ## UI Patterns
 
 ### Forms
+
+**Always use `useForm` for form state** — never raw `useState`. Mantine's `useForm` handles:
+- Validation with Zod via `zod4Resolver`
+- Dirty tracking and reset
+- Proper re-initialization from props
+
+❌ **Wrong:**
+```tsx
+const [value, setValue] = useState(initialValue)
+```
+
+✅ **Correct:**
+```tsx
+const form = useForm({
+  initialValues: { value: initialValue },
+  validate: zod4Resolver(schema),
+})
+```
 
 **Mantine Form + Zod:**
 ```typescript

@@ -39,3 +39,6 @@ export type UpdateMembersRequest = components["schemas"]["UpdateMembersRequest"]
 
 // Export
 export type ExportData = components["schemas"]["ExportData"]
+
+// Templates
+export type SetTemplateRequest = components["schemas"]["SetTemplateRequest"]

@@ -48,6 +48,7 @@ function SpaceTabs({ space }: { space: Space }) {
     { label: `Members (${String(space.members.length)})`, path: "members", to: "/spaces/$slug/members" },
     { label: `Fields (${String(space.fields.length)})`, path: "fields", to: "/spaces/$slug/fields" },
     { label: `Filters (${String(space.filters.length)})`, path: "filters", to: "/spaces/$slug/filters" },
+    { label: "Templates", path: "templates", to: "/spaces/$slug/templates" },
     { label: "Export", path: "export", to: "/spaces/$slug/export" },
     { label: "Settings", path: "settings", to: "/spaces/$slug/settings" },
   ]

@@ -12,6 +12,7 @@ import type {
   LoginRequest,
   Note,
   PendingAttachment,
+  SetTemplateRequest,
   Space,
   SpaceField,
   UpdateDescriptionRequest,
@@ -257,6 +258,18 @@ export function useUploadPendingAttachment() {
       const formData = new FormData()
       formData.append("file", file)
       return httpClient.post("api/v1/attachments/pending", { body: formData }).json<PendingAttachment>()
+    },
+  })
+}
+
+/** Sets a template for the space */
+export function useSetTemplate(spaceSlug: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ key, content }: { key: string } & SetTemplateRequest) =>
+      httpClient.put(`api/v1/spaces/${spaceSlug}/templates/${key}`, { json: { content } }).json<Space>(),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["spaces"] })
     },
   })
 }

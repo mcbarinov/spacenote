@@ -20,6 +20,7 @@ from spacenote.web.routers.images import router as images_router
 from spacenote.web.routers.notes import router as notes_router
 from spacenote.web.routers.profile import router as profile_router
 from spacenote.web.routers.spaces import router as spaces_router
+from spacenote.web.routers.templates import router as templates_router
 from spacenote.web.routers.users import router as users_router
 
 
@@ -62,6 +63,7 @@ def create_fastapi_app(app_instance: App, config: Config) -> FastAPI:
     app.include_router(notes_router, prefix="/api/v1")
     app.include_router(profile_router, prefix="/api/v1")
     app.include_router(spaces_router, prefix="/api/v1")
+    app.include_router(templates_router, prefix="/api/v1")
     app.include_router(users_router, prefix="/api/v1")
 
     # Apply custom OpenAPI schema

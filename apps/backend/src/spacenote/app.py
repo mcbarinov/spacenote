@@ -124,15 +124,17 @@ class App:
         await self._core.services.access.ensure_admin(auth_token)
         await self._core.services.space.delete_space(slug)
 
+    # --- Templates ---
+
     async def set_space_template(self, auth_token: AuthToken, slug: str, key: str, content: str) -> Space:
         """Set a template for the space (admin only)."""
         await self._core.services.access.ensure_admin(auth_token)
-        return await self._core.services.space.set_template(slug, key, content)
+        return await self._core.services.template.set_template(slug, key, content)
 
     async def remove_space_template(self, auth_token: AuthToken, slug: str, key: str) -> Space:
         """Remove a template from the space (admin only)."""
         await self._core.services.access.ensure_admin(auth_token)
-        return await self._core.services.space.remove_template(slug, key)
+        return await self._core.services.template.remove_template(slug, key)
 
     # --- Fields ---
 

@@ -101,31 +101,6 @@ class SpaceService(Service):
         await self._collection.update_one({"slug": slug}, {"$set": {"hidden_fields_on_create": field_names}})
         return await self.update_space_cache(slug)
 
-    async def set_template(self, slug: str, key: str, content: str) -> Space:
-        """Set a template for the space."""
-        space = self.get_space(slug)
-
-        # Validate template key
-        if key != "web.note.detail":
-            if not key.startswith("web.note.list."):
-                raise ValidationError(f"Invalid template key: {key}")
-            filter_name = key.removeprefix("web.note.list.")
-            if not filter_name or space.get_filter(filter_name) is None:
-                raise ValidationError(f"Filter '{filter_name}' not found")
-
-        await self._collection.update_one({"slug": slug}, {"$set": {f"templates.{key}": content}})
-        return await self.update_space_cache(slug)
-
-    async def remove_template(self, slug: str, key: str) -> Space:
-        """Remove a template from the space."""
-        space = self.get_space(slug)
-
-        if key not in space.templates:
-            raise NotFoundError(f"Template '{key}' not found")
-
-        await self._collection.update_one({"slug": slug}, {"$unset": {f"templates.{key}": ""}})
-        return await self.update_space_cache(slug)
-
     async def update_space_document(self, slug: str, update: dict[str, Any]) -> Space:
         """Low-level MongoDB update with automatic cache invalidation.
 

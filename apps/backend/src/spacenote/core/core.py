@@ -20,6 +20,7 @@ from spacenote.core.modules.image.service import ImageService
 from spacenote.core.modules.note.service import NoteService
 from spacenote.core.modules.session.service import SessionService
 from spacenote.core.modules.space.service import SpaceService
+from spacenote.core.modules.template.service import TemplateService
 from spacenote.core.modules.user.service import UserService
 from spacenote.core.service import Service
 
@@ -39,6 +40,7 @@ class ServiceRegistry:
     attachment: AttachmentService
     image: ImageService
     export: ExportService
+    template: TemplateService
 
     def __init__(self, database: AsyncDatabase[dict[str, Any]]) -> None:
         """Initialize all services."""
@@ -54,6 +56,7 @@ class ServiceRegistry:
         self.attachment = AttachmentService(database)
         self.image = ImageService(database)
         self.export = ExportService(database)
+        self.template = TemplateService(database)
 
         self._services: list[Service] = [
             self.user,
@@ -68,6 +71,7 @@ class ServiceRegistry:
             self.attachment,
             self.image,
             self.export,
+            self.template,
         ]
 
     def set_core(self, core: Core) -> None:

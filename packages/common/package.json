@@ -10,6 +10,8 @@
     "./app": "./src/app/index.ts",
     "./components": "./src/components/index.ts",
     "./errors": "./src/errors/index.ts",
+    "./templates": "./src/templates/index.ts",
+    "./styles/templates.css": "./src/styles/templates.css",
     "./types": "./src/types/index.ts",
     "./utils": "./src/utils/index.ts",
     "./configs/*": "./configs/*"
@@ -37,7 +39,13 @@
     "@tanstack/react-query-devtools": "^5.91.1",
     "@tanstack/react-router-devtools": "^1.139.7",
     "dayjs": "^1.11.19",
-    "ky": "^1.14.0"
+    "ky": "^1.14.0",
+    "liquidjs": "^10.24.0",
+    "rehype": "^13.0.2",
+    "rehype-sanitize": "^6.0.0",
+    "remark": "^15.0.1",
+    "remark-gfm": "^4.0.1",
+    "remark-html": "^16.0.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

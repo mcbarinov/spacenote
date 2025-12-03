@@ -5,7 +5,8 @@ import { api, COMMENTS_PAGE_LIMIT } from "@spacenote/common/api"
 import { SpaceHeader } from "@/components/SpaceHeader"
 import { CommentForm } from "./-components/CommentForm"
 import { CommentList } from "./-components/CommentList"
-import { NoteDetails } from "./-components/NoteDetails"
+import { NoteDetailsDefault } from "./-components/NoteDetailsDefault"
+import { NoteDetailsTemplate } from "./-components/NoteDetailsTemplate"
 
 export const Route = createFileRoute("/_auth/s/$slug/$noteNumber/")({
   loader: async ({ context, params }) => {
@@ -25,11 +26,17 @@ function NoteDetailPage() {
   const space = api.cache.useSpace(slug)
   const { data: note } = useSuspenseQuery(api.queries.getNote(slug, noteNum))
 
+  const template = space.templates["web:note:detail"]
+
   return (
     <>
       <SpaceHeader space={space} note={{ number: note.number }} title={`Note #${String(note.number)}`} />
 
-      <NoteDetails note={note} space={space} />
+      {template ? (
+        <NoteDetailsTemplate note={note} space={space} template={template} />
+      ) : (
+        <NoteDetailsDefault note={note} space={space} />
+      )}
 
       <Divider my="lg" />
 

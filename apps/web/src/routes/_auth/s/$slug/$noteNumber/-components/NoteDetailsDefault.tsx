@@ -3,13 +3,13 @@ import type { Note, Space } from "@spacenote/common/types"
 import { formatDate } from "@spacenote/common/utils"
 import { FieldView } from "@/components/FieldView"
 
-interface NoteDetailsProps {
+interface NoteDetailsDefaultProps {
   note: Note
   space: Space
 }
 
-/** Displays note metadata and field values */
-export function NoteDetails({ note, space }: NoteDetailsProps) {
+/** Displays note metadata and field values using FieldView components */
+export function NoteDetailsDefault({ note, space }: NoteDetailsDefaultProps) {
   return (
     <>
       <Stack gap="xs" mb="lg">

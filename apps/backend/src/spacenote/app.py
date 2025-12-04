@@ -155,6 +155,11 @@ class App:
         await self._core.services.access.ensure_admin(auth_token)
         await self._core.services.filter.remove_filter(slug, filter_name)
 
+    async def update_filter(self, auth_token: AuthToken, slug: str, filter_name: str, new_filter: Filter) -> Filter:
+        """Update filter in space (admin only). Returns validated filter."""
+        await self._core.services.access.ensure_admin(auth_token)
+        return await self._core.services.filter.update_filter(slug, filter_name, new_filter)
+
     # --- Notes ---
 
     async def get_notes(

@@ -104,7 +104,12 @@ class SpaceService(Service):
         await self._collection.update_one({"slug": slug}, {"$set": {"hidden_fields_on_create": field_names}})
         return await self.update_space_cache(slug)
 
-    async def update_space_document(self, slug: str, update: dict[str, Any]) -> Space:
+    async def update_space_document(
+        self,
+        slug: str,
+        update: dict[str, Any],
+        array_filters: list[dict[str, Any]] | None = None,
+    ) -> Space:
         """Low-level MongoDB update with automatic cache invalidation.
 
         WARNING: This is a low-level method. Caller is responsible for:
@@ -114,8 +119,16 @@ class SpaceService(Service):
 
         Use this only from feature services (FieldService, FilterService, etc.)
         that need to modify Space document.
+
+        Args:
+            slug: Space slug to update.
+            update: MongoDB update document (e.g. {"$set": {...}}).
+            array_filters: MongoDB array filters for updating nested array elements.
+                Used with positional operator $[<identifier>] to update specific
+                elements in arrays like filters or fields.
+                Example: [{"elem.name": "my-filter"}] with {"$set": {"filters.$[elem]": ...}}
         """
-        await self._collection.update_one({"slug": slug}, update)
+        await self._collection.update_one({"slug": slug}, update, array_filters=array_filters)
         return await self.update_space_cache(slug)
 
     async def delete_space(self, slug: str) -> None:

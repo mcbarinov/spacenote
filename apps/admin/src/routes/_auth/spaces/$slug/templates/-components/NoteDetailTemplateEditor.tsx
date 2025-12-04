@@ -1,20 +1,29 @@
-import { Button, Group, Stack, Textarea } from "@mantine/core"
+import { Suspense, useEffect, useState } from "react"
+import { Alert, Button, Divider, Group, Loader, NumberInput, Paper, Stack, Text, Textarea } from "@mantine/core"
 import { useForm } from "@mantine/form"
+import { useDebouncedValue } from "@mantine/hooks"
 import { notifications } from "@mantine/notifications"
+import { useSuspenseQuery } from "@tanstack/react-query"
 import { api } from "@spacenote/common/api"
 import { ErrorMessage } from "@spacenote/common/components"
+import { renderTemplate } from "@spacenote/common/templates"
+import "@spacenote/common/styles/templates.css"
 
 interface NoteDetailTemplateEditorProps {
   spaceSlug: string
   currentContent: string
 }
 
-/** Editor for web:note:detail template */
+/** Editor for web:note:detail template with live preview */
 export function NoteDetailTemplateEditor({ spaceSlug, currentContent }: NoteDetailTemplateEditorProps) {
   const form = useForm({
     initialValues: { content: currentContent },
   })
   const setTemplateMutation = api.mutations.useSetTemplate(spaceSlug)
+
+  const [noteNumber, setNoteNumber] = useState<number | null>(null)
+  const [loadedNumber, setLoadedNumber] = useState<number | null>(null)
+  const [debouncedContent] = useDebouncedValue(form.values.content, 400)
 
   const handleSubmit = form.onSubmit((values) => {
     setTemplateMutation.mutate(
@@ -28,22 +37,136 @@ export function NoteDetailTemplateEditor({ spaceSlug, currentContent }: NoteDeta
   })
 
   return (
-    <form onSubmit={handleSubmit}>
-      <Stack gap="sm">
-        <Textarea
-          label="Template content"
-          description="Liquid template for note detail page"
-          {...form.getInputProps("content")}
-          minRows={10}
-          autosize
+    <Stack gap="md">
+      <form onSubmit={handleSubmit}>
+        <Stack gap="sm">
+          <Textarea
+            label="Template content"
+            description="Liquid template for note detail page"
+            {...form.getInputProps("content")}
+            minRows={10}
+            autosize
+          />
+          {setTemplateMutation.error && <ErrorMessage error={setTemplateMutation.error} />}
+          <Group justify="flex-end">
+            <Button type="submit" loading={setTemplateMutation.isPending}>
+              Save
+            </Button>
+          </Group>
+        </Stack>
+      </form>
+
+      <Divider label="Preview" />
+
+      <Group>
+        <Text>Note number</Text>
+        <NumberInput
+          placeholder="latest"
+          value={noteNumber ?? ""}
+          onChange={(value) => {
+            setNoteNumber(typeof value === "number" ? value : null)
+          }}
+          min={1}
+          style={{ width: 100 }}
         />
-        {setTemplateMutation.error && <ErrorMessage error={setTemplateMutation.error} />}
-        <Group justify="flex-end">
-          <Button type="submit" loading={setTemplateMutation.isPending}>
-            Save
-          </Button>
-        </Group>
-      </Stack>
-    </form>
+        {loadedNumber !== null && <Text c="dimmed">#{loadedNumber}</Text>}
+      </Group>
+
+      <Suspense fallback={<Loader />}>
+        {noteNumber === null ? (
+          <LatestNotePreview spaceSlug={spaceSlug} template={debouncedContent} onNoteLoaded={setLoadedNumber} />
+        ) : (
+          <SpecificNotePreview
+            spaceSlug={spaceSlug}
+            template={debouncedContent}
+            noteNumber={noteNumber}
+            onNoteLoaded={setLoadedNumber}
+          />
+        )}
+      </Suspense>
+    </Stack>
+  )
+}
+
+interface LatestNotePreviewProps {
+  spaceSlug: string
+  template: string
+  onNoteLoaded: (num: number | null) => void
+}
+
+/** Preview that loads the latest note from list */
+function LatestNotePreview({ spaceSlug, template, onNoteLoaded }: LatestNotePreviewProps) {
+  const space = api.cache.useSpace(spaceSlug)
+  const { data: notesList } = useSuspenseQuery(api.queries.listNotes(spaceSlug))
+
+  useEffect(() => {
+    onNoteLoaded(notesList.items[0]?.number ?? null)
+  }, [notesList, onNoteLoaded])
+
+  if (notesList.items.length === 0) {
+    return <Alert color="yellow">No notes in this space yet</Alert>
+  }
+
+  const note = notesList.items[0]
+
+  return <TemplatePreview template={template} context={{ note, space }} />
+}
+
+interface SpecificNotePreviewProps {
+  spaceSlug: string
+  template: string
+  noteNumber: number
+  onNoteLoaded: (num: number | null) => void
+}
+
+/** Preview that loads a specific note by number */
+function SpecificNotePreview({ spaceSlug, template, noteNumber, onNoteLoaded }: SpecificNotePreviewProps) {
+  const space = api.cache.useSpace(spaceSlug)
+  const { data: note } = useSuspenseQuery(api.queries.getNote(spaceSlug, noteNumber))
+
+  useEffect(() => {
+    onNoteLoaded(note.number)
+  }, [note, onNoteLoaded])
+
+  return <TemplatePreview template={template} context={{ note, space }} />
+}
+
+interface TemplatePreviewProps {
+  template: string
+  context: Parameters<typeof renderTemplate>[1]
+}
+
+/** Renders Liquid template and displays the result */
+function TemplatePreview({ template, context }: TemplatePreviewProps) {
+  const [html, setHtml] = useState("")
+  const [error, setError] = useState<string>()
+
+  useEffect(() => {
+    let cancelled = false
+    void renderTemplate(template, context).then((result) => {
+      if (!cancelled) {
+        setHtml(result.html)
+        setError(result.error)
+      }
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [template, context])
+
+  if (error) {
+    return <Alert color="red">{error}</Alert>
+  }
+
+  if (!html) {
+    return null
+  }
+
+  return (
+    <Paper withBorder p="md">
+      {/* Safe: output is sanitized by rehype-sanitize in renderTemplate */}
+      {/* eslint-disable-next-line react-dom/no-dangerously-set-innerhtml */}
+      <div dangerouslySetInnerHTML={{ __html: html }} />
+    </Paper>
   )
 }

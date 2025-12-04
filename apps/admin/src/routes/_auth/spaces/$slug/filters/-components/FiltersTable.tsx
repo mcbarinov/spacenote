@@ -1,5 +1,7 @@
-import { Code, Paper, Table, Text } from "@mantine/core"
+import { ActionIcon, Code, Group, Paper, Table, Text } from "@mantine/core"
 import { notifications } from "@mantine/notifications"
+import { Link } from "@tanstack/react-router"
+import { IconPencil } from "@tabler/icons-react"
 import { api } from "@spacenote/common/api"
 import { DeleteButton } from "@spacenote/common/components"
 import type { Filter } from "@spacenote/common/types"
@@ -49,24 +51,31 @@ export function FiltersTable({ spaceSlug, filters }: FiltersTableProps) {
                   </div>
                 ))}
               </Table.Td>
-              <Table.Td>
+              <Table.Td style={{ whiteSpace: "nowrap" }}>
                 <Code>{filter.sort.join(", ")}</Code>
               </Table.Td>
               <Table.Td>
-                <DeleteButton
-                  title="Delete Filter"
-                  message={`Are you sure you want to delete filter "${filter.name}"?`}
-                  onConfirm={() => {
-                    deleteFilterMutation.mutate(filter.name, {
-                      onSuccess: () => {
-                        notifications.show({
-                          message: "Filter deleted successfully",
-                          color: "green",
-                        })
-                      },
-                    })
-                  }}
-                />
+                <Group gap="xs" wrap="nowrap">
+                  <Link to="/spaces/$slug/filters/$filterName/edit" params={{ slug: spaceSlug, filterName: filter.name }}>
+                    <ActionIcon variant="subtle">
+                      <IconPencil size={16} />
+                    </ActionIcon>
+                  </Link>
+                  <DeleteButton
+                    title="Delete Filter"
+                    message={`Are you sure you want to delete filter "${filter.name}"?`}
+                    onConfirm={() => {
+                      deleteFilterMutation.mutate(filter.name, {
+                        onSuccess: () => {
+                          notifications.show({
+                            message: "Filter deleted successfully",
+                            color: "green",
+                          })
+                        },
+                      })
+                    }}
+                  />
+                </Group>
               </Table.Td>
             </Table.Tr>
           ))}

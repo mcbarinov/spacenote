@@ -332,7 +332,11 @@ export type paths = {
       cookie?: never
     }
     get?: never
-    put?: never
+    /**
+     * Update filter in space
+     * @description Update a filter in a space. Only accessible by admin users. If name in body differs from filter_name in URL, the filter will be renamed. The 'all' filter can only have sort and notes_list_default_columns modified.
+     */
+    put: operations["updateFilterInSpace"]
     post?: never
     /**
      * Remove filter from space
@@ -2529,6 +2533,78 @@ export interface operations {
         }
       }
       /** @description Space not found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  updateFilterInSpace: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        space_slug: string
+        filter_name: string
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["Filter"]
+      }
+    }
+    responses: {
+      /** @description Returns updated filter */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["Filter"]
+        }
+      }
+      /** @description Invalid filter data or new name already exists */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Admin privileges required */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Space or filter not found */
       404: {
         headers: {
           [name: string]: unknown

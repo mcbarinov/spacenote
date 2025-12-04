@@ -185,6 +185,18 @@ export function useAddFilter(spaceSlug: string) {
   })
 }
 
+/** Updates a filter in space */
+export function useUpdateFilter(spaceSlug: string, filterName: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (filter: Filter) =>
+      httpClient.put(`api/v1/spaces/${spaceSlug}/filters/${filterName}`, { json: filter }).json<Filter>(),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["spaces"] })
+    },
+  })
+}
+
 /** Deletes a filter from space */
 export function useDeleteFilter(spaceSlug: string) {
   const queryClient = useQueryClient()

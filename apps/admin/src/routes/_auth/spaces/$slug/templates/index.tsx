@@ -4,6 +4,7 @@ import { createFileRoute } from "@tanstack/react-router"
 import { SpaceHeader } from "@/components/SpaceHeader"
 import { NoteDetailTemplateEditor } from "./-components/NoteDetailTemplateEditor"
 import { NoteListTemplateEditor } from "./-components/NoteListTemplateEditor"
+import { TemplatePlayground } from "./-components/TemplatePlayground"
 
 export const Route = createFileRoute("/_auth/spaces/$slug/templates/")({
   component: TemplatesPage,
@@ -22,6 +23,7 @@ function TemplatesPage() {
           <Tabs.List>
             <Tabs.Tab value="detail">Note Detail</Tabs.Tab>
             <Tabs.Tab value="list">Note List</Tabs.Tab>
+            <Tabs.Tab value="playground">Playground</Tabs.Tab>
           </Tabs.List>
 
           <Tabs.Panel value="detail" pt="md">
@@ -30,6 +32,10 @@ function TemplatesPage() {
 
           <Tabs.Panel value="list" pt="md">
             <NoteListTemplateEditor spaceSlug={slug} filters={space.filters.map((f) => f.name)} templates={space.templates} />
+          </Tabs.Panel>
+
+          <Tabs.Panel value="playground" pt="md">
+            <TemplatePlayground />
           </Tabs.Panel>
         </Tabs>
       </Paper>

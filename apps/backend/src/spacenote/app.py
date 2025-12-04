@@ -165,13 +165,13 @@ class App:
         limit: int = 50,
         offset: int = 0,
     ) -> PaginationResult[Note]:
-        """Get paginated notes in space (members only)."""
-        user = await self._core.services.access.ensure_space_member(auth_token, space_slug)
+        """Get paginated notes in space (members and admin)."""
+        user = await self._core.services.access.ensure_space_reader(auth_token, space_slug)
         return await self._core.services.note.list_notes(space_slug, user.username, filter_name, limit, offset)
 
     async def get_note(self, auth_token: AuthToken, space_slug: str, number: int) -> Note:
-        """Get specific note by number (members only)."""
-        await self._core.services.access.ensure_space_member(auth_token, space_slug)
+        """Get specific note by number (members and admin)."""
+        await self._core.services.access.ensure_space_reader(auth_token, space_slug)
         return await self._core.services.note.get_note(space_slug, number)
 
     async def create_note(self, auth_token: AuthToken, space_slug: str, raw_fields: dict[str, str]) -> Note:
@@ -189,13 +189,13 @@ class App:
     async def get_comments(
         self, auth_token: AuthToken, space_slug: str, note_number: int, limit: int = 50, offset: int = 0
     ) -> PaginationResult[Comment]:
-        """Get paginated comments for a note (members only)."""
-        await self._core.services.access.ensure_space_member(auth_token, space_slug)
+        """Get paginated comments for a note (members and admin)."""
+        await self._core.services.access.ensure_space_reader(auth_token, space_slug)
         return await self._core.services.comment.list_comments(space_slug, note_number, limit, offset)
 
     async def get_comment(self, auth_token: AuthToken, space_slug: str, note_number: int, number: int) -> Comment:
-        """Get specific comment (members only)."""
-        await self._core.services.access.ensure_space_member(auth_token, space_slug)
+        """Get specific comment (members and admin)."""
+        await self._core.services.access.ensure_space_reader(auth_token, space_slug)
         return await self._core.services.comment.get_comment(space_slug, note_number, number)
 
     async def create_comment(
@@ -245,13 +245,13 @@ class App:
         )
 
     async def get_space_attachments(self, auth_token: AuthToken, space_slug: str) -> list[Attachment]:
-        """Get all space-level attachments (members only)."""
-        await self._core.services.access.ensure_space_member(auth_token, space_slug)
+        """Get all space-level attachments (members and admin)."""
+        await self._core.services.access.ensure_space_reader(auth_token, space_slug)
         return await self._core.services.attachment.list_space_attachments(space_slug)
 
     async def get_note_attachments(self, auth_token: AuthToken, space_slug: str, note_number: int) -> list[Attachment]:
-        """Get all attachments for a note (members only)."""
-        await self._core.services.access.ensure_space_member(auth_token, space_slug)
+        """Get all attachments for a note (members and admin)."""
+        await self._core.services.access.ensure_space_reader(auth_token, space_slug)
         return await self._core.services.attachment.list_note_attachments(space_slug, note_number)
 
     async def download_pending_attachment(self, auth_token: AuthToken, number: int) -> tuple[PendingAttachment, bytes]:
@@ -261,8 +261,8 @@ class App:
         return pending, content
 
     async def download_space_attachment(self, auth_token: AuthToken, space_slug: str, number: int) -> tuple[Attachment, bytes]:
-        """Download space attachment (members only)."""
-        await self._core.services.access.ensure_space_member(auth_token, space_slug)
+        """Download space attachment (members and admin)."""
+        await self._core.services.access.ensure_space_reader(auth_token, space_slug)
         attachment = await self._core.services.attachment.get_attachment(space_slug, None, number)
         content = attachment_storage.read_attachment_file(self._core.config.attachments_path, space_slug, None, number)
         return attachment, content
@@ -270,8 +270,8 @@ class App:
     async def download_note_attachment(
         self, auth_token: AuthToken, space_slug: str, note_number: int, number: int
     ) -> tuple[Attachment, bytes]:
-        """Download note attachment (members only)."""
-        await self._core.services.access.ensure_space_member(auth_token, space_slug)
+        """Download note attachment (members and admin)."""
+        await self._core.services.access.ensure_space_reader(auth_token, space_slug)
         attachment = await self._core.services.attachment.get_attachment(space_slug, note_number, number)
         content = attachment_storage.read_attachment_file(self._core.config.attachments_path, space_slug, note_number, number)
         return attachment, content
@@ -290,12 +290,12 @@ class App:
         if space_slug is None:
             await self._core.services.access.ensure_pending_attachment_owner(auth_token, attachment_number)
         else:
-            await self._core.services.access.ensure_space_member(auth_token, space_slug)
+            await self._core.services.access.ensure_space_reader(auth_token, space_slug)
         return await self._core.services.image.get_attachment_as_webp(space_slug, note_number, attachment_number, options)
 
     async def get_image_path(self, auth_token: AuthToken, space_slug: str, note_number: int, field_name: str) -> Path:
-        """Get path to pre-generated WebP image (members only)."""
-        await self._core.services.access.ensure_space_member(auth_token, space_slug)
+        """Get path to pre-generated WebP image (members and admin)."""
+        await self._core.services.access.ensure_space_reader(auth_token, space_slug)
         return await self._core.services.image.get_image_path(space_slug, note_number, field_name)
 
     # --- Export/Import ---

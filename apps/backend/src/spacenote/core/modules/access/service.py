@@ -28,6 +28,16 @@ class AccessService(Service):
             raise AccessDeniedError("Not a member of this space")
         return user
 
+    async def ensure_space_reader(self, auth_token: AuthToken, space_slug: str) -> User:
+        """Verify user can read space content (admin or member)."""
+        user = await self.core.services.session.get_authenticated_user(auth_token)
+        space = self.core.services.space.get_space(space_slug)
+        if user.username == "admin":
+            return user
+        if user.username not in space.members:
+            raise AccessDeniedError("Not a member of this space")
+        return user
+
     async def ensure_comment_author(
         self, auth_token: AuthToken, space_slug: str, note_number: int, comment_number: int
     ) -> tuple[User, Comment]:

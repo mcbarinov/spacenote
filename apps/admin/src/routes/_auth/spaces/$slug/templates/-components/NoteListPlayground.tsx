@@ -1,16 +1,14 @@
 import { Suspense, useState } from "react"
-import { LiveProvider, LiveEditor, LivePreview, LiveError } from "react-live"
-import { Stack, Group, Title, Text, Badge, Paper, Divider, Select, Loader, Alert } from "@mantine/core"
+import { Stack, Group, Text, Select, Loader, Alert } from "@mantine/core"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { api } from "@spacenote/common/api"
+import { PlaygroundLayout } from "./PlaygroundLayout"
+import { mantineScope } from "./playgroundScope"
 
 interface NoteListPlaygroundProps {
   spaceSlug: string
   filters: string[]
 }
-
-/** Mantine components available in playground scope */
-const mantineScope = { Stack, Group, Title, Text, Badge, Paper, Divider }
 
 const defaultCode = `<Stack gap="md">
   <Title order={2}>{space.title} - Notes</Title>
@@ -61,18 +59,5 @@ function PlaygroundContent({ spaceSlug, filter }: PlaygroundContentProps) {
   const notes = notesList.items
   const scope = { ...mantineScope, space, notes }
 
-  return (
-    <LiveProvider code={defaultCode} scope={scope}>
-      <Stack gap="md">
-        <Paper withBorder p="md">
-          <LiveEditor style={{ fontFamily: "monospace", fontSize: 14 }} />
-        </Paper>
-        <Divider label="Preview" />
-        <Paper withBorder p="md">
-          <LiveError />
-          <LivePreview />
-        </Paper>
-      </Stack>
-    </LiveProvider>
-  )
+  return <PlaygroundLayout code={defaultCode} scope={scope} />
 }

@@ -1,15 +1,13 @@
 import { Suspense, useState, useEffect } from "react"
-import { LiveProvider, LiveEditor, LivePreview, LiveError } from "react-live"
-import { Stack, Group, Title, Text, Badge, Paper, Divider, NumberInput, Loader, Alert } from "@mantine/core"
+import { Stack, Group, Text, NumberInput, Loader, Alert } from "@mantine/core"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { api } from "@spacenote/common/api"
+import { PlaygroundLayout } from "./PlaygroundLayout"
+import { mantineScope } from "./playgroundScope"
 
 interface NoteDetailPlaygroundProps {
   spaceSlug: string
 }
-
-/** Mantine components available in playground scope */
-const mantineScope = { Stack, Group, Title, Text, Badge, Paper, Divider }
 
 const defaultCode = `<Stack gap="md">
   <Title order={2}>{note.fields.title || "Untitled"}</Title>
@@ -73,20 +71,7 @@ function LatestNotePlayground({ spaceSlug, onNoteLoaded }: LatestNotePlaygroundP
   const note = notesList.items[0]
   const scope = { ...mantineScope, space, note }
 
-  return (
-    <LiveProvider code={defaultCode} scope={scope}>
-      <Stack gap="md">
-        <Paper withBorder p="md">
-          <LiveEditor style={{ fontFamily: "monospace", fontSize: 14 }} />
-        </Paper>
-        <Divider label="Preview" />
-        <Paper withBorder p="md">
-          <LiveError />
-          <LivePreview />
-        </Paper>
-      </Stack>
-    </LiveProvider>
-  )
+  return <PlaygroundLayout code={defaultCode} scope={scope} />
 }
 
 interface SpecificNotePlaygroundProps {
@@ -106,18 +91,5 @@ function SpecificNotePlayground({ spaceSlug, noteNumber, onNoteLoaded }: Specifi
 
   const scope = { ...mantineScope, space, note }
 
-  return (
-    <LiveProvider code={defaultCode} scope={scope}>
-      <Stack gap="md">
-        <Paper withBorder p="md">
-          <LiveEditor style={{ fontFamily: "monospace", fontSize: 14 }} />
-        </Paper>
-        <Divider label="Preview" />
-        <Paper withBorder p="md">
-          <LiveError />
-          <LivePreview />
-        </Paper>
-      </Stack>
-    </LiveProvider>
-  )
+  return <PlaygroundLayout code={defaultCode} scope={scope} />
 }

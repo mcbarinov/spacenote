@@ -1,13 +1,12 @@
 import { Suspense, useEffect, useState } from "react"
-import { Alert, Button, Divider, Group, Loader, NumberInput, Paper, Stack, Text, Textarea } from "@mantine/core"
+import { Alert, Button, Divider, Group, Loader, NumberInput, Stack, Text, Textarea } from "@mantine/core"
 import { useForm } from "@mantine/form"
 import { useDebouncedValue } from "@mantine/hooks"
 import { notifications } from "@mantine/notifications"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { api } from "@spacenote/common/api"
 import { ErrorMessage } from "@spacenote/common/components"
-import { renderTemplate } from "@spacenote/common/templates"
-import "@spacenote/common/styles/templates.css"
+import { TemplatePreview } from "./TemplatePreview"
 
 interface NoteDetailTemplateEditorProps {
   spaceSlug: string
@@ -129,44 +128,4 @@ function SpecificNotePreview({ spaceSlug, template, noteNumber, onNoteLoaded }: 
   }, [note, onNoteLoaded])
 
   return <TemplatePreview template={template} context={{ note, space }} />
-}
-
-interface TemplatePreviewProps {
-  template: string
-  context: Parameters<typeof renderTemplate>[1]
-}
-
-/** Renders Liquid template and displays the result */
-function TemplatePreview({ template, context }: TemplatePreviewProps) {
-  const [html, setHtml] = useState("")
-  const [error, setError] = useState<string>()
-
-  useEffect(() => {
-    let cancelled = false
-    void renderTemplate(template, context).then((result) => {
-      if (!cancelled) {
-        setHtml(result.html)
-        setError(result.error)
-      }
-    })
-    return () => {
-      cancelled = true
-    }
-  }, [template, context])
-
-  if (error) {
-    return <Alert color="red">{error}</Alert>
-  }
-
-  if (!html) {
-    return null
-  }
-
-  return (
-    <Paper withBorder p="md">
-      {/* Safe: output is sanitized by rehype-sanitize in renderTemplate */}
-      {/* eslint-disable-next-line react-dom/no-dangerously-set-innerhtml */}
-      <div dangerouslySetInnerHTML={{ __html: html }} />
-    </Paper>
-  )
 }

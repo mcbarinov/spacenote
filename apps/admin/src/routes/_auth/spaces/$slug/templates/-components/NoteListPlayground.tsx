@@ -67,9 +67,9 @@ function PlaygroundContent({ spaceSlug, filter }: PlaygroundContentProps) {
         <Paper withBorder p="md">
           <LiveEditor style={{ fontFamily: "monospace", fontSize: 14 }} />
         </Paper>
+        <Divider label="Preview" />
         <Paper withBorder p="md">
           <LiveError />
-          <Divider my="sm" />
           <LivePreview />
         </Paper>
       </Stack>

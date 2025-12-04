@@ -38,6 +38,15 @@ class FilterService(Service):
             raise NotFoundError(f"Filter '{filter_name}' not found in space")
 
         await self.core.services.space.update_space_document(slug, {"$pull": {"filters": {"name": filter_name}}})
+
+        # Remove associated template if it exists
+        template_key = f"web:note:list:{filter_name}"
+        if template_key in space.templates:
+            await self.core.services.space.update_space_document(
+                slug,
+                {"$unset": {f"templates.{template_key}": ""}},
+            )
+
         logger.debug("filter_removed_from_space", space_slug=slug, filter_name=filter_name)
 
     async def update_filter(self, slug: str, filter_name: str, new_filter: Filter) -> Filter:

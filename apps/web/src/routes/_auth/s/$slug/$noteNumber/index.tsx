@@ -1,14 +1,33 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { Divider, Title } from "@mantine/core"
 import { useSuspenseQuery } from "@tanstack/react-query"
+import { z } from "zod"
 import { api, COMMENTS_PAGE_LIMIT } from "@spacenote/common/api"
 import { SpaceHeader } from "@/components/SpaceHeader"
 import { CommentForm } from "./-components/CommentForm"
 import { CommentList } from "./-components/CommentList"
 import { NoteDetailsDefault } from "./-components/NoteDetailsDefault"
+import { NoteDetailsJson } from "./-components/NoteDetailsJson"
 import { NoteDetailsTemplate } from "./-components/NoteDetailsTemplate"
+import { ViewModeMenu } from "./-components/ViewModeMenu"
+
+const searchSchema = z.object({
+  view: z.enum(["default", "template", "json"]).optional(),
+})
+
+type ViewMode = "default" | "template" | "json"
+
+/** Resolves which view mode to display */
+function resolveView(view: ViewMode | undefined, hasTemplate: boolean): ViewMode {
+  if (view === "json") return "json"
+  if (view === "template" && hasTemplate) return "template"
+  if (view === "default") return "default"
+  // No view specified - use template if available
+  return hasTemplate ? "template" : "default"
+}
 
 export const Route = createFileRoute("/_auth/s/$slug/$noteNumber/")({
+  validateSearch: searchSchema,
   loader: async ({ context, params }) => {
     const noteNumber = Number(params.noteNumber)
     await Promise.all([
@@ -22,21 +41,27 @@ export const Route = createFileRoute("/_auth/s/$slug/$noteNumber/")({
 /** Note detail page with fields and comments */
 function NoteDetailPage() {
   const { slug, noteNumber } = Route.useParams()
+  const { view } = Route.useSearch()
   const noteNum = Number(noteNumber)
   const space = api.cache.useSpace(slug)
   const { data: note } = useSuspenseQuery(api.queries.getNote(slug, noteNum))
 
   const template = space.templates["web:note:detail"]
+  const hasTemplate = Boolean(template)
+  const resolvedView = resolveView(view, hasTemplate)
 
   return (
     <>
-      <SpaceHeader space={space} note={{ number: note.number }} title={`Note #${String(note.number)}`} />
+      <SpaceHeader
+        space={space}
+        note={{ number: note.number }}
+        title={`Note #${String(note.number)}`}
+        actions={<ViewModeMenu slug={slug} noteNumber={noteNumber} currentView={resolvedView} hasTemplate={hasTemplate} />}
+      />
 
-      {template ? (
-        <NoteDetailsTemplate note={note} space={space} template={template} />
-      ) : (
-        <NoteDetailsDefault note={note} space={space} />
-      )}
+      {resolvedView === "json" && <NoteDetailsJson note={note} />}
+      {resolvedView === "template" && template && <NoteDetailsTemplate note={note} space={space} template={template} />}
+      {resolvedView === "default" && <NoteDetailsDefault note={note} space={space} />}
 
       <Divider my="lg" />
 

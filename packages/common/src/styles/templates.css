@@ -91,10 +91,10 @@ h4.Title {
   height: 20px;
   font-size: var(--mantine-font-size-xs);
   font-weight: 500;
-  border-radius: var(--mantine-radius-sm);
+  border-radius: var(--mantine-radius-xl);
   background: var(--mantine-color-gray-light);
   color: var(--mantine-color-gray-light-color);
-  text-transform: lowercase;
+  text-transform: uppercase;
 }
 
 /* Badge color variants */
@@ -170,4 +170,124 @@ h4.Title {
 .Markdown pre code {
   padding: 0;
   background: none;
+}
+
+/* Group/Stack modifiers */
+.justify-between {
+  justify-content: space-between;
+}
+.wrap-nowrap {
+  flex-wrap: nowrap;
+}
+.align-start {
+  align-items: flex-start;
+}
+
+/* Text modifiers */
+.fw-500 {
+  font-weight: 500;
+}
+.lineClamp-1 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Badge sizes */
+.Badge.size-xs {
+  height: 16px;
+  font-size: 10px;
+  padding: 0 6px;
+}
+.Badge.size-sm {
+  height: 18px;
+  font-size: var(--mantine-font-size-xs);
+}
+
+/* Badge outline variant */
+.Badge.variant-outline {
+  background: transparent;
+  border: 1px solid currentColor;
+}
+.Badge.variant-outline.color-red {
+  color: var(--mantine-color-red-filled);
+  border-color: var(--mantine-color-red-filled);
+}
+.Badge.variant-outline.color-gray {
+  color: var(--mantine-color-gray-filled);
+  border-color: var(--mantine-color-gray-filled);
+}
+
+/* Badge filled variant (solid background) */
+.Badge.variant-filled {
+  background: var(--mantine-color-gray-filled);
+  color: var(--mantine-color-white);
+}
+.Badge.variant-filled.color-blue {
+  background: var(--mantine-color-blue-filled);
+}
+.Badge.variant-filled.color-green {
+  background: var(--mantine-color-green-filled);
+}
+.Badge.variant-filled.color-red {
+  background: var(--mantine-color-red-filled);
+}
+.Badge.variant-filled.color-yellow {
+  background: var(--mantine-color-yellow-filled);
+  color: var(--mantine-color-black);
+}
+.Badge.variant-filled.color-gray {
+  background: var(--mantine-color-gray-filled);
+}
+
+/* Flex utilities */
+.flex-1 {
+  flex: 1;
+}
+.min-w-0 {
+  min-width: 0;
+}
+
+/* Card */
+.Card {
+  display: block;
+  padding: var(--mantine-spacing-md);
+  background: var(--mantine-color-body);
+  border-radius: var(--mantine-radius-md);
+  text-decoration: none;
+  color: inherit;
+}
+
+.Card.withBorder {
+  border: 1px solid var(--mantine-color-default-border);
+}
+
+/* Card as link - hover effect */
+a.Card:hover {
+  background: var(--mantine-color-gray-light-hover);
+}
+
+/* Card padding modifiers */
+.Card.p-xs {
+  padding: var(--mantine-spacing-xs);
+}
+.Card.p-sm {
+  padding: var(--mantine-spacing-sm);
+}
+.Card.p-md {
+  padding: var(--mantine-spacing-md);
+}
+.Card.p-lg {
+  padding: var(--mantine-spacing-lg);
+}
+
+/* Card radius modifiers */
+.Card.radius-sm {
+  border-radius: var(--mantine-radius-sm);
+}
+.Card.radius-md {
+  border-radius: var(--mantine-radius-md);
+}
+.Card.radius-lg {
+  border-radius: var(--mantine-radius-lg);
 }

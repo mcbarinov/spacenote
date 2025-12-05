@@ -1,9 +1,9 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router"
-import { Group, Select } from "@mantine/core"
+import { createFileRoute, useLocation, useNavigate } from "@tanstack/react-router"
+import { Button, Group, Select } from "@mantine/core"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { api } from "@spacenote/common/api"
+import { LinkButton, PageHeaderNew } from "@spacenote/common/components"
 import { z } from "zod"
-import { SpaceHeader } from "@/components/SpaceHeader"
 import { NotesListDefault } from "./-components/NotesListDefault"
 import { NotesListJson } from "./-components/NotesListJson"
 import { NotesListTemplate } from "./-components/NotesListTemplate"
@@ -38,6 +38,7 @@ export const Route = createFileRoute("/_auth/s/$slug/")({
 function SpacePage() {
   const { slug } = Route.useParams()
   const { filter, view } = Route.useSearch()
+  const location = useLocation()
   const navigate = useNavigate()
   const space = api.cache.useSpace(slug)
   const { data: notesList } = useSuspenseQuery(api.queries.listNotes(slug, filter))
@@ -58,11 +59,33 @@ function SpacePage() {
       ? allFilter.notes_list_default_columns
       : ["note.number", "note.created_at", "note.author"]
 
+  // Tab state
+  const isSpaceAttachments =
+    location.pathname === `/s/${slug}/attachments` || location.pathname.startsWith(`/s/${slug}/attachments/`)
+
   return (
     <>
-      <SpaceHeader
-        space={space}
+      <PageHeaderNew
         title={space.title}
+        breadcrumbs={[{ label: "Home", to: "/" }, { label: `◈ ${space.slug}` }]}
+        topActions={
+          <Group gap="xs">
+            <Button
+              variant={!isSpaceAttachments ? "light" : "subtle"}
+              size="xs"
+              onClick={() => void navigate({ to: "/s/$slug", params: { slug } })}
+            >
+              Notes
+            </Button>
+            <Button
+              variant={isSpaceAttachments ? "light" : "subtle"}
+              size="xs"
+              onClick={() => void navigate({ to: "/s/$slug/attachments", params: { slug } })}
+            >
+              Space Attachments
+            </Button>
+          </Group>
+        }
         actions={
           <Group gap="xs">
             {space.filters.length > 0 && (
@@ -81,9 +104,11 @@ function SpacePage() {
               />
             )}
             <ViewModeMenu slug={slug} filter={filter} currentView={resolvedView} hasTemplate={hasTemplate} />
+            <LinkButton to="/s/$slug/new" params={{ slug }} variant="light">
+              New Note
+            </LinkButton>
           </Group>
         }
-        nav={[{ label: "New Note", to: "/s/$slug/new", params: { slug } }]}
       />
 
       {resolvedView === "json" && <NotesListJson notes={notesList.items} />}

@@ -1,7 +1,9 @@
 import { Button, Group, Paper, Stack } from "@mantine/core"
 import { useForm } from "@mantine/form"
-import type { UseMutationResult } from "@tanstack/react-query"
+import { notifications } from "@mantine/notifications"
+import { useNavigate } from "@tanstack/react-router"
 import { ErrorMessage } from "@spacenote/common/components"
+import { api } from "@spacenote/common/api"
 import type { Note, Space, SpaceField } from "@spacenote/common/types"
 import { FieldInput } from "./FieldInput"
 
@@ -68,37 +70,54 @@ function formValuesToRawFields(values: Record<string, unknown>): Record<string, 
   return raw_fields
 }
 
-interface NoteFormProps {
-  space: Space
-  /** Existing field values for edit mode */
-  initialValues?: Record<string, unknown>
-  mutation: UseMutationResult<Note, Error, { raw_fields: Record<string, string> }>
-  submitLabel: string
-  onSuccess: () => void
-}
+type NoteFormProps = { space: Space; mode: "create"; note?: never } | { space: Space; mode: "edit"; note: Note }
 
-/** Reusable form for creating and editing notes */
-export function NoteForm({ space, initialValues, mutation, submitLabel, onSuccess }: NoteFormProps) {
+/** Form for creating and editing notes */
+export function NoteForm({ space, mode, note }: NoteFormProps) {
+  const navigate = useNavigate()
+  const slug = space.slug
+
+  // Filter fields for create mode
+  const visibleFields =
+    mode === "create" ? space.fields.filter((f) => !space.hidden_fields_on_create.includes(f.name)) : space.fields
+
   const form = useForm({
-    initialValues: buildInitialValues(space.fields, initialValues),
+    initialValues: buildInitialValues(space.fields, note?.fields),
   })
+
+  const createMutation = api.mutations.useCreateNote(slug)
+  const updateMutation = api.mutations.useUpdateNote(slug, note?.number ?? 0)
+  const mutation = mode === "create" ? createMutation : updateMutation
 
   const handleSubmit = form.onSubmit((values) => {
     const raw_fields = formValuesToRawFields(values)
-    mutation.mutate({ raw_fields }, { onSuccess })
+    mutation.mutate(
+      { raw_fields },
+      {
+        onSuccess: () => {
+          if (mode === "create") {
+            notifications.show({ message: "Note created", color: "green" })
+            void navigate({ to: "/s/$slug", params: { slug } })
+          } else {
+            notifications.show({ message: "Note updated", color: "green" })
+            void navigate({ to: "/s/$slug/$noteNumber", params: { slug, noteNumber: String(note.number) } })
+          }
+        },
+      }
+    )
   })
 
   return (
     <Paper withBorder p="xl">
       <form onSubmit={handleSubmit}>
         <Stack gap="md">
-          {space.fields.map((field) => (
+          {visibleFields.map((field) => (
             <FieldInput key={field.name} field={field} spaceMembers={space.members} {...form.getInputProps(field.name)} />
           ))}
           {mutation.error && <ErrorMessage error={mutation.error} />}
           <Group justify="flex-end">
             <Button type="submit" loading={mutation.isPending}>
-              {submitLabel}
+              {mode === "create" ? "Create" : "Save"}
             </Button>
           </Group>
         </Stack>

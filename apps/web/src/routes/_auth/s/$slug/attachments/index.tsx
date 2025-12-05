@@ -1,10 +1,10 @@
-import { createFileRoute } from "@tanstack/react-router"
-import { ActionIcon, Table, Text } from "@mantine/core"
+import { createFileRoute, useLocation, useNavigate } from "@tanstack/react-router"
+import { ActionIcon, Button, Group, Table, Text } from "@mantine/core"
 import { IconDownload } from "@tabler/icons-react"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { api } from "@spacenote/common/api"
+import { LinkButton, PageHeader } from "@spacenote/common/components"
 import { formatDate, formatFileSize } from "@spacenote/common/utils"
-import { SpaceHeader } from "@/components/SpaceHeader"
 
 export const Route = createFileRoute("/_auth/s/$slug/attachments/")({
   loader: async ({ context, params }) => {
@@ -16,15 +16,42 @@ export const Route = createFileRoute("/_auth/s/$slug/attachments/")({
 /** Space attachments list page */
 function AttachmentsPage() {
   const { slug } = Route.useParams()
+  const location = useLocation()
+  const navigate = useNavigate()
   const space = api.cache.useSpace(slug)
   const { data: attachments } = useSuspenseQuery(api.queries.listSpaceAttachments(slug))
 
+  const isSpaceAttachments =
+    location.pathname === `/s/${slug}/attachments` || location.pathname.startsWith(`/s/${slug}/attachments/`)
+
   return (
     <>
-      <SpaceHeader
-        space={space}
+      <PageHeader
         title="Attachments"
-        nav={[{ label: "Upload", to: "/s/$slug/attachments/new", params: { slug } }]}
+        breadcrumbs={[{ label: "Home", to: "/" }, { label: `◈ ${space.slug}` }]}
+        topActions={
+          <Group gap="xs">
+            <Button
+              variant={!isSpaceAttachments ? "light" : "subtle"}
+              size="xs"
+              onClick={() => void navigate({ to: "/s/$slug", params: { slug } })}
+            >
+              Notes
+            </Button>
+            <Button
+              variant={isSpaceAttachments ? "light" : "subtle"}
+              size="xs"
+              onClick={() => void navigate({ to: "/s/$slug/attachments", params: { slug } })}
+            >
+              Space Attachments
+            </Button>
+          </Group>
+        }
+        actions={
+          <LinkButton to="/s/$slug/attachments/new" params={{ slug }} variant="light">
+            Upload
+          </LinkButton>
+        }
       />
 
       {attachments.length === 0 ? (

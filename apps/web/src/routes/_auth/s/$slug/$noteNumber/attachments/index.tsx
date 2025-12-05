@@ -1,10 +1,10 @@
-import { createFileRoute } from "@tanstack/react-router"
-import { ActionIcon, Table, Text } from "@mantine/core"
+import { createFileRoute, useLocation, useNavigate } from "@tanstack/react-router"
+import { ActionIcon, Button, Group, Table, Text } from "@mantine/core"
 import { IconDownload } from "@tabler/icons-react"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { api } from "@spacenote/common/api"
+import { LinkButton, PageHeader } from "@spacenote/common/components"
 import { formatDate, formatFileSize } from "@spacenote/common/utils"
-import { SpaceHeader } from "@/components/SpaceHeader"
 
 export const Route = createFileRoute("/_auth/s/$slug/$noteNumber/attachments/")({
   loader: async ({ context, params }) => {
@@ -17,17 +17,54 @@ export const Route = createFileRoute("/_auth/s/$slug/$noteNumber/attachments/")(
 /** Note attachments list page */
 function NoteAttachmentsPage() {
   const { slug, noteNumber } = Route.useParams()
+  const location = useLocation()
+  const navigate = useNavigate()
   const noteNum = Number(noteNumber)
   const space = api.cache.useSpace(slug)
   const { data: attachments } = useSuspenseQuery(api.queries.listNoteAttachments(slug, noteNum))
 
+  const isNoteAttachments = location.pathname.includes(`/${noteNumber}/attachments`)
+  const isEdit = location.pathname.includes(`/${noteNumber}/edit`)
+
   return (
     <>
-      <SpaceHeader
-        space={space}
-        note={{ number: noteNum }}
+      <PageHeader
         title={`Note #${noteNumber} Attachments`}
-        nav={[{ label: "Upload", to: "/s/$slug/$noteNumber/attachments/new", params: { slug, noteNumber } }]}
+        breadcrumbs={[
+          { label: "Home", to: "/" },
+          { label: `◈ ${space.slug}`, to: "/s/$slug", params: { slug } },
+          { label: `Note #${noteNumber}` },
+        ]}
+        topActions={
+          <Group gap="xs">
+            <Button
+              variant={!isNoteAttachments && !isEdit ? "light" : "subtle"}
+              size="xs"
+              onClick={() => void navigate({ to: "/s/$slug/$noteNumber", params: { slug, noteNumber } })}
+            >
+              Notes
+            </Button>
+            <Button
+              variant={isNoteAttachments ? "light" : "subtle"}
+              size="xs"
+              onClick={() => void navigate({ to: "/s/$slug/$noteNumber/attachments", params: { slug, noteNumber } })}
+            >
+              Note Attachments
+            </Button>
+            <Button
+              variant={isEdit ? "light" : "subtle"}
+              size="xs"
+              onClick={() => void navigate({ to: "/s/$slug/$noteNumber/edit", params: { slug, noteNumber } })}
+            >
+              Edit
+            </Button>
+          </Group>
+        }
+        actions={
+          <LinkButton to="/s/$slug/$noteNumber/attachments/new" params={{ slug, noteNumber }} variant="light">
+            Upload
+          </LinkButton>
+        }
       />
 
       {attachments.length === 0 ? (

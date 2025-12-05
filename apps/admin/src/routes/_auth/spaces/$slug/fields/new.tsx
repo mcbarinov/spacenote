@@ -5,8 +5,8 @@ import { z } from "zod"
 import { Button, Checkbox, Group, NumberInput, Paper, Select, Stack, TagsInput, TextInput } from "@mantine/core"
 import { notifications } from "@mantine/notifications"
 import { api } from "@spacenote/common/api"
-import { ErrorMessage } from "@spacenote/common/components"
-import { SpaceHeader } from "@/components/SpaceHeader"
+import { ErrorMessage, PageHeader } from "@spacenote/common/components"
+import { SpaceTabs } from "@/components/SpaceTabs"
 import type { FieldType, SpaceField } from "@spacenote/common/types"
 
 export const Route = createFileRoute("/_auth/spaces/$slug/fields/new")({
@@ -92,7 +92,11 @@ function AddFieldPage() {
 
   return (
     <Stack gap="md">
-      <SpaceHeader space={space} title="New Field" />
+      <PageHeader
+        title="New Field"
+        breadcrumbs={[{ label: "Spaces", to: "/spaces" }, { label: `◈ ${space.slug}` }]}
+        topActions={<SpaceTabs space={space} />}
+      />
 
       <Paper withBorder p="md">
         <form onSubmit={handleSubmit}>

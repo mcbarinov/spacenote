@@ -1,7 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router"
-import { Stack } from "@mantine/core"
+import { createFileRoute, Link } from "@tanstack/react-router"
+import { Button, Stack } from "@mantine/core"
 import { api } from "@spacenote/common/api"
-import { SpaceHeader } from "@/components/SpaceHeader"
+import { PageHeader } from "@spacenote/common/components"
 import { SpacesTable } from "./-components/SpacesTable"
 
 export const Route = createFileRoute("/_auth/spaces/")({
@@ -14,7 +14,14 @@ function SpacesPage() {
 
   return (
     <Stack gap="md">
-      <SpaceHeader title="Spaces" nav={[{ label: "Create Space", to: "/spaces/new" }]} />
+      <PageHeader
+        title="Spaces"
+        actions={
+          <Button component={Link} to="/spaces/new">
+            Create Space
+          </Button>
+        }
+      />
       <SpacesTable spaces={spaces} />
     </Stack>
   )

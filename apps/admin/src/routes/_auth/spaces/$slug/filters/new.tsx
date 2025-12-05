@@ -5,9 +5,9 @@ import { Button, Group, Paper, Stack, TagsInput, TextInput, Title } from "@manti
 import { notifications } from "@mantine/notifications"
 import { IconPlus } from "@tabler/icons-react"
 import { api } from "@spacenote/common/api"
-import { ErrorMessage } from "@spacenote/common/components"
+import { ErrorMessage, PageHeader } from "@spacenote/common/components"
 import type { FilterOperator } from "@spacenote/common/types"
-import { SpaceHeader } from "@/components/SpaceHeader"
+import { SpaceTabs } from "@/components/SpaceTabs"
 import { ConditionRow } from "./-components/ConditionRow"
 import { type FilterFormValues, filterSchema, generateConditionId, SYSTEM_FIELDS } from "./-components/filterFormUtils"
 
@@ -82,7 +82,11 @@ function AddFilterPage() {
 
   return (
     <Stack gap="md">
-      <SpaceHeader space={space} title="New Filter" />
+      <PageHeader
+        title="New Filter"
+        breadcrumbs={[{ label: "Spaces", to: "/spaces" }, { label: `◈ ${space.slug}` }]}
+        topActions={<SpaceTabs space={space} />}
+      />
 
       <Paper withBorder p="md">
         <form onSubmit={handleSubmit}>

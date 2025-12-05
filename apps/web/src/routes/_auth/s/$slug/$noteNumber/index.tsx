@@ -3,7 +3,7 @@ import { Button, Divider, Group, Title } from "@mantine/core"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { z } from "zod"
 import { api, COMMENTS_PAGE_LIMIT } from "@spacenote/common/api"
-import { PageHeaderNew } from "@spacenote/common/components"
+import { PageHeader } from "@spacenote/common/components"
 import { CommentForm } from "./-components/CommentForm"
 import { CommentList } from "./-components/CommentList"
 import { NoteDetailsDefault } from "./-components/NoteDetailsDefault"
@@ -58,7 +58,7 @@ function NoteDetailPage() {
 
   return (
     <>
-      <PageHeaderNew
+      <PageHeader
         title={`Note #${String(note.number)}`}
         breadcrumbs={[
           { label: "Home", to: "/" },

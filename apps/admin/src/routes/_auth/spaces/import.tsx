@@ -43,7 +43,7 @@ function ImportSpacePage() {
 
   return (
     <Stack gap="md">
-      <PageHeader title="Import Space" />
+      <PageHeader title="Import Space" breadcrumbs={[{ label: "Spaces", to: "/spaces" }]} />
 
       <Paper withBorder p="md">
         <form onSubmit={handleSubmit}>

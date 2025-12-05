@@ -2,7 +2,7 @@ import { createFileRoute, useLocation, useNavigate } from "@tanstack/react-route
 import { Button, Group, Select } from "@mantine/core"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { api } from "@spacenote/common/api"
-import { LinkButton, PageHeaderNew } from "@spacenote/common/components"
+import { LinkButton, PageHeader } from "@spacenote/common/components"
 import { z } from "zod"
 import { NotesListDefault } from "./-components/NotesListDefault"
 import { NotesListJson } from "./-components/NotesListJson"
@@ -65,7 +65,7 @@ function SpacePage() {
 
   return (
     <>
-      <PageHeaderNew
+      <PageHeader
         title={space.title}
         breadcrumbs={[{ label: "Home", to: "/" }, { label: `◈ ${space.slug}` }]}
         topActions={

@@ -1,7 +1,8 @@
 import { Paper, Stack, Tabs } from "@mantine/core"
 import { api } from "@spacenote/common/api"
+import { PageHeader } from "@spacenote/common/components"
 import { createFileRoute } from "@tanstack/react-router"
-import { SpaceHeader } from "@/components/SpaceHeader"
+import { SpaceTabs } from "@/components/SpaceTabs"
 import { NoteDetailPlayground } from "./-components/NoteDetailPlayground"
 import { NoteDetailTemplateEditor } from "./-components/NoteDetailTemplateEditor"
 import { NoteListPlayground } from "./-components/NoteListPlayground"
@@ -18,7 +19,11 @@ function TemplatesPage() {
 
   return (
     <Stack gap="md">
-      <SpaceHeader space={space} title="Templates" />
+      <PageHeader
+        title="Templates"
+        breadcrumbs={[{ label: "Spaces", to: "/spaces" }, { label: `◈ ${space.slug}` }]}
+        topActions={<SpaceTabs space={space} />}
+      />
       <Paper withBorder p="md">
         <Tabs defaultValue="liquid">
           <Tabs.List>

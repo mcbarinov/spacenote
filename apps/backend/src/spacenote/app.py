@@ -167,12 +167,13 @@ class App:
         auth_token: AuthToken,
         space_slug: str,
         filter_name: str,
+        adhoc_query: str | None = None,
         limit: int = 50,
         offset: int = 0,
     ) -> PaginationResult[Note]:
         """Get paginated notes in space (members and admin)."""
         user = await self._core.services.access.ensure_space_reader(auth_token, space_slug)
-        return await self._core.services.note.list_notes(space_slug, user.username, filter_name, limit, offset)
+        return await self._core.services.note.list_notes(space_slug, user.username, filter_name, adhoc_query, limit, offset)
 
     async def get_note(self, auth_token: AuthToken, space_slug: str, number: int) -> Note:
         """Get specific note by number (members and admin)."""

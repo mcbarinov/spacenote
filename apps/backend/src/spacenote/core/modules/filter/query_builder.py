@@ -7,8 +7,10 @@ from spacenote.core.modules.filter.models import FilterCondition, FilterOperator
 # System field name to MongoDB field mapping
 SYSTEM_FIELD_MAP: dict[str, str] = {
     "note.number": "number",
-    "note.created_at": "created_at",
     "note.author": "author",
+    "note.created_at": "created_at",
+    "note.edited_at": "edited_at",
+    "note.activity_at": "activity_at",
 }
 
 

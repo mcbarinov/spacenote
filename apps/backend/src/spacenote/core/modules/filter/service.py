@@ -3,6 +3,7 @@ from typing import Any
 import structlog
 
 from spacenote.core.modules.filter import query_builder
+from spacenote.core.modules.filter.adhoc import parse_adhoc_query
 from spacenote.core.modules.filter.models import ALL_FILTER_NAME, Filter
 from spacenote.core.modules.filter.validators import validate_filter
 from spacenote.core.service import Service
@@ -86,12 +87,28 @@ class FilterService(Service):
         logger.debug("filter_updated", space_slug=slug, filter_name=filter_name, new_name=validated_filter.name)
         return validated_filter
 
-    def build_query(self, space_slug: str, filter_name: str, current_user: str) -> tuple[dict[str, Any], list[tuple[str, int]]]:
-        """Build MongoDB query and sort spec for a filter."""
+    def build_query(
+        self, space_slug: str, filter_name: str, current_user: str, adhoc_query: str | None = None
+    ) -> tuple[dict[str, Any], list[tuple[str, int]]]:
+        """Build MongoDB query and sort spec for a filter.
+
+        Args:
+            space_slug: Space identifier
+            filter_name: Saved filter name to use
+            current_user: Current user for $me resolution
+            adhoc_query: Optional adhoc query string to combine with filter conditions
+        """
         space = self.core.services.space.get_space(space_slug)
         filter_def = space.get_filter(filter_name)
         if not filter_def:
             raise NotFoundError(f"Filter '{filter_name}' not found")
-        query = query_builder.build_mongo_query(filter_def.conditions, space_slug, current_user)
+
+        # Combine saved filter conditions with adhoc conditions
+        conditions = list(filter_def.conditions)
+        if adhoc_query:
+            adhoc_conditions = parse_adhoc_query(adhoc_query, space)
+            conditions.extend(adhoc_conditions)
+
+        query = query_builder.build_mongo_query(conditions, space_slug, current_user)
         sort_spec = query_builder.build_mongo_sort(filter_def.sort)
         return query, sort_spec

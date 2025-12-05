@@ -29,10 +29,16 @@ class NoteService(Service):
         await self._collection.create_index([("space_slug", 1)])
 
     async def list_notes(
-        self, space_slug: str, current_user: str, filter_name: str, limit: int = 50, offset: int = 0
+        self,
+        space_slug: str,
+        current_user: str,
+        filter_name: str,
+        adhoc_query: str | None = None,
+        limit: int = 50,
+        offset: int = 0,
     ) -> PaginationResult[Note]:
         """Get paginated notes in space."""
-        query, sort_spec = self.core.services.filter.build_query(space_slug, filter_name, current_user)
+        query, sort_spec = self.core.services.filter.build_query(space_slug, filter_name, current_user, adhoc_query)
 
         total = await self._collection.count_documents(query)
         cursor = self._collection.find(query).sort(sort_spec).skip(offset).limit(limit)

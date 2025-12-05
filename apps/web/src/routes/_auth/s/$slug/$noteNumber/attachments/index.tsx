@@ -1,5 +1,5 @@
-import { createFileRoute, useLocation, useNavigate } from "@tanstack/react-router"
-import { ActionIcon, Button, Group, Table, Text } from "@mantine/core"
+import { createFileRoute } from "@tanstack/react-router"
+import { ActionIcon, Group, Table, Text } from "@mantine/core"
 import { IconDownload } from "@tabler/icons-react"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { api } from "@spacenote/common/api"
@@ -17,14 +17,9 @@ export const Route = createFileRoute("/_auth/s/$slug/$noteNumber/attachments/")(
 /** Note attachments list page */
 function NoteAttachmentsPage() {
   const { slug, noteNumber } = Route.useParams()
-  const location = useLocation()
-  const navigate = useNavigate()
   const noteNum = Number(noteNumber)
   const space = api.cache.useSpace(slug)
   const { data: attachments } = useSuspenseQuery(api.queries.listNoteAttachments(slug, noteNum))
-
-  const isNoteAttachments = location.pathname.includes(`/${noteNumber}/attachments`)
-  const isEdit = location.pathname.includes(`/${noteNumber}/edit`)
 
   return (
     <>
@@ -37,31 +32,16 @@ function NoteAttachmentsPage() {
         ]}
         topActions={
           <Group gap="xs">
-            <Button
-              variant={!isNoteAttachments && !isEdit ? "light" : "subtle"}
-              size="xs"
-              onClick={() => void navigate({ to: "/s/$slug/$noteNumber", params: { slug, noteNumber } })}
-            >
-              Notes
-            </Button>
-            <Button
-              variant={isNoteAttachments ? "light" : "subtle"}
-              size="xs"
-              onClick={() => void navigate({ to: "/s/$slug/$noteNumber/attachments", params: { slug, noteNumber } })}
-            >
-              Note Attachments
-            </Button>
-            <Button
-              variant={isEdit ? "light" : "subtle"}
-              size="xs"
-              onClick={() => void navigate({ to: "/s/$slug/$noteNumber/edit", params: { slug, noteNumber } })}
-            >
-              Edit
-            </Button>
+            <LinkButton to="/s/$slug/$noteNumber" params={{ slug, noteNumber }} variant="subtle" size="xs">
+              Note
+            </LinkButton>
+            <LinkButton to="/s/$slug/$noteNumber/attachments" params={{ slug, noteNumber }} variant="light" size="xs">
+              Attachments
+            </LinkButton>
           </Group>
         }
         actions={
-          <LinkButton to="/s/$slug/$noteNumber/attachments/new" params={{ slug, noteNumber }} variant="light">
+          <LinkButton to="/s/$slug/$noteNumber/attachments/new" params={{ slug, noteNumber }}>
             Upload
           </LinkButton>
         }

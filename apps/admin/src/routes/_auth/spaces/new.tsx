@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router"
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
 import { useForm } from "@mantine/form"
 import { zod4Resolver } from "mantine-form-zod-resolver"
 import { z } from "zod"
@@ -55,7 +55,15 @@ function CreateSpacePage() {
 
   return (
     <Stack gap="md">
-      <PageHeader title="Create Space" nav={[{ label: "Import", to: "/spaces/import" }]} />
+      <PageHeader
+        title="Create Space"
+        breadcrumbs={[{ label: "Spaces", to: "/spaces" }]}
+        actions={
+          <Button component={Link} to="/spaces/import" variant="light">
+            Import
+          </Button>
+        }
+      />
 
       <Paper withBorder p="md">
         <form onSubmit={handleSubmit}>

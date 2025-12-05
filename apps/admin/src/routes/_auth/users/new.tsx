@@ -44,7 +44,7 @@ function CreateUserPage() {
 
   return (
     <Stack gap="md">
-      <PageHeader title="Create User" />
+      <PageHeader title="Create User" breadcrumbs={[{ label: "Users", to: "/users" }]} />
 
       <Paper withBorder p="md">
         <form onSubmit={handleSubmit}>

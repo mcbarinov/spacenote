@@ -1,40 +1,56 @@
 import type { ReactNode } from "react"
-import { Group, Title } from "@mantine/core"
-import { LinkButton } from "../navigation/LinkButton"
+import { Breadcrumbs, Group, Stack, Title } from "@mantine/core"
+import { CustomLink } from "../navigation/CustomLink"
 
-export interface PageHeaderNavItem {
+export interface BreadcrumbItem {
   label: string
-  to: string
+  to?: string
   params?: Record<string, string>
 }
 
 interface PageHeaderProps {
   title: string
-  /** Custom elements (Select, etc) */
+  breadcrumbs?: BreadcrumbItem[]
+  /** Right side of row 1 (tabs, navigation, etc) */
+  topActions?: ReactNode
+  /** Right side of row 2 (buttons, selects, etc) */
   actions?: ReactNode
-  /** Navigation links */
-  nav?: PageHeaderNavItem[]
 }
 
-/** Page header with title, optional custom actions, and navigation links */
-export function PageHeader({ title, actions, nav }: PageHeaderProps) {
-  const hasRightContent = actions ?? (nav && nav.length > 0)
-
-  if (!hasRightContent) {
-    return <Title order={1}>{title}</Title>
-  }
+/** Unified page header with optional breadcrumbs, tabs, and actions */
+export function PageHeader({ title, breadcrumbs, topActions, actions }: PageHeaderProps) {
+  const hasTopRow = breadcrumbs ?? topActions
 
   return (
-    <Group justify="space-between">
-      <Title order={1}>{title}</Title>
-      <Group gap="xs">
-        {actions}
-        {nav?.map((item) => (
-          <LinkButton key={item.to} to={item.to} params={item.params} variant="light">
-            {item.label}
-          </LinkButton>
-        ))}
-      </Group>
-    </Group>
+    <Stack gap="xs" mb="md">
+      {hasTopRow && (
+        <Group justify="space-between">
+          {breadcrumbs ? (
+            <Breadcrumbs>
+              {breadcrumbs.map((item) =>
+                item.to ? (
+                  <CustomLink key={item.label} to={item.to} params={item.params} underline="hover" c="blue">
+                    {item.label}
+                  </CustomLink>
+                ) : (
+                  <span key={item.label}>{item.label}</span>
+                )
+              )}
+            </Breadcrumbs>
+          ) : (
+            <div />
+          )}
+          {topActions}
+        </Group>
+      )}
+      {actions ? (
+        <Group justify="space-between">
+          <Title order={1}>{title}</Title>
+          {actions}
+        </Group>
+      ) : (
+        <Title order={1}>{title}</Title>
+      )}
+    </Stack>
   )
 }

@@ -2,8 +2,8 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { Group, Select } from "@mantine/core"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { api } from "@spacenote/common/api"
+import { LinkButton, PageHeader } from "@spacenote/common/components"
 import { z } from "zod"
-import { SpaceHeader } from "@/components/SpaceHeader"
 import { NotesListDefault } from "./-components/NotesListDefault"
 import { NotesListJson } from "./-components/NotesListJson"
 import { NotesListTemplate } from "./-components/NotesListTemplate"
@@ -60,9 +60,19 @@ function SpacePage() {
 
   return (
     <>
-      <SpaceHeader
-        space={space}
+      <PageHeader
         title={space.title}
+        breadcrumbs={[{ label: "Home", to: "/" }, { label: `◈ ${space.slug}` }]}
+        topActions={
+          <Group gap="xs">
+            <LinkButton to="/s/$slug" params={{ slug }} variant="light" size="xs">
+              Notes
+            </LinkButton>
+            <LinkButton to="/s/$slug/attachments" params={{ slug }} variant="subtle" size="xs">
+              Attachments
+            </LinkButton>
+          </Group>
+        }
         actions={
           <Group gap="xs">
             {space.filters.length > 0 && (
@@ -81,9 +91,11 @@ function SpacePage() {
               />
             )}
             <ViewModeMenu slug={slug} filter={filter} currentView={resolvedView} hasTemplate={hasTemplate} />
+            <LinkButton to="/s/$slug/new" params={{ slug }} variant="light">
+              New Note
+            </LinkButton>
           </Group>
         }
-        nav={[{ label: "New Note", to: "/s/$slug/new", params: { slug } }]}
       />
 
       {resolvedView === "json" && <NotesListJson notes={notesList.items} />}

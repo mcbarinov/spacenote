@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { Stack } from "@mantine/core"
 import { api } from "@spacenote/common/api"
-import { SpaceHeader } from "@/components/SpaceHeader"
+import { LinkButton, PageHeader } from "@spacenote/common/components"
+import { SpaceTabs } from "@/components/SpaceTabs"
 import { FiltersTable } from "./-components/FiltersTable"
 
 export const Route = createFileRoute("/_auth/spaces/$slug/filters/")({
@@ -15,10 +16,15 @@ function FiltersPage() {
 
   return (
     <Stack gap="md">
-      <SpaceHeader
-        space={space}
+      <PageHeader
         title="Filters"
-        nav={[{ label: "Add Filter", to: "/spaces/$slug/filters/new", params: { slug } }]}
+        breadcrumbs={[{ label: "Spaces", to: "/spaces" }, { label: `◈ ${space.slug}` }]}
+        topActions={<SpaceTabs space={space} />}
+        actions={
+          <LinkButton to="/spaces/$slug/filters/new" params={{ slug }} variant="light">
+            Add Filter
+          </LinkButton>
+        }
       />
       <FiltersTable spaceSlug={slug} filters={space.filters} />
     </Stack>

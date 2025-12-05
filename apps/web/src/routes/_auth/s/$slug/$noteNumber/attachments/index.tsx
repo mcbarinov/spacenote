@@ -1,10 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router"
-import { ActionIcon, Table, Text } from "@mantine/core"
+import { ActionIcon, Group, Table, Text } from "@mantine/core"
 import { IconDownload } from "@tabler/icons-react"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { api } from "@spacenote/common/api"
+import { LinkButton, PageHeader } from "@spacenote/common/components"
 import { formatDate, formatFileSize } from "@spacenote/common/utils"
-import { SpaceHeader } from "@/components/SpaceHeader"
 
 export const Route = createFileRoute("/_auth/s/$slug/$noteNumber/attachments/")({
   loader: async ({ context, params }) => {
@@ -23,11 +23,28 @@ function NoteAttachmentsPage() {
 
   return (
     <>
-      <SpaceHeader
-        space={space}
-        note={{ number: noteNum }}
+      <PageHeader
         title={`Note #${noteNumber} Attachments`}
-        nav={[{ label: "Upload", to: "/s/$slug/$noteNumber/attachments/new", params: { slug, noteNumber } }]}
+        breadcrumbs={[
+          { label: "Home", to: "/" },
+          { label: `◈ ${space.slug}`, to: "/s/$slug", params: { slug } },
+          { label: `Note #${noteNumber}` },
+        ]}
+        topActions={
+          <Group gap="xs">
+            <LinkButton to="/s/$slug/$noteNumber" params={{ slug, noteNumber }} variant="subtle" size="xs">
+              Note
+            </LinkButton>
+            <LinkButton to="/s/$slug/$noteNumber/attachments" params={{ slug, noteNumber }} variant="light" size="xs">
+              Attachments
+            </LinkButton>
+          </Group>
+        }
+        actions={
+          <LinkButton to="/s/$slug/$noteNumber/attachments/new" params={{ slug, noteNumber }}>
+            Upload
+          </LinkButton>
+        }
       />
 
       {attachments.length === 0 ? (

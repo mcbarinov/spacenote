@@ -1,10 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router"
-import { ActionIcon, Table, Text } from "@mantine/core"
+import { ActionIcon, Group, Table, Text } from "@mantine/core"
 import { IconDownload } from "@tabler/icons-react"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { api } from "@spacenote/common/api"
+import { LinkButton, PageHeader } from "@spacenote/common/components"
 import { formatDate, formatFileSize } from "@spacenote/common/utils"
-import { SpaceHeader } from "@/components/SpaceHeader"
 
 export const Route = createFileRoute("/_auth/s/$slug/attachments/")({
   loader: async ({ context, params }) => {
@@ -21,10 +21,24 @@ function AttachmentsPage() {
 
   return (
     <>
-      <SpaceHeader
-        space={space}
+      <PageHeader
         title="Attachments"
-        nav={[{ label: "Upload", to: "/s/$slug/attachments/new", params: { slug } }]}
+        breadcrumbs={[{ label: "Home", to: "/" }, { label: `◈ ${space.slug}` }]}
+        topActions={
+          <Group gap="xs">
+            <LinkButton to="/s/$slug" params={{ slug }} variant="subtle" size="xs">
+              Notes
+            </LinkButton>
+            <LinkButton to="/s/$slug/attachments" params={{ slug }} variant="light" size="xs">
+              Attachments
+            </LinkButton>
+          </Group>
+        }
+        actions={
+          <LinkButton to="/s/$slug/attachments/new" params={{ slug }}>
+            Upload
+          </LinkButton>
+        }
       />
 
       {attachments.length === 0 ? (

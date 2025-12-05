@@ -1,36 +1,7 @@
-import { Breadcrumbs, Button, Group, Stack } from "@mantine/core"
-import { CustomLink, PageHeader, SpaceSlug, type PageHeaderNavItem } from "@spacenote/common/components"
+import { Button, Group } from "@mantine/core"
 import type { Space } from "@spacenote/common/types"
 import { useLocation, useNavigate } from "@tanstack/react-router"
 import type { FileRouteTypes } from "@/routeTree.gen"
-
-interface SpaceHeaderProps {
-  title: string
-  /** If provided, shows breadcrumbs and navigation tabs */
-  space?: Space
-  /** Navigation links displayed on the right side of the header */
-  nav?: PageHeaderNavItem[]
-}
-
-/** Header with breadcrumbs and navigation tabs for space pages */
-export function SpaceHeader({ title, space, nav }: SpaceHeaderProps) {
-  return (
-    <Stack gap="xs">
-      {space && (
-        <Group justify="space-between">
-          <Breadcrumbs>
-            <CustomLink to="/spaces" underline="hover" c="blue">
-              Spaces
-            </CustomLink>
-            <SpaceSlug slug={space.slug} />
-          </Breadcrumbs>
-          <SpaceTabs space={space} />
-        </Group>
-      )}
-      <PageHeader title={title} nav={nav} />
-    </Stack>
-  )
-}
 
 interface SpaceTab {
   label: string
@@ -38,8 +9,12 @@ interface SpaceTab {
   to: FileRouteTypes["to"]
 }
 
+interface SpaceTabsProps {
+  space: Space
+}
+
 /** Navigation tabs for space sections (members, fields, filters, settings) */
-function SpaceTabs({ space }: { space: Space }) {
+export function SpaceTabs({ space }: SpaceTabsProps) {
   const location = useLocation()
   const navigate = useNavigate()
   const { slug } = space

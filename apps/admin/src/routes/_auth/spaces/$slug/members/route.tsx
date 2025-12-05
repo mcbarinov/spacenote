@@ -3,8 +3,8 @@ import { useForm } from "@mantine/form"
 import { Button, MultiSelect, Paper, Stack } from "@mantine/core"
 import { notifications } from "@mantine/notifications"
 import { api } from "@spacenote/common/api"
-import { ErrorMessage } from "@spacenote/common/components"
-import { SpaceHeader } from "@/components/SpaceHeader"
+import { ErrorMessage, PageHeader } from "@spacenote/common/components"
+import { SpaceTabs } from "@/components/SpaceTabs"
 
 export const Route = createFileRoute("/_auth/spaces/$slug/members")({
   component: SpaceMembersPage,
@@ -41,7 +41,11 @@ function SpaceMembersPage() {
 
   return (
     <Stack gap="md">
-      <SpaceHeader space={space} title="Members" />
+      <PageHeader
+        title="Members"
+        breadcrumbs={[{ label: "Spaces", to: "/spaces" }, { label: `◈ ${space.slug}` }]}
+        topActions={<SpaceTabs space={space} />}
+      />
 
       <Paper withBorder p="md">
         <form onSubmit={handleSubmit}>

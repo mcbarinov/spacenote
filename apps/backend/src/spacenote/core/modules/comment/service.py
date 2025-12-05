@@ -84,6 +84,7 @@ class CommentService(Service):
         )
 
         await self._collection.insert_one(comment.to_mongo())
+        await self.core.services.note.update_activity(space_slug, note_number, commented=True)
         logger.debug(
             "comment_created",
             space_slug=space_slug,
@@ -101,6 +102,7 @@ class CommentService(Service):
             {"space_slug": space_slug, "note_number": note_number, "number": number},
             {"$set": {"content": content, "edited_at": now()}},
         )
+        await self.core.services.note.update_activity(space_slug, note_number)
 
         logger.debug("comment_updated", space_slug=space_slug, note_number=note_number, number=number)
         return await self.get_comment(space_slug, note_number, number)
@@ -110,6 +112,7 @@ class CommentService(Service):
         await self.get_comment(space_slug, note_number, number)  # Verify exists
 
         await self._collection.delete_one({"space_slug": space_slug, "note_number": note_number, "number": number})
+        await self.core.services.note.update_activity(space_slug, note_number)
         logger.debug("comment_deleted", space_slug=space_slug, note_number=note_number, number=number)
 
     async def delete_comments_by_note(self, space_slug: str, note_number: int) -> int:

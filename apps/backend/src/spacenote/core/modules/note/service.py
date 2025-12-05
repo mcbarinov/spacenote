@@ -80,7 +80,7 @@ class NoteService(Service):
         parsed_fields = self.core.services.field.parse_raw_fields(space_slug, raw_fields, current_user, partial=True)
 
         timestamp = now()
-        update_doc: dict[str, Any] = {"edited_at": timestamp}
+        update_doc: dict[str, Any] = {"edited_at": timestamp, "activity_at": timestamp}
         for field_name, field_value in parsed_fields.items():
             update_doc[f"fields.{field_name}"] = field_value
 
@@ -91,6 +91,17 @@ class NoteService(Service):
 
         logger.debug("note_updated", space_slug=space_slug, number=number, updated_fields=list(parsed_fields.keys()))
         return await self.get_note(space_slug, number)
+
+    async def update_activity(self, space_slug: str, number: int, *, commented: bool = False) -> None:
+        """Update note activity timestamps (called on comment create/edit/delete)."""
+        update_doc: dict[str, Any] = {"activity_at": now()}
+        if commented:
+            update_doc["commented_at"] = update_doc["activity_at"]
+
+        await self._collection.update_one(
+            {"space_slug": space_slug, "number": number},
+            {"$set": update_doc},
+        )
 
     async def delete_notes_by_space(self, space_slug: str) -> int:
         """Delete all notes in a space and return count of deleted notes."""

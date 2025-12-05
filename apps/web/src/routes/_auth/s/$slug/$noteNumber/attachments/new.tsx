@@ -1,10 +1,9 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { useState } from "react"
+import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { Button, Group, Paper, Stack, FileInput } from "@mantine/core"
 import { notifications } from "@mantine/notifications"
 import { api } from "@spacenote/common/api"
-import { ErrorMessage } from "@spacenote/common/components"
-import { SpaceHeader } from "@/components/SpaceHeader"
+import { ErrorMessage, PageHeader } from "@spacenote/common/components"
 
 export const Route = createFileRoute("/_auth/s/$slug/$noteNumber/attachments/new")({
   component: UploadNoteAttachmentPage,
@@ -37,7 +36,15 @@ function UploadNoteAttachmentPage() {
 
   return (
     <>
-      <SpaceHeader space={space} note={{ number: noteNum }} title={`Note #${noteNumber} Upload Attachment`} />
+      <PageHeader
+        title={`Note #${noteNumber} Upload Attachment`}
+        breadcrumbs={[
+          { label: "Home", to: "/" },
+          { label: `◈ ${space.slug}`, to: "/s/$slug", params: { slug } },
+          { label: `Note #${noteNumber}`, to: "/s/$slug/$noteNumber", params: { slug, noteNumber } },
+          { label: "Attachments", to: "/s/$slug/$noteNumber/attachments", params: { slug, noteNumber } },
+        ]}
+      />
       <Paper withBorder p="xl">
         <form onSubmit={handleSubmit}>
           <Stack gap="md">

@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { Stack } from "@mantine/core"
 import { api } from "@spacenote/common/api"
-import { SpaceHeader } from "@/components/SpaceHeader"
+import { PageHeader } from "@spacenote/common/components"
+import { SpaceTabs } from "@/components/SpaceTabs"
 import { DeleteSpace } from "./-components/DeleteSpace"
 import { EditDescription } from "./-components/EditDescription"
 import { EditHiddenFieldsOnCreate } from "./-components/EditHiddenFieldsOnCreate"
@@ -18,7 +19,11 @@ function SettingsPage() {
 
   return (
     <Stack gap="md">
-      <SpaceHeader space={space} title="Settings" />
+      <PageHeader
+        title="Settings"
+        breadcrumbs={[{ label: "Spaces", to: "/spaces" }, { label: `◈ ${space.slug}` }]}
+        topActions={<SpaceTabs space={space} />}
+      />
       <EditTitle space={space} />
       <EditDescription space={space} />
       <EditHiddenFieldsOnCreate space={space} />

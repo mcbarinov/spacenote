@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router"
-import { Divider, Title } from "@mantine/core"
+import { Divider, Group, Title } from "@mantine/core"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { z } from "zod"
 import { api, COMMENTS_PAGE_LIMIT } from "@spacenote/common/api"
-import { SpaceHeader } from "@/components/SpaceHeader"
+import { LinkButton, PageHeader } from "@spacenote/common/components"
 import { CommentForm } from "./-components/CommentForm"
 import { CommentList } from "./-components/CommentList"
 import { NoteDetailsDefault } from "./-components/NoteDetailsDefault"
@@ -52,11 +52,31 @@ function NoteDetailPage() {
 
   return (
     <>
-      <SpaceHeader
-        space={space}
-        note={{ number: note.number }}
+      <PageHeader
         title={`Note #${String(note.number)}`}
-        actions={<ViewModeMenu slug={slug} noteNumber={noteNumber} currentView={resolvedView} hasTemplate={hasTemplate} />}
+        breadcrumbs={[
+          { label: "Home", to: "/" },
+          { label: `◈ ${space.slug}`, to: "/s/$slug", params: { slug } },
+          { label: `Note #${String(note.number)}` },
+        ]}
+        topActions={
+          <Group gap="xs">
+            <LinkButton to="/s/$slug/$noteNumber" params={{ slug, noteNumber }} variant="light" size="xs">
+              Note
+            </LinkButton>
+            <LinkButton to="/s/$slug/$noteNumber/attachments" params={{ slug, noteNumber }} variant="subtle" size="xs">
+              Attachments
+            </LinkButton>
+          </Group>
+        }
+        actions={
+          <Group gap="xs">
+            <ViewModeMenu slug={slug} noteNumber={noteNumber} currentView={resolvedView} hasTemplate={hasTemplate} />
+            <LinkButton to="/s/$slug/$noteNumber/edit" params={{ slug, noteNumber }}>
+              Edit
+            </LinkButton>
+          </Group>
+        }
       />
 
       {resolvedView === "json" && <NoteDetailsJson note={note} />}

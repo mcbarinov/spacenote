@@ -18,6 +18,7 @@ import type {
   UpdateDescriptionRequest,
   UpdateHiddenFieldsOnCreateRequest,
   UpdateMembersRequest,
+  UpdateNoteRequest,
   UpdateTitleRequest,
   User,
 } from "../types"
@@ -213,6 +214,18 @@ export function useCreateNote(spaceSlug: string) {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (data: CreateNoteRequest) => httpClient.post(`api/v1/spaces/${spaceSlug}/notes`, { json: data }).json<Note>(),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["spaces", spaceSlug, "notes"] })
+    },
+  })
+}
+
+/** Updates an existing note */
+export function useUpdateNote(spaceSlug: string, noteNumber: number) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (data: UpdateNoteRequest) =>
+      httpClient.patch(`api/v1/spaces/${spaceSlug}/notes/${String(noteNumber)}`, { json: data }).json<Note>(),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["spaces", spaceSlug, "notes"] })
     },

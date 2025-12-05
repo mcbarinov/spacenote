@@ -20,9 +20,29 @@ router = APIRouter(tags=["filters"])
         404: {"model": ErrorResponse, "description": "Space not found"},
     },
 )
-async def add_filter_to_space(space_slug: str, filter: Filter, app: AppDep, auth_token: AuthTokenDep) -> Filter:
+async def add_filter(space_slug: str, filter: Filter, app: AppDep, auth_token: AuthTokenDep) -> Filter:
     """Add filter to space (admin only). Returns validated filter."""
     return await app.add_filter(auth_token, space_slug, filter)
+
+
+@router.put(
+    "/spaces/{space_slug}/filters/{filter_name}",
+    summary="Update filter in space",
+    description="Update a filter in a space. Only accessible by admin users. "
+    "If name in body differs from filter_name in URL, the filter will be renamed. "
+    "The 'all' filter can only have sort and notes_list_default_columns modified.",
+    operation_id="updateFilterInSpace",
+    responses={
+        200: {"description": "Returns updated filter"},
+        400: {"model": ErrorResponse, "description": "Invalid filter data or new name already exists"},
+        401: {"model": ErrorResponse, "description": "Not authenticated"},
+        403: {"model": ErrorResponse, "description": "Admin privileges required"},
+        404: {"model": ErrorResponse, "description": "Space or filter not found"},
+    },
+)
+async def update_filter(space_slug: str, filter_name: str, filter: Filter, app: AppDep, auth_token: AuthTokenDep) -> Filter:
+    """Update filter in space (admin only). Returns validated filter."""
+    return await app.update_filter(auth_token, space_slug, filter_name, filter)
 
 
 @router.delete(
@@ -38,6 +58,6 @@ async def add_filter_to_space(space_slug: str, filter: Filter, app: AppDep, auth
         404: {"model": ErrorResponse, "description": "Space or filter not found"},
     },
 )
-async def remove_filter_from_space(space_slug: str, filter_name: str, app: AppDep, auth_token: AuthTokenDep) -> None:
+async def remove_filter(space_slug: str, filter_name: str, app: AppDep, auth_token: AuthTokenDep) -> None:
     """Remove filter from space (admin only)."""
     await app.remove_filter(auth_token, space_slug, filter_name)

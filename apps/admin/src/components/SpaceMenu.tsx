@@ -1,5 +1,5 @@
 import { ActionIcon, Menu } from "@mantine/core"
-import { IconDotsVertical, IconDownload, IconFilter, IconList, IconSettings, IconUsers } from "@tabler/icons-react"
+import { IconDotsVertical, IconDownload, IconFilter, IconList, IconSettings, IconTemplate, IconUsers } from "@tabler/icons-react"
 import type { Space } from "@spacenote/common/types"
 import { useNavigate } from "@tanstack/react-router"
 
@@ -38,6 +38,12 @@ export function SpaceMenu({ space }: SpaceMenuProps) {
           onClick={() => void navigate({ to: "/spaces/$slug/filters", params: { slug } })}
         >
           Filters ({space.filters.length})
+        </Menu.Item>
+        <Menu.Item
+          leftSection={<IconTemplate size={16} />}
+          onClick={() => void navigate({ to: "/spaces/$slug/templates", params: { slug } })}
+        >
+          Templates
         </Menu.Item>
         <Menu.Item
           leftSection={<IconDownload size={16} />}

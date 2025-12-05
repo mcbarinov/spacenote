@@ -1,7 +1,4 @@
-from typing import Any
-
 import structlog
-from pymongo.asynchronous.database import AsyncDatabase
 
 from spacenote.core.modules.field.models import FieldValueType, SpaceField
 from spacenote.core.modules.field.validators import VALIDATORS, ParseContext
@@ -13,9 +10,6 @@ logger = structlog.get_logger(__name__)
 
 class FieldService(Service):
     """Service for field management."""
-
-    def __init__(self, database: AsyncDatabase[dict[str, Any]]) -> None:
-        super().__init__(database)
 
     async def add_field(self, slug: str, field: SpaceField) -> SpaceField:
         """Add a field to a space. Returns the validated field."""

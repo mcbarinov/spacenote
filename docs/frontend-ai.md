@@ -36,6 +36,10 @@ function asString(value: unknown): string {
 export function uploadAttachment(file: File): Promise<PendingAttachment>
 ```
 
+**Exception — inner functions with obvious names:**
+Inner functions inside components (handlers like `handleSave`, `handleChange`, `handleSubmit`) don't need JSDoc if the name is self-explanatory.
+
+
 ### 1.3 React Components
 
 **JSDoc above component:**
@@ -164,7 +168,7 @@ await new Promise((r) => setTimeout(r, 300))
 
 | Area | Rule |
 |------|------|
-| Functions | Comment ALL, even trivial |
+| Functions | Comment ALL, except inner handlers with obvious names |
 | Props | In interface, only non-obvious |
 | Route loaders | Only complex ones |
 | API side effects | Only complex ones |
@@ -192,4 +196,19 @@ When removing elements from JSX, check if remaining wrappers or containers are s
 
 // Good - removed unnecessary wrapper
 <Button type="submit">Save</Button>
+```
+
+## 3. Form Buttons
+
+Submit buttons in Stack forms — right-align with Group:
+
+```tsx
+<Stack gap="sm">
+  <TextInput {...form.getInputProps("name")} />
+  <Group justify="flex-end">
+    <Button type="submit" loading={mutation.isPending}>
+      Save
+    </Button>
+  </Group>
+</Stack>
 ```

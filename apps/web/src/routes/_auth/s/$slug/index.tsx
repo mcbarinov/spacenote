@@ -1,44 +1,28 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
-import { Select, Table } from "@mantine/core"
+import { Group, Select } from "@mantine/core"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { api } from "@spacenote/common/api"
-import type { Note, SpaceField } from "@spacenote/common/types"
-import { formatDate } from "@spacenote/common/utils"
 import { z } from "zod"
 import { SpaceHeader } from "@/components/SpaceHeader"
+import { NotesListDefault } from "./-components/NotesListDefault"
+import { NotesListJson } from "./-components/NotesListJson"
+import { NotesListTemplate } from "./-components/NotesListTemplate"
+import { ViewModeMenu } from "./-components/ViewModeMenu"
 
 const searchSchema = z.object({
   filter: z.string().optional(),
+  view: z.enum(["default", "template", "json"]).optional(),
 })
 
-// Labels for system fields (note.number, etc.) vs custom fields (note.fields.*)
-const SYSTEM_FIELD_LABELS: Record<string, string> = {
-  "note.number": "Number",
-  "note.created_at": "Created",
-  "note.author": "Author",
-}
+type ViewMode = "default" | "template" | "json"
 
-/** Gets display label for field column */
-function getFieldLabel(field: string, spaceFields: SpaceField[]): string {
-  if (field in SYSTEM_FIELD_LABELS) {
-    return SYSTEM_FIELD_LABELS[field]
-  }
-  const fieldName = field.startsWith("note.fields.") ? field.slice("note.fields.".length) : field
-  return spaceFields.find((f) => f.name === fieldName)?.name ?? fieldName
-}
-
-/** Renders field value for table cell */
-function renderFieldValue(field: string, note: Note): React.ReactNode {
-  if (field === "note.number") return note.number
-  if (field === "note.created_at") return formatDate(note.created_at)
-  if (field === "note.author") return note.author
-
-  const fieldName = field.startsWith("note.fields.") ? field.slice("note.fields.".length) : field
-  const value = note.fields[fieldName]
-  if (value == null) return ""
-  if (Array.isArray(value)) return value.join(", ")
-  if (typeof value === "boolean") return value ? "Yes" : "No"
-  return String(value)
+/** Resolves which view mode to display */
+function resolveView(view: ViewMode | undefined, hasTemplate: boolean): ViewMode {
+  if (view === "json") return "json"
+  if (view === "template" && hasTemplate) return "template"
+  if (view === "default") return "default"
+  // No view specified - use template if available
+  return hasTemplate ? "template" : "default"
 }
 
 export const Route = createFileRoute("/_auth/s/$slug/")({
@@ -50,24 +34,29 @@ export const Route = createFileRoute("/_auth/s/$slug/")({
   component: SpacePage,
 })
 
-/** Space page with notes table */
+/** Space page with notes list */
 function SpacePage() {
   const { slug } = Route.useParams()
-  const { filter } = Route.useSearch()
+  const { filter, view } = Route.useSearch()
   const navigate = useNavigate()
   const space = api.cache.useSpace(slug)
   const { data: notesList } = useSuspenseQuery(api.queries.listNotes(slug, filter))
 
-  // Column priority: filter columns > space columns > defaults
+  // Template key: web:note:list:{filter}, defaults to "all" when no filter selected
+  const filterName = filter ?? "all"
+  const templateKey = `web:note:list:${filterName}`
+  const template = space.templates[templateKey]
+  const hasTemplate = Boolean(template)
+  const resolvedView = resolveView(view, hasTemplate)
+
+  // Column priority: selected filter > "all" filter > hardcoded defaults
   const selectedFilter = filter ? space.filters.find((f) => f.name === filter) : undefined
-  const filterColumns = selectedFilter?.notes_list_default_columns ?? []
-  const spaceColumns = space.notes_list_default_columns
-  const displayFields =
-    filterColumns.length > 0
-      ? filterColumns
-      : spaceColumns.length > 0
-        ? spaceColumns
-        : ["note.number", "note.created_at", "note.author"]
+  const allFilter = space.filters.find((f) => f.name === "all")
+  const displayFields = selectedFilter?.notes_list_default_columns.length
+    ? selectedFilter.notes_list_default_columns
+    : allFilter?.notes_list_default_columns.length
+      ? allFilter.notes_list_default_columns
+      : ["note.number", "note.created_at", "note.author"]
 
   return (
     <>
@@ -75,52 +64,31 @@ function SpacePage() {
         space={space}
         title={space.title}
         actions={
-          space.filters.length > 0 ? (
-            <Select
-              placeholder="All notes"
-              clearable
-              data={space.filters.map((f) => ({ value: f.name, label: f.name }))}
-              value={filter ?? null}
-              onChange={(value) =>
-                void navigate({
-                  to: "/s/$slug",
-                  params: { slug },
-                  search: value ? { filter: value } : {},
-                })
-              }
-            />
-          ) : undefined
+          <Group gap="xs">
+            {space.filters.length > 0 && (
+              <Select
+                placeholder="All notes"
+                clearable
+                data={space.filters.map((f) => ({ value: f.name, label: f.name }))}
+                value={filter ?? null}
+                onChange={(value) =>
+                  void navigate({
+                    to: "/s/$slug",
+                    params: { slug },
+                    search: value ? { filter: value, view } : { view },
+                  })
+                }
+              />
+            )}
+            <ViewModeMenu slug={slug} filter={filter} currentView={resolvedView} hasTemplate={hasTemplate} />
+          </Group>
         }
         nav={[{ label: "New Note", to: "/s/$slug/new", params: { slug } }]}
       />
 
-      <Table striped highlightOnHover>
-        <Table.Thead>
-          <Table.Tr>
-            {displayFields.map((field) => (
-              <Table.Th key={field}>{getFieldLabel(field, space.fields)}</Table.Th>
-            ))}
-          </Table.Tr>
-        </Table.Thead>
-        <Table.Tbody>
-          {notesList.items.map((note) => (
-            <Table.Tr
-              key={note.number}
-              style={{ cursor: "pointer" }}
-              onClick={() =>
-                navigate({
-                  to: "/s/$slug/$noteNumber",
-                  params: { slug, noteNumber: String(note.number) },
-                })
-              }
-            >
-              {displayFields.map((field) => (
-                <Table.Td key={field}>{renderFieldValue(field, note)}</Table.Td>
-              ))}
-            </Table.Tr>
-          ))}
-        </Table.Tbody>
-      </Table>
+      {resolvedView === "json" && <NotesListJson notes={notesList.items} />}
+      {resolvedView === "template" && template && <NotesListTemplate notes={notesList.items} space={space} template={template} />}
+      {resolvedView === "default" && <NotesListDefault notes={notesList.items} space={space} displayFields={displayFields} />}
     </>
   )
 }

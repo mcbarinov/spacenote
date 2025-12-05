@@ -1,6 +1,7 @@
+from functools import cached_property
 from typing import Any
 
-from pymongo.asynchronous.database import AsyncDatabase
+from pymongo.asynchronous.collection import AsyncCollection
 
 from spacenote.core.db import Collection
 from spacenote.core.modules.attachment import storage
@@ -15,10 +16,13 @@ GLOBAL_COUNTER_KEY = "__global__"
 class AttachmentService(Service):
     """Service for managing file attachments."""
 
-    def __init__(self, database: AsyncDatabase[dict[str, Any]]) -> None:
-        super().__init__(database)
-        self._pending_collection = database.get_collection(Collection.PENDING_ATTACHMENTS)
-        self._attachments_collection = database.get_collection(Collection.ATTACHMENTS)
+    @cached_property
+    def _pending_collection(self) -> AsyncCollection[dict[str, Any]]:
+        return self.database.get_collection(Collection.PENDING_ATTACHMENTS)
+
+    @cached_property
+    def _attachments_collection(self) -> AsyncCollection[dict[str, Any]]:
+        return self.database.get_collection(Collection.ATTACHMENTS)
 
     async def on_start(self) -> None:
         """Create indexes and ensure storage directories exist."""

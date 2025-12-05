@@ -361,6 +361,10 @@ void navigate({ to: "/s/$slug", params: { slug } })
 2. Special app-wide purpose (error boundaries, auth)? → `src/components/`
 3. Otherwise → `src/routes/[route]/-components/`
 
+**When to extract to `-components/`:**
+Route has 2+ distinct components → extract each to `-components/`
+Single component → keep in route file
+
 ### Encapsulation
 
 **Principle:** Minimize props, maximize encapsulation. Components should own their logic.
@@ -412,6 +416,24 @@ Avoid unnecessary nested containers.
 ## UI Patterns
 
 ### Forms
+
+**Always use `useForm` for form state** — never raw `useState`. Mantine's `useForm` handles:
+- Validation with Zod via `zod4Resolver`
+- Dirty tracking and reset
+- Proper re-initialization from props
+
+❌ **Wrong:**
+```tsx
+const [value, setValue] = useState(initialValue)
+```
+
+✅ **Correct:**
+```tsx
+const form = useForm({
+  initialValues: { value: initialValue },
+  validate: zod4Resolver(schema),
+})
+```
 
 **Mantine Form + Zod:**
 ```typescript
@@ -522,3 +544,132 @@ const createNoteMutation = api.mutations.useCreateNote(slug)
 const login = api.mutations.useLogin()
 const createNote = api.mutations.useCreateNote(slug)
 ```
+
+
+---
+
+## Custom Templates (LiquidJS)
+
+### Overview
+
+Spaces can have custom templates for rendering pages. Templates are stored in `space.templates` and configured via admin panel.
+
+**Technology:** [LiquidJS](https://liquidjs.com/) — safe, logic-less template engine.
+
+### Template Types
+
+| Template Key | Page | Context |
+|--------------|------|---------|
+| `web:note:detail` | `/s/{slug}/{noteNumber}` | `note`, `space` |
+| `web:note:list:{filter}` | `/s/{slug}?filter={filter}` | `notes`, `space` |
+
+**Examples:**
+```
+web:note:detail        → /s/mf-tasks/7
+web:note:list:all      → /s/mf-tasks?filter=all
+web:note:list:active   → /s/mf-tasks?filter=active
+web:note:list:my-tasks → /s/mf-tasks?filter=my-tasks
+```
+
+### Styling Approach
+
+Templates render HTML that should visually match Mantine components. We achieve this through CSS classes in `packages/common/src/styles/templates.css`.
+
+**Principle:** Write HTML as if using Mantine components.
+
+```jsx
+// Mantine (React)
+<Stack gap="md">
+  <Title order={2}>{note.title}</Title>
+  <Badge color="blue">{note.status}</Badge>
+</Stack>
+```
+
+```liquid
+<!-- Liquid template -->
+<div class="Stack gap-md">
+  <h2 class="Title">{{ note.title }}</h2>
+  <span class="Badge color-blue">{{ note.status }}</span>
+</div>
+```
+
+### CSS Implementation
+
+`templates.css` uses **Mantine CSS variables** to ensure visual consistency:
+
+```css
+.Stack {
+  display: flex;
+  flex-direction: column;
+}
+
+.gap-md { gap: var(--mantine-spacing-md); }
+
+.Badge {
+  display: inline-flex;
+  padding: 0 var(--mantine-spacing-xs);
+  font-size: var(--mantine-font-size-xs);
+  border-radius: var(--mantine-radius-sm);
+  background: var(--mantine-color-blue-light);
+  color: var(--mantine-color-blue-light-color);
+}
+```
+
+**Key Mantine CSS variables:**
+- Spacing: `--mantine-spacing-{xs|sm|md|lg|xl}`
+- Colors: `--mantine-color-{color}-{shade}`, `--mantine-color-dimmed`
+- Typography: `--mantine-font-size-{xs|sm|md|lg|xl}`
+- Radius: `--mantine-radius-{xs|sm|md|lg|xl}`
+- Theme-aware: `--mantine-color-body`, `--mantine-color-text`, `--mantine-color-default-border`
+
+Dark/light themes work automatically via CSS variables.
+
+### CSS Class Naming Convention
+
+**Components** — PascalCase, matching Mantine component names:
+```
+Stack, Group, Card, Badge, Title, Text, Button, Table, Anchor
+```
+
+**Modifiers** — lowercase `prop-value`:
+```
+gap-xs, gap-sm, gap-md, gap-lg, gap-xl
+color-blue, color-red, color-dimmed
+size-xs, size-sm, size-md, size-lg
+justify-center, justify-between
+align-center, align-start
+p-sm, p-md, p-lg
+```
+
+### Mantine → HTML Mapping
+
+| Mantine | HTML |
+|---------|------|
+| `<Stack gap="md">` | `<div class="Stack gap-md">` |
+| `<Group justify="space-between">` | `<div class="Group justify-between">` |
+| `<Title order={2}>` | `<h2 class="Title">` |
+| `<Text size="sm" c="dimmed">` | `<span class="Text size-sm color-dimmed">` |
+| `<Badge color="blue">` | `<span class="Badge color-blue">` |
+| `<Card shadow="sm" padding="lg">` | `<div class="Card shadow-sm p-lg">` |
+| `<Table>` | `<table class="Table">` |
+| `<Anchor>` | `<a class="Anchor">` |
+
+### Example: Note List Template
+
+```liquid
+<div class="Stack gap-md">
+  {% for note in notes %}
+    <a href="/s/{{ space.slug }}/{{ note.number }}" class="Card">
+      <div class="Group justify-between">
+        <span class="Text fw-500">{{ note.title }}</span>
+        <span class="Badge color-blue">{{ note.fields.status }}</span>
+      </div>
+    </a>
+  {% endfor %}
+</div>
+```
+
+### Files
+
+- `packages/common/src/styles/templates.css` — CSS classes
+- `packages/common/src/templates/` — LiquidJS renderer (TBD)

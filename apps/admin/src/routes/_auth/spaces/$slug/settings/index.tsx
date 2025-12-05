@@ -5,7 +5,6 @@ import { SpaceHeader } from "@/components/SpaceHeader"
 import { DeleteSpace } from "./-components/DeleteSpace"
 import { EditDescription } from "./-components/EditDescription"
 import { EditHiddenFieldsOnCreate } from "./-components/EditHiddenFieldsOnCreate"
-import { EditNotesListDefaultColumns } from "./-components/EditNotesListDefaultColumns"
 import { EditTitle } from "./-components/EditTitle"
 
 export const Route = createFileRoute("/_auth/spaces/$slug/settings/")({
@@ -23,7 +22,6 @@ function SettingsPage() {
       <EditTitle space={space} />
       <EditDescription space={space} />
       <EditHiddenFieldsOnCreate space={space} />
-      <EditNotesListDefaultColumns space={space} />
       <DeleteSpace space={space} />
     </Stack>
   )

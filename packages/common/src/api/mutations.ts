@@ -12,12 +12,12 @@ import type {
   LoginRequest,
   Note,
   PendingAttachment,
+  SetTemplateRequest,
   Space,
   SpaceField,
   UpdateDescriptionRequest,
   UpdateHiddenFieldsOnCreateRequest,
   UpdateMembersRequest,
-  UpdateNotesListDefaultColumnsRequest,
   UpdateTitleRequest,
   User,
 } from "../types"
@@ -141,18 +141,6 @@ export function useUpdateSpaceHiddenFieldsOnCreate(slug: string) {
   })
 }
 
-/** Updates default columns for notes list */
-export function useUpdateSpaceNotesListDefaultColumns(slug: string) {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: (data: UpdateNotesListDefaultColumnsRequest) =>
-      httpClient.patch(`api/v1/spaces/${slug}/notes-list-default-columns`, { json: data }).json<Space>(),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["spaces"] })
-    },
-  })
-}
-
 /** Updates space members */
 export function useUpdateSpaceMembers(slug: string) {
   const queryClient = useQueryClient()
@@ -191,6 +179,18 @@ export function useAddFilter(spaceSlug: string) {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (filter: Filter) => httpClient.post(`api/v1/spaces/${spaceSlug}/filters`, { json: filter }).json<Filter>(),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["spaces"] })
+    },
+  })
+}
+
+/** Updates a filter in space */
+export function useUpdateFilter(spaceSlug: string, filterName: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (filter: Filter) =>
+      httpClient.put(`api/v1/spaces/${spaceSlug}/filters/${filterName}`, { json: filter }).json<Filter>(),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["spaces"] })
     },
@@ -270,6 +270,18 @@ export function useUploadPendingAttachment() {
       const formData = new FormData()
       formData.append("file", file)
       return httpClient.post("api/v1/attachments/pending", { body: formData }).json<PendingAttachment>()
+    },
+  })
+}
+
+/** Sets a template for the space */
+export function useSetTemplate(spaceSlug: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ key, content }: { key: string } & SetTemplateRequest) =>
+      httpClient.put(`api/v1/spaces/${spaceSlug}/templates/${key}`, { json: { content } }).json<Space>(),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["spaces"] })
     },
   })
 }

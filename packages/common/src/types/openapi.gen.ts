@@ -332,7 +332,11 @@ export type paths = {
       cookie?: never
     }
     get?: never
-    put?: never
+    /**
+     * Update filter in space
+     * @description Update a filter in a space. Only accessible by admin users. If name in body differs from filter_name in URL, the filter will be renamed. The 'all' filter can only have sort and notes_list_default_columns modified.
+     */
+    put: operations["updateFilterInSpace"]
     post?: never
     /**
      * Remove filter from space
@@ -556,26 +560,6 @@ export type paths = {
     patch: operations["updateSpaceHiddenFieldsOnCreate"]
     trace?: never
   }
-  "/api/v1/spaces/{slug}/notes-list-default-columns": {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    get?: never
-    put?: never
-    post?: never
-    delete?: never
-    options?: never
-    head?: never
-    /**
-     * Update notes list default columns
-     * @description Update default columns for notes list view. Only accessible by admin users.
-     */
-    patch: operations["updateSpaceNotesListDefaultColumns"]
-    trace?: never
-  }
   "/api/v1/spaces/{slug}": {
     parameters: {
       query?: never
@@ -591,6 +575,32 @@ export type paths = {
      * @description Delete a space. Only accessible by admin users.
      */
     delete: operations["deleteSpace"]
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  "/api/v1/spaces/{slug}/templates/{key}": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    /**
+     * Set space template
+     * @description Set a Liquid template for the space. Admin only.
+     *
+     *     Valid template keys:
+     *     - `web:note:detail` — note detail view
+     *     - `web:note:list:{filter}` — note list for a filter (e.g., `web:note:list:all`)
+     *
+     *     Empty content removes the template.
+     */
+    put: operations["setSpaceTemplate"]
+    post?: never
+    delete?: never
     options?: never
     head?: never
     patch?: never
@@ -952,7 +962,7 @@ export type components = {
       name: string
       /**
        * Notes List Default Columns
-       * @description Columns for notes list when no template is set. If empty, uses Space.notes_list_default_columns
+       * @description Columns for notes list
        */
       notes_list_default_columns: string[]
       /**
@@ -1138,6 +1148,17 @@ export type components = {
       created_at: string
     }
     /**
+     * SetTemplateRequest
+     * @description Set template request.
+     */
+    SetTemplateRequest: {
+      /**
+       * Content
+       * @description Liquid template content
+       */
+      content: string
+    }
+    /**
      * Space
      * @description Space entity.
      */
@@ -1174,15 +1195,17 @@ export type components = {
        */
       filters: components["schemas"]["Filter"][]
       /**
-       * Notes List Default Columns
-       * @description Columns for notes list when no template is set
-       */
-      notes_list_default_columns: string[]
-      /**
        * Hidden Fields On Create
        * @description Field names to hide on note creation form (will use defaults or null)
        */
       hidden_fields_on_create: string[]
+      /**
+       * Templates
+       * @description Liquid templates keyed by template identifier
+       */
+      templates: {
+        [key: string]: string
+      }
       /**
        * Created At
        * Format: date-time
@@ -1207,8 +1230,6 @@ export type components = {
       fields: components["schemas"]["SpaceField"][]
       /** Filters */
       filters: components["schemas"]["Filter"][]
-      /** Notes List Default Columns */
-      notes_list_default_columns: string[]
       /** Hidden Fields On Create */
       hidden_fields_on_create: string[]
       /**
@@ -1311,17 +1332,6 @@ export type components = {
       raw_fields: {
         [key: string]: string
       }
-    }
-    /**
-     * UpdateNotesListDefaultColumnsRequest
-     * @description Space notes list default columns update request.
-     */
-    UpdateNotesListDefaultColumnsRequest: {
-      /**
-       * Notes List Default Columns
-       * @description Default columns for notes list
-       */
-      notes_list_default_columns: string[]
     }
     /**
      * UpdateTitleRequest
@@ -2542,6 +2552,78 @@ export interface operations {
       }
     }
   }
+  updateFilterInSpace: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        space_slug: string
+        filter_name: string
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["Filter"]
+      }
+    }
+    responses: {
+      /** @description Returns updated filter */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["Filter"]
+        }
+      }
+      /** @description Invalid filter data or new name already exists */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Admin privileges required */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Space or filter not found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
   removeFilterFromSpace: {
     parameters: {
       query?: never
@@ -2667,7 +2749,7 @@ export interface operations {
         /** @description Number of items to skip */
         offset?: number
         /** @description Filter name to apply */
-        filter?: string | null
+        filter?: string
       }
       header?: never
       path: {
@@ -3377,7 +3459,7 @@ export interface operations {
       }
     }
   }
-  updateSpaceNotesListDefaultColumns: {
+  deleteSpace: {
     parameters: {
       query?: never
       header?: never
@@ -3386,29 +3468,14 @@ export interface operations {
       }
       cookie?: never
     }
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["UpdateNotesListDefaultColumnsRequest"]
-      }
-    }
+    requestBody?: never
     responses: {
-      /** @description Notes list default columns updated successfully */
-      200: {
+      /** @description Space deleted successfully */
+      204: {
         headers: {
           [name: string]: unknown
         }
-        content: {
-          "application/json": components["schemas"]["Space"]
-        }
-      }
-      /** @description Invalid request */
-      400: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          "application/json": components["schemas"]["ErrorResponse"]
-        }
+        content?: never
       }
       /** @description Not authenticated */
       401: {
@@ -3448,23 +3515,39 @@ export interface operations {
       }
     }
   }
-  deleteSpace: {
+  setSpaceTemplate: {
     parameters: {
       query?: never
       header?: never
       path: {
         slug: string
+        key: string
       }
       cookie?: never
     }
-    requestBody?: never
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["SetTemplateRequest"]
+      }
+    }
     responses: {
-      /** @description Space deleted successfully */
-      204: {
+      /** @description Template set successfully */
+      200: {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          "application/json": components["schemas"]["Space"]
+        }
+      }
+      /** @description Invalid template key */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
       }
       /** @description Not authenticated */
       401: {

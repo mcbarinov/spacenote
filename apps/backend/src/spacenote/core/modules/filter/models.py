@@ -41,16 +41,29 @@ class FilterCondition(OpenAPIModel):
     value: FieldValueType = Field(..., description="Value to compare against")
 
 
+ALL_FILTER_NAME = "all"
+
+
 class Filter(OpenAPIModel):
     """Filter definition for a space."""
 
     name: str = Field(..., description="Filter identifier (must be unique within space)")
     notes_list_default_columns: list[str] = Field(
         default_factory=list,
-        description="Columns for notes list when no template is set. If empty, uses Space.notes_list_default_columns",
+        description="Columns for notes list",
     )
     conditions: list[FilterCondition] = Field(default_factory=list, description="Filter conditions (combined with AND)")
     sort: list[str] = Field(default_factory=list, description="Sort order - field names with optional '-' prefix for descending")
+
+
+def create_default_all_filter() -> Filter:
+    """Create the default 'all' filter for new spaces."""
+    return Filter(
+        name=ALL_FILTER_NAME,
+        notes_list_default_columns=["note.number", "note.created_at", "note.author"],
+        conditions=[],
+        sort=["-note.created_at"],
+    )
 
 
 # Valid operators for each field type

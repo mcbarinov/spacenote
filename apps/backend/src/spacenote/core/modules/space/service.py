@@ -1,10 +1,11 @@
+from functools import cached_property
 from typing import Any
 
 import structlog
-from pymongo.asynchronous.database import AsyncDatabase
+from pymongo.asynchronous.collection import AsyncCollection
 
 from spacenote.core.db import Collection
-from spacenote.core.modules.filter.validators import validate_notes_list_columns
+from spacenote.core.modules.filter.models import ALL_FILTER_NAME, create_default_all_filter
 from spacenote.core.modules.space.models import Space
 from spacenote.core.service import Service
 from spacenote.errors import NotFoundError, ValidationError
@@ -15,10 +16,12 @@ logger = structlog.get_logger(__name__)
 class SpaceService(Service):
     """Manages spaces with in-memory cache."""
 
-    def __init__(self, database: AsyncDatabase[dict[str, Any]]) -> None:
-        super().__init__(database)
-        self._collection = database.get_collection(Collection.SPACES)
+    def __init__(self) -> None:
         self._spaces: dict[str, Space] = {}
+
+    @cached_property
+    def _collection(self) -> AsyncCollection[dict[str, Any]]:
+        return self.database.get_collection(Collection.SPACES)
 
     def get_space(self, slug: str) -> Space:
         """Get space by slug from cache."""
@@ -45,7 +48,7 @@ class SpaceService(Service):
 
         self._validate_members(members)
 
-        space = Space(slug=slug, title=title, description=description, members=members)
+        space = Space(slug=slug, title=title, description=description, members=members, filters=[create_default_all_filter()])
         await self._collection.insert_one(space.to_mongo())
         return await self.update_space_cache(slug)
 
@@ -55,6 +58,10 @@ class SpaceService(Service):
             raise ValidationError(f"Space '{space.slug}' already exists")
 
         self._validate_members(space.members)
+
+        # Ensure 'all' filter exists
+        if not any(f.name == ALL_FILTER_NAME for f in space.filters):
+            space.filters.insert(0, create_default_all_filter())
 
         await self._collection.insert_one(space.to_mongo())
         return await self.update_space_cache(space.slug)
@@ -97,14 +104,12 @@ class SpaceService(Service):
         await self._collection.update_one({"slug": slug}, {"$set": {"hidden_fields_on_create": field_names}})
         return await self.update_space_cache(slug)
 
-    async def update_notes_list_default_columns(self, slug: str, columns: list[str]) -> Space:
-        """Update default columns for notes list."""
-        space = self.get_space(slug)
-        validate_notes_list_columns(space, columns)
-        await self._collection.update_one({"slug": slug}, {"$set": {"notes_list_default_columns": columns}})
-        return await self.update_space_cache(slug)
-
-    async def update_space_document(self, slug: str, update: dict[str, Any]) -> Space:
+    async def update_space_document(
+        self,
+        slug: str,
+        update: dict[str, Any],
+        array_filters: list[dict[str, Any]] | None = None,
+    ) -> Space:
         """Low-level MongoDB update with automatic cache invalidation.
 
         WARNING: This is a low-level method. Caller is responsible for:
@@ -114,8 +119,16 @@ class SpaceService(Service):
 
         Use this only from feature services (FieldService, FilterService, etc.)
         that need to modify Space document.
+
+        Args:
+            slug: Space slug to update.
+            update: MongoDB update document (e.g. {"$set": {...}}).
+            array_filters: MongoDB array filters for updating nested array elements.
+                Used with positional operator $[<identifier>] to update specific
+                elements in arrays like filters or fields.
+                Example: [{"elem.name": "my-filter"}] with {"$set": {"filters.$[elem]": ...}}
         """
-        await self._collection.update_one({"slug": slug}, update)
+        await self._collection.update_one({"slug": slug}, update, array_filters=array_filters)
         return await self.update_space_cache(slug)
 
     async def delete_space(self, slug: str) -> None:

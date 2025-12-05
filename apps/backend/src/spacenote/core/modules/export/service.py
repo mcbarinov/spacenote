@@ -35,7 +35,6 @@ class ExportService(Service):
             members=space.members,
             fields=space.fields,
             filters=space.filters,
-            notes_list_default_columns=space.notes_list_default_columns,
             hidden_fields_on_create=space.hidden_fields_on_create,
             created_at=space.created_at,
         )
@@ -123,7 +122,6 @@ class ExportService(Service):
             members=data.space.members,
             fields=data.space.fields,
             filters=data.space.filters,
-            notes_list_default_columns=data.space.notes_list_default_columns,
             hidden_fields_on_create=data.space.hidden_fields_on_create,
             created_at=data.space.created_at,
         )

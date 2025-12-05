@@ -107,51 +107,65 @@ FastAPI Routers → App Facade → Core Container → Services → MongoDB
 
 ### Service Registry & Lifecycle Management
 
-**Implementation**: Centralized service management with coordinated lifecycle:
+Services are created without arguments and receive `Core` reference via injection:
 
 ```python
 class ServiceRegistry:
-    user: UserService
-    session: SessionService
-    access: AccessService
-    space: SpaceService
-    field: FieldService
-    counter: CounterService
-    note: NoteService
-    comment: CommentService
-    image: ImageService
+    def __init__(self, core: Core) -> None:
+        self.user = UserService()
+        self.session = SessionService()
+        # ... other services
 
-    async def start_all()  # Initialize all services
-    async def stop_all()   # Cleanup all services
+        # Auto-discover and inject core
+        self._services = [v for v in vars(self).values() if isinstance(v, Service)]
+        for service in self._services:
+            service.set_core(core)
 ```
 
-**Lifecycle flow**:
-1. Application startup triggers `Core.on_start()`
-2. `ServiceRegistry.start_all()` calls each service's `on_start()` hook
-3. Services create database indexes, load caches, ensure default data
-4. On shutdown, `stop_all()` performs cleanup in reverse order
+**Lifecycle**: `Core.on_start()` → `ServiceRegistry.start_all()` → each `service.on_start()` (indexes, caches, defaults)
 
-### Inter-Service Communication via Core Reference
-
-**Implementation**: Services access each other through Core Container reference:
+### Base Service Class
 
 ```python
-# Each service has self.core reference
 class Service:
+    def set_core(self, core: Core) -> None:
+        self._core = core
+
     @property
     def core(self) -> Core:
         return self._core
 
-# Services call each other via registry
-async def get_authenticated_user(self, auth_token: AuthToken) -> User:
-    session = await self._get_session(auth_token)
-    user = self.core.services.user.get_user(session.username)
-    return user
+    @property
+    def database(self) -> AsyncDatabase:
+        return self.core.database
+
+    async def on_start(self) -> None: ...
+    async def on_stop(self) -> None: ...
 ```
 
-**Service dependency graph**:
+Services access each other via `self.core.services.other_service`.
+
+### Service Collection Pattern
+
+Services define MongoDB collections as `@cached_property` for lazy initialization:
+
+```python
+class NoteService(Service):
+    @cached_property
+    def _collection(self) -> AsyncCollection:
+        return self.database.get_collection(Collection.NOTES)
 ```
-AccessService → SessionService → UserService
+
+Services with custom state use empty `__init__()`:
+
+```python
+class UserService(Service):
+    def __init__(self) -> None:
+        self._users: dict[str, User] = {}
+
+    @cached_property
+    def _collection(self) -> AsyncCollection:
+        return self.database.get_collection(Collection.USERS)
 ```
 
 ### In-Memory Caching for Users and Spaces

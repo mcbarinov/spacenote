@@ -1,7 +1,3 @@
-from typing import Any
-
-from pymongo.asynchronous.database import AsyncDatabase
-
 from spacenote.core.modules.attachment.models import PendingAttachment
 from spacenote.core.modules.comment.models import Comment
 from spacenote.core.modules.session.models import AuthToken
@@ -12,9 +8,6 @@ from spacenote.errors import AccessDeniedError
 
 class AccessService(Service):
     """Centralized access control and permission management."""
-
-    def __init__(self, database: AsyncDatabase[dict[str, Any]]) -> None:
-        super().__init__(database)
 
     async def ensure_authenticated(self, auth_token: AuthToken) -> User:
         """Verify user is authenticated."""
@@ -31,6 +24,16 @@ class AccessService(Service):
         """Verify user is a member of the specified space."""
         user = await self.core.services.session.get_authenticated_user(auth_token)
         space = self.core.services.space.get_space(space_slug)
+        if user.username not in space.members:
+            raise AccessDeniedError("Not a member of this space")
+        return user
+
+    async def ensure_space_reader(self, auth_token: AuthToken, space_slug: str) -> User:
+        """Verify user can read space content (admin or member)."""
+        user = await self.core.services.session.get_authenticated_user(auth_token)
+        space = self.core.services.space.get_space(space_slug)
+        if user.username == "admin":
+            return user
         if user.username not in space.members:
             raise AccessDeniedError("Not a member of this space")
         return user

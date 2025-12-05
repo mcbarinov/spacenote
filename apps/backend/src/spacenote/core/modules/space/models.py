@@ -23,12 +23,10 @@ class Space(MongoModel):
     members: list[str] = Field(default_factory=list, description="List of member usernames who have access to this space")
     fields: list[SpaceField] = Field(default_factory=list, description="Field definitions for notes in this space")
     filters: list[Filter] = Field(default_factory=list, description="Filter definitions for this space")
-    notes_list_default_columns: list[str] = Field(
-        default_factory=list, description="Columns for notes list when no template is set"
-    )
     hidden_fields_on_create: list[str] = Field(
         default_factory=list, description="Field names to hide on note creation form (will use defaults or null)"
     )
+    templates: dict[str, str] = Field(default_factory=dict, description="Liquid templates keyed by template identifier")
     created_at: datetime = Field(default_factory=now, description="Timestamp when the space was created")
 
     def get_field(self, name: str) -> SpaceField | None:

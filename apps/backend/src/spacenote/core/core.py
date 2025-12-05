@@ -20,6 +20,7 @@ from spacenote.core.modules.image.service import ImageService
 from spacenote.core.modules.note.service import NoteService
 from spacenote.core.modules.session.service import SessionService
 from spacenote.core.modules.space.service import SpaceService
+from spacenote.core.modules.template.service import TemplateService
 from spacenote.core.modules.user.service import UserService
 from spacenote.core.service import Service
 
@@ -39,53 +40,38 @@ class ServiceRegistry:
     attachment: AttachmentService
     image: ImageService
     export: ExportService
+    template: TemplateService
 
-    def __init__(self, database: AsyncDatabase[dict[str, Any]]) -> None:
-        """Initialize all services."""
-        self.user = UserService(database)
-        self.session = SessionService(database)
-        self.access = AccessService(database)
-        self.space = SpaceService(database)
-        self.field = FieldService(database)
-        self.filter = FilterService(database)
-        self.counter = CounterService(database)
-        self.note = NoteService(database)
-        self.comment = CommentService(database)
-        self.attachment = AttachmentService(database)
-        self.image = ImageService(database)
-        self.export = ExportService(database)
+    def __init__(self, core: Core) -> None:
+        """Initialize all services and inject core reference."""
+        self.user = UserService()
+        self.session = SessionService()
+        self.access = AccessService()
+        self.space = SpaceService()
+        self.field = FieldService()
+        self.filter = FilterService()
+        self.counter = CounterService()
+        self.note = NoteService()
+        self.comment = CommentService()
+        self.attachment = AttachmentService()
+        self.image = ImageService()
+        self.export = ExportService()
+        self.template = TemplateService()
 
-        self._services: list[Service] = [
-            self.user,
-            self.session,
-            self.access,
-            self.space,
-            self.field,
-            self.filter,
-            self.counter,
-            self.note,
-            self.comment,
-            self.attachment,
-            self.image,
-            self.export,
-        ]
-
-    def set_core(self, core: Core) -> None:
-        """Set core reference for all services."""
+        # Auto-discover services and inject core
+        self._services = [v for v in vars(self).values() if isinstance(v, Service)]
         for service in self._services:
             service.set_core(core)
 
     async def start_all(self) -> None:
-        """Start all services that have startup logic."""
+        """Start all services."""
         for service in self._services:
-            if hasattr(service, "on_start"):
-                await service.on_start()
+            await service.on_start()
 
     async def stop_all(self) -> None:
-        """Stop all services that have cleanup logic."""
+        """Stop all services."""
         for service in self._services:
-            if hasattr(service, "on_stop"):
-                await service.on_stop()
+            await service.on_stop()
 
 
 class Core:
@@ -100,8 +86,7 @@ class Core:
         self.config = config
         self.mongo_client = AsyncMongoClient(config.database_url, uuidRepresentation="standard", tz_aware=True)
         self.database = self.mongo_client.get_database(urlparse(config.database_url).path[1:])
-        self.services = ServiceRegistry(self.database)
-        self.services.set_core(self)
+        self.services = ServiceRegistry(self)
 
     @asynccontextmanager
     async def lifespan(self) -> AsyncGenerator[None]:

@@ -41,12 +41,6 @@ class UpdateHiddenFieldsOnCreateRequest(BaseModel):
     hidden_fields_on_create: list[str] = Field(..., description="Field names to hide on note creation form")
 
 
-class UpdateNotesListDefaultColumnsRequest(BaseModel):
-    """Space notes list default columns update request."""
-
-    notes_list_default_columns: list[str] = Field(..., description="Default columns for notes list")
-
-
 @router.get(
     "/spaces",
     summary="List spaces",
@@ -154,26 +148,6 @@ async def update_space_hidden_fields_on_create(
 ) -> Space:
     """Update hidden fields on create (admin only)."""
     return await app.update_hidden_fields_on_create(auth_token, slug, update_data.hidden_fields_on_create)
-
-
-@router.patch(
-    "/spaces/{slug}/notes-list-default-columns",
-    summary="Update notes list default columns",
-    description="Update default columns for notes list view. Only accessible by admin users.",
-    operation_id="updateSpaceNotesListDefaultColumns",
-    responses={
-        200: {"description": "Notes list default columns updated successfully"},
-        400: {"model": ErrorResponse, "description": "Invalid request"},
-        401: {"model": ErrorResponse, "description": "Not authenticated"},
-        403: {"model": ErrorResponse, "description": "Admin privileges required"},
-        404: {"model": ErrorResponse, "description": "Space not found"},
-    },
-)
-async def update_space_notes_list_default_columns(
-    slug: str, update_data: UpdateNotesListDefaultColumnsRequest, app: AppDep, auth_token: AuthTokenDep
-) -> Space:
-    """Update notes list default columns (admin only)."""
-    return await app.update_notes_list_default_columns(auth_token, slug, update_data.notes_list_default_columns)
 
 
 @router.delete(

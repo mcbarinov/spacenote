@@ -35,8 +35,10 @@ export type FilterOperator = components["schemas"]["FilterOperator"]
 export type UpdateTitleRequest = components["schemas"]["UpdateTitleRequest"]
 export type UpdateDescriptionRequest = components["schemas"]["UpdateDescriptionRequest"]
 export type UpdateHiddenFieldsOnCreateRequest = components["schemas"]["UpdateHiddenFieldsOnCreateRequest"]
-export type UpdateNotesListDefaultColumnsRequest = components["schemas"]["UpdateNotesListDefaultColumnsRequest"]
 export type UpdateMembersRequest = components["schemas"]["UpdateMembersRequest"]
 
 // Export
 export type ExportData = components["schemas"]["ExportData"]
+
+// Templates
+export type SetTemplateRequest = components["schemas"]["SetTemplateRequest"]

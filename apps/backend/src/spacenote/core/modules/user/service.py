@@ -1,8 +1,9 @@
+from functools import cached_property
 from types import MappingProxyType
 from typing import Any
 
 import structlog
-from pymongo.asynchronous.database import AsyncDatabase
+from pymongo.asynchronous.collection import AsyncCollection
 
 from spacenote.core.db import Collection
 from spacenote.core.modules.user.models import User
@@ -17,10 +18,12 @@ logger = structlog.get_logger(__name__)
 class UserService(Service):
     """Manages users with in-memory cache."""
 
-    def __init__(self, database: AsyncDatabase[dict[str, Any]]) -> None:
-        super().__init__(database)
-        self._collection = database.get_collection(Collection.USERS)
+    def __init__(self) -> None:
         self._users: dict[str, User] = {}
+
+    @cached_property
+    def _collection(self) -> AsyncCollection[dict[str, Any]]:
+        return self.database.get_collection(Collection.USERS)
 
     def get_user(self, username: str) -> User:
         """Get user by username from cache."""

@@ -1,0 +1,293 @@
+/**
+ * Mantine-like CSS classes for LiquidJS templates.
+ * Uses Mantine CSS variables for consistent theming.
+ */
+
+/* Layout: Stack (vertical flex) */
+.Stack {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Layout: Group (horizontal flex) */
+.Group {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* Gap modifiers */
+.gap-xs {
+  gap: var(--mantine-spacing-xs);
+}
+.gap-sm {
+  gap: var(--mantine-spacing-sm);
+}
+.gap-md {
+  gap: var(--mantine-spacing-md);
+}
+.gap-lg {
+  gap: var(--mantine-spacing-lg);
+}
+.gap-xl {
+  gap: var(--mantine-spacing-xl);
+}
+
+/* Title: h1-h6 headings */
+.Title {
+  font-weight: 700;
+  line-height: 1.3;
+  margin: 0;
+}
+
+h1.Title {
+  font-size: var(--mantine-h1-font-size);
+}
+h2.Title {
+  font-size: var(--mantine-h2-font-size);
+}
+h3.Title {
+  font-size: var(--mantine-h3-font-size);
+}
+h4.Title {
+  font-size: var(--mantine-h4-font-size);
+}
+
+/* Text */
+.Text {
+  margin: 0;
+  line-height: var(--mantine-line-height);
+}
+
+/* Text size modifiers */
+.size-xs {
+  font-size: var(--mantine-font-size-xs);
+}
+.size-sm {
+  font-size: var(--mantine-font-size-sm);
+}
+.size-md {
+  font-size: var(--mantine-font-size-md);
+}
+.size-lg {
+  font-size: var(--mantine-font-size-lg);
+}
+.size-xl {
+  font-size: var(--mantine-font-size-xl);
+}
+
+/* Text color modifiers */
+.color-dimmed {
+  color: var(--mantine-color-dimmed);
+}
+
+/* Badge */
+.Badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--mantine-spacing-xs);
+  height: 20px;
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 500;
+  border-radius: var(--mantine-radius-xl);
+  background: var(--mantine-color-gray-light);
+  color: var(--mantine-color-gray-light-color);
+  text-transform: uppercase;
+}
+
+/* Badge color variants */
+.Badge.color-blue {
+  background: var(--mantine-color-blue-light);
+  color: var(--mantine-color-blue-light-color);
+}
+
+.Badge.color-green {
+  background: var(--mantine-color-green-light);
+  color: var(--mantine-color-green-light-color);
+}
+
+.Badge.color-red {
+  background: var(--mantine-color-red-light);
+  color: var(--mantine-color-red-light-color);
+}
+
+.Badge.color-yellow {
+  background: var(--mantine-color-yellow-light);
+  color: var(--mantine-color-yellow-light-color);
+}
+
+.Badge.color-gray {
+  background: var(--mantine-color-gray-light);
+  color: var(--mantine-color-gray-light-color);
+}
+
+/* Badge variant: light (default) */
+.Badge.variant-light {
+  background: var(--mantine-color-gray-light);
+  color: var(--mantine-color-gray-light-color);
+}
+
+/* Markdown content: inherits Mantine typography styles */
+.Markdown {
+  line-height: var(--mantine-line-height);
+}
+
+.Markdown p {
+  margin: 0 0 var(--mantine-spacing-sm) 0;
+}
+
+.Markdown p:last-child {
+  margin-bottom: 0;
+}
+
+.Markdown a {
+  color: var(--mantine-color-anchor);
+  text-decoration: none;
+}
+
+.Markdown a:hover {
+  text-decoration: underline;
+}
+
+.Markdown code {
+  font-family: var(--mantine-font-family-monospace);
+  font-size: 0.9em;
+  padding: 0.1em 0.3em;
+  background: var(--mantine-color-gray-light);
+  border-radius: var(--mantine-radius-xs);
+}
+
+.Markdown pre {
+  font-family: var(--mantine-font-family-monospace);
+  padding: var(--mantine-spacing-sm);
+  background: var(--mantine-color-gray-light);
+  border-radius: var(--mantine-radius-sm);
+  overflow-x: auto;
+}
+
+.Markdown pre code {
+  padding: 0;
+  background: none;
+}
+
+/* Group/Stack modifiers */
+.justify-between {
+  justify-content: space-between;
+}
+.wrap-nowrap {
+  flex-wrap: nowrap;
+}
+.align-start {
+  align-items: flex-start;
+}
+
+/* Text modifiers */
+.fw-500 {
+  font-weight: 500;
+}
+.lineClamp-1 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Badge sizes */
+.Badge.size-xs {
+  height: 16px;
+  font-size: 10px;
+  padding: 0 6px;
+}
+.Badge.size-sm {
+  height: 18px;
+  font-size: var(--mantine-font-size-xs);
+}
+
+/* Badge outline variant */
+.Badge.variant-outline {
+  background: transparent;
+  border: 1px solid currentColor;
+}
+.Badge.variant-outline.color-red {
+  color: var(--mantine-color-red-filled);
+  border-color: var(--mantine-color-red-filled);
+}
+.Badge.variant-outline.color-gray {
+  color: var(--mantine-color-gray-filled);
+  border-color: var(--mantine-color-gray-filled);
+}
+
+/* Badge filled variant (solid background) */
+.Badge.variant-filled {
+  background: var(--mantine-color-gray-filled);
+  color: var(--mantine-color-white);
+}
+.Badge.variant-filled.color-blue {
+  background: var(--mantine-color-blue-filled);
+}
+.Badge.variant-filled.color-green {
+  background: var(--mantine-color-green-filled);
+}
+.Badge.variant-filled.color-red {
+  background: var(--mantine-color-red-filled);
+}
+.Badge.variant-filled.color-yellow {
+  background: var(--mantine-color-yellow-filled);
+  color: var(--mantine-color-black);
+}
+.Badge.variant-filled.color-gray {
+  background: var(--mantine-color-gray-filled);
+}
+
+/* Flex utilities */
+.flex-1 {
+  flex: 1;
+}
+.min-w-0 {
+  min-width: 0;
+}
+
+/* Card */
+.Card {
+  display: block;
+  padding: var(--mantine-spacing-md);
+  background: var(--mantine-color-body);
+  border-radius: var(--mantine-radius-md);
+  text-decoration: none;
+  color: inherit;
+}
+
+.Card.withBorder {
+  border: 1px solid var(--mantine-color-default-border);
+}
+
+/* Card as link - hover effect */
+a.Card:hover {
+  background: var(--mantine-color-gray-light-hover);
+}
+
+/* Card padding modifiers */
+.Card.p-xs {
+  padding: var(--mantine-spacing-xs);
+}
+.Card.p-sm {
+  padding: var(--mantine-spacing-sm);
+}
+.Card.p-md {
+  padding: var(--mantine-spacing-md);
+}
+.Card.p-lg {
+  padding: var(--mantine-spacing-lg);
+}
+
+/* Card radius modifiers */
+.Card.radius-sm {
+  border-radius: var(--mantine-radius-sm);
+}
+.Card.radius-md {
+  border-radius: var(--mantine-radius-md);
+}
+.Card.radius-lg {
+  border-radius: var(--mantine-radius-lg);
+}

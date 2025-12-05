@@ -46,13 +46,14 @@ function SpaceTabs({ slug, note }: { slug: string; note?: { number: number } }) 
   const navigate = useNavigate()
 
   if (note) {
-    // Note-level pages: Notes | Note Attachments
+    // Note-level pages: Notes | Note Attachments | Edit
     const noteNumber = String(note.number)
     const isNoteAttachments = location.pathname.includes(`/${noteNumber}/attachments`)
+    const isEdit = location.pathname.includes(`/${noteNumber}/edit`)
     return (
       <Group gap="xs">
         <Button
-          variant={!isNoteAttachments ? "light" : "subtle"}
+          variant={!isNoteAttachments && !isEdit ? "light" : "subtle"}
           size="xs"
           onClick={() => void navigate({ to: "/s/$slug/$noteNumber", params: { slug, noteNumber } })}
         >
@@ -64,6 +65,13 @@ function SpaceTabs({ slug, note }: { slug: string; note?: { number: number } }) 
           onClick={() => void navigate({ to: "/s/$slug/$noteNumber/attachments", params: { slug, noteNumber } })}
         >
           Note Attachments
+        </Button>
+        <Button
+          variant={isEdit ? "light" : "subtle"}
+          size="xs"
+          onClick={() => void navigate({ to: "/s/$slug/$noteNumber/edit", params: { slug, noteNumber } })}
+        >
+          Edit
         </Button>
       </Group>
     )

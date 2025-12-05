@@ -37,6 +37,9 @@ export type UpdateDescriptionRequest = components["schemas"]["UpdateDescriptionR
 export type UpdateHiddenFieldsOnCreateRequest = components["schemas"]["UpdateHiddenFieldsOnCreateRequest"]
 export type UpdateMembersRequest = components["schemas"]["UpdateMembersRequest"]
 
+// Note update requests
+export type UpdateNoteRequest = components["schemas"]["UpdateNoteRequest"]
+
 // Export
 export type ExportData = components["schemas"]["ExportData"]
 

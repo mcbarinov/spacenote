@@ -212,3 +212,13 @@ Submit buttons in Stack forms — right-align with Group:
   </Group>
 </Stack>
 ```
+
+## 4. File Organization
+
+### 4.1 Keep Related Code Together
+
+Don't split into separate files unnecessarily. Keep component and its helper functions in one file if helpers are only used by that component.
+
+**Create a folder only when:**
+- Component has multiple subcomponents
+- Utilities are reused elsewhere

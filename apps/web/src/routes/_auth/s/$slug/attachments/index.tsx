@@ -1,5 +1,5 @@
-import { createFileRoute, useLocation, useNavigate } from "@tanstack/react-router"
-import { ActionIcon, Button, Group, Table, Text } from "@mantine/core"
+import { createFileRoute } from "@tanstack/react-router"
+import { ActionIcon, Group, Table, Text } from "@mantine/core"
 import { IconDownload } from "@tabler/icons-react"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { api } from "@spacenote/common/api"
@@ -16,13 +16,8 @@ export const Route = createFileRoute("/_auth/s/$slug/attachments/")({
 /** Space attachments list page */
 function AttachmentsPage() {
   const { slug } = Route.useParams()
-  const location = useLocation()
-  const navigate = useNavigate()
   const space = api.cache.useSpace(slug)
   const { data: attachments } = useSuspenseQuery(api.queries.listSpaceAttachments(slug))
-
-  const isSpaceAttachments =
-    location.pathname === `/s/${slug}/attachments` || location.pathname.startsWith(`/s/${slug}/attachments/`)
 
   return (
     <>
@@ -31,24 +26,16 @@ function AttachmentsPage() {
         breadcrumbs={[{ label: "Home", to: "/" }, { label: `◈ ${space.slug}` }]}
         topActions={
           <Group gap="xs">
-            <Button
-              variant={!isSpaceAttachments ? "light" : "subtle"}
-              size="xs"
-              onClick={() => void navigate({ to: "/s/$slug", params: { slug } })}
-            >
+            <LinkButton to="/s/$slug" params={{ slug }} variant="subtle" size="xs">
               Notes
-            </Button>
-            <Button
-              variant={isSpaceAttachments ? "light" : "subtle"}
-              size="xs"
-              onClick={() => void navigate({ to: "/s/$slug/attachments", params: { slug } })}
-            >
-              Space Attachments
-            </Button>
+            </LinkButton>
+            <LinkButton to="/s/$slug/attachments" params={{ slug }} variant="light" size="xs">
+              Attachments
+            </LinkButton>
           </Group>
         }
         actions={
-          <LinkButton to="/s/$slug/attachments/new" params={{ slug }} variant="light">
+          <LinkButton to="/s/$slug/attachments/new" params={{ slug }}>
             Upload
           </LinkButton>
         }

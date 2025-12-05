@@ -1,5 +1,5 @@
-import { createFileRoute, useLocation, useNavigate } from "@tanstack/react-router"
-import { Button, Group, Select } from "@mantine/core"
+import { createFileRoute, useNavigate } from "@tanstack/react-router"
+import { Group, Select } from "@mantine/core"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { api } from "@spacenote/common/api"
 import { LinkButton, PageHeader } from "@spacenote/common/components"
@@ -38,7 +38,6 @@ export const Route = createFileRoute("/_auth/s/$slug/")({
 function SpacePage() {
   const { slug } = Route.useParams()
   const { filter, view } = Route.useSearch()
-  const location = useLocation()
   const navigate = useNavigate()
   const space = api.cache.useSpace(slug)
   const { data: notesList } = useSuspenseQuery(api.queries.listNotes(slug, filter))
@@ -59,10 +58,6 @@ function SpacePage() {
       ? allFilter.notes_list_default_columns
       : ["note.number", "note.created_at", "note.author"]
 
-  // Tab state
-  const isSpaceAttachments =
-    location.pathname === `/s/${slug}/attachments` || location.pathname.startsWith(`/s/${slug}/attachments/`)
-
   return (
     <>
       <PageHeader
@@ -70,20 +65,12 @@ function SpacePage() {
         breadcrumbs={[{ label: "Home", to: "/" }, { label: `◈ ${space.slug}` }]}
         topActions={
           <Group gap="xs">
-            <Button
-              variant={!isSpaceAttachments ? "light" : "subtle"}
-              size="xs"
-              onClick={() => void navigate({ to: "/s/$slug", params: { slug } })}
-            >
+            <LinkButton to="/s/$slug" params={{ slug }} variant="light" size="xs">
               Notes
-            </Button>
-            <Button
-              variant={isSpaceAttachments ? "light" : "subtle"}
-              size="xs"
-              onClick={() => void navigate({ to: "/s/$slug/attachments", params: { slug } })}
-            >
-              Space Attachments
-            </Button>
+            </LinkButton>
+            <LinkButton to="/s/$slug/attachments" params={{ slug }} variant="subtle" size="xs">
+              Attachments
+            </LinkButton>
           </Group>
         }
         actions={

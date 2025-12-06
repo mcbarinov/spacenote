@@ -8,10 +8,12 @@ import { NotesListDefault } from "./-components/NotesListDefault"
 import { NotesListJson } from "./-components/NotesListJson"
 import { NotesListTemplate } from "./-components/NotesListTemplate"
 import { ViewModeMenu } from "./-components/ViewModeMenu"
+import { ActiveQueryFilters } from "./-components/ActiveQueryFilters"
 
 const searchSchema = z.object({
   filter: z.string().optional(),
   view: z.enum(["default", "template", "json"]).optional(),
+  q: z.string().optional(),
 })
 
 type ViewMode = "default" | "template" | "json"
@@ -27,9 +29,9 @@ function resolveView(view: ViewMode | undefined, hasTemplate: boolean): ViewMode
 
 export const Route = createFileRoute("/_auth/s/$slug/")({
   validateSearch: searchSchema,
-  loaderDeps: ({ search }) => ({ filter: search.filter }),
+  loaderDeps: ({ search }) => ({ filter: search.filter, q: search.q }),
   loader: async ({ context, params, deps }) => {
-    await context.queryClient.ensureQueryData(api.queries.listNotes(params.slug, deps.filter))
+    await context.queryClient.ensureQueryData(api.queries.listNotes(params.slug, deps.filter, deps.q))
   },
   component: SpacePage,
 })
@@ -37,10 +39,10 @@ export const Route = createFileRoute("/_auth/s/$slug/")({
 /** Space page with notes list */
 function SpacePage() {
   const { slug } = Route.useParams()
-  const { filter, view } = Route.useSearch()
+  const { filter, view, q } = Route.useSearch()
   const navigate = useNavigate()
   const space = api.cache.useSpace(slug)
-  const { data: notesList } = useSuspenseQuery(api.queries.listNotes(slug, filter))
+  const { data: notesList } = useSuspenseQuery(api.queries.listNotes(slug, filter, q))
 
   // Template key: web:note:list:{filter}, defaults to "all" when no filter selected
   const filterName = filter ?? "all"
@@ -98,9 +100,13 @@ function SpacePage() {
         }
       />
 
+      <ActiveQueryFilters q={q} slug={slug} />
+
       {resolvedView === "json" && <NotesListJson notes={notesList.items} />}
       {resolvedView === "template" && template && <NotesListTemplate notes={notesList.items} space={space} template={template} />}
-      {resolvedView === "default" && <NotesListDefault notes={notesList.items} space={space} displayFields={displayFields} />}
+      {resolvedView === "default" && (
+        <NotesListDefault notes={notesList.items} space={space} displayFields={displayFields} q={q} />
+      )}
     </>
   )
 }

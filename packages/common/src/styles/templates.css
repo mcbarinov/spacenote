@@ -291,3 +291,52 @@ a.Card:hover {
 .Card.radius-lg {
   border-radius: var(--mantine-radius-lg);
 }
+
+/* Adhoc filter links */
+.AdhocBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 var(--mantine-spacing-xs);
+  height: 20px;
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 500;
+  border-radius: var(--mantine-radius-xl);
+  background: var(--mantine-color-blue-light);
+  color: var(--mantine-color-blue-light-color);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.AdhocBadge:hover {
+  filter: brightness(0.95);
+}
+
+.AdhocUser {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.AdhocUser:hover {
+  text-decoration: underline;
+}
+
+.AdhocTag {
+  text-decoration: none;
+  color: var(--mantine-color-dimmed);
+  cursor: pointer;
+}
+
+.AdhocTag:hover {
+  color: var(--mantine-color-text);
+}
+
+/* Title link - no underline, inherits color */
+.TitleLink {
+  text-decoration: none;
+  color: inherit;
+}
+
+.TitleLink:hover {
+  text-decoration: underline;
+}

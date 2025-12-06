@@ -103,7 +103,9 @@ function SpacePage() {
       <ActiveQueryFilters q={q} slug={slug} />
 
       {resolvedView === "json" && <NotesListJson notes={notesList.items} />}
-      {resolvedView === "template" && template && <NotesListTemplate notes={notesList.items} space={space} template={template} />}
+      {resolvedView === "template" && template && (
+        <NotesListTemplate notes={notesList.items} space={space} template={template} q={q} filter={filter} />
+      )}
       {resolvedView === "default" && (
         <NotesListDefault notes={notesList.items} space={space} displayFields={displayFields} q={q} />
       )}

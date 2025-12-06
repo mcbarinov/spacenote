@@ -1,6 +1,7 @@
 from datetime import datetime
+from typing import Any, Self
 
-from pydantic import Field
+from pydantic import Field, model_validator
 
 from spacenote.core.db import MongoModel
 from spacenote.core.modules.field.models import FieldValueType
@@ -18,3 +19,17 @@ class Note(MongoModel):
     commented_at: datetime | None = None  # Last comment created
     activity_at: datetime = Field(default_factory=now)  # Updated on: field edit, comment create/edit/delete
     fields: dict[str, FieldValueType]  # Values for space-defined fields
+    title: str = ""  # Computed from Space.templates["note.title"], not stored in MongoDB
+
+    @model_validator(mode="after")
+    def set_default_title(self) -> Self:
+        """Set default title if not provided."""
+        if not self.title:
+            self.title = f"#{self.number}"
+        return self
+
+    def to_mongo(self) -> dict[str, Any]:
+        """Exclude computed title field from MongoDB storage."""
+        data = super().to_mongo()
+        data.pop("title", None)
+        return data

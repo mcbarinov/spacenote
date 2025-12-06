@@ -44,20 +44,25 @@ class NoteService(Service):
         cursor = self._collection.find(query).sort(sort_spec).skip(offset).limit(limit)
         docs = await cursor.to_list()
         items = [Note.model_validate(doc) for doc in docs]
+        self._set_titles(items)
 
         return PaginationResult(items=items, total=total, limit=limit, offset=offset)
 
     async def list_all_notes(self, space_slug: str) -> list[Note]:
         """Get all notes in space without pagination."""
         cursor = self._collection.find({"space_slug": space_slug}).sort("number", 1)
-        return await Note.list_cursor(cursor)
+        notes = await Note.list_cursor(cursor)
+        self._set_titles(notes)
+        return notes
 
     async def get_note(self, space_slug: str, number: int) -> Note:
         """Get note by space and sequential number."""
         doc = await self._collection.find_one({"space_slug": space_slug, "number": number})
         if not doc:
             raise NotFoundError(f"Note not found: space_slug={space_slug}, number={number}")
-        return Note.model_validate(doc)
+        note = Note.model_validate(doc)
+        self._set_title(note)
+        return note
 
     async def create_note(self, space_slug: str, author: str, raw_fields: dict[str, str]) -> Note:
         """Create note from raw fields."""
@@ -77,6 +82,7 @@ class NoteService(Service):
         note = Note(space_slug=space_slug, number=next_number, author=author, fields=parsed_fields)
 
         await self._collection.insert_one(note.to_mongo())
+        self._set_title(note)
         logger.debug("note_created", space_slug=space_slug, number=next_number, author=author)
         return note
 
@@ -121,3 +127,23 @@ class NoteService(Service):
 
         await self._collection.insert_many([n.to_mongo() for n in notes])
         return len(notes)
+
+    def _set_title(self, note: Note) -> None:
+        """Compute and set note title from template."""
+        space = self.core.services.space.get_space(note.space_slug)
+        title = self.core.services.template.render_note_title(space, note)
+        if title is not None:
+            note.title = title
+
+    def _set_titles(self, notes: list[Note]) -> None:
+        """Compute and set titles for multiple notes. All notes must be from the same space."""
+        if not notes:
+            return
+        space_slug = notes[0].space_slug
+        if any(n.space_slug != space_slug for n in notes):
+            raise ValueError("All notes must be from the same space")
+        space = self.core.services.space.get_space(space_slug)
+        for note in notes:
+            title = self.core.services.template.render_note_title(space, note)
+            if title is not None:
+                note.title = title

@@ -1,10 +1,15 @@
 import structlog
+from liquid import Template
+from liquid.exceptions import LiquidError
 
+from spacenote.core.modules.note.models import Note
 from spacenote.core.modules.space.models import Space
 from spacenote.core.service import Service
 from spacenote.errors import ValidationError
 
 logger = structlog.get_logger(__name__)
+
+DEFAULT_TITLE_TEMPLATE = "Note #{{ note.number }}"
 
 
 class TemplateService(Service):
@@ -15,7 +20,14 @@ class TemplateService(Service):
         space = self.core.services.space.get_space(slug)
 
         # Validate template key
-        if key != "web:note:detail":
+        if key == "note.title":
+            # Validate Liquid syntax for note.title templates
+            if content.strip():
+                try:
+                    Template(content)
+                except LiquidError as e:
+                    raise ValidationError(f"Invalid Liquid template syntax: {e}") from e
+        elif key != "web:note:detail":
             if not key.startswith("web:note:list:"):
                 raise ValidationError(f"Invalid template key: {key}")
             filter_name = key.removeprefix("web:note:list:")
@@ -31,3 +43,13 @@ class TemplateService(Service):
             logger.debug("template_set", space_slug=slug, key=key)
 
         return space
+
+    def render_note_title(self, space: Space, note: Note) -> str | None:
+        """Render note title from template. Returns None on error (uses validator default)."""
+        template_str = space.templates.get("note.title", DEFAULT_TITLE_TEMPLATE)
+        try:
+            template = Template(template_str)
+            return template.render(note=note.model_dump(), space=space.model_dump())
+        except LiquidError:
+            logger.warning("template_render_error", space_slug=space.slug, note_number=note.number)
+            return None

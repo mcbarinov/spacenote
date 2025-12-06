@@ -1050,6 +1050,13 @@ export type components = {
       created_at: string
       /** Edited At */
       edited_at: string | null
+      /** Commented At */
+      commented_at: string | null
+      /**
+       * Activity At
+       * Format: date-time
+       */
+      activity_at: string
       /** Fields */
       fields: {
         [key: string]: string | boolean | string[] | number | null
@@ -2744,12 +2751,14 @@ export interface operations {
   listNotes: {
     parameters: {
       query?: {
+        /** @description Filter name to apply */
+        filter?: string
+        /** @description Adhoc query string */
+        q?: string | null
         /** @description Maximum items to return */
         limit?: number
         /** @description Number of items to skip */
         offset?: number
-        /** @description Filter name to apply */
-        filter?: string
       }
       header?: never
       path: {

@@ -138,8 +138,10 @@ def get_system_field_definitions() -> dict[str, SpaceField]:
     """
     return {
         "note.number": SpaceField(name="note.number", type=FieldType.INT, required=True),
-        "note.created_at": SpaceField(name="note.created_at", type=FieldType.DATETIME, required=True),
         "note.author": SpaceField(name="note.author", type=FieldType.USER, required=True),
+        "note.created_at": SpaceField(name="note.created_at", type=FieldType.DATETIME, required=True),
+        "note.edited_at": SpaceField(name="note.edited_at", type=FieldType.DATETIME, required=False),
+        "note.activity_at": SpaceField(name="note.activity_at", type=FieldType.DATETIME, required=True),
     }
 
 

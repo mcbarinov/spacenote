@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { useNavigate } from "@tanstack/react-router"
 import type { Note, Space } from "@spacenote/common/types"
 import { renderTemplate } from "@spacenote/common/templates"
 import "@spacenote/common/styles/templates.css"
@@ -12,6 +13,7 @@ interface NoteDetailsTemplateProps {
 /** Renders note using custom LiquidJS template */
 export function NoteDetailsTemplate({ note, space, template }: NoteDetailsTemplateProps) {
   const [html, setHtml] = useState("")
+  const navigate = useNavigate()
 
   useEffect(() => {
     let cancelled = false
@@ -23,9 +25,28 @@ export function NoteDetailsTemplate({ note, space, template }: NoteDetailsTempla
     }
   }, [note, space, template])
 
+  /** Intercepts clicks on local links and uses client-side navigation */
+  function handleClick(e: React.MouseEvent<HTMLDivElement>) {
+    const target = e.target as HTMLElement
+    const anchor = target.closest("a")
+    if (!anchor) return
+
+    const href = anchor.getAttribute("href")
+    if (!href) return
+
+    // Only intercept local links (starting with / or ?)
+    if (href.startsWith("/") || href.startsWith("?")) {
+      e.preventDefault()
+      void navigate({ to: href })
+    }
+  }
+
   if (!html) return null
 
   // dangerouslySetInnerHTML is safe: template output is sanitized by rehype-sanitize
-  // eslint-disable-next-line react-dom/no-dangerously-set-innerhtml
-  return <div dangerouslySetInnerHTML={{ __html: html }} />
+  // onClick delegates to anchor elements inside, which handle their own keyboard interactions
+  return (
+    // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions, react-dom/no-dangerously-set-innerhtml
+    <div onClick={handleClick} dangerouslySetInnerHTML={{ __html: html }} />
+  )
 }

@@ -31,12 +31,14 @@ export function listSpaces() {
   })
 }
 
-/** Fetches notes for a space with optional filter */
-export function listNotes(spaceSlug: string, filter?: string) {
+/** Fetches notes for a space with optional filter and adhoc query */
+export function listNotes(spaceSlug: string, filter?: string, q?: string) {
   return queryOptions({
-    queryKey: ["spaces", spaceSlug, "notes", { filter }],
+    queryKey: ["spaces", spaceSlug, "notes", { filter, q }],
     queryFn: () => {
-      const searchParams = filter ? { filter } : undefined
+      const searchParams: Record<string, string> = {}
+      if (filter) searchParams.filter = filter
+      if (q) searchParams.q = q
       return httpClient.get(`api/v1/spaces/${spaceSlug}/notes`, { searchParams }).json<NotesList>()
     },
   })

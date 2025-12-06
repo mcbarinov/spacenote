@@ -23,6 +23,8 @@ export interface NoteDetailContext {
 export interface NoteListContext {
   notes: Note[]
   space: Space
+  q?: string
+  filter?: string
 }
 
 /** Renders a template with the given context */

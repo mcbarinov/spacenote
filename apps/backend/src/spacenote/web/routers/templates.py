@@ -16,6 +16,7 @@ class SetTemplateRequest(BaseModel):
 
 TEMPLATE_KEYS_DOC = """
 Valid template keys:
+- `note.title` — note title (Liquid template, default: "Note #{{ note.number }}")
 - `web:note:detail` — note detail view
 - `web:note:list:{filter}` — note list for a filter (e.g., `web:note:list:all`)
 

@@ -2,6 +2,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel, Field
 
 from spacenote.core.modules.space.models import Space
+from spacenote.core.modules.telegram.models import TelegramSettings
 from spacenote.web.deps import AppDep, AuthTokenDep
 from spacenote.web.openapi import ErrorResponse
 
@@ -39,6 +40,12 @@ class UpdateHiddenFieldsOnCreateRequest(BaseModel):
     """Space hidden fields on create update request."""
 
     hidden_fields_on_create: list[str] = Field(..., description="Field names to hide on note creation form")
+
+
+class UpdateTelegramRequest(BaseModel):
+    """Space telegram settings update request."""
+
+    telegram: TelegramSettings | None = None
 
 
 @router.get(
@@ -148,6 +155,24 @@ async def update_space_hidden_fields_on_create(
 ) -> Space:
     """Update hidden fields on create (admin only)."""
     return await app.update_hidden_fields_on_create(auth_token, slug, update_data.hidden_fields_on_create)
+
+
+@router.patch(
+    "/spaces/{slug}/telegram",
+    summary="Update space telegram settings",
+    description="Update telegram integration settings for the space. Only accessible by admin users.",
+    operation_id="updateSpaceTelegram",
+    responses={
+        200: {"description": "Space telegram settings updated successfully"},
+        400: {"model": ErrorResponse, "description": "Invalid request"},
+        401: {"model": ErrorResponse, "description": "Not authenticated"},
+        403: {"model": ErrorResponse, "description": "Admin privileges required"},
+        404: {"model": ErrorResponse, "description": "Space not found"},
+    },
+)
+async def update_space_telegram(slug: str, update_data: UpdateTelegramRequest, app: AppDep, auth_token: AuthTokenDep) -> Space:
+    """Update space telegram settings (admin only)."""
+    return await app.update_space_telegram(auth_token, slug, update_data.telegram)
 
 
 @router.delete(

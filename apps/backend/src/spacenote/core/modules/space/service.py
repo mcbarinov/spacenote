@@ -7,6 +7,7 @@ from pymongo.asynchronous.collection import AsyncCollection
 from spacenote.core.db import Collection
 from spacenote.core.modules.filter.models import ALL_FILTER_NAME, create_default_all_filter
 from spacenote.core.modules.space.models import Space
+from spacenote.core.modules.telegram.models import TelegramSettings
 from spacenote.core.service import Service
 from spacenote.errors import NotFoundError, ValidationError
 
@@ -69,24 +70,18 @@ class SpaceService(Service):
     async def update_title(self, slug: str, title: str) -> Space:
         """Update space title."""
         self.get_space(slug)
-
-        await self._collection.update_one({"slug": slug}, {"$set": {"title": title}})
-        return await self.update_space_cache(slug)
+        return await self.update_space_document(slug, {"$set": {"title": title}})
 
     async def update_description(self, slug: str, description: str) -> Space:
         """Update space description."""
         self.get_space(slug)
-
-        await self._collection.update_one({"slug": slug}, {"$set": {"description": description}})
-        return await self.update_space_cache(slug)
+        return await self.update_space_document(slug, {"$set": {"description": description}})
 
     async def update_members(self, slug: str, members: list[str]) -> Space:
         """Update space members."""
         self.get_space(slug)
         self._validate_members(members)
-
-        await self._collection.update_one({"slug": slug}, {"$set": {"members": members}})
-        return await self.update_space_cache(slug)
+        return await self.update_space_document(slug, {"$set": {"members": members}})
 
     async def update_hidden_fields_on_create(self, slug: str, field_names: list[str]) -> Space:
         """Update hidden fields on create list."""
@@ -101,8 +96,13 @@ class SpaceService(Service):
             if field.required and field.default is None:
                 raise ValidationError(f"Field '{name}' is required and has no default value, cannot be hidden")
 
-        await self._collection.update_one({"slug": slug}, {"$set": {"hidden_fields_on_create": field_names}})
-        return await self.update_space_cache(slug)
+        return await self.update_space_document(slug, {"$set": {"hidden_fields_on_create": field_names}})
+
+    async def update_telegram(self, slug: str, telegram: TelegramSettings | None) -> Space:
+        """Update space telegram settings."""
+        self.get_space(slug)
+        value = telegram.model_dump() if telegram else None
+        return await self.update_space_document(slug, {"$set": {"telegram": value}})
 
     async def update_space_document(
         self,
@@ -112,21 +112,11 @@ class SpaceService(Service):
     ) -> Space:
         """Low-level MongoDB update with automatic cache invalidation.
 
-        WARNING: This is a low-level method. Caller is responsible for:
-        - Validating the space exists (call get_space() first)
-        - Validating all data in the update operation
-        - Ensuring the update operation is safe and correct
+        Used internally by SpaceService update methods and by external feature services
+        (FieldService, FilterService, etc.) that need to modify Space document.
 
-        Use this only from feature services (FieldService, FilterService, etc.)
-        that need to modify Space document.
-
-        Args:
-            slug: Space slug to update.
-            update: MongoDB update document (e.g. {"$set": {...}}).
-            array_filters: MongoDB array filters for updating nested array elements.
-                Used with positional operator $[<identifier>] to update specific
-                elements in arrays like filters or fields.
-                Example: [{"elem.name": "my-filter"}] with {"$set": {"filters.$[elem]": ...}}
+        Caller is responsible for validating space exists (call get_space() first)
+        and validating all data in the update operation.
         """
         await self._collection.update_one({"slug": slug}, update, array_filters=array_filters)
         return await self.update_space_cache(slug)

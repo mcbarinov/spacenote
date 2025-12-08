@@ -5,7 +5,15 @@ from typing import Any, Literal
 from pydantic import Field
 
 from spacenote.core.db import MongoModel
+from spacenote.core.schema import OpenAPIModel
 from spacenote.utils import now
+
+
+class TelegramSettings(OpenAPIModel):
+    """Telegram integration settings for a space."""
+
+    activity_channel: str | None = None  # Channel for activity feed
+    mirror_channel: str | None = None  # Channel for note mirroring
 
 
 class TelegramTaskType(StrEnum):

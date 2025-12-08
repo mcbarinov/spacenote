@@ -1,21 +1,24 @@
 import { Suspense } from "react"
-import { Button, Divider, Group, Loader, Select, Stack, Textarea } from "@mantine/core"
+import { Anchor, Button, Code, Divider, Group, Loader, Select, Stack, Textarea } from "@mantine/core"
 import { useForm } from "@mantine/form"
-import { useDebouncedValue } from "@mantine/hooks"
+import { useDisclosure, useDebouncedValue } from "@mantine/hooks"
 import { notifications } from "@mantine/notifications"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { api } from "@spacenote/common/api"
 import { ErrorMessage } from "@spacenote/common/components"
+import { TemplateExampleModal } from "./TemplateExampleModal"
+import { LIQUID_NOTE_LIST_EXAMPLE } from "./templateExamples"
 import { TemplatePreview } from "./TemplatePreview"
 
-interface NoteListTemplateEditorProps {
+interface NoteListTemplateProps {
   spaceSlug: string
   filters: string[]
   templates: Record<string, string>
 }
 
 /** Editor for web:note:list:{filter} templates with live preview */
-export function NoteListTemplateEditor({ spaceSlug, filters, templates }: NoteListTemplateEditorProps) {
+export function NoteListTemplate({ spaceSlug, filters, templates }: NoteListTemplateProps) {
+  const [exampleOpened, { open: openExample, close: closeExample }] = useDisclosure(false)
   const form = useForm({
     initialValues: {
       filter: filters[0],
@@ -44,6 +47,18 @@ export function NoteListTemplateEditor({ spaceSlug, filters, templates }: NoteLi
 
   return (
     <Stack gap="md">
+      <Group>
+        <Code>web:note:list:{form.values.filter}</Code>
+        <Anchor size="sm" onClick={openExample}>
+          Example
+        </Anchor>
+      </Group>
+      <TemplateExampleModal
+        opened={exampleOpened}
+        onClose={closeExample}
+        title="Liquid Note List Example"
+        example={LIQUID_NOTE_LIST_EXAMPLE}
+      />
       <form onSubmit={handleSubmit}>
         <Stack gap="sm">
           <Select

@@ -20,6 +20,8 @@ class Collection(StrEnum):
     COUNTERS = "counters"
     PENDING_ATTACHMENTS = "pending_attachments"
     ATTACHMENTS = "attachments"
+    TELEGRAM_TASKS = "telegram_tasks"
+    TELEGRAM_MIRRORS = "telegram_mirrors"
 
 
 class PyObjectId(ObjectId):

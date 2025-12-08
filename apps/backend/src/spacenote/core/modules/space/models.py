@@ -27,6 +27,8 @@ class Space(MongoModel):
         default_factory=list, description="Field names to hide on note creation form (will use defaults or null)"
     )
     templates: dict[str, str] = Field(default_factory=dict, description="Liquid templates keyed by template identifier")
+    telegram_activity_channel: str | None = Field(default=None, description="Telegram channel for activity feed")
+    telegram_mirror_channel: str | None = Field(default=None, description="Telegram channel for note mirroring")
     created_at: datetime = Field(default_factory=now, description="Timestamp when the space was created")
 
     def get_field(self, name: str) -> SpaceField | None:

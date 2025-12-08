@@ -65,6 +65,24 @@ IMAGE field type for notes with automatic processing:
 - Async processing (doesn't block note creation)
 - Separate storage for originals (attachments) and processed images
 
+### Telegram Integration
+
+Each space can connect to Telegram channels for two types of integration:
+
+- **activity** — Event feed. Posts notifications when notes are created/updated or comments are added. One-way broadcast of activity to a channel.
+
+- **mirror** — Note mirroring. Creates a Telegram post for each note and keeps it in sync. When note is edited, the corresponding Telegram post is updated.
+
+Configuration per space:
+- `telegram_activity_channel` — channel for activity feed (e.g. `@mychannel` or `-1001234567890`)
+- `telegram_mirror_channel` — channel for note mirroring
+
+Message formatting via Liquid templates in `Space.templates`:
+- `telegram:activity:note_created`
+- `telegram:activity:note_updated`
+- `telegram:activity:comment_created`
+- `telegram:mirror`
+
 ### AI Integration
 
 Built with AI agents in mind:

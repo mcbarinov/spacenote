@@ -6,6 +6,8 @@ lint: common-lint admin-lint web-lint backend-lint
 
 outdated: backend-outdated admin-outdated web-outdated common-outdated
 
+upgrade: admin-update web-update common-update
+
 [group("backend")]
 backend-clean:
     cd apps/backend && rm -rf .pytest_cache .ruff_cache .mypy_cache build dist src/*.egg-info

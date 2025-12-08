@@ -4,8 +4,13 @@ import { Button, Group, Paper, Stack, FileInput } from "@mantine/core"
 import { notifications } from "@mantine/notifications"
 import { api } from "@spacenote/common/api"
 import { ErrorMessage, PageHeader } from "@spacenote/common/components"
+import { useSuspenseQuery } from "@tanstack/react-query"
 
 export const Route = createFileRoute("/_auth/s/$slug/$noteNumber/attachments/new")({
+  loader: async ({ context, params }) => {
+    const noteNumber = Number(params.noteNumber)
+    await context.queryClient.ensureQueryData(api.queries.getNote(params.slug, noteNumber))
+  },
   component: UploadNoteAttachmentPage,
 })
 
@@ -15,6 +20,7 @@ function UploadNoteAttachmentPage() {
   const { slug, noteNumber } = Route.useParams()
   const noteNum = Number(noteNumber)
   const space = api.cache.useSpace(slug)
+  const { data: note } = useSuspenseQuery(api.queries.getNote(slug, noteNum))
   const uploadMutation = api.mutations.useUploadNoteAttachment(slug, noteNum)
   const [file, setFile] = useState<File | null>(null)
 
@@ -37,7 +43,7 @@ function UploadNoteAttachmentPage() {
   return (
     <>
       <PageHeader
-        title={`Note #${noteNumber} Upload Attachment`}
+        title={`Upload: ${note.title}`}
         breadcrumbs={[
           { label: "Home", to: "/" },
           { label: `◈ ${space.slug}`, to: "/s/$slug", params: { slug } },

@@ -15,7 +15,8 @@ class SetTemplateRequest(BaseModel):
 
 
 TEMPLATE_KEYS_DOC = """
-Valid template keys:
+Valid template keys (use `:` separator, not `.` — dots conflict with MongoDB nested field syntax):
+- `note:title` — note title (Liquid template, default: "Note #{{ note.number }}")
 - `web:note:detail` — note detail view
 - `web:note:list:{filter}` — note list for a filter (e.g., `web:note:list:all`)
 

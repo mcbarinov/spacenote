@@ -10,6 +10,7 @@ export const Route = createFileRoute("/_auth/s/$slug/$noteNumber/attachments/")(
   loader: async ({ context, params }) => {
     const noteNumber = Number(params.noteNumber)
     await context.queryClient.ensureQueryData(api.queries.listNoteAttachments(params.slug, noteNumber))
+    await context.queryClient.ensureQueryData(api.queries.getNote(params.slug, noteNumber))
   },
   component: NoteAttachmentsPage,
 })
@@ -20,11 +21,12 @@ function NoteAttachmentsPage() {
   const noteNum = Number(noteNumber)
   const space = api.cache.useSpace(slug)
   const { data: attachments } = useSuspenseQuery(api.queries.listNoteAttachments(slug, noteNum))
+  const { data: note } = useSuspenseQuery(api.queries.getNote(slug, noteNum))
 
   return (
     <>
       <PageHeader
-        title={`Note #${noteNumber} Attachments`}
+        title={`Attachments: ${note.title}`}
         breadcrumbs={[
           { label: "Home", to: "/" },
           { label: `◈ ${space.slug}`, to: "/s/$slug", params: { slug } },

@@ -20,7 +20,7 @@ function EditNotePage() {
   return (
     <>
       <PageHeader
-        title={`Edit Note #${String(note.number)}`}
+        title={`Edit: ${note.title}`}
         breadcrumbs={[
           { label: "Home", to: "/" },
           { label: `◈ ${space.slug}`, to: "/s/$slug", params: { slug } },

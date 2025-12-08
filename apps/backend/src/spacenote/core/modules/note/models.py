@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Any
 
 from pydantic import Field
 
@@ -18,3 +19,10 @@ class Note(MongoModel):
     commented_at: datetime | None = None  # Last comment created
     activity_at: datetime = Field(default_factory=now)  # Updated on: field edit, comment create/edit/delete
     fields: dict[str, FieldValueType]  # Values for space-defined fields
+    title: str = ""  # Computed from Space.templates["note:title"], not stored in MongoDB
+
+    def to_mongo(self) -> dict[str, Any]:
+        """Exclude computed title field from MongoDB storage."""
+        data = super().to_mongo()
+        data.pop("title", None)
+        return data

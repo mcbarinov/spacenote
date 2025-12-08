@@ -7,6 +7,7 @@ import { NoteDetailPlayground } from "./-components/NoteDetailPlayground"
 import { NoteDetailTemplateEditor } from "./-components/NoteDetailTemplateEditor"
 import { NoteListPlayground } from "./-components/NoteListPlayground"
 import { NoteListTemplateEditor } from "./-components/NoteListTemplateEditor"
+import { NoteTitleTemplateEditor } from "./-components/NoteTitleTemplateEditor"
 
 export const Route = createFileRoute("/_auth/spaces/$slug/templates/")({
   component: TemplatesPage,
@@ -32,11 +33,15 @@ function TemplatesPage() {
           </Tabs.List>
 
           <Tabs.Panel value="liquid" pt="md">
-            <Tabs defaultValue="detail">
+            <Tabs defaultValue="title">
               <Tabs.List>
+                <Tabs.Tab value="title">Note Title</Tabs.Tab>
                 <Tabs.Tab value="detail">Note Detail</Tabs.Tab>
                 <Tabs.Tab value="list">Note List</Tabs.Tab>
               </Tabs.List>
+              <Tabs.Panel value="title" pt="md">
+                <NoteTitleTemplateEditor spaceSlug={slug} currentContent={space.templates["note:title"] ?? ""} />
+              </Tabs.Panel>
               <Tabs.Panel value="detail" pt="md">
                 <NoteDetailTemplateEditor spaceSlug={slug} currentContent={space.templates["web:note:detail"] ?? ""} />
               </Tabs.Panel>

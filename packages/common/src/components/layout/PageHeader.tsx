@@ -45,11 +45,11 @@ export function PageHeader({ title, breadcrumbs, topActions, actions }: PageHead
       )}
       {actions ? (
         <Group justify="space-between">
-          <Title order={1}>{title}</Title>
+          <Title order={3}>{title}</Title>
           {actions}
         </Group>
       ) : (
-        <Title order={1}>{title}</Title>
+        <Title order={3}>{title}</Title>
       )}
     </Stack>
   )

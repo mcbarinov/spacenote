@@ -593,6 +593,7 @@ export type paths = {
      * @description Set a Liquid template for the space. Admin only.
      *
      *     Valid template keys:
+     *     - `note.title` — note title (Liquid template, default: "Note #{{ note.number }}")
      *     - `web:note:detail` — note detail view
      *     - `web:note:list:{filter}` — note list for a filter (e.g., `web:note:list:all`)
      *
@@ -1061,6 +1062,11 @@ export type components = {
       fields: {
         [key: string]: string | boolean | string[] | number | null
       }
+      /**
+       * Title
+       * @default
+       */
+      title: string
     }
     /**
      * NoteExport

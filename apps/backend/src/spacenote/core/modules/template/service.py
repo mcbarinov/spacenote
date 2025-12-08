@@ -27,12 +27,20 @@ class TemplateService(Service):
                     Template(content)
                 except LiquidError as e:
                     raise ValidationError(f"Invalid Liquid template syntax: {e}") from e
-        elif key != "web:note:detail":
-            if not key.startswith("web:note:list:"):
-                raise ValidationError(f"Invalid template key: {key}")
+        elif key == "web:note:detail":
+            pass
+        elif key.startswith("web:note:list:"):
             filter_name = key.removeprefix("web:note:list:")
             if not filter_name or space.get_filter(filter_name) is None:
                 raise ValidationError(f"Filter '{filter_name}' not found")
+        elif key == "web_react:note:detail":
+            pass
+        elif key.startswith("web_react:note:list:"):
+            filter_name = key.removeprefix("web_react:note:list:")
+            if not filter_name or space.get_filter(filter_name) is None:
+                raise ValidationError(f"Filter '{filter_name}' not found")
+        else:
+            raise ValidationError(f"Invalid template key: {key}")
 
         # Empty content = remove template
         if not content.strip():

@@ -16,9 +16,15 @@ class SetTemplateRequest(BaseModel):
 
 TEMPLATE_KEYS_DOC = """
 Valid template keys (use `:` separator, not `.` — dots conflict with MongoDB nested field syntax):
-- `note:title` — note title (Liquid template, default: "Note #{{ note.number }}")
+
+**Liquid templates** (used by web app):
+- `note:title` — note title (default: "Note #{{ note.number }}")
 - `web:note:detail` — note detail view
 - `web:note:list:{filter}` — note list for a filter (e.g., `web:note:list:all`)
+
+**React templates** (react-live, for admin design preview):
+- `web_react:note:detail` — note detail design
+- `web_react:note:list:{filter}` — note list design for a filter
 
 Empty content removes the template.
 """

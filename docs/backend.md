@@ -185,3 +185,15 @@ IMAGE fields store references to attachments and trigger WebP generation:
 - Background task converts to WebP with optional resize (`max_width`)
 - Storage: `{images_path}/{space_slug}/{note_number}/{attachment_number}`
 - Originals preserved in attachment storage, processed WebP served via API
+
+### Templates
+
+Space templates stored in `templates` dict field:
+
+- `note:title` — Liquid template for note title rendering
+- `web:note:detail` — Liquid template for note detail view
+- `web:note:list:{filter}` — Liquid template for note list with specific filter
+- `web_react:note:detail` — React (react-live) design template for note detail
+- `web_react:note:list:{filter}` — React (react-live) design template for note list
+
+React templates are used in admin for design preview, then manually translated to Liquid.

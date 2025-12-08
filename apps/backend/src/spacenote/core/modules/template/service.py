@@ -20,8 +20,8 @@ class TemplateService(Service):
         space = self.core.services.space.get_space(slug)
 
         # Validate template key
-        if key == "note.title":
-            # Validate Liquid syntax for note.title templates
+        if key == "note:title":
+            # Validate Liquid syntax for note:title templates
             if content.strip():
                 try:
                     Template(content)
@@ -46,7 +46,7 @@ class TemplateService(Service):
 
     def render_note_title(self, space: Space, note: Note) -> str | None:
         """Render note title from template. Returns None on error (uses validator default)."""
-        template_str = space.templates.get("note.title", DEFAULT_TITLE_TEMPLATE)
+        template_str = space.templates.get("note:title", DEFAULT_TITLE_TEMPLATE)
         try:
             template = Template(template_str)
             return template.render(note=note.model_dump(), space=space.model_dump())

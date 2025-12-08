@@ -19,7 +19,7 @@ class Note(MongoModel):
     commented_at: datetime | None = None  # Last comment created
     activity_at: datetime = Field(default_factory=now)  # Updated on: field edit, comment create/edit/delete
     fields: dict[str, FieldValueType]  # Values for space-defined fields
-    title: str = ""  # Computed from Space.templates["note.title"], not stored in MongoDB
+    title: str = ""  # Computed from Space.templates["note:title"], not stored in MongoDB
 
     @model_validator(mode="after")
     def set_default_title(self) -> Self:

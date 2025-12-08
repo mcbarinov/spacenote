@@ -1,13 +1,13 @@
-import { Suspense } from "react"
-import { Stack, Group, Select, Loader, Alert, Button, Divider, Paper, Code, Anchor } from "@mantine/core"
+import { type ReactNode, Suspense } from "react"
+import { Stack, Group, Select, Loader, Alert, Button, Code, Anchor } from "@mantine/core"
 import { useForm } from "@mantine/form"
 import { useDisclosure } from "@mantine/hooks"
 import { notifications } from "@mantine/notifications"
 import { useSuspenseQuery } from "@tanstack/react-query"
-import { LiveProvider, LiveEditor, LivePreview, LiveError } from "react-live"
 import { api } from "@spacenote/common/api"
 import { ErrorMessage } from "@spacenote/common/components"
 import { mantineScope } from "./playgroundScope"
+import { ReactEditor } from "./ReactEditor"
 import { TemplateExampleModal } from "./TemplateExampleModal"
 import { REACT_NOTE_LIST_EXAMPLE } from "./templateExamples"
 
@@ -82,16 +82,19 @@ export function NoteListReactTemplate({ spaceSlug, filters, templates }: NoteLis
                 onChange={(code) => {
                   form.setFieldValue("content", code)
                 }}
+                actions={
+                  <>
+                    {setTemplateMutation.error && <ErrorMessage error={setTemplateMutation.error} />}
+                    <Group justify="flex-end">
+                      <Button type="submit" loading={setTemplateMutation.isPending}>
+                        Save
+                      </Button>
+                    </Group>
+                  </>
+                }
               />
             </Suspense>
           )}
-
-          {setTemplateMutation.error && <ErrorMessage error={setTemplateMutation.error} />}
-          <Group justify="flex-end">
-            <Button type="submit" loading={setTemplateMutation.isPending}>
-              Save
-            </Button>
-          </Group>
         </Stack>
       </form>
     </Stack>
@@ -103,28 +106,16 @@ interface ListEditorProps {
   filter: string
   code: string
   onChange: (code: string) => void
+  actions?: ReactNode
 }
 
 /** Editor that loads notes by filter */
-function ListEditor({ spaceSlug, filter, code, onChange }: ListEditorProps) {
+function ListEditor({ spaceSlug, filter, code, onChange, actions }: ListEditorProps) {
   const space = api.cache.useSpace(spaceSlug)
   const { data: notesList } = useSuspenseQuery(api.queries.listNotes(spaceSlug, filter))
 
   const notes = notesList.items
   const scope = { ...mantineScope, space, notes }
 
-  return (
-    <LiveProvider code={code} scope={scope}>
-      <Stack gap="md">
-        <Paper withBorder p="md">
-          <LiveEditor style={{ fontFamily: "monospace", fontSize: 14 }} onChange={onChange} />
-        </Paper>
-        <Divider label="Preview" />
-        <Paper withBorder p="md">
-          <LiveError />
-          <LivePreview />
-        </Paper>
-      </Stack>
-    </LiveProvider>
-  )
+  return <ReactEditor code={code} scope={scope} onChange={onChange} actions={actions} />
 }

@@ -1,13 +1,13 @@
-import { Suspense, useState, useEffect } from "react"
-import { Stack, Group, Text, NumberInput, Loader, Alert, Button, Divider, Paper, Code, Anchor } from "@mantine/core"
+import { type ReactNode, Suspense, useState, useEffect } from "react"
+import { Stack, Group, Text, NumberInput, Loader, Alert, Button, Code, Anchor } from "@mantine/core"
 import { useForm } from "@mantine/form"
 import { useDisclosure } from "@mantine/hooks"
 import { notifications } from "@mantine/notifications"
 import { useSuspenseQuery } from "@tanstack/react-query"
-import { LiveProvider, LiveEditor, LivePreview, LiveError } from "react-live"
 import { api } from "@spacenote/common/api"
 import { ErrorMessage } from "@spacenote/common/components"
 import { mantineScope } from "./playgroundScope"
+import { ReactEditor } from "./ReactEditor"
 import { TemplateExampleModal } from "./TemplateExampleModal"
 import { REACT_NOTE_DETAIL_EXAMPLE } from "./templateExamples"
 
@@ -77,6 +77,16 @@ export function NoteDetailReactTemplate({ spaceSlug, currentContent }: NoteDetai
                   form.setFieldValue("content", code)
                 }}
                 onNoteLoaded={setLoadedNumber}
+                actions={
+                  <>
+                    {setTemplateMutation.error && <ErrorMessage error={setTemplateMutation.error} />}
+                    <Group justify="flex-end">
+                      <Button type="submit" loading={setTemplateMutation.isPending}>
+                        Save
+                      </Button>
+                    </Group>
+                  </>
+                }
               />
             ) : (
               <SpecificNoteEditor
@@ -87,16 +97,19 @@ export function NoteDetailReactTemplate({ spaceSlug, currentContent }: NoteDetai
                   form.setFieldValue("content", code)
                 }}
                 onNoteLoaded={setLoadedNumber}
+                actions={
+                  <>
+                    {setTemplateMutation.error && <ErrorMessage error={setTemplateMutation.error} />}
+                    <Group justify="flex-end">
+                      <Button type="submit" loading={setTemplateMutation.isPending}>
+                        Save
+                      </Button>
+                    </Group>
+                  </>
+                }
               />
             )}
           </Suspense>
-
-          {setTemplateMutation.error && <ErrorMessage error={setTemplateMutation.error} />}
-          <Group justify="flex-end">
-            <Button type="submit" loading={setTemplateMutation.isPending}>
-              Save
-            </Button>
-          </Group>
         </Stack>
       </form>
     </Stack>
@@ -108,10 +121,11 @@ interface LatestNoteEditorProps {
   code: string
   onChange: (code: string) => void
   onNoteLoaded: (num: number | null) => void
+  actions?: ReactNode
 }
 
 /** Editor that loads the latest note from list */
-function LatestNoteEditor({ spaceSlug, code, onChange, onNoteLoaded }: LatestNoteEditorProps) {
+function LatestNoteEditor({ spaceSlug, code, onChange, onNoteLoaded, actions }: LatestNoteEditorProps) {
   const space = api.cache.useSpace(spaceSlug)
   const { data: notesList } = useSuspenseQuery(api.queries.listNotes(spaceSlug))
 
@@ -126,7 +140,7 @@ function LatestNoteEditor({ spaceSlug, code, onChange, onNoteLoaded }: LatestNot
   const note = notesList.items[0]
   const scope = { ...mantineScope, space, note }
 
-  return <ReactEditor code={code} scope={scope} onChange={onChange} />
+  return <ReactEditor code={code} scope={scope} onChange={onChange} actions={actions} />
 }
 
 interface SpecificNoteEditorProps {
@@ -135,10 +149,11 @@ interface SpecificNoteEditorProps {
   code: string
   onChange: (code: string) => void
   onNoteLoaded: (num: number | null) => void
+  actions?: ReactNode
 }
 
 /** Editor that loads a specific note by number */
-function SpecificNoteEditor({ spaceSlug, noteNumber, code, onChange, onNoteLoaded }: SpecificNoteEditorProps) {
+function SpecificNoteEditor({ spaceSlug, noteNumber, code, onChange, onNoteLoaded, actions }: SpecificNoteEditorProps) {
   const space = api.cache.useSpace(spaceSlug)
   const { data: note } = useSuspenseQuery(api.queries.getNote(spaceSlug, noteNumber))
 
@@ -148,29 +163,5 @@ function SpecificNoteEditor({ spaceSlug, noteNumber, code, onChange, onNoteLoade
 
   const scope = { ...mantineScope, space, note }
 
-  return <ReactEditor code={code} scope={scope} onChange={onChange} />
-}
-
-interface ReactEditorProps {
-  code: string
-  scope: Record<string, unknown>
-  onChange: (code: string) => void
-}
-
-/** Live React editor with preview */
-function ReactEditor({ code, scope, onChange }: ReactEditorProps) {
-  return (
-    <LiveProvider code={code} scope={scope}>
-      <Stack gap="md">
-        <Paper withBorder p="md">
-          <LiveEditor style={{ fontFamily: "monospace", fontSize: 14 }} onChange={onChange} />
-        </Paper>
-        <Divider label="Preview" />
-        <Paper withBorder p="md">
-          <LiveError />
-          <LivePreview />
-        </Paper>
-      </Stack>
-    </LiveProvider>
-  )
+  return <ReactEditor code={code} scope={scope} onChange={onChange} actions={actions} />
 }

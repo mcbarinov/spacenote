@@ -1,7 +1,7 @@
+import { useEffect, useState } from "react"
 import { Alert, Paper } from "@mantine/core"
-import type { NoteDetailContext, NoteListContext } from "@spacenote/common/templates"
+import { renderTemplate, type NoteDetailContext, type NoteListContext } from "@spacenote/common/templates"
 import "@spacenote/common/styles/templates.css"
-import { useTemplatePreview } from "./useTemplatePreview"
 
 interface TemplatePreviewProps {
   template: string
@@ -10,7 +10,21 @@ interface TemplatePreviewProps {
 
 /** Renders Liquid template and displays the result */
 export function TemplatePreview({ template, context }: TemplatePreviewProps) {
-  const { html, error } = useTemplatePreview(template, context)
+  const [html, setHtml] = useState("")
+  const [error, setError] = useState<string>()
+
+  useEffect(() => {
+    let cancelled = false
+    void renderTemplate(template, context).then((result) => {
+      if (!cancelled) {
+        setHtml(result.html)
+        setError(result.error)
+      }
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [template, context])
 
   if (error) {
     return <Alert color="red">{error}</Alert>

@@ -1,20 +1,23 @@
 import { Suspense, useEffect, useState } from "react"
-import { Alert, Button, Code, Divider, Group, Loader, NumberInput, Paper, Stack, Text, Textarea } from "@mantine/core"
+import { Alert, Anchor, Button, Code, Divider, Group, Loader, NumberInput, Stack, Text, Textarea } from "@mantine/core"
 import { useForm } from "@mantine/form"
-import { useDebouncedValue } from "@mantine/hooks"
+import { useDisclosure, useDebouncedValue } from "@mantine/hooks"
 import { notifications } from "@mantine/notifications"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { api } from "@spacenote/common/api"
 import { ErrorMessage } from "@spacenote/common/components"
-import { renderTemplate, type NoteDetailContext } from "@spacenote/common/templates"
+import { TemplateExampleModal } from "./TemplateExampleModal"
+import { LIQUID_NOTE_DETAIL_EXAMPLE } from "./templateExamples"
+import { TemplatePreview } from "./TemplatePreview"
 
-interface NoteTitleTemplateEditorProps {
+interface NoteDetailTemplateProps {
   spaceSlug: string
   currentContent: string
 }
 
-/** Editor for note.title template with live preview */
-export function NoteTitleTemplateEditor({ spaceSlug, currentContent }: NoteTitleTemplateEditorProps) {
+/** Editor for web:note:detail template with live preview */
+export function NoteDetailTemplate({ spaceSlug, currentContent }: NoteDetailTemplateProps) {
+  const [exampleOpened, { open: openExample, close: closeExample }] = useDisclosure(false)
   const form = useForm({
     initialValues: { content: currentContent },
   })
@@ -26,7 +29,7 @@ export function NoteTitleTemplateEditor({ spaceSlug, currentContent }: NoteTitle
 
   const handleSubmit = form.onSubmit((values) => {
     setTemplateMutation.mutate(
-      { key: "note:title", content: values.content },
+      { key: "web:note:detail", content: values.content },
       {
         onSuccess: () => {
           notifications.show({ message: "Template saved", color: "green" })
@@ -37,14 +40,25 @@ export function NoteTitleTemplateEditor({ spaceSlug, currentContent }: NoteTitle
 
   return (
     <Stack gap="md">
+      <Group>
+        <Code>web:note:detail</Code>
+        <Anchor size="sm" onClick={openExample}>
+          Example
+        </Anchor>
+      </Group>
+      <TemplateExampleModal
+        opened={exampleOpened}
+        onClose={closeExample}
+        title="Liquid Note Detail Example"
+        example={LIQUID_NOTE_DETAIL_EXAMPLE}
+      />
       <form onSubmit={handleSubmit}>
         <Stack gap="sm">
           <Textarea
             label="Template content"
-            description="Liquid template for note title. Default: Note #{{ note.number }}"
-            placeholder="Note #{{ note.number }}"
+            description="Liquid template for note detail page"
             {...form.getInputProps("content")}
-            minRows={3}
+            minRows={10}
             autosize
           />
           {setTemplateMutation.error && <ErrorMessage error={setTemplateMutation.error} />}
@@ -74,9 +88,9 @@ export function NoteTitleTemplateEditor({ spaceSlug, currentContent }: NoteTitle
 
       <Suspense fallback={<Loader />}>
         {noteNumber === null ? (
-          <LatestNoteTitlePreview spaceSlug={spaceSlug} template={debouncedContent} onNoteLoaded={setLoadedNumber} />
+          <LatestNotePreview spaceSlug={spaceSlug} template={debouncedContent} onNoteLoaded={setLoadedNumber} />
         ) : (
-          <SpecificNoteTitlePreview
+          <SpecificNotePreview
             spaceSlug={spaceSlug}
             template={debouncedContent}
             noteNumber={noteNumber}
@@ -88,48 +102,14 @@ export function NoteTitleTemplateEditor({ spaceSlug, currentContent }: NoteTitle
   )
 }
 
-interface TitlePreviewProps {
-  template: string
-  context: NoteDetailContext
-}
-
-/** Renders title template as plain text */
-function TitlePreview({ template, context }: TitlePreviewProps) {
-  const [title, setTitle] = useState("")
-  const [error, setError] = useState<string>()
-
-  useEffect(() => {
-    let cancelled = false
-    void renderTemplate(template, context).then((result) => {
-      if (!cancelled) {
-        setTitle(result.html)
-        setError(result.error)
-      }
-    })
-    return () => {
-      cancelled = true
-    }
-  }, [template, context])
-
-  if (error) {
-    return <Alert color="red">{error}</Alert>
-  }
-
-  return (
-    <Paper withBorder p="md">
-      <Code>{title}</Code>
-    </Paper>
-  )
-}
-
-interface LatestNoteTitlePreviewProps {
+interface LatestNotePreviewProps {
   spaceSlug: string
   template: string
   onNoteLoaded: (num: number | null) => void
 }
 
 /** Preview that loads the latest note from list */
-function LatestNoteTitlePreview({ spaceSlug, template, onNoteLoaded }: LatestNoteTitlePreviewProps) {
+function LatestNotePreview({ spaceSlug, template, onNoteLoaded }: LatestNotePreviewProps) {
   const space = api.cache.useSpace(spaceSlug)
   const { data: notesList } = useSuspenseQuery(api.queries.listNotes(spaceSlug))
 
@@ -143,10 +123,10 @@ function LatestNoteTitlePreview({ spaceSlug, template, onNoteLoaded }: LatestNot
 
   const note = notesList.items[0]
 
-  return <TitlePreview template={template} context={{ note, space }} />
+  return <TemplatePreview template={template} context={{ note, space }} />
 }
 
-interface SpecificNoteTitlePreviewProps {
+interface SpecificNotePreviewProps {
   spaceSlug: string
   template: string
   noteNumber: number
@@ -154,7 +134,7 @@ interface SpecificNoteTitlePreviewProps {
 }
 
 /** Preview that loads a specific note by number */
-function SpecificNoteTitlePreview({ spaceSlug, template, noteNumber, onNoteLoaded }: SpecificNoteTitlePreviewProps) {
+function SpecificNotePreview({ spaceSlug, template, noteNumber, onNoteLoaded }: SpecificNotePreviewProps) {
   const space = api.cache.useSpace(spaceSlug)
   const { data: note } = useSuspenseQuery(api.queries.getNote(spaceSlug, noteNumber))
 
@@ -162,5 +142,5 @@ function SpecificNoteTitlePreview({ spaceSlug, template, noteNumber, onNoteLoade
     onNoteLoaded(note.number)
   }, [note, onNoteLoaded])
 
-  return <TitlePreview template={template} context={{ note, space }} />
+  return <TemplatePreview template={template} context={{ note, space }} />
 }

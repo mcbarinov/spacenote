@@ -131,9 +131,7 @@ class NoteService(Service):
     def _set_title(self, note: Note) -> None:
         """Compute and set note title from template."""
         space = self.core.services.space.get_space(note.space_slug)
-        title = self.core.services.template.render_note_title(space, note)
-        if title is not None:
-            note.title = title
+        note.title = self.core.services.template.render_note_title(space, note)
 
     def _set_titles(self, notes: list[Note]) -> None:
         """Compute and set titles for multiple notes. All notes must be from the same space."""
@@ -144,6 +142,4 @@ class NoteService(Service):
             raise ValueError("All notes must be from the same space")
         space = self.core.services.space.get_space(space_slug)
         for note in notes:
-            title = self.core.services.template.render_note_title(space, note)
-            if title is not None:
-                note.title = title
+            note.title = self.core.services.template.render_note_title(space, note)

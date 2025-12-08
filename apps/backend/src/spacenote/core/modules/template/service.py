@@ -44,12 +44,12 @@ class TemplateService(Service):
 
         return space
 
-    def render_note_title(self, space: Space, note: Note) -> str | None:
-        """Render note title from template. Returns None on error (uses validator default)."""
+    def render_note_title(self, space: Space, note: Note) -> str:
+        """Render note title from template."""
         template_str = space.templates.get("note:title", DEFAULT_TITLE_TEMPLATE)
         try:
             template = Template(template_str)
             return template.render(note=note.model_dump(), space=space.model_dump())
         except LiquidError:
             logger.warning("template_render_error", space_slug=space.slug, note_number=note.number)
-            return None
+            return f"Note #{note.number}"

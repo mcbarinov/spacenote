@@ -7,7 +7,6 @@ from pymongo.asynchronous.collection import AsyncCollection
 from spacenote.core.db import Collection
 from spacenote.core.modules.filter.models import ALL_FILTER_NAME, create_default_all_filter
 from spacenote.core.modules.space.models import Space
-from spacenote.core.modules.telegram.models import TelegramSettings
 from spacenote.core.service import Service
 from spacenote.errors import NotFoundError, ValidationError
 
@@ -97,12 +96,6 @@ class SpaceService(Service):
                 raise ValidationError(f"Field '{name}' is required and has no default value, cannot be hidden")
 
         return await self.update_space_document(slug, {"$set": {"hidden_fields_on_create": field_names}})
-
-    async def update_telegram(self, slug: str, telegram: TelegramSettings | None) -> Space:
-        """Update space telegram settings."""
-        self.get_space(slug)
-        value = telegram.model_dump() if telegram else None
-        return await self.update_space_document(slug, {"$set": {"telegram": value}})
 
     async def update_space_document(
         self,

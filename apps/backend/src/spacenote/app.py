@@ -120,11 +120,6 @@ class App:
         await self._core.services.access.ensure_admin(auth_token)
         return await self._core.services.space.update_hidden_fields_on_create(slug, field_names)
 
-    async def update_space_telegram(self, auth_token: AuthToken, slug: str, telegram: TelegramSettings | None) -> Space:
-        """Update space telegram settings (admin only)."""
-        await self._core.services.access.ensure_admin(auth_token)
-        return await self._core.services.space.update_telegram(slug, telegram)
-
     async def delete_space(self, auth_token: AuthToken, slug: str) -> None:
         """Delete space (admin only)."""
         await self._core.services.access.ensure_admin(auth_token)
@@ -165,6 +160,13 @@ class App:
         """Update filter in space (admin only). Returns validated filter."""
         await self._core.services.access.ensure_admin(auth_token)
         return await self._core.services.filter.update_filter(slug, filter_name, new_filter)
+
+    # --- Telegram ---
+
+    async def update_space_telegram(self, auth_token: AuthToken, slug: str, telegram: TelegramSettings | None) -> Space:
+        """Update space telegram settings (admin only)."""
+        await self._core.services.access.ensure_admin(auth_token)
+        return await self._core.services.telegram.update_settings(slug, telegram)
 
     # --- Notes ---
 

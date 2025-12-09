@@ -5,6 +5,8 @@ import structlog
 from pymongo.asynchronous.collection import AsyncCollection
 
 from spacenote.core.db import Collection
+from spacenote.core.modules.space.models import Space
+from spacenote.core.modules.telegram.models import TelegramSettings
 from spacenote.core.service import Service
 
 logger = structlog.get_logger(__name__)
@@ -28,3 +30,9 @@ class TelegramService(Service):
         await self._tasks_collection.create_index([("space_slug", 1), ("note_number", 1), ("task_type", 1)])
         # Mirrors index
         await self._mirrors_collection.create_index([("space_slug", 1), ("note_number", 1)], unique=True)
+
+    async def update_settings(self, slug: str, telegram: TelegramSettings | None) -> Space:
+        """Update space telegram settings."""
+        self.core.services.space.get_space(slug)
+        value = telegram.model_dump() if telegram else None
+        return await self.core.services.space.update_space_document(slug, {"$set": {"telegram": value}})

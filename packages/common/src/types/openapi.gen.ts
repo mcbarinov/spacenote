@@ -560,6 +560,26 @@ export type paths = {
     patch: operations["updateSpaceHiddenFieldsOnCreate"]
     trace?: never
   }
+  "/api/v1/spaces/{slug}/telegram": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    /**
+     * Update space telegram settings
+     * @description Update telegram integration settings for the space. Only accessible by admin users.
+     */
+    patch: operations["updateSpaceTelegram"]
+    trace?: never
+  }
   "/api/v1/spaces/{slug}": {
     parameters: {
       query?: never
@@ -1225,6 +1245,7 @@ export type components = {
       templates: {
         [key: string]: string
       }
+      telegram: components["schemas"]["TelegramSettings"] | null
       /**
        * Created At
        * Format: date-time
@@ -1296,6 +1317,16 @@ export type components = {
       default: string | boolean | string[] | number | null
     }
     /**
+     * TelegramSettings
+     * @description Telegram integration settings for a space.
+     */
+    TelegramSettings: {
+      /** Activity Channel */
+      activity_channel: string | null
+      /** Mirror Channel */
+      mirror_channel: string | null
+    }
+    /**
      * UpdateCommentRequest
      * @description Request to update comment content.
      */
@@ -1351,6 +1382,13 @@ export type components = {
       raw_fields: {
         [key: string]: string
       }
+    }
+    /**
+     * UpdateTelegramRequest
+     * @description Space telegram settings update request.
+     */
+    UpdateTelegramRequest: {
+      telegram?: components["schemas"]["TelegramSettings"] | null
     }
     /**
      * UpdateTitleRequest
@@ -3425,6 +3463,77 @@ export interface operations {
     }
     responses: {
       /** @description Hidden fields on create updated successfully */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["Space"]
+        }
+      }
+      /** @description Invalid request */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Admin privileges required */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Space not found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  updateSpaceTelegram: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        slug: string
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateTelegramRequest"]
+      }
+    }
+    responses: {
+      /** @description Space telegram settings updated successfully */
       200: {
         headers: {
           [name: string]: unknown

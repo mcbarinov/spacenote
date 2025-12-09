@@ -45,3 +45,7 @@ export type ExportData = components["schemas"]["ExportData"]
 
 // Templates
 export type SetTemplateRequest = components["schemas"]["SetTemplateRequest"]
+
+// Telegram
+export type TelegramSettings = components["schemas"]["TelegramSettings"]
+export type UpdateTelegramRequest = components["schemas"]["UpdateTelegramRequest"]

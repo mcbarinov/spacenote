@@ -6,6 +6,7 @@ import { SpaceTabs } from "@/components/SpaceTabs"
 import { DeleteSpace } from "./-components/DeleteSpace"
 import { EditDescription } from "./-components/EditDescription"
 import { EditHiddenFieldsOnCreate } from "./-components/EditHiddenFieldsOnCreate"
+import { EditTelegram } from "./-components/EditTelegram"
 import { EditTitle } from "./-components/EditTitle"
 
 export const Route = createFileRoute("/_auth/spaces/$slug/settings/")({
@@ -27,6 +28,7 @@ function SettingsPage() {
       <EditTitle space={space} />
       <EditDescription space={space} />
       <EditHiddenFieldsOnCreate space={space} />
+      <EditTelegram space={space} />
       <DeleteSpace space={space} />
     </Stack>
   )

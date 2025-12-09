@@ -19,6 +19,7 @@ import type {
   UpdateHiddenFieldsOnCreateRequest,
   UpdateMembersRequest,
   UpdateNoteRequest,
+  UpdateTelegramRequest,
   UpdateTitleRequest,
   User,
 } from "../types"
@@ -293,6 +294,17 @@ export function useSetTemplate(spaceSlug: string) {
   return useMutation({
     mutationFn: ({ key, content }: { key: string } & SetTemplateRequest) =>
       httpClient.put(`api/v1/spaces/${spaceSlug}/templates/${key}`, { json: { content } }).json<Space>(),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["spaces"] })
+    },
+  })
+}
+
+/** Updates space telegram settings */
+export function useUpdateSpaceTelegram(slug: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (data: UpdateTelegramRequest) => httpClient.patch(`api/v1/spaces/${slug}/telegram`, { json: data }).json<Space>(),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["spaces"] })
     },

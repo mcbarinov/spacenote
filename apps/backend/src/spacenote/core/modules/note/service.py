@@ -37,7 +37,7 @@ class NoteService(Service):
         limit: int = 50,
         offset: int = 0,
     ) -> PaginationResult[Note]:
-        """Get paginated notes in space."""
+        """List paginated notes in space."""
         query, sort_spec = self.core.services.filter.build_query(space_slug, filter_name, current_user, adhoc_query)
 
         total = await self._collection.count_documents(query)
@@ -49,7 +49,7 @@ class NoteService(Service):
         return PaginationResult(items=items, total=total, limit=limit, offset=offset)
 
     async def list_all_notes(self, space_slug: str) -> list[Note]:
-        """Get all notes in space without pagination."""
+        """List all notes in space without pagination."""
         cursor = self._collection.find({"space_slug": space_slug}).sort("number", 1)
         notes = await Note.list_cursor(cursor)
         self._set_titles(notes)

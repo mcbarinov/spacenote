@@ -68,10 +68,10 @@ class App:
 
     # --- Users ---
 
-    async def get_all_users(self, auth_token: AuthToken) -> list[UserView]:
-        """Get all users (requires authentication)."""
+    async def list_users(self, auth_token: AuthToken) -> list[UserView]:
+        """List all users (requires authentication)."""
         await self._core.services.access.ensure_authenticated(auth_token)
-        users = self._core.services.user.get_all_users()
+        users = self._core.services.user.list_all_users()
         return [UserView.from_domain(user) for user in users]
 
     async def create_user(self, auth_token: AuthToken, username: str, password: str) -> UserView:
@@ -87,13 +87,13 @@ class App:
 
     # --- Spaces ---
 
-    async def get_spaces(self, auth_token: AuthToken) -> list[Space]:
-        """Get spaces - all for admin, only member spaces for users."""
+    async def list_spaces(self, auth_token: AuthToken) -> list[Space]:
+        """List spaces - all for admin, only member spaces for users."""
         user = await self._core.services.access.ensure_authenticated(auth_token)
 
         if user.username == "admin":
-            return self._core.services.space.get_all_spaces()
-        return self._core.services.space.get_user_spaces(user.username)
+            return self._core.services.space.list_all_spaces()
+        return self._core.services.space.list_user_spaces(user.username)
 
     async def create_space(self, auth_token: AuthToken, slug: str, title: str, description: str, members: list[str]) -> Space:
         """Create new space (admin only)."""
@@ -168,7 +168,7 @@ class App:
         await self._core.services.access.ensure_admin(auth_token)
         return await self._core.services.telegram.update_settings(slug, telegram)
 
-    async def get_telegram_tasks(
+    async def list_telegram_tasks(
         self,
         auth_token: AuthToken,
         space_slug: str | None = None,
@@ -177,13 +177,13 @@ class App:
         limit: int = 50,
         offset: int = 0,
     ) -> PaginationResult[TelegramTask]:
-        """Get telegram tasks (admin only)."""
+        """List telegram tasks (admin only)."""
         await self._core.services.access.ensure_admin(auth_token)
         return await self._core.services.telegram.list_tasks(space_slug, task_type, status, limit, offset)
 
     # --- Notes ---
 
-    async def get_notes(
+    async def list_notes(
         self,
         auth_token: AuthToken,
         space_slug: str,
@@ -192,7 +192,7 @@ class App:
         limit: int = 50,
         offset: int = 0,
     ) -> PaginationResult[Note]:
-        """Get paginated notes in space (members and admin)."""
+        """List paginated notes in space (members and admin)."""
         user = await self._core.services.access.ensure_space_reader(auth_token, space_slug)
         return await self._core.services.note.list_notes(space_slug, user.username, filter_name, adhoc_query, limit, offset)
 
@@ -213,10 +213,10 @@ class App:
 
     # --- Comments ---
 
-    async def get_comments(
+    async def list_comments(
         self, auth_token: AuthToken, space_slug: str, note_number: int, limit: int = 50, offset: int = 0
     ) -> PaginationResult[Comment]:
-        """Get paginated comments for a note (members and admin)."""
+        """List paginated comments for a note (members and admin)."""
         await self._core.services.access.ensure_space_reader(auth_token, space_slug)
         return await self._core.services.comment.list_comments(space_slug, note_number, limit, offset)
 
@@ -271,13 +271,13 @@ class App:
             space_slug, note_number, user.username, filename, content, mime_type
         )
 
-    async def get_space_attachments(self, auth_token: AuthToken, space_slug: str) -> list[Attachment]:
-        """Get all space-level attachments (members and admin)."""
+    async def list_space_attachments(self, auth_token: AuthToken, space_slug: str) -> list[Attachment]:
+        """List space-level attachments (members and admin)."""
         await self._core.services.access.ensure_space_reader(auth_token, space_slug)
         return await self._core.services.attachment.list_space_attachments(space_slug)
 
-    async def get_note_attachments(self, auth_token: AuthToken, space_slug: str, note_number: int) -> list[Attachment]:
-        """Get all attachments for a note (members and admin)."""
+    async def list_note_attachments(self, auth_token: AuthToken, space_slug: str, note_number: int) -> list[Attachment]:
+        """List note attachments (members and admin)."""
         await self._core.services.access.ensure_space_reader(auth_token, space_slug)
         return await self._core.services.attachment.list_note_attachments(space_slug, note_number)
 

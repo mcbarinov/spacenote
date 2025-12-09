@@ -113,7 +113,7 @@ async def list_space_attachments(
     app: AppDep,
     auth_token: AuthTokenDep,
 ) -> list[Attachment]:
-    return await app.get_space_attachments(auth_token, space_slug)
+    return await app.list_space_attachments(auth_token, space_slug)
 
 
 @router.get(
@@ -133,7 +133,7 @@ async def list_note_attachments(
     app: AppDep,
     auth_token: AuthTokenDep,
 ) -> list[Attachment]:
-    return await app.get_note_attachments(auth_token, space_slug, note_number)
+    return await app.list_note_attachments(auth_token, space_slug, note_number)
 
 
 @router.get(

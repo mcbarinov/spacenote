@@ -35,8 +35,8 @@ class UserService(Service):
         """Check if user exists by username."""
         return username in self._users
 
-    def get_all_users(self) -> list[User]:
-        """Get all users from cache."""
+    def list_all_users(self) -> list[User]:
+        """List all users from cache."""
         return list(self._users.values())
 
     def get_user_cache(self) -> MappingProxyType[str, User]:

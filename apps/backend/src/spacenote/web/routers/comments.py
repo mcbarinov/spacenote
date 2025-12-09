@@ -44,7 +44,7 @@ async def list_comments(
     limit: Annotated[int, Query(ge=1, le=100, description="Maximum items to return")] = 50,
     offset: Annotated[int, Query(ge=0, description="Number of items to skip")] = 0,
 ) -> PaginationResult[Comment]:
-    return await app.get_comments(auth_token, space_slug, note_number, limit, offset)
+    return await app.list_comments(auth_token, space_slug, note_number, limit, offset)
 
 
 @router.get(

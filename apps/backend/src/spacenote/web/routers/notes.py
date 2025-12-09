@@ -50,7 +50,7 @@ async def list_notes(
     limit: Annotated[int, Query(ge=1, le=100, description="Maximum items to return")] = 50,
     offset: Annotated[int, Query(ge=0, description="Number of items to skip")] = 0,
 ) -> PaginationResult[Note]:
-    return await app.get_notes(auth_token, space_slug, filter_name, q, limit, offset)
+    return await app.list_notes(auth_token, space_slug, filter_name, q, limit, offset)
 
 
 @router.get(

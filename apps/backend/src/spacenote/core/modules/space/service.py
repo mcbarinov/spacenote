@@ -33,12 +33,12 @@ class SpaceService(Service):
         """Check if space exists by slug."""
         return slug in self._spaces
 
-    def get_all_spaces(self) -> list[Space]:
-        """Get all spaces from cache."""
+    def list_all_spaces(self) -> list[Space]:
+        """List all spaces from cache."""
         return list(self._spaces.values())
 
-    def get_user_spaces(self, username: str) -> list[Space]:
-        """Get spaces where user is a member."""
+    def list_user_spaces(self, username: str) -> list[Space]:
+        """List spaces where user is a member."""
         return [space for space in self._spaces.values() if username in space.members]
 
     async def create_space(self, slug: str, title: str, description: str, members: list[str]) -> Space:

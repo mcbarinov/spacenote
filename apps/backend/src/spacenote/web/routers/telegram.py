@@ -40,16 +40,16 @@ async def update_space_telegram(
 
 @router.get(
     "/telegram/tasks",
-    summary="Get telegram tasks",
+    summary="List telegram tasks",
     description="Get paginated telegram task history with optional filters. Admin only.",
-    operation_id="getTelegramTasks",
+    operation_id="listTelegramTasks",
     responses={
         200: {"description": "Paginated list of telegram tasks"},
         401: {"model": ErrorResponse, "description": "Not authenticated"},
         403: {"model": ErrorResponse, "description": "Admin privileges required"},
     },
 )
-async def get_telegram_tasks(
+async def list_telegram_tasks(
     app: AppDep,
     auth_token: AuthTokenDep,
     space_slug: Annotated[str | None, Query(description="Filter by space slug")] = None,
@@ -58,4 +58,4 @@ async def get_telegram_tasks(
     limit: Annotated[int, Query(ge=1, le=100, description="Maximum items to return")] = 50,
     offset: Annotated[int, Query(ge=0, description="Number of items to skip")] = 0,
 ) -> PaginationResult[TelegramTask]:
-    return await app.get_telegram_tasks(auth_token, space_slug, task_type, status, limit, offset)
+    return await app.list_telegram_tasks(auth_token, space_slug, task_type, status, limit, offset)

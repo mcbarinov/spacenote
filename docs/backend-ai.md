@@ -10,6 +10,10 @@ Rules for AI agents working on the backend codebase.
 
 - **Document TYPE_CHECKING usage** — When using `from __future__ import annotations` with `if TYPE_CHECKING:` blocks, always add a comment explaining why it's needed (circular imports, performance, optional dependency, etc.).
 
+## Naming
+
+- **`list_*` for collections, `get_*` for single items** — Methods returning multiple items use `list_` prefix (e.g., `list_notes()`), methods returning one item by identifier use `get_` prefix (e.g., `get_note()`).
+
 ## API Models
 
 - **All API models must inherit from `OpenAPIModel`** — Models used in router signatures (request/response types) must inherit from `OpenAPIModel` or its descendants (`MongoModel`). This ensures consistent OpenAPI schema generation without `-Input`/`-Output` suffixes.

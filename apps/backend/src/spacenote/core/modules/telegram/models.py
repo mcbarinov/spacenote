@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import StrEnum
-from typing import Any, Literal
+from typing import Any
 
 from pydantic import Field
 
@@ -31,6 +31,12 @@ class TelegramTaskType(StrEnum):
     MIRROR_UPDATE = "mirror_update"
 
 
+class TelegramTaskStatus(StrEnum):
+    PENDING = "pending"
+    COMPLETED = "completed"
+    FAILED = "failed"
+
+
 class TelegramTask(MongoModel):
     """Task for Telegram message delivery. Processed by single worker."""
 
@@ -40,7 +46,7 @@ class TelegramTask(MongoModel):
     note_number: int | None = None  # None for space-level events (future)
     payload: dict[str, Any] = Field(default_factory=dict, description="Context for template rendering")
 
-    status: Literal["pending", "completed", "failed"] = "pending"
+    status: TelegramTaskStatus = TelegramTaskStatus.PENDING
     created_at: datetime = Field(default_factory=now)
     attempted_at: datetime | None = None  # Last API call time
 

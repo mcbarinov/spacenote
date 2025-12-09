@@ -14,7 +14,7 @@ from spacenote.core.modules.image.processor import WebpOptions
 from spacenote.core.modules.note.models import Note
 from spacenote.core.modules.session.models import AuthToken
 from spacenote.core.modules.space.models import Space
-from spacenote.core.modules.telegram.models import TelegramSettings
+from spacenote.core.modules.telegram.models import TelegramSettings, TelegramTask, TelegramTaskStatus, TelegramTaskType
 from spacenote.core.modules.user.models import UserView
 from spacenote.core.pagination import PaginationResult
 from spacenote.errors import AuthenticationError
@@ -167,6 +167,19 @@ class App:
         """Update space telegram settings (admin only)."""
         await self._core.services.access.ensure_admin(auth_token)
         return await self._core.services.telegram.update_settings(slug, telegram)
+
+    async def get_telegram_tasks(
+        self,
+        auth_token: AuthToken,
+        space_slug: str | None = None,
+        task_type: TelegramTaskType | None = None,
+        status: TelegramTaskStatus | None = None,
+        limit: int = 50,
+        offset: int = 0,
+    ) -> PaginationResult[TelegramTask]:
+        """Get telegram tasks (admin only)."""
+        await self._core.services.access.ensure_admin(auth_token)
+        return await self._core.services.telegram.list_tasks(space_slug, task_type, status, limit, offset)
 
     # --- Notes ---
 

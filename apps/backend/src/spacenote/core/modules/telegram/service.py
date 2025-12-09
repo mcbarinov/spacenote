@@ -12,7 +12,8 @@ from spacenote.core.modules.comment.models import Comment
 from spacenote.core.modules.note.models import Note
 from spacenote.core.modules.space.models import Space
 from spacenote.core.modules.telegram import sender
-from spacenote.core.modules.telegram.models import TelegramSettings, TelegramTask, TelegramTaskType
+from spacenote.core.modules.telegram.models import TelegramSettings, TelegramTask, TelegramTaskStatus, TelegramTaskType
+from spacenote.core.pagination import PaginationResult
 from spacenote.core.service import Service
 from telegram.error import RetryAfter, TelegramError
 
@@ -50,6 +51,28 @@ class TelegramService(Service):
         self.core.services.space.get_space(slug)
         value = telegram.model_dump() if telegram else None
         return await self.core.services.space.update_space_document(slug, {"$set": {"telegram": value}})
+
+    async def list_tasks(
+        self,
+        space_slug: str | None = None,
+        task_type: TelegramTaskType | None = None,
+        status: TelegramTaskStatus | None = None,
+        limit: int = 50,
+        offset: int = 0,
+    ) -> PaginationResult[TelegramTask]:
+        """List telegram tasks with optional filters."""
+        query: dict[str, Any] = {}
+        if space_slug:
+            query["space_slug"] = space_slug
+        if task_type:
+            query["task_type"] = task_type
+        if status:
+            query["status"] = status
+
+        total = await self._tasks_collection.count_documents(query)
+        cursor = self._tasks_collection.find(query).sort("created_at", -1).skip(offset).limit(limit)
+        items = await TelegramTask.list_cursor(cursor)
+        return PaginationResult(items=items, total=total, limit=limit, offset=offset)
 
     # --- Activity notifications ---
 

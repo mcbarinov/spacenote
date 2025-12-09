@@ -1,8 +1,11 @@
-from fastapi import APIRouter
+from typing import Annotated
+
+from fastapi import APIRouter, Query
 from pydantic import BaseModel
 
 from spacenote.core.modules.space.models import Space
-from spacenote.core.modules.telegram.models import TelegramSettings
+from spacenote.core.modules.telegram.models import TelegramSettings, TelegramTask, TelegramTaskStatus, TelegramTaskType
+from spacenote.core.pagination import PaginationResult
 from spacenote.web.deps import AppDep, AuthTokenDep
 from spacenote.web.openapi import ErrorResponse
 
@@ -33,3 +36,26 @@ async def update_space_telegram(
 ) -> Space:
     """Update space telegram settings (admin only)."""
     return await app.update_space_telegram(auth_token, space_slug, update_data.telegram)
+
+
+@router.get(
+    "/telegram/tasks",
+    summary="Get telegram tasks",
+    description="Get paginated telegram task history with optional filters. Admin only.",
+    operation_id="getTelegramTasks",
+    responses={
+        200: {"description": "Paginated list of telegram tasks"},
+        401: {"model": ErrorResponse, "description": "Not authenticated"},
+        403: {"model": ErrorResponse, "description": "Admin privileges required"},
+    },
+)
+async def get_telegram_tasks(
+    app: AppDep,
+    auth_token: AuthTokenDep,
+    space_slug: Annotated[str | None, Query(description="Filter by space slug")] = None,
+    task_type: Annotated[TelegramTaskType | None, Query(description="Filter by task type")] = None,
+    status: Annotated[TelegramTaskStatus | None, Query(description="Filter by status")] = None,
+    limit: Annotated[int, Query(ge=1, le=100, description="Maximum items to return")] = 50,
+    offset: Annotated[int, Query(ge=0, description="Number of items to skip")] = 0,
+) -> PaginationResult[TelegramTask]:
+    return await app.get_telegram_tasks(auth_token, space_slug, task_type, status, limit, offset)

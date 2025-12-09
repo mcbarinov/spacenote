@@ -10,6 +10,7 @@ class CounterType(StrEnum):
     COMMENT = "comment"
     PENDING_ATTACHMENT = "pending_attachment"
     ATTACHMENT = "attachment"
+    TELEGRAM_TASK = "telegram_task"
 
 
 class Counter(MongoModel):

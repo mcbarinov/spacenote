@@ -59,3 +59,19 @@ async def list_telegram_tasks(
     offset: Annotated[int, Query(ge=0, description="Number of items to skip")] = 0,
 ) -> PaginationResult[TelegramTask]:
     return await app.list_telegram_tasks(auth_token, space_slug, task_type, status, limit, offset)
+
+
+@router.get(
+    "/spaces/{space_slug}/telegram/tasks/{number}",
+    summary="Get telegram task",
+    description="Get a single telegram task by space and number. Admin only.",
+    operation_id="getTelegramTask",
+    responses={
+        200: {"description": "Telegram task details"},
+        401: {"model": ErrorResponse, "description": "Not authenticated"},
+        403: {"model": ErrorResponse, "description": "Admin privileges required"},
+        404: {"model": ErrorResponse, "description": "Task not found"},
+    },
+)
+async def get_telegram_task(space_slug: str, number: int, app: AppDep, auth_token: AuthTokenDep) -> TelegramTask:
+    return await app.get_telegram_task(auth_token, space_slug, number)

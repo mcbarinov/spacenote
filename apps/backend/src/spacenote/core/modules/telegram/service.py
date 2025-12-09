@@ -4,17 +4,18 @@ from functools import cached_property
 from typing import Any
 
 import structlog
-from bson import ObjectId
 from pymongo.asynchronous.collection import AsyncCollection
 
 from spacenote.core.db import Collection
 from spacenote.core.modules.comment.models import Comment
+from spacenote.core.modules.counter.models import CounterType
 from spacenote.core.modules.note.models import Note
 from spacenote.core.modules.space.models import Space
 from spacenote.core.modules.telegram import sender
 from spacenote.core.modules.telegram.models import TelegramSettings, TelegramTask, TelegramTaskStatus, TelegramTaskType
 from spacenote.core.pagination import PaginationResult
 from spacenote.core.service import Service
+from spacenote.errors import NotFoundError
 from telegram.error import RetryAfter, TelegramError
 
 logger = structlog.get_logger(__name__)
@@ -37,8 +38,8 @@ class TelegramService(Service):
     async def on_start(self) -> None:
         """Create indexes and start worker if token configured."""
         # Tasks indexes
+        await self._tasks_collection.create_index([("space_slug", 1), ("number", 1)], unique=True)
         await self._tasks_collection.create_index([("status", 1), ("created_at", 1)])
-        await self._tasks_collection.create_index([("space_slug", 1), ("note_number", 1), ("task_type", 1)])
         # Mirrors index
         await self._mirrors_collection.create_index([("space_slug", 1), ("note_number", 1)], unique=True)
 
@@ -51,6 +52,13 @@ class TelegramService(Service):
         self.core.services.space.get_space(slug)
         value = telegram.model_dump() if telegram else None
         return await self.core.services.space.update_space_document(slug, {"$set": {"telegram": value}})
+
+    async def get_task(self, space_slug: str, number: int) -> TelegramTask:
+        """Get telegram task by natural key."""
+        doc = await self._tasks_collection.find_one({"space_slug": space_slug, "number": number})
+        if not doc:
+            raise NotFoundError(f"Telegram task {space_slug}#{number} not found")
+        return TelegramTask.model_validate(doc)
 
     async def list_tasks(
         self,
@@ -102,7 +110,9 @@ class TelegramService(Service):
         if not space.telegram or not space.telegram.activity_channel:
             return
 
+        number = await self.core.services.counter.get_next_sequence(space_slug, CounterType.TELEGRAM_TASK)
         task = TelegramTask(
+            number=number,
             task_type=task_type,
             channel_id=space.telegram.activity_channel,
             space_slug=space_slug,
@@ -110,7 +120,7 @@ class TelegramService(Service):
             payload=payload,
         )
         await self._tasks_collection.insert_one(task.to_mongo())
-        logger.debug("telegram_task_created", task_type=task.task_type, space_slug=space_slug, note_number=note_number)
+        logger.debug("telegram_task_created", task_type=task.task_type, space_slug=space_slug, number=number)
 
     # --- Mirror notifications ---
 
@@ -163,8 +173,8 @@ class TelegramService(Service):
                 chat_id=task.channel_id,
                 text=text,
             )
-            await self._tasks_collection.update_one({"_id": ObjectId(task.id)}, {"$set": {"status": "completed"}})
-            logger.debug("telegram_task_completed", task_type=task.task_type, space_slug=task.space_slug)
+            await self._update_task(task, {"$set": {"status": "completed"}})
+            logger.debug("telegram_task_completed", task_type=task.task_type, space_slug=task.space_slug, number=task.number)
         except RetryAfter as e:
             retry_seconds = e.retry_after if isinstance(e.retry_after, int) else e.retry_after.total_seconds()
             logger.warning("telegram_rate_limit", retry_after=retry_seconds)
@@ -181,11 +191,13 @@ class TelegramService(Service):
             await self._mark_failed(task, str(error))
             logger.error("telegram_task_failed", task_type=task.task_type, error=str(error))
         else:
-            await self._tasks_collection.update_one(
-                {"_id": ObjectId(task.id)}, {"$set": {"status": "pending", "error": str(error)}, "$inc": {"retries": 1}}
-            )
+            await self._update_task(task, {"$set": {"status": "pending", "error": str(error)}, "$inc": {"retries": 1}})
             logger.warning("telegram_task_retry", task_type=task.task_type, retries=task.retries + 1, error=str(error))
 
     async def _mark_failed(self, task: TelegramTask, error: str) -> None:
         """Mark task as failed."""
-        await self._tasks_collection.update_one({"_id": ObjectId(task.id)}, {"$set": {"status": "failed", "error": error}})
+        await self._update_task(task, {"$set": {"status": "failed", "error": error}})
+
+    async def _update_task(self, task: TelegramTask, update: dict[str, Any]) -> None:
+        """Update task by natural key."""
+        await self._tasks_collection.update_one({"space_slug": task.space_slug, "number": task.number}, update)

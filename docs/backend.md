@@ -77,6 +77,31 @@
 - Natural key: `(space_slug, note_number, number)`
 - Storage: `{space_slug}/{note_number}/{number}` or `{space_slug}/__space__/{number}`
 
+#### `telegram_tasks`
+- `_id`: ObjectId (surrogate key, MongoDB internal use only)
+- `space_slug`: string (references space)
+- `number`: integer (sequential per space)
+- `task_type`: string (activity_note_created, activity_note_updated, activity_comment_created, mirror_create, mirror_update)
+- `channel_id`: string (Telegram channel ID or @username)
+- `note_number`: integer | null (references note, null for space-level events)
+- `payload`: object (context for template rendering)
+- `status`: string (pending, completed, failed)
+- `created_at`: datetime
+- `attempted_at`: datetime | null
+- `retries`: integer
+- `error`: string | null
+- Natural key: `(space_slug, number)`
+
+#### `telegram_mirrors`
+- `_id`: ObjectId (surrogate key, MongoDB internal use only)
+- `space_slug`: string (references space)
+- `note_number`: integer (references note)
+- `channel_id`: string (Telegram channel ID or @username)
+- `message_id`: integer (Telegram message ID)
+- `created_at`: datetime
+- `updated_at`: datetime | null
+- Natural key: `(space_slug, note_number)`
+
 ## Architecture Decisions
 
 ### Natural Keys vs Surrogate Keys
@@ -86,6 +111,10 @@
 - `User` → identified by `username`
 - `Space` → identified by `slug`
 - `Note` → identified by `space_slug + number`
+- `Comment` → identified by `space_slug + note_number + number`
+- `Attachment` → identified by `space_slug + note_number + number`
+- `TelegramTask` → identified by `space_slug + number`
+- `TelegramMirror` → identified by `space_slug + note_number`
 
 **Surrogate keys**: `_id: ObjectId` exists in all MongoDB documents but is used only internally by MongoDB, never in application code or API endpoints.
 

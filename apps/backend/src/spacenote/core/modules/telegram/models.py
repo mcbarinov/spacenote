@@ -40,6 +40,7 @@ class TelegramTaskStatus(StrEnum):
 class TelegramTask(MongoModel):
     """Task for Telegram message delivery. Processed by single worker."""
 
+    number: int  # Sequential per space, unique with space_slug
     task_type: TelegramTaskType
     channel_id: str = Field(description="Telegram channel ID or @username")
     space_slug: str

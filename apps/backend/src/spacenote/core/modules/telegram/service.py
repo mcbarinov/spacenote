@@ -5,7 +5,6 @@ from typing import Any
 
 import structlog
 from bson import ObjectId
-from liquid import Template
 from pymongo.asynchronous.collection import AsyncCollection
 
 from spacenote.core.db import Collection
@@ -18,12 +17,6 @@ from spacenote.core.service import Service
 from telegram.error import RetryAfter, TelegramError
 
 logger = structlog.get_logger(__name__)
-
-DEFAULT_TELEGRAM_TEMPLATES = {
-    "telegram:activity_note_created": "📝 New note #{{ note.number }}\n{{ note.title }}\nby {{ note.author }}",
-    "telegram:activity_note_updated": "✏️ Note #{{ note.number }} updated\n{{ note.title }}",
-    "telegram:activity_comment_created": "💬 Comment on #{{ note.number }}\n{{ comment.content }}\nby {{ comment.author }}",
-}
 
 
 class TelegramService(Service):
@@ -135,8 +128,13 @@ class TelegramService(Service):
 
     async def _process_task(self, task: TelegramTask) -> None:
         """Process single task: render template, send to Telegram."""
+        space = self.core.services.space.get_space(task.space_slug)
+        template_key = f"telegram:{task.task_type}"
+        text = self.core.services.template.render_telegram(space, template_key, task.payload)
+        if not text:
+            raise ValueError(f"No template found for {template_key}")
+
         try:
-            text = self._render_message(task)
             await sender.send_message(
                 token=self.core.config.telegram_bot_token,  # type: ignore[arg-type]
                 chat_id=task.channel_id,
@@ -153,16 +151,6 @@ class TelegramService(Service):
         except Exception as e:
             logger.exception("telegram_task_unhandled_error", task_type=task.task_type, error=str(e))
             await self._mark_failed(task, f"Unhandled error: {e}")
-
-    def _render_message(self, task: TelegramTask) -> str:
-        """Render message from template."""
-        space = self.core.services.space.get_space(task.space_slug)
-        template_key = f"telegram:{task.task_type}"
-        template_str = space.templates.get(template_key) or DEFAULT_TELEGRAM_TEMPLATES.get(template_key)
-        if not template_str:
-            raise ValueError(f"No template found for {template_key}")
-        template = Template(template_str)
-        return template.render(**task.payload)
 
     async def _handle_error(self, task: TelegramTask, error: Exception) -> None:
         """Handle task error with retry logic."""

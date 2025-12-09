@@ -1,6 +1,6 @@
-import { createFileRoute, Link } from "@tanstack/react-router"
-import { Button, Group, Paper, Stack, Text } from "@mantine/core"
-import { PageHeader } from "@spacenote/common/components"
+import { createFileRoute } from "@tanstack/react-router"
+import { Group, Paper, Stack, Text } from "@mantine/core"
+import { LinkButton, PageHeader } from "@spacenote/common/components"
 
 export const Route = createFileRoute("/_auth/")({
   component: HomePage,
@@ -17,12 +17,9 @@ function HomePage() {
           <Text>Manage your Spacenote instance from this admin panel.</Text>
 
           <Group>
-            <Button component={Link} to="/users">
-              Manage Users
-            </Button>
-            <Button component={Link} to="/spaces">
-              Manage Spaces
-            </Button>
+            <LinkButton to="/users">Manage Users</LinkButton>
+            <LinkButton to="/spaces">Manage Spaces</LinkButton>
+            <LinkButton to="/telegram/tasks">Telegram</LinkButton>
           </Group>
         </Stack>
       </Paper>

@@ -17,6 +17,7 @@ import { Route as AuthSpacesIndexRouteImport } from './routes/_auth/spaces/index
 import { Route as AuthUsersNewRouteImport } from './routes/_auth/users/new'
 import { Route as AuthSpacesNewRouteImport } from './routes/_auth/spaces/new'
 import { Route as AuthSpacesImportRouteImport } from './routes/_auth/spaces/import'
+import { Route as AuthTelegramTasksRouteRouteImport } from './routes/_auth/telegram/tasks/route'
 import { Route as AuthSpacesSlugMembersRouteRouteImport } from './routes/_auth/spaces/$slug/members/route'
 import { Route as AuthSpacesSlugTemplatesIndexRouteImport } from './routes/_auth/spaces/$slug/templates/index'
 import { Route as AuthSpacesSlugSettingsIndexRouteImport } from './routes/_auth/spaces/$slug/settings/index'
@@ -64,6 +65,11 @@ const AuthSpacesNewRoute = AuthSpacesNewRouteImport.update({
 const AuthSpacesImportRoute = AuthSpacesImportRouteImport.update({
   id: '/spaces/import',
   path: '/spaces/import',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
+const AuthTelegramTasksRouteRoute = AuthTelegramTasksRouteRouteImport.update({
+  id: '/telegram/tasks',
+  path: '/telegram/tasks',
   getParentRoute: () => AuthRouteRoute,
 } as any)
 const AuthSpacesSlugMembersRouteRoute =
@@ -123,6 +129,7 @@ const AuthSpacesSlugFiltersFilterNameEditRoute =
 export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/': typeof AuthIndexRoute
+  '/telegram/tasks': typeof AuthTelegramTasksRouteRoute
   '/spaces/import': typeof AuthSpacesImportRoute
   '/spaces/new': typeof AuthSpacesNewRoute
   '/users/new': typeof AuthUsersNewRoute
@@ -141,6 +148,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/': typeof AuthIndexRoute
+  '/telegram/tasks': typeof AuthTelegramTasksRouteRoute
   '/spaces/import': typeof AuthSpacesImportRoute
   '/spaces/new': typeof AuthSpacesNewRoute
   '/users/new': typeof AuthUsersNewRoute
@@ -161,6 +169,7 @@ export interface FileRoutesById {
   '/_auth': typeof AuthRouteRouteWithChildren
   '/login': typeof LoginRoute
   '/_auth/': typeof AuthIndexRoute
+  '/_auth/telegram/tasks': typeof AuthTelegramTasksRouteRoute
   '/_auth/spaces/import': typeof AuthSpacesImportRoute
   '/_auth/spaces/new': typeof AuthSpacesNewRoute
   '/_auth/users/new': typeof AuthUsersNewRoute
@@ -181,6 +190,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/login'
     | '/'
+    | '/telegram/tasks'
     | '/spaces/import'
     | '/spaces/new'
     | '/users/new'
@@ -199,6 +209,7 @@ export interface FileRouteTypes {
   to:
     | '/login'
     | '/'
+    | '/telegram/tasks'
     | '/spaces/import'
     | '/spaces/new'
     | '/users/new'
@@ -218,6 +229,7 @@ export interface FileRouteTypes {
     | '/_auth'
     | '/login'
     | '/_auth/'
+    | '/_auth/telegram/tasks'
     | '/_auth/spaces/import'
     | '/_auth/spaces/new'
     | '/_auth/users/new'
@@ -297,6 +309,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthSpacesImportRouteImport
       parentRoute: typeof AuthRouteRoute
     }
+    '/_auth/telegram/tasks': {
+      id: '/_auth/telegram/tasks'
+      path: '/telegram/tasks'
+      fullPath: '/telegram/tasks'
+      preLoaderRoute: typeof AuthTelegramTasksRouteRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
     '/_auth/spaces/$slug/members': {
       id: '/_auth/spaces/$slug/members'
       path: '/spaces/$slug/members'
@@ -365,6 +384,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthRouteRouteChildren {
   AuthIndexRoute: typeof AuthIndexRoute
+  AuthTelegramTasksRouteRoute: typeof AuthTelegramTasksRouteRoute
   AuthSpacesImportRoute: typeof AuthSpacesImportRoute
   AuthSpacesNewRoute: typeof AuthSpacesNewRoute
   AuthUsersNewRoute: typeof AuthUsersNewRoute
@@ -383,6 +403,7 @@ interface AuthRouteRouteChildren {
 
 const AuthRouteRouteChildren: AuthRouteRouteChildren = {
   AuthIndexRoute: AuthIndexRoute,
+  AuthTelegramTasksRouteRoute: AuthTelegramTasksRouteRoute,
   AuthSpacesImportRoute: AuthSpacesImportRoute,
   AuthSpacesNewRoute: AuthSpacesNewRoute,
   AuthUsersNewRoute: AuthUsersNewRoute,

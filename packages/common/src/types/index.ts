@@ -49,3 +49,16 @@ export type SetTemplateRequest = components["schemas"]["SetTemplateRequest"]
 // Telegram
 export type TelegramSettings = components["schemas"]["TelegramSettings"]
 export type UpdateTelegramRequest = components["schemas"]["UpdateTelegramRequest"]
+export type TelegramTask = components["schemas"]["TelegramTask"]
+export type TelegramTaskStatus = components["schemas"]["TelegramTaskStatus"]
+export type TelegramTaskType = components["schemas"]["TelegramTaskType"]
+export type TelegramTasksList = components["schemas"]["PaginationResult_TelegramTask_"]
+
+export const TELEGRAM_TASK_STATUSES: TelegramTaskStatus[] = ["pending", "completed", "failed"]
+export const TELEGRAM_TASK_TYPES: TelegramTaskType[] = [
+  "activity_note_created",
+  "activity_note_updated",
+  "activity_comment_created",
+  "mirror_create",
+  "mirror_update",
+]

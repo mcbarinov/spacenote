@@ -1,3 +1,5 @@
+from typing import Any
+
 import structlog
 from liquid import Template
 from liquid.exceptions import LiquidError
@@ -39,6 +41,13 @@ class TemplateService(Service):
             filter_name = key.removeprefix("web_react:note:list:")
             if not filter_name or space.get_filter(filter_name) is None:
                 raise ValidationError(f"Filter '{filter_name}' not found")
+        elif key.startswith("telegram:"):
+            # Telegram templates - validate Liquid syntax
+            if content.strip():
+                try:
+                    Template(content)
+                except LiquidError as e:
+                    raise ValidationError(f"Invalid Liquid template syntax: {e}") from e
         else:
             raise ValidationError(f"Invalid template key: {key}")
 
@@ -61,3 +70,16 @@ class TemplateService(Service):
         except LiquidError:
             logger.warning("template_render_error", space_slug=space.slug, note_number=note.number)
             return f"Note #{note.number}"
+
+    def render(self, space: Space, template_key: str, context: dict[str, Any]) -> str:
+        """Render template with context. Returns empty string if template not found."""
+        template_str = space.templates.get(template_key)
+        if not template_str:
+            logger.warning("template_not_found", space_slug=space.slug, template_key=template_key)
+            return ""
+        try:
+            template = Template(template_str)
+            return template.render(**context)
+        except LiquidError:
+            logger.warning("template_render_error", space_slug=space.slug, template_key=template_key)
+            return ""

@@ -84,11 +84,12 @@ class NoteService(Service):
         await self._collection.insert_one(note.to_mongo())
         self._set_title(note)
         logger.debug("note_created", space_slug=space_slug, number=next_number, author=author)
+        await self.core.services.telegram.notify_activity_note_created(note)
         return note
 
     async def update_note_fields(self, space_slug: str, number: int, raw_fields: dict[str, str], current_user: str) -> Note:
         """Update specific note fields with validation (partial update)."""
-        await self.get_note(space_slug, number)  # Verify note exists
+        old_note = await self.get_note(space_slug, number)
         parsed_fields = self.core.services.field.parse_raw_fields(space_slug, raw_fields, current_user, partial=True)
 
         timestamp = now()
@@ -96,13 +97,15 @@ class NoteService(Service):
         for field_name, field_value in parsed_fields.items():
             update_doc[f"fields.{field_name}"] = field_value
 
-        await self._collection.update_one(
-            {"space_slug": space_slug, "number": number},
-            {"$set": update_doc},
-        )
+        await self._collection.update_one({"space_slug": space_slug, "number": number}, {"$set": update_doc})
 
         logger.debug("note_updated", space_slug=space_slug, number=number, updated_fields=list(parsed_fields.keys()))
-        return await self.get_note(space_slug, number)
+        note = await self.get_note(space_slug, number)
+
+        changes = {name: (old_note.fields.get(name), note.fields.get(name)) for name in parsed_fields}
+        await self.core.services.telegram.notify_activity_note_updated(note, changes)
+
+        return note
 
     async def update_activity(self, space_slug: str, number: int, *, commented: bool = False) -> None:
         """Update note activity timestamps (called on comment create/edit/delete)."""
@@ -110,10 +113,7 @@ class NoteService(Service):
         if commented:
             update_doc["commented_at"] = update_doc["activity_at"]
 
-        await self._collection.update_one(
-            {"space_slug": space_slug, "number": number},
-            {"$set": update_doc},
-        )
+        await self._collection.update_one({"space_slug": space_slug, "number": number}, {"$set": update_doc})
 
     async def delete_notes_by_space(self, space_slug: str) -> int:
         """Delete all notes in a space and return count of deleted notes."""

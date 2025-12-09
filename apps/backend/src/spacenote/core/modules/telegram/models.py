@@ -12,8 +12,8 @@ from spacenote.utils import now
 class TelegramSettings(OpenAPIModel):
     """Telegram integration settings for a space."""
 
-    activity_channel: str | None = None  # Channel for activity feed
-    mirror_channel: str | None = None  # Channel for note mirroring
+    activity_channel: str | None = Field(default=None, description="Channel for activity feed (@channel or -100...)")
+    mirror_channel: str | None = Field(default=None, description="Channel for note mirroring")
 
 
 class TelegramTaskType(StrEnum):
@@ -40,27 +40,27 @@ class TelegramTaskStatus(StrEnum):
 class TelegramTask(MongoModel):
     """Task for Telegram message delivery. Processed by single worker."""
 
-    number: int  # Sequential per space, unique with space_slug
-    task_type: TelegramTaskType
-    channel_id: str = Field(description="Telegram channel ID or @username")
-    space_slug: str
-    note_number: int | None = None  # None for space-level events (future)
+    number: int = Field(..., description="Sequential per space, unique with space_slug")
+    task_type: TelegramTaskType = Field(..., description="Type of Telegram task")
+    channel_id: str = Field(..., description="Telegram channel ID or @username")
+    space_slug: str = Field(..., description="Space identifier")
+    note_number: int | None = Field(default=None, description="Note number (None for space-level events)")
     payload: dict[str, Any] = Field(default_factory=dict, description="Context for template rendering")
 
-    status: TelegramTaskStatus = TelegramTaskStatus.PENDING
-    created_at: datetime = Field(default_factory=now)
-    attempted_at: datetime | None = None  # Last API call time
+    status: TelegramTaskStatus = Field(default=TelegramTaskStatus.PENDING, description="Task status")
+    created_at: datetime = Field(default_factory=now, description="Creation timestamp")
+    attempted_at: datetime | None = Field(default=None, description="Last API call time")
 
-    retries: int = 0
-    error: str | None = None  # Last error message
+    retries: int = Field(default=0, description="Number of retry attempts")
+    error: str | None = Field(default=None, description="Last error message")
 
 
 class TelegramMirror(MongoModel):
     """Links note to its Telegram mirror post."""
 
-    space_slug: str
-    note_number: int
+    space_slug: str = Field(..., description="Space identifier")
+    note_number: int = Field(..., description="Note number within space")
     channel_id: str = Field(..., description="Telegram channel ID or @username")
     message_id: int = Field(..., description="Telegram message ID for edit_message_text")
-    created_at: datetime = Field(default_factory=now)
-    updated_at: datetime | None = None
+    created_at: datetime = Field(default_factory=now, description="Creation timestamp")
+    updated_at: datetime | None = Field(default=None, description="Last sync timestamp")

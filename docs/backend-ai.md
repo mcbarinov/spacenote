@@ -17,3 +17,5 @@ Rules for AI agents working on the backend codebase.
 ## API Models
 
 - **All API models must inherit from `OpenAPIModel`** — Models used in router signatures (request/response types) must inherit from `OpenAPIModel` or its descendants (`MongoModel`). This ensures consistent OpenAPI schema generation without `-Input`/`-Output` suffixes.
+
+- **Field descriptions over inline comments** — Use `Field(description="...")` instead of `# comment` for model fields. Descriptions appear in OpenAPI schema and are accessible to frontend.

@@ -14,12 +14,12 @@ class PendingAttachment(MongoModel):
     Storage: pending/{number}
     """
 
-    number: int  # Global sequential, natural key
-    author: str  # Username, for ownership verification
-    filename: str  # Original filename
-    size: int  # Bytes
-    mime_type: str
-    created_at: datetime = Field(default_factory=now)
+    number: int = Field(..., description="Global sequential, natural key")
+    author: str = Field(..., description="Username, for ownership verification")
+    filename: str = Field(..., description="Original filename")
+    size: int = Field(..., description="File size in bytes")
+    mime_type: str = Field(..., description="MIME type")
+    created_at: datetime = Field(default_factory=now, description="Upload timestamp")
 
 
 class Attachment(MongoModel):
@@ -33,11 +33,11 @@ class Attachment(MongoModel):
     Storage: {space_slug}/{note_number}/{number} or {space_slug}/__space__/{number}
     """
 
-    space_slug: str
-    note_number: int | None  # None = space-level attachment
-    number: int  # Sequential per note or per space
-    author: str  # Username
-    filename: str  # Original filename
-    size: int  # Bytes
-    mime_type: str
-    created_at: datetime = Field(default_factory=now)
+    space_slug: str = Field(..., description="Space identifier")
+    note_number: int | None = Field(..., description="Note number (None = space-level attachment)")
+    number: int = Field(..., description="Sequential per note or per space")
+    author: str = Field(..., description="Username")
+    filename: str = Field(..., description="Original filename")
+    size: int = Field(..., description="File size in bytes")
+    mime_type: str = Field(..., description="MIME type")
+    created_at: datetime = Field(default_factory=now, description="Upload timestamp")

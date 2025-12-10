@@ -1,6 +1,28 @@
+_TELEGRAM_NOTE_CREATED = """\
+📝 {{ note.title }}
+by {{ note.author }}
+{% for field in note.fields %}
+{{ field[0] }}: {{ field[1] }}
+{% endfor %}\
+"""
+
+_TELEGRAM_NOTE_UPDATED = """\
+✏️ {{ note.title }}
+{% for item in changes %}
+{{ item[0] }}: {{ item[1][0] }} → {{ item[1][1] }}
+{% endfor %}\
+"""
+
+_TELEGRAM_COMMENT_CREATED = """\
+💬 {{ note.title }}
+-------------------
+{{ comment.content }}
+by {{ comment.author }}
+"""
+
 DEFAULT_TEMPLATES = {
     "note:title": "Note #{{ note.number }}",
-    "telegram:activity_note_created": "📝 New note #{{ note.number }}\n{{ note.title }}\nby {{ note.author }}",
-    "telegram:activity_note_updated": "✏️ Note #{{ note.number }} updated\n{{ note.title }}",
-    "telegram:activity_comment_created": "💬 Comment on {{ note.title }}\n{{ comment.content }}\nby {{ comment.author }}",
+    "telegram:activity_note_created": _TELEGRAM_NOTE_CREATED,
+    "telegram:activity_note_updated": _TELEGRAM_NOTE_UPDATED,
+    "telegram:activity_comment_created":_TELEGRAM_COMMENT_CREATED,
 }

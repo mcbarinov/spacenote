@@ -74,9 +74,5 @@ class TemplateService(Service):
         if not template_str:
             logger.warning("template_not_found", space_slug=space.slug, template_key=template_key)
             return ""
-        try:
-            template = Template(template_str)
-            return template.render(**context)
-        except LiquidError:
-            logger.warning("template_render_error", space_slug=space.slug, template_key=template_key)
-            return ""
+        template = Template(template_str)
+        return template.render(**context)

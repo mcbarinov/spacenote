@@ -179,12 +179,12 @@ class App:
     ) -> PaginationResult[TelegramTask]:
         """List telegram tasks (admin only)."""
         await self._core.services.access.ensure_admin(auth_token)
-        return await self._core.services.telegram.list_tasks(space_slug, task_type, status, limit, offset)
+        return await self._core.services.telegram.list_telegram_tasks(space_slug, task_type, status, limit, offset)
 
     async def get_telegram_task(self, auth_token: AuthToken, space_slug: str, number: int) -> TelegramTask:
         """Get telegram task by natural key (admin only)."""
         await self._core.services.access.ensure_admin(auth_token)
-        return await self._core.services.telegram.get_task(space_slug, number)
+        return await self._core.services.telegram.get_telegram_task(space_slug, number)
 
     # --- Notes ---
 

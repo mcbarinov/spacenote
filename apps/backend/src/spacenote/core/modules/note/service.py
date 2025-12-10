@@ -85,6 +85,7 @@ class NoteService(Service):
         self._set_title(note)
         logger.debug("note_created", space_slug=space_slug, number=next_number, author=author)
         await self.core.services.telegram.notify_activity_note_created(note)
+        await self.core.services.telegram.notify_mirror_create(note)
         return note
 
     async def update_note_fields(self, space_slug: str, number: int, raw_fields: dict[str, str], current_user: str) -> Note:
@@ -104,6 +105,7 @@ class NoteService(Service):
 
         changes = {name: (old_note.fields.get(name), note.fields.get(name)) for name in parsed_fields}
         await self.core.services.telegram.notify_activity_note_updated(note, changes)
+        await self.core.services.telegram.notify_mirror_update(note)
 
         return note
 

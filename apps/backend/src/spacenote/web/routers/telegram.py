@@ -4,7 +4,13 @@ from fastapi import APIRouter, Query
 from pydantic import BaseModel
 
 from spacenote.core.modules.space.models import Space
-from spacenote.core.modules.telegram.models import TelegramSettings, TelegramTask, TelegramTaskStatus, TelegramTaskType
+from spacenote.core.modules.telegram.models import (
+    TelegramMirror,
+    TelegramSettings,
+    TelegramTask,
+    TelegramTaskStatus,
+    TelegramTaskType,
+)
 from spacenote.core.pagination import PaginationResult
 from spacenote.web.deps import AppDep, AuthTokenDep
 from spacenote.web.openapi import ErrorResponse
@@ -75,3 +81,40 @@ async def list_telegram_tasks(
 )
 async def get_telegram_task(space_slug: str, number: int, app: AppDep, auth_token: AuthTokenDep) -> TelegramTask:
     return await app.get_telegram_task(auth_token, space_slug, number)
+
+
+@router.get(
+    "/telegram/mirrors",
+    summary="List telegram mirrors",
+    description="Get paginated telegram mirrors with optional space filter. Admin only.",
+    operation_id="listTelegramMirrors",
+    responses={
+        200: {"description": "Paginated list of telegram mirrors"},
+        401: {"model": ErrorResponse, "description": "Not authenticated"},
+        403: {"model": ErrorResponse, "description": "Admin privileges required"},
+    },
+)
+async def list_telegram_mirrors(
+    app: AppDep,
+    auth_token: AuthTokenDep,
+    space_slug: Annotated[str | None, Query(description="Filter by space slug")] = None,
+    limit: Annotated[int, Query(ge=1, le=100, description="Maximum items to return")] = 50,
+    offset: Annotated[int, Query(ge=0, description="Number of items to skip")] = 0,
+) -> PaginationResult[TelegramMirror]:
+    return await app.list_telegram_mirrors(auth_token, space_slug, limit, offset)
+
+
+@router.get(
+    "/spaces/{space_slug}/notes/{note_number}/telegram/mirror",
+    summary="Get telegram mirror",
+    description="Get telegram mirror for a specific note. Admin only.",
+    operation_id="getTelegramMirror",
+    responses={
+        200: {"description": "Telegram mirror details"},
+        401: {"model": ErrorResponse, "description": "Not authenticated"},
+        403: {"model": ErrorResponse, "description": "Admin privileges required"},
+        404: {"model": ErrorResponse, "description": "Mirror not found"},
+    },
+)
+async def get_telegram_mirror(space_slug: str, note_number: int, app: AppDep, auth_token: AuthTokenDep) -> TelegramMirror:
+    return await app.get_telegram_mirror(auth_token, space_slug, note_number)

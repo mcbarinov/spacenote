@@ -14,7 +14,13 @@ from spacenote.core.modules.image.processor import WebpOptions
 from spacenote.core.modules.note.models import Note
 from spacenote.core.modules.session.models import AuthToken
 from spacenote.core.modules.space.models import Space
-from spacenote.core.modules.telegram.models import TelegramSettings, TelegramTask, TelegramTaskStatus, TelegramTaskType
+from spacenote.core.modules.telegram.models import (
+    TelegramMirror,
+    TelegramSettings,
+    TelegramTask,
+    TelegramTaskStatus,
+    TelegramTaskType,
+)
 from spacenote.core.modules.user.models import UserView
 from spacenote.core.pagination import PaginationResult
 from spacenote.errors import AuthenticationError
@@ -185,6 +191,18 @@ class App:
         """Get telegram task by natural key (admin only)."""
         await self._core.services.access.ensure_admin(auth_token)
         return await self._core.services.telegram.get_telegram_task(space_slug, number)
+
+    async def list_telegram_mirrors(
+        self, auth_token: AuthToken, space_slug: str | None = None, limit: int = 50, offset: int = 0
+    ) -> PaginationResult[TelegramMirror]:
+        """List telegram mirrors (admin only)."""
+        await self._core.services.access.ensure_admin(auth_token)
+        return await self._core.services.telegram.list_telegram_mirrors(space_slug, limit, offset)
+
+    async def get_telegram_mirror(self, auth_token: AuthToken, space_slug: str, note_number: int) -> TelegramMirror:
+        """Get telegram mirror by natural key (admin only)."""
+        await self._core.services.access.ensure_admin(auth_token)
+        return await self._core.services.telegram.get_telegram_mirror(space_slug, note_number)
 
     # --- Notes ---
 

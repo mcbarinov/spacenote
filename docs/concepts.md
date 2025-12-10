@@ -57,6 +57,25 @@ File attachments for notes and spaces:
 - **Space-level**: files attached to space itself, useful for AI context documents
 - Identified by sequential number within note or space
 
+### 1.7 Filter
+
+Saved query configurations for notes within a space:
+
+- Unique name within space (e.g., `all`, `active`, `archived`)
+- Conditions with field + operator + value (combined with AND)
+- Sort order (field names with optional `-` prefix for descending)
+- Default columns for notes list view
+- Every space has default `all` filter
+
+### 1.8 Template
+
+Liquid templates for rendering notes and messages:
+
+- Stored per space as key-value pairs
+- Keys: `note:title`, `web:note:detail`, `web:note:list:{filter}`, `telegram:*`
+- Used for note titles, web layouts, Telegram messages
+- Default templates provided for common cases
+
 ## 2. Features Overview
 
 ### 2.1 Telegram Integration

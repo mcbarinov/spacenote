@@ -32,16 +32,16 @@ spacenote/
 ### admin
 - **Technology**: React 19, TypeScript, Vite, TanStack Query
 - **Purpose**: Admin panel for system management
-- **Key features**: User management, space administration, LLM logs
+- **Key features**: User management, space administration, Telegram integration
 
 ## Packages
 
 ### @spacenote/common
 Shared frontend code for all React applications:
 - **Types**: Auto-generated from backend OpenAPI specification + custom types
-- **API layer**: Queries, mutations, cache hooks (planned)
-- **Components**: Reusable UI components, error boundaries (planned)
-- **Utilities**: Formatters, helpers, error handling (planned)
+- **API layer**: Queries, mutations, cache hooks
+- **Components**: Reusable UI components, error boundaries
+- **Utilities**: Formatters, helpers, error handling
 
 ## Technology Stack
 

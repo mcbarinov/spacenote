@@ -7,13 +7,15 @@ Shared frontend code for all React applications (admin, web).
 ```
 src/
 ├── api/              # API layer: queries, mutations, cache, HTTP client
-├── app/              # App bootstrap: createAppRouter, renderApp
+├── app/              # App bootstrap: createAppRouter, runApp
 ├── components/       # Reusable components
 │   ├── errors/       # ErrorBoundary
-│   ├── layout/       # AuthLayout, Header, Footer, LoadingScreen, ErrorScreen
+│   ├── layout/       # AuthLayout, Header, Footer, LoadingScreen, ErrorScreen, PageHeader
 │   ├── navigation/   # CustomLink, LinkButton
 │   └── ui/           # DeleteButton, ErrorMessage, Username, SpaceSlug
 ├── errors/           # AppError class for error handling
+├── styles/           # CSS files (templates.css)
+├── templates/        # Template utilities (markdown, filters)
 ├── types/            # TypeScript types from OpenAPI + custom types
 └── utils/            # Utility functions (format, etc.)
 ```

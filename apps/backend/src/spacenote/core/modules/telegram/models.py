@@ -44,7 +44,7 @@ class TelegramTask(MongoModel):
     task_type: TelegramTaskType = Field(..., description="Type of Telegram task")
     channel_id: str = Field(..., description="Telegram channel ID or @username")
     space_slug: str = Field(..., description="Space identifier")
-    note_number: int | None = Field(default=None, description="Note number (None for space-level events)")
+    note_number: int = Field(..., description="Note number within space")
     payload: dict[str, Any] = Field(default_factory=dict, description="Context for template rendering")
 
     status: TelegramTaskStatus = Field(default=TelegramTaskStatus.PENDING, description="Task status")

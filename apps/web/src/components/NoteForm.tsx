@@ -8,8 +8,16 @@ import type { Note, Space, SpaceField } from "@spacenote/common/types"
 import { FieldInput } from "./FieldInput"
 
 /** Gets initial form value for field based on type and default */
-function getDefaultValue(field: SpaceField): unknown {
+function getDefaultValue(field: SpaceField, currentUser: string): unknown {
   if (field.default !== null) {
+    // Resolve $me for user fields
+    if (field.type === "user" && field.default === "$me") {
+      return currentUser
+    }
+    // Resolve $now for datetime fields
+    if (field.type === "datetime" && field.default === "$now") {
+      return new Date().toISOString()
+    }
     return field.default
   }
   switch (field.type) {
@@ -46,13 +54,17 @@ function valueToString(value: unknown): string | null {
 }
 
 /** Builds initial form values from space fields */
-function buildInitialValues(fields: SpaceField[], existingValues?: Record<string, unknown>): Record<string, unknown> {
+function buildInitialValues(
+  fields: SpaceField[],
+  currentUser: string,
+  existingValues?: Record<string, unknown>
+): Record<string, unknown> {
   const initialValues: Record<string, unknown> = {}
   for (const field of fields) {
     if (existingValues && field.name in existingValues) {
       initialValues[field.name] = existingValues[field.name]
     } else {
-      initialValues[field.name] = getDefaultValue(field)
+      initialValues[field.name] = getDefaultValue(field, currentUser)
     }
   }
   return initialValues
@@ -75,6 +87,7 @@ type NoteFormProps = { space: Space; mode: "create"; note?: never } | { space: S
 /** Form for creating and editing notes */
 export function NoteForm({ space, mode, note }: NoteFormProps) {
   const navigate = useNavigate()
+  const currentUser = api.cache.useCurrentUser()
   const slug = space.slug
 
   // Filter fields for create mode
@@ -82,7 +95,7 @@ export function NoteForm({ space, mode, note }: NoteFormProps) {
     mode === "create" ? space.fields.filter((f) => !space.hidden_fields_on_create.includes(f.name)) : space.fields
 
   const form = useForm({
-    initialValues: buildInitialValues(space.fields, note?.fields),
+    initialValues: buildInitialValues(space.fields, currentUser.username, note?.fields),
   })
 
   const createMutation = api.mutations.useCreateNote(slug)

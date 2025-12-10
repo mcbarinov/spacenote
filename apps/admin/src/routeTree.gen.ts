@@ -18,6 +18,7 @@ import { Route as AuthUsersNewRouteImport } from './routes/_auth/users/new'
 import { Route as AuthSpacesNewRouteImport } from './routes/_auth/spaces/new'
 import { Route as AuthSpacesImportRouteImport } from './routes/_auth/spaces/import'
 import { Route as AuthTelegramTasksRouteRouteImport } from './routes/_auth/telegram/tasks/route'
+import { Route as AuthTelegramMirrorsRouteRouteImport } from './routes/_auth/telegram/mirrors/route'
 import { Route as AuthSpacesSlugMembersRouteRouteImport } from './routes/_auth/spaces/$slug/members/route'
 import { Route as AuthSpacesSlugTemplatesIndexRouteImport } from './routes/_auth/spaces/$slug/templates/index'
 import { Route as AuthSpacesSlugSettingsIndexRouteImport } from './routes/_auth/spaces/$slug/settings/index'
@@ -72,6 +73,12 @@ const AuthTelegramTasksRouteRoute = AuthTelegramTasksRouteRouteImport.update({
   path: '/telegram/tasks',
   getParentRoute: () => AuthRouteRoute,
 } as any)
+const AuthTelegramMirrorsRouteRoute =
+  AuthTelegramMirrorsRouteRouteImport.update({
+    id: '/telegram/mirrors',
+    path: '/telegram/mirrors',
+    getParentRoute: () => AuthRouteRoute,
+  } as any)
 const AuthSpacesSlugMembersRouteRoute =
   AuthSpacesSlugMembersRouteRouteImport.update({
     id: '/spaces/$slug/members',
@@ -129,6 +136,7 @@ const AuthSpacesSlugFiltersFilterNameEditRoute =
 export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/': typeof AuthIndexRoute
+  '/telegram/mirrors': typeof AuthTelegramMirrorsRouteRoute
   '/telegram/tasks': typeof AuthTelegramTasksRouteRoute
   '/spaces/import': typeof AuthSpacesImportRoute
   '/spaces/new': typeof AuthSpacesNewRoute
@@ -148,6 +156,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/': typeof AuthIndexRoute
+  '/telegram/mirrors': typeof AuthTelegramMirrorsRouteRoute
   '/telegram/tasks': typeof AuthTelegramTasksRouteRoute
   '/spaces/import': typeof AuthSpacesImportRoute
   '/spaces/new': typeof AuthSpacesNewRoute
@@ -169,6 +178,7 @@ export interface FileRoutesById {
   '/_auth': typeof AuthRouteRouteWithChildren
   '/login': typeof LoginRoute
   '/_auth/': typeof AuthIndexRoute
+  '/_auth/telegram/mirrors': typeof AuthTelegramMirrorsRouteRoute
   '/_auth/telegram/tasks': typeof AuthTelegramTasksRouteRoute
   '/_auth/spaces/import': typeof AuthSpacesImportRoute
   '/_auth/spaces/new': typeof AuthSpacesNewRoute
@@ -190,6 +200,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/login'
     | '/'
+    | '/telegram/mirrors'
     | '/telegram/tasks'
     | '/spaces/import'
     | '/spaces/new'
@@ -209,6 +220,7 @@ export interface FileRouteTypes {
   to:
     | '/login'
     | '/'
+    | '/telegram/mirrors'
     | '/telegram/tasks'
     | '/spaces/import'
     | '/spaces/new'
@@ -229,6 +241,7 @@ export interface FileRouteTypes {
     | '/_auth'
     | '/login'
     | '/_auth/'
+    | '/_auth/telegram/mirrors'
     | '/_auth/telegram/tasks'
     | '/_auth/spaces/import'
     | '/_auth/spaces/new'
@@ -316,6 +329,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthTelegramTasksRouteRouteImport
       parentRoute: typeof AuthRouteRoute
     }
+    '/_auth/telegram/mirrors': {
+      id: '/_auth/telegram/mirrors'
+      path: '/telegram/mirrors'
+      fullPath: '/telegram/mirrors'
+      preLoaderRoute: typeof AuthTelegramMirrorsRouteRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
     '/_auth/spaces/$slug/members': {
       id: '/_auth/spaces/$slug/members'
       path: '/spaces/$slug/members'
@@ -384,6 +404,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthRouteRouteChildren {
   AuthIndexRoute: typeof AuthIndexRoute
+  AuthTelegramMirrorsRouteRoute: typeof AuthTelegramMirrorsRouteRoute
   AuthTelegramTasksRouteRoute: typeof AuthTelegramTasksRouteRoute
   AuthSpacesImportRoute: typeof AuthSpacesImportRoute
   AuthSpacesNewRoute: typeof AuthSpacesNewRoute
@@ -403,6 +424,7 @@ interface AuthRouteRouteChildren {
 
 const AuthRouteRouteChildren: AuthRouteRouteChildren = {
   AuthIndexRoute: AuthIndexRoute,
+  AuthTelegramMirrorsRouteRoute: AuthTelegramMirrorsRouteRoute,
   AuthTelegramTasksRouteRoute: AuthTelegramTasksRouteRoute,
   AuthSpacesImportRoute: AuthSpacesImportRoute,
   AuthSpacesNewRoute: AuthSpacesNewRoute,

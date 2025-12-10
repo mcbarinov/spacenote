@@ -60,7 +60,7 @@ export function TelegramTasksTable({ tasks }: TelegramTasksTableProps) {
                 </Table.Td>
                 <Table.Td>{task.task_type}</Table.Td>
                 <Table.Td>{task.space_slug}</Table.Td>
-                <Table.Td>{task.note_number ?? "-"}</Table.Td>
+                <Table.Td>{task.note_number}</Table.Td>
                 <Table.Td>{task.channel_id}</Table.Td>
                 <Table.Td>{formatDate(task.created_at)}</Table.Td>
                 <Table.Td>

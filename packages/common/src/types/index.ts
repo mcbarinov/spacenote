@@ -53,6 +53,8 @@ export type TelegramTask = components["schemas"]["TelegramTask"]
 export type TelegramTaskStatus = components["schemas"]["TelegramTaskStatus"]
 export type TelegramTaskType = components["schemas"]["TelegramTaskType"]
 export type TelegramTasksList = components["schemas"]["PaginationResult_TelegramTask_"]
+export type TelegramMirror = components["schemas"]["TelegramMirror"]
+export type TelegramMirrorsList = components["schemas"]["PaginationResult_TelegramMirror_"]
 
 export const TELEGRAM_TASK_STATUSES: TelegramTaskStatus[] = ["pending", "completed", "failed"]
 export const TELEGRAM_TASK_TYPES: TelegramTaskType[] = [

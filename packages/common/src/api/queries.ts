@@ -7,6 +7,7 @@ import type {
   Note,
   NotesList,
   Space,
+  TelegramMirrorsList,
   TelegramTasksList,
   TelegramTaskStatus,
   TelegramTaskType,
@@ -101,17 +102,14 @@ export function exportSpace(spaceSlug: string, includeData: boolean) {
   })
 }
 
-/** Params for listing telegram tasks */
-export interface ListTelegramTasksParams {
+/** Fetches paginated telegram tasks (admin only) */
+export function listTelegramTasks(params?: {
   space_slug?: string | null
   task_type?: TelegramTaskType | null
   status?: TelegramTaskStatus | null
   limit?: number
   offset?: number
-}
-
-/** Fetches paginated telegram tasks (admin only) */
-export function listTelegramTasks(params?: ListTelegramTasksParams) {
+}) {
   return queryOptions({
     queryKey: ["telegram", "tasks", params],
     queryFn: () => {
@@ -122,6 +120,20 @@ export function listTelegramTasks(params?: ListTelegramTasksParams) {
       if (params?.limit) searchParams.limit = params.limit
       if (params?.offset) searchParams.offset = params.offset
       return httpClient.get("api/v1/telegram/tasks", { searchParams }).json<TelegramTasksList>()
+    },
+  })
+}
+
+/** Fetches paginated telegram mirrors (admin only) */
+export function listTelegramMirrors(params?: { space_slug?: string | null; limit?: number; offset?: number }) {
+  return queryOptions({
+    queryKey: ["telegram", "mirrors", params],
+    queryFn: () => {
+      const searchParams: Record<string, string | number> = {}
+      if (params?.space_slug) searchParams.space_slug = params.space_slug
+      if (params?.limit) searchParams.limit = params.limit
+      if (params?.offset) searchParams.offset = params.offset
+      return httpClient.get("api/v1/telegram/mirrors", { searchParams }).json<TelegramMirrorsList>()
     },
   })
 }

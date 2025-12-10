@@ -4,6 +4,7 @@ from pydantic import Field
 
 from spacenote.core.modules.field.models import FieldValueType, SpaceField
 from spacenote.core.modules.filter.models import Filter
+from spacenote.core.modules.telegram.models import TelegramSettings
 from spacenote.core.schema import OpenAPIModel
 
 
@@ -17,6 +18,8 @@ class SpaceExport(OpenAPIModel):
     fields: list[SpaceField] = Field(..., description="Field definitions")
     filters: list[Filter] = Field(..., description="Filter definitions")
     hidden_fields_on_create: list[str] = Field(..., description="Fields hidden on note creation form")
+    templates: dict[str, str] = Field(default_factory=dict, description="Liquid templates")
+    telegram: TelegramSettings | None = Field(default=None, description="Telegram integration settings")
     created_at: datetime = Field(..., description="Creation timestamp")
 
 

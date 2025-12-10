@@ -36,6 +36,8 @@ class ExportService(Service):
             fields=space.fields,
             filters=space.filters,
             hidden_fields_on_create=space.hidden_fields_on_create,
+            templates=space.templates,
+            telegram=space.telegram,
             created_at=space.created_at,
         )
 
@@ -123,6 +125,8 @@ class ExportService(Service):
             fields=data.space.fields,
             filters=data.space.filters,
             hidden_fields_on_create=data.space.hidden_fields_on_create,
+            templates=data.space.templates,
+            telegram=data.space.telegram,
             created_at=data.space.created_at,
         )
         space = await self.core.services.space.import_space(space_model)

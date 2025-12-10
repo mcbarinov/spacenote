@@ -84,7 +84,7 @@ class AttachmentService(Service):
         return [Attachment.model_validate(doc) async for doc in cursor]
 
     async def list_all_attachments(self, space_slug: str) -> list[Attachment]:
-        """Get all attachments in space without pagination."""
+        """List all attachments in space without pagination."""
         cursor = self._attachments_collection.find({"space_slug": space_slug}).sort([("note_number", 1), ("number", 1)])
         return await Attachment.list_cursor(cursor)
 

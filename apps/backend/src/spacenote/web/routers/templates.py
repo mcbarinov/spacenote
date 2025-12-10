@@ -26,6 +26,12 @@ Valid template keys (use `:` separator, not `.` — dots conflict with MongoDB n
 - `web_react:note:detail` — note detail design
 - `web_react:note:list:{filter}` — note list design for a filter
 
+**Telegram templates** (activity feed and mirroring):
+- `telegram:activity_note_created` — notification when note is created
+- `telegram:activity_note_updated` — notification when note is updated
+- `telegram:activity_comment_created` — notification when comment is added
+- `telegram:mirror` — mirrored note content
+
 Empty content removes the template.
 """
 

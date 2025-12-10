@@ -20,6 +20,7 @@ from spacenote.core.modules.image.service import ImageService
 from spacenote.core.modules.note.service import NoteService
 from spacenote.core.modules.session.service import SessionService
 from spacenote.core.modules.space.service import SpaceService
+from spacenote.core.modules.telegram.service import TelegramService
 from spacenote.core.modules.template.service import TemplateService
 from spacenote.core.modules.user.service import UserService
 from spacenote.core.service import Service
@@ -41,6 +42,7 @@ class ServiceRegistry:
     image: ImageService
     export: ExportService
     template: TemplateService
+    telegram: TelegramService
 
     def __init__(self, core: Core) -> None:
         """Initialize all services and inject core reference."""
@@ -57,6 +59,7 @@ class ServiceRegistry:
         self.image = ImageService()
         self.export = ExportService()
         self.template = TemplateService()
+        self.telegram = TelegramService()
 
         # Auto-discover services and inject core
         self._services = [v for v in vars(self).values() if isinstance(v, Service)]

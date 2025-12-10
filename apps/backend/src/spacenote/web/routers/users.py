@@ -26,8 +26,8 @@ class CreateUserRequest(BaseModel):
     },
 )
 async def list_users(app: AppDep, auth_token: AuthTokenDep) -> list[UserView]:
-    """Get all users (requires authentication)."""
-    return await app.get_all_users(auth_token)
+    """List all users (requires authentication)."""
+    return await app.list_users(auth_token)
 
 
 @router.post(

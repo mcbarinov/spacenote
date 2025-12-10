@@ -30,7 +30,7 @@ class CommentService(Service):
     async def list_comments(
         self, space_slug: str, note_number: int, limit: int = 50, offset: int = 0
     ) -> PaginationResult[Comment]:
-        """Get paginated comments for a note."""
+        """List paginated comments for a note."""
         query = {"space_slug": space_slug, "note_number": note_number}
 
         total = await self._collection.count_documents(query)
@@ -42,7 +42,7 @@ class CommentService(Service):
         return PaginationResult(items=items, total=total, limit=limit, offset=offset)
 
     async def list_all_comments(self, space_slug: str) -> list[Comment]:
-        """Get all comments in space without pagination."""
+        """List all comments in space without pagination."""
         cursor = self._collection.find({"space_slug": space_slug}).sort([("note_number", 1), ("number", 1)])
         return await Comment.list_cursor(cursor)
 
@@ -62,7 +62,7 @@ class CommentService(Service):
         parent_number: int | None = None,
     ) -> Comment:
         """Create a new comment on a note."""
-        await self.core.services.note.get_note(space_slug, note_number)  # Validate note exists
+        note = await self.core.services.note.get_note(space_slug, note_number)
 
         # Validate parent exists if specified
         if parent_number is not None:
@@ -85,13 +85,8 @@ class CommentService(Service):
 
         await self._collection.insert_one(comment.to_mongo())
         await self.core.services.note.update_activity(space_slug, note_number, commented=True)
-        logger.debug(
-            "comment_created",
-            space_slug=space_slug,
-            note_number=note_number,
-            number=next_number,
-            author=author,
-        )
+        logger.debug("comment_created", space_slug=space_slug, note_number=note_number, number=next_number, author=author)
+        await self.core.services.telegram.notify_activity_comment_created(note, comment)
         return comment
 
     async def update_comment(self, space_slug: str, note_number: int, number: int, content: str) -> Comment:

@@ -13,7 +13,7 @@ src/
 │   ├── ImageFieldInput.tsx
 │   ├── MarkdownDisplay.tsx
 │   ├── MarkdownEditor.tsx
-│   └── SpaceHeader.tsx
+│   └── NoteForm.tsx
 └── routes/
     ├── __root.tsx
     ├── login.tsx
@@ -25,18 +25,24 @@ src/
         └── s/$slug/
             ├── index.tsx
             ├── new.tsx
+            ├── -components/
+            │   ├── NotesListDefault.tsx
+            │   ├── NotesListJson.tsx
+            │   ├── NotesListTemplate.tsx
+            │   ├── ActiveQueryFilters.tsx
+            │   └── ViewModeMenu.tsx
             ├── attachments/
-            │   ├── index.tsx
-            │   └── new.tsx
             └── $noteNumber/
                 ├── index.tsx
+                ├── edit.tsx
                 ├── -components/
                 │   ├── CommentForm.tsx
                 │   ├── CommentList.tsx
-                │   └── NoteDetails.tsx
+                │   ├── NoteDetailsDefault.tsx
+                │   ├── NoteDetailsJson.tsx
+                │   ├── NoteDetailsTemplate.tsx
+                │   └── ViewModeMenu.tsx
                 └── attachments/
-                    ├── index.tsx
-                    └── new.tsx
 ```
 
 ## Development

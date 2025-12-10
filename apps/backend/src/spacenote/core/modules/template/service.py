@@ -1,19 +1,20 @@
+from typing import Any
+
 import structlog
 from liquid import Template
 from liquid.exceptions import LiquidError
 
 from spacenote.core.modules.note.models import Note
 from spacenote.core.modules.space.models import Space
+from spacenote.core.modules.template.defaults import DEFAULT_TEMPLATES
 from spacenote.core.service import Service
 from spacenote.errors import ValidationError
 
 logger = structlog.get_logger(__name__)
 
-DEFAULT_TITLE_TEMPLATE = "Note #{{ note.number }}"
-
 
 class TemplateService(Service):
-    """Service for template management."""
+    """Service for template management and rendering."""
 
     async def set_template(self, slug: str, key: str, content: str) -> Space:
         """Set or remove a template for the space. Empty content removes the template."""
@@ -39,6 +40,13 @@ class TemplateService(Service):
             filter_name = key.removeprefix("web_react:note:list:")
             if not filter_name or space.get_filter(filter_name) is None:
                 raise ValidationError(f"Filter '{filter_name}' not found")
+        elif key.startswith("telegram:"):
+            # Telegram templates - validate Liquid syntax
+            if content.strip():
+                try:
+                    Template(content)
+                except LiquidError as e:
+                    raise ValidationError(f"Invalid Liquid template syntax: {e}") from e
         else:
             raise ValidationError(f"Invalid template key: {key}")
 
@@ -54,10 +62,17 @@ class TemplateService(Service):
 
     def render_note_title(self, space: Space, note: Note) -> str:
         """Render note title from template."""
-        template_str = space.templates.get("note:title", DEFAULT_TITLE_TEMPLATE)
-        try:
-            template = Template(template_str)
-            return template.render(note=note.model_dump(), space=space.model_dump())
-        except LiquidError:
-            logger.warning("template_render_error", space_slug=space.slug, note_number=note.number)
-            return f"Note #{note.number}"
+        return self._render(space, "note:title", {"note": note.model_dump(), "space": space.model_dump()})
+
+    def render_telegram(self, space: Space, template_key: str, payload: dict[str, Any]) -> str:
+        """Render telegram template. Payload is passed directly as context."""
+        return self._render(space, template_key, payload)
+
+    def _render(self, space: Space, template_key: str, context: dict[str, Any]) -> str:
+        """Render template with fallback to defaults."""
+        template_str = space.templates.get(template_key) or DEFAULT_TEMPLATES.get(template_key)
+        if not template_str:
+            logger.warning("template_not_found", space_slug=space.slug, template_key=template_key)
+            return ""
+        template = Template(template_str)
+        return template.render(**context)

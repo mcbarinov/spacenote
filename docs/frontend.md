@@ -77,16 +77,13 @@ Both apps use `@spacenote/common/app` for initialization:
 
 ```typescript
 // main.tsx
-import { createAppRouter, renderApp } from "@spacenote/common/app"
-import { initHttpClient } from "@spacenote/common/api"
+import { runApp } from "@spacenote/common/app"
 import { routeTree } from "./routeTree.gen"
 
-initHttpClient("admin")  // or "web"
-renderApp(createAppRouter(routeTree))
+runApp({ isAdmin: true }, routeTree)  // or { isAdmin: false } for web
 ```
 
-- `createAppRouter(routeTree)` - creates TanStack Router with QueryClient context
-- `renderApp(router)` - renders React app with all providers (Mantine, Query, Router)
+`runApp(config, routeTree)` initializes HTTP client, creates router, and renders React app with all providers (Mantine, Query, Router).
 
 ### Type Generation from OpenAPI
 

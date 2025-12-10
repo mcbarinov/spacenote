@@ -580,6 +580,106 @@ export type paths = {
     patch?: never
     trace?: never
   }
+  "/api/v1/spaces/{space_slug}/telegram": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    /**
+     * Update space telegram settings
+     * @description Update telegram integration settings for the space. Only accessible by admin users.
+     */
+    patch: operations["updateSpaceTelegram"]
+    trace?: never
+  }
+  "/api/v1/telegram/tasks": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * List telegram tasks
+     * @description Get paginated telegram task history with optional filters. Admin only.
+     */
+    get: operations["listTelegramTasks"]
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  "/api/v1/spaces/{space_slug}/telegram/tasks/{number}": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Get telegram task
+     * @description Get a single telegram task by space and number. Admin only.
+     */
+    get: operations["getTelegramTask"]
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  "/api/v1/telegram/mirrors": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * List telegram mirrors
+     * @description Get paginated telegram mirrors with optional space filter. Admin only.
+     */
+    get: operations["listTelegramMirrors"]
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  "/api/v1/spaces/{space_slug}/notes/{note_number}/telegram/mirror": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Get telegram mirror
+     * @description Get telegram mirror for a specific note. Admin only.
+     */
+    get: operations["getTelegramMirror"]
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   "/api/v1/spaces/{slug}/templates/{key}": {
     parameters: {
       query?: never
@@ -602,6 +702,12 @@ export type paths = {
      *     **React templates** (react-live, for admin design preview):
      *     - `web_react:note:detail` — note detail design
      *     - `web_react:note:list:{filter}` — note list design for a filter
+     *
+     *     **Telegram templates** (activity feed and mirroring):
+     *     - `telegram:activity_note_created` — notification when note is created
+     *     - `telegram:activity_note_updated` — notification when note is updated
+     *     - `telegram:activity_comment_created` — notification when comment is added
+     *     - `telegram:mirror` — mirrored note content
      *
      *     Empty content removes the template.
      */
@@ -690,23 +796,45 @@ export type components = {
      *     Storage: {space_slug}/{note_number}/{number} or {space_slug}/__space__/{number}
      */
     Attachment: {
-      /** Space Slug */
+      /**
+       * Space Slug
+       * @description Space identifier
+       */
       space_slug: string
-      /** Note Number */
+      /**
+       * Note Number
+       * @description Note number (None = space-level attachment)
+       */
       note_number: number | null
-      /** Number */
+      /**
+       * Number
+       * @description Sequential per note or per space
+       */
       number: number
-      /** Author */
+      /**
+       * Author
+       * @description Username
+       */
       author: string
-      /** Filename */
+      /**
+       * Filename
+       * @description Original filename
+       */
       filename: string
-      /** Size */
+      /**
+       * Size
+       * @description File size in bytes
+       */
       size: number
-      /** Mime Type */
+      /**
+       * Mime Type
+       * @description MIME type
+       */
       mime_type: string
       /**
        * Created At
        * Format: date-time
+       * @description Upload timestamp
        */
       created_at: string
     }
@@ -715,21 +843,40 @@ export type components = {
      * @description Attachment metadata for export.
      */
     AttachmentExport: {
-      /** Note Number */
+      /**
+       * Note Number
+       * @description Note number (None = space-level)
+       */
       note_number: number | null
-      /** Number */
+      /**
+       * Number
+       * @description Attachment number
+       */
       number: number
-      /** Author */
+      /**
+       * Author
+       * @description Username
+       */
       author: string
-      /** Filename */
+      /**
+       * Filename
+       * @description Original filename
+       */
       filename: string
-      /** Size */
+      /**
+       * Size
+       * @description File size in bytes
+       */
       size: number
-      /** Mime Type */
+      /**
+       * Mime Type
+       * @description MIME type
+       */
       mime_type: string
       /**
        * Created At
        * Format: date-time
+       * @description Upload timestamp
        */
       created_at: string
     }
@@ -778,24 +925,46 @@ export type components = {
      * @description Comment on a note with optional threading support.
      */
     Comment: {
-      /** Space Slug */
+      /**
+       * Space Slug
+       * @description Space identifier
+       */
       space_slug: string
-      /** Note Number */
+      /**
+       * Note Number
+       * @description Note number within space
+       */
       note_number: number
-      /** Number */
+      /**
+       * Number
+       * @description Sequential per note, part of natural key
+       */
       number: number
-      /** Author */
+      /**
+       * Author
+       * @description Username of comment creator
+       */
       author: string
-      /** Content */
+      /**
+       * Content
+       * @description Comment text content
+       */
       content: string
       /**
        * Created At
        * Format: date-time
+       * @description Creation timestamp
        */
       created_at: string
-      /** Edited At */
+      /**
+       * Edited At
+       * @description Last edit timestamp
+       */
       edited_at: string | null
-      /** Parent Number */
+      /**
+       * Parent Number
+       * @description Reply to comment N (None = top-level)
+       */
       parent_number: number | null
     }
     /**
@@ -803,22 +972,41 @@ export type components = {
      * @description Comment data for export.
      */
     CommentExport: {
-      /** Note Number */
+      /**
+       * Note Number
+       * @description Note number
+       */
       note_number: number
-      /** Number */
+      /**
+       * Number
+       * @description Comment number within note
+       */
       number: number
-      /** Author */
+      /**
+       * Author
+       * @description Username of comment creator
+       */
       author: string
-      /** Content */
+      /**
+       * Content
+       * @description Comment text content
+       */
       content: string
       /**
        * Created At
        * Format: date-time
+       * @description Creation timestamp
        */
       created_at: string
-      /** Edited At */
+      /**
+       * Edited At
+       * @description Last edit timestamp
+       */
       edited_at: string | null
-      /** Parent Number */
+      /**
+       * Parent Number
+       * @description Parent comment number for threading
+       */
       parent_number: number | null
     }
     /**
@@ -935,14 +1123,25 @@ export type components = {
       /**
        * Exported At
        * Format: date-time
+       * @description Export timestamp
        */
       exported_at: string
+      /** @description Space configuration */
       space: components["schemas"]["SpaceExport"]
-      /** Notes */
+      /**
+       * Notes
+       * @description Notes data
+       */
       notes: components["schemas"]["NoteExport"][] | null
-      /** Comments */
+      /**
+       * Comments
+       * @description Comments data
+       */
       comments: components["schemas"]["CommentExport"][] | null
-      /** Attachments */
+      /**
+       * Attachments
+       * @description Attachments metadata
+       */
       attachments: components["schemas"]["AttachmentExport"][] | null
     }
     /**
@@ -1044,32 +1243,53 @@ export type components = {
      * @description Note with custom fields stored in a space.
      */
     Note: {
-      /** Space Slug */
+      /**
+       * Space Slug
+       * @description Space identifier
+       */
       space_slug: string
-      /** Number */
+      /**
+       * Number
+       * @description Sequential per space, used in URLs: /spaces/{slug}/notes/{number}
+       */
       number: number
-      /** Author */
+      /**
+       * Author
+       * @description Username of the note creator
+       */
       author: string
       /**
        * Created At
        * Format: date-time
+       * @description Creation timestamp
        */
       created_at: string
-      /** Edited At */
+      /**
+       * Edited At
+       * @description Last field edit timestamp
+       */
       edited_at: string | null
-      /** Commented At */
+      /**
+       * Commented At
+       * @description Last comment timestamp
+       */
       commented_at: string | null
       /**
        * Activity At
        * Format: date-time
+       * @description Updated on: field edit, comment create/edit/delete
        */
       activity_at: string
-      /** Fields */
+      /**
+       * Fields
+       * @description Values for space-defined fields
+       */
       fields: {
         [key: string]: string | boolean | string[] | number | null
       }
       /**
        * Title
+       * @description Computed from Space.templates['note:title'], not stored in MongoDB
        * @default
        */
       title: string
@@ -1079,18 +1299,31 @@ export type components = {
      * @description Note data for export.
      */
     NoteExport: {
-      /** Number */
+      /**
+       * Number
+       * @description Note number within space
+       */
       number: number
-      /** Author */
+      /**
+       * Author
+       * @description Username of note creator
+       */
       author: string
       /**
        * Created At
        * Format: date-time
+       * @description Creation timestamp
        */
       created_at: string
-      /** Edited At */
+      /**
+       * Edited At
+       * @description Last edit timestamp
+       */
       edited_at: string | null
-      /** Fields */
+      /**
+       * Fields
+       * @description Field values
+       */
       fields: {
         [key: string]: string | boolean | string[] | number | null
       }
@@ -1141,6 +1374,52 @@ export type components = {
        */
       offset: number
     }
+    /** PaginationResult[TelegramMirror] */
+    PaginationResult_TelegramMirror_: {
+      /**
+       * Items
+       * @description List of items in current page
+       */
+      items: components["schemas"]["TelegramMirror"][]
+      /**
+       * Total
+       * @description Total number of items across all pages
+       */
+      total: number
+      /**
+       * Limit
+       * @description Maximum items per page
+       */
+      limit: number
+      /**
+       * Offset
+       * @description Number of items skipped
+       */
+      offset: number
+    }
+    /** PaginationResult[TelegramTask] */
+    PaginationResult_TelegramTask_: {
+      /**
+       * Items
+       * @description List of items in current page
+       */
+      items: components["schemas"]["TelegramTask"][]
+      /**
+       * Total
+       * @description Total number of items across all pages
+       */
+      total: number
+      /**
+       * Limit
+       * @description Maximum items per page
+       */
+      limit: number
+      /**
+       * Offset
+       * @description Number of items skipped
+       */
+      offset: number
+    }
     /**
      * PendingAttachment
      * @description Temporary attachment waiting to be attached to a note.
@@ -1150,19 +1429,35 @@ export type components = {
      *     Storage: pending/{number}
      */
     PendingAttachment: {
-      /** Number */
+      /**
+       * Number
+       * @description Global sequential, natural key
+       */
       number: number
-      /** Author */
+      /**
+       * Author
+       * @description Username, for ownership verification
+       */
       author: string
-      /** Filename */
+      /**
+       * Filename
+       * @description Original filename
+       */
       filename: string
-      /** Size */
+      /**
+       * Size
+       * @description File size in bytes
+       */
       size: number
-      /** Mime Type */
+      /**
+       * Mime Type
+       * @description MIME type
+       */
       mime_type: string
       /**
        * Created At
        * Format: date-time
+       * @description Upload timestamp
        */
       created_at: string
     }
@@ -1225,6 +1520,7 @@ export type components = {
       templates: {
         [key: string]: string
       }
+      telegram: components["schemas"]["TelegramSettings"] | null
       /**
        * Created At
        * Format: date-time
@@ -1237,23 +1533,54 @@ export type components = {
      * @description Space configuration for export.
      */
     SpaceExport: {
-      /** Slug */
+      /**
+       * Slug
+       * @description Space identifier
+       */
       slug: string
-      /** Title */
+      /**
+       * Title
+       * @description Space title
+       */
       title: string
-      /** Description */
+      /**
+       * Description
+       * @description Space description
+       */
       description: string
-      /** Members */
+      /**
+       * Members
+       * @description List of member usernames
+       */
       members: string[]
-      /** Fields */
+      /**
+       * Fields
+       * @description Field definitions
+       */
       fields: components["schemas"]["SpaceField"][]
-      /** Filters */
+      /**
+       * Filters
+       * @description Filter definitions
+       */
       filters: components["schemas"]["Filter"][]
-      /** Hidden Fields On Create */
+      /**
+       * Hidden Fields On Create
+       * @description Fields hidden on note creation form
+       */
       hidden_fields_on_create: string[]
+      /**
+       * Templates
+       * @description Liquid templates
+       */
+      templates: {
+        [key: string]: string
+      }
+      /** @description Telegram integration settings */
+      telegram: components["schemas"]["TelegramSettings"] | null
       /**
        * Created At
        * Format: date-time
+       * @description Creation timestamp
        */
       created_at: string
     }
@@ -1295,6 +1622,140 @@ export type components = {
        */
       default: string | boolean | string[] | number | null
     }
+    /**
+     * TelegramMirror
+     * @description Links note to its Telegram mirror post.
+     */
+    TelegramMirror: {
+      /**
+       * Space Slug
+       * @description Space identifier
+       */
+      space_slug: string
+      /**
+       * Note Number
+       * @description Note number within space
+       */
+      note_number: number
+      /**
+       * Channel Id
+       * @description Telegram channel ID or @username
+       */
+      channel_id: string
+      /**
+       * Message Id
+       * @description Telegram message ID for edit_message_text
+       */
+      message_id: number
+      /**
+       * Created At
+       * Format: date-time
+       * @description Creation timestamp
+       */
+      created_at: string
+      /**
+       * Updated At
+       * @description Last sync timestamp
+       */
+      updated_at: string | null
+    }
+    /**
+     * TelegramSettings
+     * @description Telegram integration settings for a space.
+     */
+    TelegramSettings: {
+      /**
+       * Activity Channel
+       * @description Channel for activity feed (@channel or -100...)
+       */
+      activity_channel: string | null
+      /**
+       * Mirror Channel
+       * @description Channel for note mirroring
+       */
+      mirror_channel: string | null
+    }
+    /**
+     * TelegramTask
+     * @description Task for Telegram message delivery. Processed by single worker.
+     */
+    TelegramTask: {
+      /**
+       * Number
+       * @description Sequential per space, unique with space_slug
+       */
+      number: number
+      /** @description Type of Telegram task */
+      task_type: components["schemas"]["TelegramTaskType"]
+      /**
+       * Channel Id
+       * @description Telegram channel ID or @username
+       */
+      channel_id: string
+      /**
+       * Space Slug
+       * @description Space identifier
+       */
+      space_slug: string
+      /**
+       * Note Number
+       * @description Note number within space
+       */
+      note_number: number
+      /**
+       * Payload
+       * @description Context for template rendering
+       */
+      payload: {
+        [key: string]: unknown
+      }
+      /**
+       * @description Task status
+       * @default pending
+       */
+      status: components["schemas"]["TelegramTaskStatus"]
+      /**
+       * Created At
+       * Format: date-time
+       * @description Creation timestamp
+       */
+      created_at: string
+      /**
+       * Attempted At
+       * @description Last API call time
+       */
+      attempted_at: string | null
+      /**
+       * Retries
+       * @description Number of retry attempts
+       * @default 0
+       */
+      retries: number
+      /**
+       * Error
+       * @description Last error message
+       */
+      error: string | null
+    }
+    /**
+     * TelegramTaskStatus
+     * @enum {string}
+     */
+    TelegramTaskStatus: "pending" | "completed" | "failed"
+    /**
+     * TelegramTaskType
+     * @description Task types for Telegram integration.
+     *
+     *     ACTIVITY_* — notifications to activity channel about events.
+     *     MIRROR_* — sync notes to mirror channel.
+     * @enum {string}
+     */
+    TelegramTaskType:
+      | "activity_note_created"
+      | "activity_note_updated"
+      | "activity_comment_created"
+      | "mirror_create"
+      | "mirror_update"
     /**
      * UpdateCommentRequest
      * @description Request to update comment content.
@@ -1351,6 +1812,13 @@ export type components = {
       raw_fields: {
         [key: string]: string
       }
+    }
+    /**
+     * UpdateTelegramRequest
+     * @description Space telegram settings update request.
+     */
+    UpdateTelegramRequest: {
+      telegram?: components["schemas"]["TelegramSettings"] | null
     }
     /**
      * UpdateTitleRequest
@@ -3517,6 +3985,307 @@ export interface operations {
         }
       }
       /** @description Space not found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  updateSpaceTelegram: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        space_slug: string
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateTelegramRequest"]
+      }
+    }
+    responses: {
+      /** @description Space telegram settings updated successfully */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["Space"]
+        }
+      }
+      /** @description Invalid request */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Admin privileges required */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Space not found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  listTelegramTasks: {
+    parameters: {
+      query?: {
+        /** @description Filter by space slug */
+        space_slug?: string | null
+        /** @description Filter by task type */
+        task_type?: components["schemas"]["TelegramTaskType"] | null
+        /** @description Filter by status */
+        status?: components["schemas"]["TelegramTaskStatus"] | null
+        /** @description Maximum items to return */
+        limit?: number
+        /** @description Number of items to skip */
+        offset?: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Paginated list of telegram tasks */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["PaginationResult_TelegramTask_"]
+        }
+      }
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Admin privileges required */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  getTelegramTask: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        space_slug: string
+        number: number
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Telegram task details */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["TelegramTask"]
+        }
+      }
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Admin privileges required */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Task not found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  listTelegramMirrors: {
+    parameters: {
+      query?: {
+        /** @description Filter by space slug */
+        space_slug?: string | null
+        /** @description Maximum items to return */
+        limit?: number
+        /** @description Number of items to skip */
+        offset?: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Paginated list of telegram mirrors */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["PaginationResult_TelegramMirror_"]
+        }
+      }
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Admin privileges required */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  getTelegramMirror: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        space_slug: string
+        note_number: number
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Telegram mirror details */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["TelegramMirror"]
+        }
+      }
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Admin privileges required */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Mirror not found */
       404: {
         headers: {
           [name: string]: unknown

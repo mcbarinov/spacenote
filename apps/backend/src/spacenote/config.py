@@ -17,3 +17,4 @@ class Config(BaseSettings):
     cors_origins: list[str] = Field(default=["http://localhost:3000"], description="CORS allowed origins")
     attachments_path: str = Field(default="./data/attachments", description="Attachment storage path")
     images_path: str = Field(default="./data/images", description="Image storage path")
+    telegram_bot_token: str | None = Field(default=None, description="Telegram bot token")

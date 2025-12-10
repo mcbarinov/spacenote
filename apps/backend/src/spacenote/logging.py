@@ -19,6 +19,9 @@ def setup_logging(debug: bool) -> None:
     logging.getLogger("pymongo.command").setLevel(logging.WARNING)
     logging.getLogger("multipart").setLevel(logging.WARNING)
     logging.getLogger("python_multipart").setLevel(logging.WARNING)
+    logging.getLogger("telegram").setLevel(logging.WARNING)
+    logging.getLogger("httpcore").setLevel(logging.WARNING)
+    logging.getLogger("httpx").setLevel(logging.WARNING)
 
     processors: list[structlog.types.Processor] = [
         structlog.stdlib.filter_by_level,

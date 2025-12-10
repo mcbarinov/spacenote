@@ -52,8 +52,8 @@ class UpdateHiddenFieldsOnCreateRequest(BaseModel):
     },
 )
 async def list_spaces(app: AppDep, auth_token: AuthTokenDep) -> list[Space]:
-    """Get spaces based on user role."""
-    return await app.get_spaces(auth_token)
+    """List spaces based on user role."""
+    return await app.list_spaces(auth_token)
 
 
 @router.post(

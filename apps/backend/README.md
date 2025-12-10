@@ -34,26 +34,35 @@ src/spacenote/
 │   │   ├── attachment/      # File attachments
 │   │   ├── comment/         # Note comments
 │   │   ├── counter/         # Sequential counters
+│   │   ├── export/          # Note/space exports
 │   │   ├── field/           # Space field definitions
+│   │   ├── filter/          # Query filters
 │   │   ├── image/           # Image processing (WebP conversion)
 │   │   ├── note/            # Notes
 │   │   ├── session/         # Authentication sessions
 │   │   ├── space/           # Spaces
+│   │   ├── telegram/        # Telegram bot integration
+│   │   ├── template/        # Template management
 │   │   └── user/            # User management
 │   ├── db.py                # MongoDB base models
 │   ├── core.py              # Services container
 │   ├── pagination.py        # Pagination utilities
+│   ├── schema.py            # Schema definitions
 │   └── service.py           # Base service class
 ├── web/                      # FastAPI application layer
 │   ├── routers/             # API endpoints
 │   │   ├── attachments.py   # File attachments
 │   │   ├── auth.py          # Login/logout
 │   │   ├── comments.py      # Note comments
+│   │   ├── exports.py       # Export endpoints
 │   │   ├── fields.py        # Space fields
+│   │   ├── filters.py       # Filter endpoints
 │   │   ├── images.py        # Image serving
 │   │   ├── notes.py         # Notes
 │   │   ├── profile.py       # User profile
 │   │   ├── spaces.py        # Spaces
+│   │   ├── telegram.py      # Telegram bot endpoints
+│   │   ├── templates.py     # Template endpoints
 │   │   └── users.py         # User management
 │   ├── deps.py              # Dependency injection
 │   ├── error_handlers.py    # Error handling

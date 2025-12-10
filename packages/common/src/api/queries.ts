@@ -1,6 +1,18 @@
 import { queryOptions } from "@tanstack/react-query"
 import { httpClient } from "./httpClient"
-import type { Attachment, CommentsList, ExportData, Note, NotesList, Space, User } from "../types"
+import type {
+  Attachment,
+  CommentsList,
+  ExportData,
+  Note,
+  NotesList,
+  Space,
+  TelegramMirrorsList,
+  TelegramTasksList,
+  TelegramTaskStatus,
+  TelegramTaskType,
+  User,
+} from "../types"
 
 /** Default page size for comments pagination */
 export const COMMENTS_PAGE_LIMIT = 100
@@ -87,5 +99,41 @@ export function exportSpace(spaceSlug: string, includeData: boolean) {
     queryKey: ["spaces", spaceSlug, "export", { includeData }],
     queryFn: () =>
       httpClient.get(`api/v1/spaces/${spaceSlug}/export`, { searchParams: { include_data: includeData } }).json<ExportData>(),
+  })
+}
+
+/** Fetches paginated telegram tasks (admin only) */
+export function listTelegramTasks(params?: {
+  space_slug?: string | null
+  task_type?: TelegramTaskType | null
+  status?: TelegramTaskStatus | null
+  limit?: number
+  offset?: number
+}) {
+  return queryOptions({
+    queryKey: ["telegram", "tasks", params],
+    queryFn: () => {
+      const searchParams: Record<string, string | number> = {}
+      if (params?.space_slug) searchParams.space_slug = params.space_slug
+      if (params?.task_type) searchParams.task_type = params.task_type
+      if (params?.status) searchParams.status = params.status
+      if (params?.limit) searchParams.limit = params.limit
+      if (params?.offset) searchParams.offset = params.offset
+      return httpClient.get("api/v1/telegram/tasks", { searchParams }).json<TelegramTasksList>()
+    },
+  })
+}
+
+/** Fetches paginated telegram mirrors (admin only) */
+export function listTelegramMirrors(params?: { space_slug?: string | null; limit?: number; offset?: number }) {
+  return queryOptions({
+    queryKey: ["telegram", "mirrors", params],
+    queryFn: () => {
+      const searchParams: Record<string, string | number> = {}
+      if (params?.space_slug) searchParams.space_slug = params.space_slug
+      if (params?.limit) searchParams.limit = params.limit
+      if (params?.offset) searchParams.offset = params.offset
+      return httpClient.get("api/v1/telegram/mirrors", { searchParams }).json<TelegramMirrorsList>()
+    },
   })
 }

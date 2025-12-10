@@ -8,8 +8,8 @@ Admin panel for Spacenote system management.
 src/
 ├── main.tsx
 ├── components/
-│   ├── SpaceHeader.tsx
-│   └── SpaceMenu.tsx
+│   ├── SpaceMenu.tsx
+│   └── SpaceTabs.tsx
 └── routes/
     ├── __root.tsx
     ├── login.tsx
@@ -19,33 +19,29 @@ src/
         ├── spaces/
         │   ├── index.tsx
         │   ├── new.tsx
+        │   ├── import.tsx
         │   ├── -components/
         │   │   └── SpacesTable.tsx
         │   └── $slug/
+        │       ├── export/
         │       ├── members/
-        │       │   └── route.tsx
         │       ├── fields/
-        │       │   ├── index.tsx
-        │       │   ├── new.tsx
-        │       │   └── -components/
-        │       │       └── FieldsTable.tsx
         │       ├── filters/
-        │       │   ├── index.tsx
-        │       │   ├── new.tsx
+        │       ├── settings/
         │       │   └── -components/
-        │       │       └── FiltersTable.tsx
-        │       └── settings/
-        │           ├── index.tsx
-        │           └── -components/
-        │               ├── DeleteSpace.tsx
-        │               ├── EditDescription.tsx
-        │               ├── EditHiddenFieldsOnCreate.tsx
-        │               ├── EditNotesListDefaultColumns.tsx
-        │               └── EditTitle.tsx
+        │       │       ├── DeleteSpace.tsx
+        │       │       ├── EditDescription.tsx
+        │       │       ├── EditHiddenFieldsOnCreate.tsx
+        │       │       ├── EditTelegram.tsx
+        │       │       └── EditTitle.tsx
+        │       └── templates/
+        ├── telegram/
+        │   ├── tasks/
+        │   └── mirrors/
         └── users/
-            ├── route.tsx
+            ├── index.tsx
+            ├── new.tsx
             └── -components/
-                ├── CreateUserModal.tsx
                 └── UsersTable.tsx
 ```
 

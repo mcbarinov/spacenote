@@ -43,6 +43,17 @@ Shared frontend code for all React applications:
 - **Components**: Reusable UI components, error boundaries
 - **Utilities**: Formatters, helpers, error handling
 
+## Documentation
+
+| File | Description |
+|------|-------------|
+| `docs/concepts.md` | Domain model, features, key decisions (read first) |
+| `docs/backend.md` | Backend architecture (DB schema, services) |
+| `docs/backend-ai.md` | AI coding rules for backend |
+| `docs/frontend.md` | Frontend architecture (routing, data layer) |
+| `docs/frontend-ai.md` | AI coding rules for frontend |
+| `docs/space-examples.md` | Space configuration examples |
+
 ## Technology Stack
 
 **Backend:**

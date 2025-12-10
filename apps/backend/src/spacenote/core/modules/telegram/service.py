@@ -6,12 +6,12 @@ from typing import Any
 import structlog
 from pymongo.asynchronous.collection import AsyncCollection
 
+import telegram
 from spacenote.core.db import Collection
 from spacenote.core.modules.comment.models import Comment
 from spacenote.core.modules.counter.models import CounterType
 from spacenote.core.modules.note.models import Note
 from spacenote.core.modules.space.models import Space
-from spacenote.core.modules.telegram import sender
 from spacenote.core.modules.telegram.models import (
     TelegramMirror,
     TelegramSettings,
@@ -33,6 +33,22 @@ class TelegramService(Service):
 
     def __init__(self) -> None:
         self._worker_task: asyncio.Task[None] | None = None
+        self._bot: telegram.Bot | None = None
+
+    @property
+    def bot(self) -> telegram.Bot:
+        if self._bot is None:
+            raise RuntimeError("Telegram bot not configured")
+        return self._bot
+
+    async def _send_message(self, chat_id: str, text: str) -> int:
+        """Send message to Telegram, return message_id."""
+        message = await self.bot.send_message(chat_id=chat_id, text=text, parse_mode="HTML")
+        return message.message_id
+
+    async def _edit_message(self, chat_id: str, message_id: int, text: str) -> None:
+        """Edit existing Telegram message text."""
+        await self.bot.edit_message_text(chat_id=chat_id, message_id=message_id, text=text, parse_mode="HTML")
 
     @cached_property
     def _tasks_collection(self) -> AsyncCollection[dict[str, Any]]:
@@ -52,6 +68,7 @@ class TelegramService(Service):
 
         # Start worker if telegram bot token is configured
         if self.core.config.telegram_bot_token:
+            self._bot = telegram.Bot(token=self.core.config.telegram_bot_token)
             self._worker_task = asyncio.create_task(self._run_worker())
 
     async def update_settings(self, slug: str, telegram: TelegramSettings | None) -> Space:
@@ -97,10 +114,7 @@ class TelegramService(Service):
         return TelegramMirror.model_validate(doc)
 
     async def list_telegram_mirrors(
-        self,
-        space_slug: str | None = None,
-        limit: int = 50,
-        offset: int = 0,
+        self, space_slug: str | None = None, limit: int = 50, offset: int = 0
     ) -> PaginationResult[TelegramMirror]:
         """List telegram mirrors with optional space filter."""
         query: dict[str, Any] = {}
@@ -223,11 +237,7 @@ class TelegramService(Service):
             raise ValueError(f"No template found for {template_key}")
 
         try:
-            await sender.send_message(
-                token=self.core.config.telegram_bot_token,  # type: ignore[arg-type]
-                chat_id=task.channel_id,
-                text=text,
-            )
+            await self._send_message(chat_id=task.channel_id, text=text)
             await self._update_task(task, {"$set": {"status": "completed"}})
             logger.debug("telegram_task_completed", task_type=task.task_type, space_slug=task.space_slug, number=task.number)
         except RetryAfter as e:
@@ -266,11 +276,7 @@ class TelegramService(Service):
 
     async def _mirror_create(self, task: TelegramTask, text: str) -> None:
         """Send new mirror message and create mirror record."""
-        message_id = await sender.send_message(
-            token=self.core.config.telegram_bot_token,  # type: ignore[arg-type]
-            chat_id=task.channel_id,
-            text=text,
-        )
+        message_id = await self._send_message(chat_id=task.channel_id, text=text)
         mirror = TelegramMirror(
             space_slug=task.space_slug,
             note_number=task.note_number,
@@ -286,12 +292,7 @@ class TelegramService(Service):
         if doc:
             mirror = TelegramMirror.model_validate(doc)
             try:
-                await sender.edit_message_text(
-                    token=self.core.config.telegram_bot_token,  # type: ignore[arg-type]
-                    chat_id=task.channel_id,
-                    message_id=mirror.message_id,
-                    text=text,
-                )
+                await self._edit_message(chat_id=task.channel_id, message_id=mirror.message_id, text=text)
                 await self._mirrors_collection.update_one(
                     {"space_slug": task.space_slug, "note_number": task.note_number},
                     {"$set": {"updated_at": now()}},

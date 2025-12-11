@@ -5,6 +5,7 @@ export { Username } from "./ui/Username"
 export { SpaceSlug } from "./ui/SpaceSlug"
 export { CustomLink } from "./navigation/CustomLink"
 export { LinkButton } from "./navigation/LinkButton"
+export { NavigationTabs } from "./navigation/NavigationTabs"
 
 export { Header } from "./layout/Header"
 export { Footer } from "./layout/Footer"

@@ -6,8 +6,8 @@ import { notifications } from "@mantine/notifications"
 import { IconPlus } from "@tabler/icons-react"
 import { api } from "@spacenote/common/api"
 import { ErrorMessage, PageHeader } from "@spacenote/common/components"
-import type { FilterOperator } from "@spacenote/common/types"
 import { SpaceTabs } from "@/components/SpaceTabs"
+import type { FilterOperator } from "@spacenote/common/types"
 import { ConditionRow } from "../-components/ConditionRow"
 import {
   allFilterSchema,

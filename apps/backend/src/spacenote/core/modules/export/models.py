@@ -30,6 +30,8 @@ class NoteExport(OpenAPIModel):
     author: str = Field(..., description="Username of note creator")
     created_at: datetime = Field(..., description="Creation timestamp")
     edited_at: datetime | None = Field(..., description="Last edit timestamp")
+    commented_at: datetime | None = Field(..., description="Last comment timestamp")
+    activity_at: datetime = Field(..., description="Last activity timestamp")
     fields: dict[str, FieldValueType] = Field(..., description="Field values")
 
 

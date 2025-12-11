@@ -13,7 +13,10 @@ interface NotesListDefaultProps {
 const SYSTEM_FIELD_LABELS: Record<string, string> = {
   "note.number": "Number",
   "note.created_at": "Created",
+  "note.edited_at": "Edited",
+  "note.activity_at": "Activity",
   "note.author": "Author",
+  "note.title": "Title",
 }
 
 /** Operators for clickable field types */
@@ -39,10 +42,13 @@ function getFieldLabel(field: string, spaceFields: SpaceField[]): string {
   return spaceFields.find((f) => f.name === fieldName)?.name ?? fieldName
 }
 
+/** System fields that are not clickable/filterable */
+const NON_CLICKABLE_SYSTEM_FIELDS = ["note.number", "note.created_at", "note.edited_at", "note.activity_at", "note.title"]
+
 /** Gets field type for a given field path */
 function getFieldType(field: string, spaceFields: SpaceField[]): FieldType | null {
   if (field === "note.author") return "user"
-  if (field === "note.number" || field === "note.created_at") return null
+  if (NON_CLICKABLE_SYSTEM_FIELDS.includes(field)) return null
   const fieldName = getFieldName(field)
   return spaceFields.find((f) => f.name === fieldName)?.type ?? null
 }
@@ -102,13 +108,17 @@ export function NotesListDefault({ notes, space, displayFields, q }: NotesListDe
 
   /** Renders field value, making it clickable if applicable */
   function renderFieldValue(field: string, note: Note): React.ReactNode {
+    // System fields - access directly from note object
     if (field === "note.number") return note.number
     if (field === "note.created_at") return formatDate(note.created_at)
+    if (field === "note.edited_at") return note.edited_at ? formatDate(note.edited_at) : ""
+    if (field === "note.activity_at") return formatDate(note.activity_at)
+    if (field === "note.title") return note.title
 
     const fieldName = getFieldName(field)
     const fieldType = getFieldType(field, space.fields)
 
-    // System author field
+    // System author field (clickable)
     if (field === "note.author") {
       return (
         <ClickableValue

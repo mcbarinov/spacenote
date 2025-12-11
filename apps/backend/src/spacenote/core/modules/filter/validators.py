@@ -29,14 +29,9 @@ def validate_filter(space: Space, filter: Filter) -> Filter:
 
     validated_conditions = [_validate_condition(c, space) for c in filter.conditions]
     validated_sort = [_validate_sort_field(s, space) for s in filter.sort]
-    validate_notes_list_columns(space, filter.notes_list_default_columns)
+    validate_notes_list_columns(space, filter.default_columns)
 
-    return Filter(
-        name=filter.name,
-        notes_list_default_columns=filter.notes_list_default_columns,
-        conditions=validated_conditions,
-        sort=validated_sort,
-    )
+    return Filter(name=filter.name, default_columns=filter.default_columns, conditions=validated_conditions, sort=validated_sort)
 
 
 def _validate_string_value(field: SpaceField, value: FieldValueType) -> str:

@@ -54,10 +54,10 @@ function SpacePage() {
   // Column priority: selected filter > "all" filter > hardcoded defaults
   const selectedFilter = filter ? space.filters.find((f) => f.name === filter) : undefined
   const allFilter = space.filters.find((f) => f.name === "all")
-  const displayFields = selectedFilter?.notes_list_default_columns.length
-    ? selectedFilter.notes_list_default_columns
-    : allFilter?.notes_list_default_columns.length
-      ? allFilter.notes_list_default_columns
+  const displayFields = selectedFilter?.default_columns.length
+    ? selectedFilter.default_columns
+    : allFilter?.default_columns.length
+      ? allFilter.default_columns
       : ["note.number", "note.created_at", "note.author"]
 
   return (

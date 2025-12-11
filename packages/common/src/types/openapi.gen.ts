@@ -334,7 +334,7 @@ export type paths = {
     get?: never
     /**
      * Update filter in space
-     * @description Update a filter in a space. Only accessible by admin users. If name in body differs from filter_name in URL, the filter will be renamed. The 'all' filter can only have sort and notes_list_default_columns modified.
+     * @description Update a filter in a space. Only accessible by admin users. If name in body differs from filter_name in URL, the filter will be renamed. The 'all' filter can only have sort and default_columns modified.
      */
     put: operations["updateFilterInSpace"]
     post?: never
@@ -1167,10 +1167,10 @@ export type components = {
        */
       name: string
       /**
-       * Notes List Default Columns
-       * @description Columns for notes list
+       * Default Columns
+       * @description Fields to display as columns in default view mode
        */
-      notes_list_default_columns: string[]
+      default_columns: string[]
       /**
        * Conditions
        * @description Filter conditions (combined with AND)

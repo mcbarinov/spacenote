@@ -27,7 +27,7 @@ function AddFilterPage() {
   const form = useForm<FilterFormValues>({
     initialValues: {
       name: "",
-      notesListDefaultColumns: "",
+      defaultColumns: "",
       conditions: [],
       sort: [],
     },
@@ -48,7 +48,7 @@ function AddFilterPage() {
   }
 
   const handleSubmit = form.onSubmit((values) => {
-    const notesListDefaultColumns = values.notesListDefaultColumns
+    const defaultColumns = values.defaultColumns
       .split(",")
       .map((s) => s.trim())
       .filter(Boolean)
@@ -64,7 +64,7 @@ function AddFilterPage() {
     addFilterMutation.mutate(
       {
         name: values.name,
-        notes_list_default_columns: notesListDefaultColumns,
+        default_columns: defaultColumns,
         conditions,
         sort: values.sort,
       },
@@ -97,7 +97,7 @@ function AddFilterPage() {
               label="Notes List Columns"
               placeholder="note.fields.title, note.fields.status, note.created_at"
               description="Comma-separated field names to show in list view"
-              {...form.getInputProps("notesListDefaultColumns")}
+              {...form.getInputProps("defaultColumns")}
             />
 
             <Stack gap="xs">

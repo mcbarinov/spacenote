@@ -32,6 +32,8 @@ Dynamic schema system where each space defines its own fields:
 - **Properties**: required/optional, default values, type-specific options
 - Fields are space-specific, enabling flexible data modeling
 
+See `docs/fields.md` for detailed field types, options, and VALUE_MAPS reference.
+
 ### 1.4 User
 
 System user account:

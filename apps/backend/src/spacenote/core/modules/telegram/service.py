@@ -126,6 +126,16 @@ class TelegramService(Service):
         items = await TelegramMirror.list_cursor(cursor)
         return PaginationResult(items=items, total=total, limit=limit, offset=offset)
 
+    async def delete_telegram_tasks_by_space(self, space_slug: str) -> int:
+        """Delete all telegram tasks for a space."""
+        result = await self._tasks_collection.delete_many({"space_slug": space_slug})
+        return result.deleted_count
+
+    async def delete_telegram_mirrors_by_space(self, space_slug: str) -> int:
+        """Delete all telegram mirrors for a space."""
+        result = await self._mirrors_collection.delete_many({"space_slug": space_slug})
+        return result.deleted_count
+
     # --- Activity notifications ---
 
     async def notify_activity_note_created(self, note: Note) -> None:

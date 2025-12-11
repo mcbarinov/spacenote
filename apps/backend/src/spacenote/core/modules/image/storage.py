@@ -1,3 +1,4 @@
+import shutil
 from pathlib import Path
 
 
@@ -26,3 +27,13 @@ def read_image(images_path: str, space_slug: str, note_number: int, attachment_n
 def ensure_images_dir(images_path: str) -> None:
     """Ensure images directory exists."""
     Path(images_path).mkdir(parents=True, exist_ok=True)
+
+
+def delete_space_dir(images_path: str, space_slug: str) -> None:
+    """Delete entire space images directory."""
+    base = Path(images_path).resolve()
+    path = base / space_slug
+    if not path.resolve().is_relative_to(base):
+        raise ValueError("Invalid image path")
+    if path.exists():
+        shutil.rmtree(path)

@@ -1,3 +1,4 @@
+import shutil
 from pathlib import Path
 
 SPACE_ATTACHMENTS_DIR = "__space__"
@@ -68,3 +69,13 @@ def move_pending_to_attachment(
     dst.parent.mkdir(parents=True, exist_ok=True)
     src.rename(dst)
     return dst
+
+
+def delete_space_dir(attachments_path: str, space_slug: str) -> None:
+    """Delete entire space attachments directory."""
+    base = Path(attachments_path).resolve()
+    path = base / space_slug
+    if not path.resolve().is_relative_to(base):
+        raise ValueError("Invalid attachment path")
+    if path.exists():
+        shutil.rmtree(path)

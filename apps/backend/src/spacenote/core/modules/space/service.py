@@ -119,6 +119,10 @@ class SpaceService(Service):
         if not self.has_space(slug):
             raise NotFoundError(f"Space '{slug}' not found")
 
+        await self.core.services.telegram.delete_telegram_tasks_by_space(slug)
+        await self.core.services.telegram.delete_telegram_mirrors_by_space(slug)
+        await self.core.services.attachment.delete_attachments_by_space(slug)
+        self.core.services.image.delete_images_by_space(slug)
         await self.core.services.comment.delete_comments_by_space(slug)
         await self.core.services.note.delete_notes_by_space(slug)
         await self.core.services.counter.delete_counters_by_space(slug)

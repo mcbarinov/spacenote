@@ -29,7 +29,7 @@ export function FiltersTable({ spaceSlug, filters }: FiltersTableProps) {
         <Table.Thead>
           <Table.Tr>
             <Table.Th>Name</Table.Th>
-            <Table.Th>Notes List Columns</Table.Th>
+            <Table.Th>Default Columns</Table.Th>
             <Table.Th>Conditions</Table.Th>
             <Table.Th>Sort</Table.Th>
             <Table.Th>Actions</Table.Th>

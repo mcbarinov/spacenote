@@ -94,9 +94,9 @@ function AddFilterPage() {
             <TextInput label="Name" placeholder="filter_name" autoFocus withAsterisk {...form.getInputProps("name")} />
 
             <TextInput
-              label="Notes List Columns"
+              label="Default Columns"
               placeholder="note.fields.title, note.fields.status, note.created_at"
-              description="Comma-separated field names to show in list view"
+              description="Fields to display as columns in default view mode"
               {...form.getInputProps("defaultColumns")}
             />
 

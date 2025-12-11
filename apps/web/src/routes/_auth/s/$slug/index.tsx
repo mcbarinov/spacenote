@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { Group, Select } from "@mantine/core"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { api } from "@spacenote/common/api"
-import { LinkButton, PageHeader } from "@spacenote/common/components"
+import { LinkButton, NavigationTabs, PageHeader } from "@spacenote/common/components"
 import { z } from "zod"
 import { NotesListDefault } from "./-components/NotesListDefault"
 import { NotesListJson } from "./-components/NotesListJson"
@@ -54,10 +54,10 @@ function SpacePage() {
   // Column priority: selected filter > "all" filter > hardcoded defaults
   const selectedFilter = filter ? space.filters.find((f) => f.name === filter) : undefined
   const allFilter = space.filters.find((f) => f.name === "all")
-  const displayFields = selectedFilter?.notes_list_default_columns.length
-    ? selectedFilter.notes_list_default_columns
-    : allFilter?.notes_list_default_columns.length
-      ? allFilter.notes_list_default_columns
+  const displayFields = selectedFilter?.default_columns.length
+    ? selectedFilter.default_columns
+    : allFilter?.default_columns.length
+      ? allFilter.default_columns
       : ["note.number", "note.created_at", "note.author"]
 
   return (
@@ -66,12 +66,15 @@ function SpacePage() {
         title={space.title}
         breadcrumbs={[{ label: "Home", to: "/" }, { label: `◈ ${space.slug}` }]}
         topActions={
-          <Group gap="xs">
-            <LinkButton to="/s/$slug" params={{ slug }} variant="light" size="xs">
-              Notes
-            </LinkButton>
-            <LinkButton to="/s/$slug/attachments" params={{ slug }} variant="subtle" size="xs">
-              Attachments
+          <Group gap="sm">
+            <NavigationTabs
+              tabs={[
+                { label: "Notes", to: "/s/$slug", params: { slug } },
+                { label: "Attachments", to: "/s/$slug/attachments", params: { slug } },
+              ]}
+            />
+            <LinkButton to="/s/$slug/new" params={{ slug }} variant="light">
+              New Note
             </LinkButton>
           </Group>
         }
@@ -93,9 +96,6 @@ function SpacePage() {
               />
             )}
             <ViewModeMenu slug={slug} filter={filter} currentView={resolvedView} hasTemplate={hasTemplate} />
-            <LinkButton to="/s/$slug/new" params={{ slug }} variant="light">
-              New Note
-            </LinkButton>
           </Group>
         }
       />

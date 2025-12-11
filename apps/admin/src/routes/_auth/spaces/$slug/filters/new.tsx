@@ -6,8 +6,8 @@ import { notifications } from "@mantine/notifications"
 import { IconPlus } from "@tabler/icons-react"
 import { api } from "@spacenote/common/api"
 import { ErrorMessage, PageHeader } from "@spacenote/common/components"
-import type { FilterOperator } from "@spacenote/common/types"
 import { SpaceTabs } from "@/components/SpaceTabs"
+import type { FilterOperator } from "@spacenote/common/types"
 import { ConditionRow } from "./-components/ConditionRow"
 import { type FilterFormValues, filterSchema, generateConditionId, SYSTEM_FIELDS } from "./-components/filterFormUtils"
 
@@ -27,7 +27,7 @@ function AddFilterPage() {
   const form = useForm<FilterFormValues>({
     initialValues: {
       name: "",
-      notesListDefaultColumns: "",
+      defaultColumns: "",
       conditions: [],
       sort: [],
     },
@@ -48,7 +48,7 @@ function AddFilterPage() {
   }
 
   const handleSubmit = form.onSubmit((values) => {
-    const notesListDefaultColumns = values.notesListDefaultColumns
+    const defaultColumns = values.defaultColumns
       .split(",")
       .map((s) => s.trim())
       .filter(Boolean)
@@ -64,7 +64,7 @@ function AddFilterPage() {
     addFilterMutation.mutate(
       {
         name: values.name,
-        notes_list_default_columns: notesListDefaultColumns,
+        default_columns: defaultColumns,
         conditions,
         sort: values.sort,
       },
@@ -94,10 +94,10 @@ function AddFilterPage() {
             <TextInput label="Name" placeholder="filter_name" autoFocus withAsterisk {...form.getInputProps("name")} />
 
             <TextInput
-              label="Notes List Columns"
+              label="Default Columns"
               placeholder="note.fields.title, note.fields.status, note.created_at"
-              description="Comma-separated field names to show in list view"
-              {...form.getInputProps("notesListDefaultColumns")}
+              description="Fields to display as columns in default view mode"
+              {...form.getInputProps("defaultColumns")}
             />
 
             <Stack gap="xs">

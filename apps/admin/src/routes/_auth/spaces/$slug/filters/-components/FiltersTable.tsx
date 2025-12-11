@@ -29,7 +29,7 @@ export function FiltersTable({ spaceSlug, filters }: FiltersTableProps) {
         <Table.Thead>
           <Table.Tr>
             <Table.Th>Name</Table.Th>
-            <Table.Th>Notes List Columns</Table.Th>
+            <Table.Th>Default Columns</Table.Th>
             <Table.Th>Conditions</Table.Th>
             <Table.Th>Sort</Table.Th>
             <Table.Th>Actions</Table.Th>
@@ -40,7 +40,7 @@ export function FiltersTable({ spaceSlug, filters }: FiltersTableProps) {
             <Table.Tr key={filter.name}>
               <Table.Td>{filter.name}</Table.Td>
               <Table.Td>
-                <Code>{filter.notes_list_default_columns.join(", ") || "-"}</Code>
+                <Code>{filter.default_columns.join(", ") || "-"}</Code>
               </Table.Td>
               <Table.Td>
                 {filter.conditions.map((c, i) => (

@@ -29,6 +29,7 @@ export function FieldsTable({ spaceSlug, fields }: FieldsTableProps) {
             <Table.Th>Name</Table.Th>
             <Table.Th>Type</Table.Th>
             <Table.Th>Required</Table.Th>
+            <Table.Th>Default</Table.Th>
             <Table.Th>Options</Table.Th>
             <Table.Th>Actions</Table.Th>
           </Table.Tr>
@@ -41,6 +42,9 @@ export function FieldsTable({ spaceSlug, fields }: FieldsTableProps) {
                 <Badge variant="light">{field.type}</Badge>
               </Table.Td>
               <Table.Td>{field.required ? "Yes" : "No"}</Table.Td>
+              <Table.Td>
+                <Code>{field.default !== null ? JSON.stringify(field.default) : "-"}</Code>
+              </Table.Td>
               <Table.Td>
                 <Code>{Object.keys(field.options).length > 0 ? JSON.stringify(field.options) : "-"}</Code>
               </Table.Td>

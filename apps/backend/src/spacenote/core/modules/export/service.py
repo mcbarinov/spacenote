@@ -66,6 +66,8 @@ class ExportService(Service):
                 author=note.author,
                 created_at=note.created_at,
                 edited_at=note.edited_at,
+                commented_at=note.commented_at,
+                activity_at=note.activity_at,
                 fields=note.fields,
             )
             for note in notes
@@ -140,6 +142,8 @@ class ExportService(Service):
                     author=n.author,
                     created_at=n.created_at,
                     edited_at=n.edited_at,
+                    commented_at=n.commented_at,
+                    activity_at=n.activity_at,
                     fields=n.fields,
                 )
                 for n in data.notes

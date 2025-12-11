@@ -3,7 +3,7 @@ import { ActionIcon, Group, Table, Text } from "@mantine/core"
 import { IconDownload } from "@tabler/icons-react"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { api } from "@spacenote/common/api"
-import { LinkButton, PageHeader } from "@spacenote/common/components"
+import { LinkButton, NavigationTabs, PageHeader } from "@spacenote/common/components"
 import { formatDate, formatFileSize } from "@spacenote/common/utils"
 
 export const Route = createFileRoute("/_auth/s/$slug/attachments/")({
@@ -25,19 +25,17 @@ function AttachmentsPage() {
         title="Attachments"
         breadcrumbs={[{ label: "Home", to: "/" }, { label: `◈ ${space.slug}` }]}
         topActions={
-          <Group gap="xs">
-            <LinkButton to="/s/$slug" params={{ slug }} variant="subtle" size="xs">
-              Notes
-            </LinkButton>
-            <LinkButton to="/s/$slug/attachments" params={{ slug }} variant="light" size="xs">
-              Attachments
+          <Group gap="sm">
+            <NavigationTabs
+              tabs={[
+                { label: "Notes", to: "/s/$slug", params: { slug } },
+                { label: "Attachments", to: "/s/$slug/attachments", params: { slug } },
+              ]}
+            />
+            <LinkButton to="/s/$slug/attachments/new" params={{ slug }}>
+              Upload
             </LinkButton>
           </Group>
-        }
-        actions={
-          <LinkButton to="/s/$slug/attachments/new" params={{ slug }}>
-            Upload
-          </LinkButton>
         }
       />
 

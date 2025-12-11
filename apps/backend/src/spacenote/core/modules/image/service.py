@@ -111,3 +111,7 @@ class ImageService(Service):
         if not path.exists():
             raise NotFoundError("Image not found")
         return path
+
+    def delete_images_by_space(self, space_slug: str) -> None:
+        """Delete all images for a space."""
+        image_storage.delete_space_dir(self.core.config.images_path, space_slug)

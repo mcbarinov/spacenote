@@ -35,7 +35,7 @@ export const filterSchema = z.object({
     .string()
     .min(1, { message: "Name is required" })
     .regex(/^[a-zA-Z0-9_-]+$/, { message: "Name must contain only letters, numbers, hyphens and underscores" }),
-  notesListDefaultColumns: z.string(),
+  defaultColumns: z.string(),
   conditions: z.array(conditionSchema).min(1, { message: "At least one condition is required" }),
   sort: z.array(z.string()).min(1, { message: "At least one sort field is required" }),
 })
@@ -43,7 +43,7 @@ export const filterSchema = z.object({
 /** Zod schema for "all" filter (no conditions required) */
 export const allFilterSchema = z.object({
   name: z.string(),
-  notesListDefaultColumns: z.string(),
+  defaultColumns: z.string(),
   conditions: z.array(conditionSchema),
   sort: z.array(z.string()).min(1, { message: "At least one sort field is required" }),
 })

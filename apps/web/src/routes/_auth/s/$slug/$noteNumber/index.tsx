@@ -3,7 +3,7 @@ import { Divider, Group, Title } from "@mantine/core"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { z } from "zod"
 import { api, COMMENTS_PAGE_LIMIT } from "@spacenote/common/api"
-import { LinkButton, PageHeader } from "@spacenote/common/components"
+import { LinkButton, NavigationTabs, PageHeader } from "@spacenote/common/components"
 import { CommentForm } from "./-components/CommentForm"
 import { CommentList } from "./-components/CommentList"
 import { NoteDetailsDefault } from "./-components/NoteDetailsDefault"
@@ -60,17 +60,13 @@ function NoteDetailPage() {
           { label: `Note #${String(note.number)}` },
         ]}
         topActions={
-          <Group gap="xs">
-            <LinkButton to="/s/$slug/$noteNumber" params={{ slug, noteNumber }} variant="light" size="xs">
-              Note
-            </LinkButton>
-            <LinkButton to="/s/$slug/$noteNumber/attachments" params={{ slug, noteNumber }} variant="subtle" size="xs">
-              Attachments
-            </LinkButton>
-          </Group>
-        }
-        actions={
-          <Group gap="xs">
+          <Group gap="sm">
+            <NavigationTabs
+              tabs={[
+                { label: "Note", to: "/s/$slug/$noteNumber", params: { slug, noteNumber } },
+                { label: "Attachments", to: "/s/$slug/$noteNumber/attachments", params: { slug, noteNumber } },
+              ]}
+            />
             <ViewModeMenu slug={slug} noteNumber={noteNumber} currentView={resolvedView} hasTemplate={hasTemplate} />
             <LinkButton to="/s/$slug/$noteNumber/edit" params={{ slug, noteNumber }}>
               Edit

@@ -128,3 +128,9 @@ class AttachmentService(Service):
 
         await self._attachments_collection.insert_many([a.to_mongo() for a in attachments])
         return len(attachments)
+
+    async def delete_attachments_by_space(self, space_slug: str) -> int:
+        """Delete all attachments in a space (DB records + files)."""
+        result = await self._attachments_collection.delete_many({"space_slug": space_slug})
+        storage.delete_space_dir(self.core.config.attachments_path, space_slug)
+        return result.deleted_count

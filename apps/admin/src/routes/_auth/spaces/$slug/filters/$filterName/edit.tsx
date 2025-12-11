@@ -6,8 +6,8 @@ import { notifications } from "@mantine/notifications"
 import { IconPlus } from "@tabler/icons-react"
 import { api } from "@spacenote/common/api"
 import { ErrorMessage, PageHeader } from "@spacenote/common/components"
-import type { FilterOperator } from "@spacenote/common/types"
 import { SpaceTabs } from "@/components/SpaceTabs"
+import type { FilterOperator } from "@spacenote/common/types"
 import { ConditionRow } from "../-components/ConditionRow"
 import {
   allFilterSchema,
@@ -33,7 +33,7 @@ function EditFilterPage() {
     throw new Error(`Filter "${filterName}" not found`)
   }
 
-  // "all" filter is special - only sort and notes_list_default_columns can be modified
+  // "all" filter is special - only sort and default_columns can be modified
   const isAllFilter = filterName === "all"
 
   const allFields = [...space.fields.map((f) => ({ ...f, name: `note.fields.${f.name}` })), ...SYSTEM_FIELDS]
@@ -41,7 +41,7 @@ function EditFilterPage() {
   const form = useForm<FilterFormValues>({
     initialValues: {
       name: filter.name,
-      notesListDefaultColumns: filter.notes_list_default_columns.join(", "),
+      defaultColumns: filter.default_columns.join(", "),
       conditions: filter.conditions.map((c, i) => ({
         id: `condition-${String(i)}`,
         field: c.field,
@@ -67,7 +67,7 @@ function EditFilterPage() {
   }
 
   const handleSubmit = form.onSubmit((values) => {
-    const notesListDefaultColumns = values.notesListDefaultColumns
+    const defaultColumns = values.defaultColumns
       .split(",")
       .map((s) => s.trim())
       .filter(Boolean)
@@ -83,7 +83,7 @@ function EditFilterPage() {
     updateFilterMutation.mutate(
       {
         name: values.name,
-        notes_list_default_columns: notesListDefaultColumns,
+        default_columns: defaultColumns,
         conditions,
         sort: values.sort,
       },
@@ -119,10 +119,10 @@ function EditFilterPage() {
             />
 
             <TextInput
-              label="Notes List Columns"
+              label="Default Columns"
               placeholder="note.fields.title, note.fields.status, note.created_at"
-              description="Comma-separated field names to show in list view"
-              {...form.getInputProps("notesListDefaultColumns")}
+              description="Fields to display as columns in default view mode"
+              {...form.getInputProps("defaultColumns")}
             />
 
             {!isAllFilter && (

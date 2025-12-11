@@ -30,7 +30,7 @@ async def add_filter(space_slug: str, filter: Filter, app: AppDep, auth_token: A
     summary="Update filter in space",
     description="Update a filter in a space. Only accessible by admin users. "
     "If name in body differs from filter_name in URL, the filter will be renamed. "
-    "The 'all' filter can only have sort and notes_list_default_columns modified.",
+    "The 'all' filter can only have sort and default_columns modified.",
     operation_id="updateFilterInSpace",
     responses={
         200: {"description": "Returns updated filter"},

@@ -26,9 +26,43 @@ const addFieldSchema = z.object({
   minValue: z.number().nullable(), // for "int", "float" types
   maxValue: z.number().nullable(), // for "int", "float" types
   maxWidth: z.number().nullable(), // for "image" type
+  // Default value fields (type-specific)
+  defaultString: z.string(),
+  defaultBoolean: z.boolean().nullable(),
+  defaultSelect: z.string().nullable(),
+  defaultTags: z.array(z.string()),
+  defaultUser: z.string().nullable(),
+  defaultDatetime: z.string().nullable(),
+  defaultInt: z.number().nullable(),
+  defaultFloat: z.number().nullable(),
 })
 
 type FormValues = z.infer<typeof addFieldSchema>
+
+/** Extracts the correct default value based on field type */
+function getDefaultValue(values: FormValues, fieldType: FieldType): SpaceField["default"] {
+  switch (fieldType) {
+    case "string":
+    case "markdown":
+      return values.defaultString || null
+    case "boolean":
+      return values.defaultBoolean
+    case "select":
+      return values.defaultSelect
+    case "tags":
+      return values.defaultTags.length > 0 ? values.defaultTags : null
+    case "user":
+      return values.defaultUser
+    case "datetime":
+      return values.defaultDatetime
+    case "int":
+      return values.defaultInt
+    case "float":
+      return values.defaultFloat
+    default:
+      return null
+  }
+}
 
 /** Form to add a new field to a space */
 function AddFieldPage() {
@@ -42,10 +76,18 @@ function AddFieldPage() {
       name: "",
       type: "string",
       required: false,
-      selectValues: [], // for "select" type
-      minValue: null, // for "int", "float" types
-      maxValue: null, // for "int", "float" types
-      maxWidth: null, // for "image" type
+      selectValues: [],
+      minValue: null,
+      maxValue: null,
+      maxWidth: null,
+      defaultString: "",
+      defaultBoolean: null,
+      defaultSelect: null,
+      defaultTags: [],
+      defaultUser: null,
+      defaultDatetime: null,
+      defaultInt: null,
+      defaultFloat: null,
     },
     validate: zod4Resolver(addFieldSchema),
   })
@@ -76,7 +118,7 @@ function AddFieldPage() {
       type: values.type as FieldType,
       required: values.required,
       options,
-      default: null,
+      default: getDefaultValue(values, values.type as FieldType),
     }
 
     addFieldMutation.mutate(field, {
@@ -118,6 +160,69 @@ function AddFieldPage() {
 
             {showMaxWidth && (
               <NumberInput label="Max Width (px)" placeholder="Optional, e.g. 800" {...form.getInputProps("maxWidth")} />
+            )}
+
+            {/* Default value input based on field type */}
+            {(fieldType === "string" || fieldType === "markdown") && (
+              <TextInput label="Default" placeholder="Optional" {...form.getInputProps("defaultString")} />
+            )}
+
+            {fieldType === "boolean" && (
+              <Select
+                label="Default"
+                placeholder="No default"
+                data={[
+                  { value: "true", label: "true" },
+                  { value: "false", label: "false" },
+                ]}
+                value={form.values.defaultBoolean === null ? null : String(form.values.defaultBoolean)}
+                onChange={(v) => {
+                  form.setFieldValue("defaultBoolean", v === null ? null : v === "true")
+                }}
+                clearable
+              />
+            )}
+
+            {fieldType === "select" && (
+              <Select
+                label="Default"
+                placeholder={form.values.selectValues.length === 0 ? "Define values first" : "No default"}
+                data={form.values.selectValues}
+                disabled={form.values.selectValues.length === 0}
+                {...form.getInputProps("defaultSelect")}
+                clearable
+              />
+            )}
+
+            {fieldType === "tags" && (
+              <TagsInput label="Default" placeholder="Enter default tags" {...form.getInputProps("defaultTags")} />
+            )}
+
+            {fieldType === "user" && (
+              <Select
+                label="Default"
+                placeholder="No default"
+                data={["$me", ...space.members]}
+                {...form.getInputProps("defaultUser")}
+                clearable
+                searchable
+              />
+            )}
+
+            {fieldType === "datetime" && (
+              <Select
+                label="Default"
+                placeholder="No default"
+                data={[{ value: "$now", label: "$now (current time)" }]}
+                {...form.getInputProps("defaultDatetime")}
+                clearable
+              />
+            )}
+
+            {fieldType === "int" && <NumberInput label="Default" placeholder="Optional" {...form.getInputProps("defaultInt")} />}
+
+            {fieldType === "float" && (
+              <NumberInput label="Default" placeholder="Optional" decimalScale={10} {...form.getInputProps("defaultFloat")} />
             )}
 
             {addFieldMutation.error && <ErrorMessage error={addFieldMutation.error} />}

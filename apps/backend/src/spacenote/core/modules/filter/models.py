@@ -48,9 +48,9 @@ class Filter(OpenAPIModel):
     """Filter definition for a space."""
 
     name: str = Field(..., description="Filter identifier (must be unique within space)")
-    notes_list_default_columns: list[str] = Field(
+    default_columns: list[str] = Field(
         default_factory=list,
-        description="Columns for notes list",
+        description="Fields to display as columns in default view mode",
     )
     conditions: list[FilterCondition] = Field(default_factory=list, description="Filter conditions (combined with AND)")
     sort: list[str] = Field(default_factory=list, description="Sort order - field names with optional '-' prefix for descending")
@@ -60,7 +60,7 @@ def create_default_all_filter() -> Filter:
     """Create the default 'all' filter for new spaces."""
     return Filter(
         name=ALL_FILTER_NAME,
-        notes_list_default_columns=["note.number", "note.created_at", "note.author"],
+        default_columns=["note.number", "note.created_at", "note.author"],
         conditions=[],
         sort=["-note.created_at"],
     )

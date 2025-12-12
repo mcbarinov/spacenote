@@ -75,13 +75,6 @@ FIELD_TYPE_OPERATORS: dict[FieldType, set[FilterOperator]] = {
         FilterOperator.STARTSWITH,
         FilterOperator.ENDSWITH,
     },
-    FieldType.MARKDOWN: {
-        FilterOperator.EQ,
-        FilterOperator.NE,
-        FilterOperator.CONTAINS,
-        FilterOperator.STARTSWITH,
-        FilterOperator.ENDSWITH,
-    },
     FieldType.BOOLEAN: {
         FilterOperator.EQ,
         FilterOperator.NE,

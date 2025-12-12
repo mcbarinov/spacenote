@@ -40,7 +40,8 @@ class ImageService(Service):
             attachment = await self.core.services.attachment.finalize_pending(pending_number, space_slug, note_number)
             result[field_name] = attachment.number
 
-            max_width_opt = field_options.get(field_name, {}).get(FieldOption.MAX_WIDTH)
+            options = field_options.get(field_name, {})
+            max_width_opt = options.get(FieldOption.MAX_WIDTH) if isinstance(options, dict) else None
             max_width = int(max_width_opt) if isinstance(max_width_opt, (int, float)) else None
             self._schedule_image_generation(space_slug, note_number, attachment.number, max_width)
 

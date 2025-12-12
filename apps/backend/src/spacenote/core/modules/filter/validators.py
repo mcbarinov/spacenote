@@ -120,6 +120,8 @@ def _validate_user_value(field: SpaceField, value: FieldValueType, space: Space)
 
 def _validate_select_value(field: SpaceField, operator: FilterOperator, value: FieldValueType) -> str | list[str]:
     """Validate and normalize select field filter value."""
+    if not isinstance(field.options, dict):
+        raise ValidationError(f"Select field '{field.name}' must have dict options")
     allowed_values = field.options.get(FieldOption.VALUES)
     if not allowed_values or not isinstance(allowed_values, list):
         raise ValidationError(f"Select field '{field.name}' must have VALUES option defined")
@@ -162,7 +164,7 @@ def _validate_filter_value(field: SpaceField, operator: FilterOperator, value: F
 
     if field.type == FieldType.SELECT:
         return _validate_select_value(field, operator, value)
-    if field.type in {FieldType.STRING, FieldType.MARKDOWN}:
+    if field.type == FieldType.STRING:
         return _validate_string_value(field, value)
     if field.type == FieldType.BOOLEAN:
         return _validate_boolean_value(field, value)

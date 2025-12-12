@@ -2,8 +2,9 @@
 
 from datetime import datetime
 from enum import StrEnum
+from typing import Literal
 
-from pydantic import Field
+from pydantic import BaseModel, Field, model_validator
 
 from spacenote.core.schema import OpenAPIModel
 
@@ -15,7 +16,6 @@ class FieldType(StrEnum):
     """Available field types for space schemas."""
 
     STRING = "string"
-    MARKDOWN = "markdown"
     BOOLEAN = "boolean"
     SELECT = "select"
     TAGS = "tags"
@@ -43,17 +43,36 @@ class SpecialValue(StrEnum):
     NOW = "$now"
 
 
+class StringFieldOptions(BaseModel):
+    """Options for STRING field type."""
+
+    format: Literal["single_line", "multi_line", "markdown", "json", "toml", "yaml"] = "single_line"
+    min_length: int | None = None
+    max_length: int | None = None
+
+    @model_validator(mode="after")
+    def validate_lengths(self) -> StringFieldOptions:
+        if self.min_length is not None and self.min_length < 0:
+            raise ValueError("min_length must be >= 0")
+        if self.max_length is not None and self.max_length < 0:
+            raise ValueError("max_length must be >= 0")
+        if self.min_length is not None and self.max_length is not None and self.min_length > self.max_length:
+            raise ValueError("min_length must be <= max_length")
+        return self
+
+
 class SpaceField(OpenAPIModel):
     """Field definition in a space schema."""
 
     name: str = Field(..., description="Field identifier (must be unique within space)")
     type: FieldType = Field(..., description="Field data type")
     required: bool = Field(False, description="Whether this field is required")
-    options: dict[FieldOption, FieldOptionValueType] = Field(
+    options: StringFieldOptions | dict[FieldOption, FieldOptionValueType] = Field(
         default_factory=dict,
         description=(
-            "Field type-specific options (e.g., 'values' for select, "
-            "'min'/'max' for numeric types, 'value_maps' for select metadata, 'max_width' for image)"
+            "Field type-specific options (StringFieldOptions for STRING fields, "
+            "dict for other field types: 'values' for select, 'min'/'max' for numeric types, "
+            "'value_maps' for select metadata, 'max_width' for image)"
         ),
     )
     default: FieldValueType = Field(None, description="Default value for this field")

@@ -4,7 +4,14 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import UTC, datetime
 
-from spacenote.core.modules.field.models import FieldOption, FieldType, FieldValueType, SpaceField, SpecialValue
+from spacenote.core.modules.field.models import (
+    FieldOption,
+    FieldType,
+    FieldValueType,
+    SpaceField,
+    SpecialValue,
+    StringFieldOptions,
+)
 from spacenote.core.modules.space.models import Space
 from spacenote.errors import ValidationError
 
@@ -64,29 +71,19 @@ class StringValidator(FieldValidator):
         if raw == "" and not field.required:
             return None
 
-        return raw
+        value = raw
 
+        if isinstance(field.options, StringFieldOptions):
+            if field.options.format == "single_line" and "\n" in value:
+                raise ValidationError(f"Field '{field.name}' does not allow newlines")
 
-class MarkdownValidator(FieldValidator):
-    """Validator for markdown fields."""
+            if field.options.min_length is not None and len(value) < field.options.min_length:
+                raise ValidationError(f"Field '{field.name}' value too short (min: {field.options.min_length})")
 
-    @classmethod
-    def _validate_field(cls, field: SpaceField, _space: Space) -> SpaceField:
-        return field
+            if field.options.max_length is not None and len(value) > field.options.max_length:
+                raise ValidationError(f"Field '{field.name}' value too long (max: {field.options.max_length})")
 
-    @classmethod
-    def _parse_value(cls, field: SpaceField, _space: Space, raw: str | None, _ctx: ParseContext) -> FieldValueType:
-        if raw is None:
-            if field.default is not None:
-                return field.default
-            if field.required:
-                raise ValidationError(f"Required field '{field.name}' has no value")
-            return None
-
-        if raw == "" and not field.required:
-            return None
-
-        return raw
+        return value
 
 
 class BooleanValidator(FieldValidator):
@@ -123,6 +120,8 @@ class IntValidator(FieldValidator):
 
     @classmethod
     def _validate_field(cls, field: SpaceField, _space: Space) -> SpaceField:
+        if not isinstance(field.options, dict):
+            raise ValidationError("INT field options must be a dict")
         for opt in (FieldOption.MIN, FieldOption.MAX):
             if opt in field.options:
                 val = field.options[opt]
@@ -153,6 +152,8 @@ class IntValidator(FieldValidator):
     @classmethod
     def _validate_numeric_range(cls, field: SpaceField, value: int) -> None:
         """Validate numeric value is within min/max range."""
+        if not isinstance(field.options, dict):
+            return
         if FieldOption.MIN in field.options:
             min_val = field.options[FieldOption.MIN]
             if isinstance(min_val, (int, float)) and value < min_val:
@@ -169,6 +170,8 @@ class FloatValidator(FieldValidator):
 
     @classmethod
     def _validate_field(cls, field: SpaceField, _space: Space) -> SpaceField:
+        if not isinstance(field.options, dict):
+            raise ValidationError("FLOAT field options must be a dict")
         for opt in (FieldOption.MIN, FieldOption.MAX):
             if opt in field.options:
                 val = field.options[opt]
@@ -199,6 +202,8 @@ class FloatValidator(FieldValidator):
     @classmethod
     def _validate_numeric_range(cls, field: SpaceField, value: float) -> None:
         """Validate numeric value is within min/max range."""
+        if not isinstance(field.options, dict):
+            return
         if FieldOption.MIN in field.options:
             min_val = field.options[FieldOption.MIN]
             if isinstance(min_val, (int, float)) and value < min_val:
@@ -215,6 +220,8 @@ class SelectValidator(FieldValidator):
 
     @classmethod
     def _validate_field(cls, field: SpaceField, _space: Space) -> SpaceField:
+        if not isinstance(field.options, dict):
+            raise ValidationError("SELECT field options must be a dict")
         if FieldOption.VALUES not in field.options:
             raise ValidationError("SELECT fields must have 'values' option")
 
@@ -259,6 +266,8 @@ class SelectValidator(FieldValidator):
 
     @classmethod
     def _parse_value(cls, field: SpaceField, _space: Space, raw: str | None, _ctx: ParseContext) -> FieldValueType:
+        if not isinstance(field.options, dict):
+            raise ValidationError("Invalid field configuration: SELECT field options must be a dict")
         if raw is None:
             if field.default is not None:
                 return field.default
@@ -394,6 +403,8 @@ class ImageValidator(FieldValidator):
 
     @classmethod
     def _validate_field(cls, field: SpaceField, _space: Space) -> SpaceField:
+        if not isinstance(field.options, dict):
+            raise ValidationError("IMAGE field options must be a dict")
         if FieldOption.MAX_WIDTH in field.options:
             val = field.options[FieldOption.MAX_WIDTH]
             if not isinstance(val, int) or val <= 0:
@@ -420,7 +431,6 @@ class ImageValidator(FieldValidator):
 
 VALIDATORS: dict[FieldType, type[FieldValidator]] = {
     FieldType.STRING: StringValidator,
-    FieldType.MARKDOWN: MarkdownValidator,
     FieldType.BOOLEAN: BooleanValidator,
     FieldType.INT: IntValidator,
     FieldType.FLOAT: FloatValidator,

@@ -48,6 +48,7 @@ Shared frontend code for all React applications:
 | File | Description |
 |------|-------------|
 | `docs/concepts.md` | Domain model, features, key decisions (read first) |
+| `docs/fields.md` | Field types, options, special values, VALUE_MAPS |
 | `docs/backend.md` | Backend architecture (DB schema, services) |
 | `docs/backend-ai.md` | AI coding rules for backend |
 | `docs/frontend.md` | Frontend architecture (routing, data layer) |

@@ -8,7 +8,7 @@ from spacenote.core.modules.attachment import storage as attachment_storage
 from spacenote.core.modules.attachment.models import Attachment, PendingAttachment
 from spacenote.core.modules.comment.models import Comment
 from spacenote.core.modules.export.models import ExportData
-from spacenote.core.modules.field.models import SpaceField
+from spacenote.core.modules.field.models import FieldOption, FieldOptionValueType, FieldValueType, SpaceField
 from spacenote.core.modules.filter.models import Filter
 from spacenote.core.modules.image.processor import WebpOptions
 from spacenote.core.modules.note.models import Note
@@ -149,6 +149,19 @@ class App:
         """Remove field from space (admin only)."""
         await self._core.services.access.ensure_admin(auth_token)
         await self._core.services.field.remove_field(slug, field_name)
+
+    async def update_field(
+        self,
+        auth_token: AuthToken,
+        slug: str,
+        field_name: str,
+        required: bool,
+        options: dict[FieldOption, FieldOptionValueType],
+        default: FieldValueType,
+    ) -> SpaceField:
+        """Update field in space (admin only). Returns validated field."""
+        await self._core.services.access.ensure_admin(auth_token)
+        return await self._core.services.field.update_field(slug, field_name, required, options, default)
 
     # --- Filters ---
 

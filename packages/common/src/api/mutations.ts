@@ -16,6 +16,7 @@ import type {
   Space,
   SpaceField,
   UpdateDescriptionRequest,
+  UpdateFieldRequest,
   UpdateHiddenFieldsOnCreateRequest,
   UpdateMembersRequest,
   UpdateNoteRequest,
@@ -170,6 +171,18 @@ export function useDeleteField(spaceSlug: string) {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (fieldName: string) => httpClient.delete(`api/v1/spaces/${spaceSlug}/fields/${fieldName}`),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["spaces"] })
+    },
+  })
+}
+
+/** Updates a field in space schema */
+export function useUpdateField(spaceSlug: string, fieldName: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (data: UpdateFieldRequest) =>
+      httpClient.put(`api/v1/spaces/${spaceSlug}/fields/${fieldName}`, { json: data }).json<SpaceField>(),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["spaces"] })
     },

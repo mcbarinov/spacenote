@@ -1,6 +1,6 @@
 import structlog
 
-from spacenote.core.modules.field.models import FieldValueType, SpaceField
+from spacenote.core.modules.field.models import FieldOption, FieldOptionValueType, FieldValueType, SpaceField
 from spacenote.core.modules.field.validators import VALIDATORS, ParseContext
 from spacenote.core.service import Service
 from spacenote.errors import NotFoundError, ValidationError
@@ -37,6 +37,48 @@ class FieldService(Service):
 
         await self.core.services.space.update_space_document(slug, {"$pull": {"fields": {"name": field_name}}})
         logger.debug("field_removed_from_space", space_slug=slug, field_name=field_name)
+
+    async def update_field(
+        self,
+        slug: str,
+        field_name: str,
+        required: bool,
+        options: dict[FieldOption, FieldOptionValueType],
+        default: FieldValueType,
+    ) -> SpaceField:
+        """Update a field in a space. Only required, options, and default can be changed."""
+        space = self.core.services.space.get_space(slug)
+
+        # Check field exists
+        existing_field = space.get_field(field_name)
+        if not existing_field:
+            raise NotFoundError(f"Field '{field_name}' not found in space")
+
+        # Create updated field preserving name and type
+        updated_field = SpaceField(
+            name=existing_field.name,
+            type=existing_field.type,
+            required=required,
+            options=options,
+            default=default,
+        )
+
+        # Validate using existing validators
+        validator_class = VALIDATORS.get(updated_field.type)
+        if not validator_class:
+            raise ValidationError(f"Unknown field type: {updated_field.type}")
+
+        validated_field = validator_class.validate_field(updated_field, space)
+
+        # Update in MongoDB using array_filters pattern
+        await self.core.services.space.update_space_document(
+            slug,
+            {"$set": {"fields.$[elem]": validated_field.model_dump()}},
+            array_filters=[{"elem.name": field_name}],
+        )
+
+        logger.debug("field_updated", space_slug=slug, field_name=field_name)
+        return validated_field
 
     def parse_raw_fields(
         self,

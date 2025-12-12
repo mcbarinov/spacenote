@@ -11,7 +11,7 @@ router = APIRouter(tags=["filters"])
     "/spaces/{space_slug}/filters",
     summary="Add filter to space",
     description="Add a new filter to an existing space. Only accessible by admin users.",
-    operation_id="addFilterToSpace",
+    operation_id="addFilter",
     responses={
         200: {"description": "Returns validated filter"},
         400: {"model": ErrorResponse, "description": "Invalid filter data or filter name already exists"},
@@ -31,7 +31,7 @@ async def add_filter(space_slug: str, filter: Filter, app: AppDep, auth_token: A
     description="Update a filter in a space. Only accessible by admin users. "
     "If name in body differs from filter_name in URL, the filter will be renamed. "
     "The 'all' filter can only have sort and default_columns modified.",
-    operation_id="updateFilterInSpace",
+    operation_id="updateFilter",
     responses={
         200: {"description": "Returns updated filter"},
         400: {"model": ErrorResponse, "description": "Invalid filter data or new name already exists"},
@@ -49,7 +49,7 @@ async def update_filter(space_slug: str, filter_name: str, filter: Filter, app: 
     "/spaces/{space_slug}/filters/{filter_name}",
     summary="Remove filter from space",
     description="Remove a filter from a space. Only accessible by admin users.",
-    operation_id="removeFilterFromSpace",
+    operation_id="removeFilter",
     status_code=204,
     responses={
         204: {"description": "Filter removed successfully"},

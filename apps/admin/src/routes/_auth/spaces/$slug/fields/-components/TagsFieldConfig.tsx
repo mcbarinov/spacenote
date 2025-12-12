@@ -1,6 +1,6 @@
 import { TagsInput } from "@mantine/core"
 import type { UseFormReturnType } from "@mantine/form"
-import type { FormValues } from "../new"
+import type { FormValues } from "./fieldFormUtils"
 
 interface Props {
   form: UseFormReturnType<FormValues>

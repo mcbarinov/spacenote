@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react"
 import { ActionIcon, Box, Button, Card, Group, Select, Stack, TagsInput, Text, TextInput } from "@mantine/core"
 import { IconPlus, IconTrash } from "@tabler/icons-react"
 import type { UseFormReturnType } from "@mantine/form"
-import type { FormValues } from "../new"
+import type { FormValues } from "./fieldFormUtils"
 
 interface Props {
   form: UseFormReturnType<FormValues>

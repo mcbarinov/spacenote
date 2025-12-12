@@ -4,9 +4,9 @@ set shell := ["bash", "-cu"]
 # Lint all projects
 lint: common-lint admin-lint web-lint backend-lint
 
-outdated: backend-outdated admin-outdated web-outdated common-outdated
+outdated: backend-outdated common-outdated admin-outdated web-outdated
 
-upgrade: admin-update web-update common-update
+upgrade: common-update admin-update web-update
 
 [group("backend")]
 backend-clean:

@@ -277,7 +277,7 @@ export type paths = {
      * Add field to space
      * @description Add a new field definition to an existing space. Only accessible by admin users.
      */
-    post: operations["addFieldToSpace"]
+    post: operations["addField"]
     delete?: never
     options?: never
     head?: never
@@ -292,13 +292,17 @@ export type paths = {
       cookie?: never
     }
     get?: never
-    put?: never
+    /**
+     * Update field in space
+     * @description Update a field's properties in a space. Only accessible by admin users. Only required, options, and default can be changed. Type and name cannot be modified.
+     */
+    put: operations["updateField"]
     post?: never
     /**
      * Remove field from space
      * @description Remove a field definition from a space. Only accessible by admin users.
      */
-    delete: operations["removeFieldFromSpace"]
+    delete: operations["removeField"]
     options?: never
     head?: never
     patch?: never
@@ -317,7 +321,7 @@ export type paths = {
      * Add filter to space
      * @description Add a new filter to an existing space. Only accessible by admin users.
      */
-    post: operations["addFilterToSpace"]
+    post: operations["addFilter"]
     delete?: never
     options?: never
     head?: never
@@ -336,13 +340,13 @@ export type paths = {
      * Update filter in space
      * @description Update a filter in a space. Only accessible by admin users. If name in body differs from filter_name in URL, the filter will be renamed. The 'all' filter can only have sort and default_columns modified.
      */
-    put: operations["updateFilterInSpace"]
+    put: operations["updateFilter"]
     post?: never
     /**
      * Remove filter from space
      * @description Remove a filter from a space. Only accessible by admin users.
      */
-    delete: operations["removeFilterFromSpace"]
+    delete: operations["removeFilter"]
     options?: never
     head?: never
     patch?: never
@@ -1790,6 +1794,36 @@ export type components = {
       description: string
     }
     /**
+     * UpdateFieldRequest
+     * @description Field update request - only editable properties.
+     */
+    UpdateFieldRequest: {
+      /**
+       * Required
+       * @description Whether this field is required
+       */
+      required: boolean
+      /**
+       * Options
+       * @description Field type-specific options
+       */
+      options?: {
+        [key: string]:
+          | string[]
+          | number
+          | {
+              [key: string]: {
+                [key: string]: string
+              }
+            }
+      }
+      /**
+       * Default
+       * @description Default value for this field
+       */
+      default?: string | boolean | string[] | number | null
+    }
+    /**
      * UpdateHiddenFieldsOnCreateRequest
      * @description Space hidden fields on create update request.
      */
@@ -2851,7 +2885,7 @@ export interface operations {
       }
     }
   }
-  addFieldToSpace: {
+  addField: {
     parameters: {
       query?: never
       header?: never
@@ -2922,7 +2956,79 @@ export interface operations {
       }
     }
   }
-  removeFieldFromSpace: {
+  updateField: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        space_slug: string
+        field_name: string
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateFieldRequest"]
+      }
+    }
+    responses: {
+      /** @description Returns updated field */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["SpaceField"]
+        }
+      }
+      /** @description Invalid field data */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Admin privileges required */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Space or field not found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  removeField: {
     parameters: {
       query?: never
       header?: never
@@ -2979,7 +3085,7 @@ export interface operations {
       }
     }
   }
-  addFilterToSpace: {
+  addFilter: {
     parameters: {
       query?: never
       header?: never
@@ -3050,7 +3156,7 @@ export interface operations {
       }
     }
   }
-  updateFilterInSpace: {
+  updateFilter: {
     parameters: {
       query?: never
       header?: never
@@ -3122,7 +3228,7 @@ export interface operations {
       }
     }
   }
-  removeFilterFromSpace: {
+  removeFilter: {
     parameters: {
       query?: never
       header?: never

@@ -1,4 +1,5 @@
 import type { Context, Liquid } from "liquidjs"
+import type { SpaceField } from "../types"
 import { formatDate } from "../utils/format"
 import { markdownToHtml } from "./markdown"
 
@@ -86,5 +87,21 @@ export function registerFilters(engine: Liquid): void {
     const escaped = escapeHtml(value)
     const displayName = getDisplayName(fieldPath)
     return `<a href="${href}" title="Filter: ${displayName} ~ ${escaped}" class="AdhocTag">#${escaped}</a>`
+  })
+
+  /** Gets value from field's value_maps (e.g., color, icon) */
+  engine.registerFilter("value_map", function (value: string, fieldName: string, mapName: string) {
+    if (!value || !fieldName || !mapName) return ""
+
+    const env = this.context.environments as { space?: { fields?: SpaceField[] } }
+    const space = env.space
+
+    if (!space?.fields) return ""
+
+    const field = space.fields.find((f) => f.name === fieldName)
+    const valueMaps = field?.options.value_maps as Record<string, Record<string, string>> | undefined
+    const mapValue = valueMaps?.[mapName]?.[value]
+
+    return typeof mapValue === "string" ? mapValue : ""
   })
 }

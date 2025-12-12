@@ -182,7 +182,7 @@ export function useUpdateField(spaceSlug: string, fieldName: string) {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (data: UpdateFieldRequest) =>
-      httpClient.put(`api/v1/spaces/${spaceSlug}/fields/${fieldName}`, { json: data }).json<Space>(),
+      httpClient.put(`api/v1/spaces/${spaceSlug}/fields/${fieldName}`, { json: data }).json<SpaceField>(),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["spaces"] })
     },

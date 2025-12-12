@@ -19,10 +19,15 @@ export function SelectFieldConfig({ form }: Props) {
     const currentValues = selectValues
 
     // Skip if no changes
-    if (JSON.stringify(prevValues) === JSON.stringify(currentValues)) return
+    if (prevValues.length === currentValues.length && prevValues.every((val, idx) => val === currentValues[idx])) {
+      return
+    }
+
+    // Read current valueMaps from form
+    const currentValueMaps = form.values.valueMaps
 
     // Skip if no maps to sync
-    if (valueMaps.length === 0) {
+    if (currentValueMaps.length === 0) {
       prevSelectValuesRef.current = currentValues
       return
     }
@@ -36,7 +41,7 @@ export function SelectFieldConfig({ form }: Props) {
     }
 
     // Update each map's values
-    const updatedMaps = valueMaps.map((map) => {
+    const updatedMaps = currentValueMaps.map((map) => {
       // Start with existing values, excluding removed ones
       const newValues: Record<string, string> = {}
       for (const [key, value] of Object.entries(map.values)) {
@@ -57,7 +62,7 @@ export function SelectFieldConfig({ form }: Props) {
 
     form.setFieldValue("valueMaps", updatedMaps)
     prevSelectValuesRef.current = currentValues
-  }, [selectValues, valueMaps, form])
+  }, [selectValues, form])
 
   /** Adds a new empty value map */
   function handleAddMap() {

@@ -1,6 +1,6 @@
 import { Checkbox, NumberInput, Select, TagsInput, TextInput } from "@mantine/core"
 import { DateTimePicker } from "@mantine/dates"
-import type { SpaceField } from "@spacenote/common/types"
+import type { NumericFieldOptions, SelectFieldOptions, SpaceField } from "@spacenote/common/types"
 
 interface ValueInputProps {
   field: SpaceField | undefined
@@ -20,7 +20,6 @@ export function ValueInput({ field, operator, value, onChange, spaceMembers }: V
 
   switch (field.type) {
     case "string":
-    case "markdown":
       return (
         <TextInput
           label="Value"
@@ -45,8 +44,8 @@ export function ValueInput({ field, operator, value, onChange, spaceMembers }: V
         />
       )
 
-    case "int":
-    case "float":
+    case "numeric": {
+      const opts = field.options as NumericFieldOptions
       return (
         <NumberInput
           label="Value"
@@ -55,10 +54,11 @@ export function ValueInput({ field, operator, value, onChange, spaceMembers }: V
           onChange={(v) => {
             onChange(v)
           }}
-          allowDecimal={field.type === "float"}
+          allowDecimal={opts.kind !== "int"}
           style={{ flex: 1 }}
         />
       )
+    }
 
     case "datetime": {
       const dateValue = value instanceof Date ? value : typeof value === "string" && value ? new Date(value) : null
@@ -76,7 +76,8 @@ export function ValueInput({ field, operator, value, onChange, spaceMembers }: V
     }
 
     case "select": {
-      const options = (field.options.values as string[] | undefined) ?? []
+      const opts = field.options as SelectFieldOptions
+      const options = opts.values
       if (isArrayOperator) {
         return (
           <TagsInput

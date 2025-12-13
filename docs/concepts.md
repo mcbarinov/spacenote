@@ -28,7 +28,7 @@ Basic content unit within a space:
 
 Dynamic schema system where each space defines its own fields:
 
-- **Types**: string, markdown, boolean, select, tags, user, datetime, int, float, image
+- **Types**: string, boolean, select, tags, user, datetime, numeric, image
 - **Properties**: required/optional, default values, type-specific options
 - Fields are space-specific, enabling flexible data modeling
 

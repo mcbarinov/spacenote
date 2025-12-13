@@ -3,7 +3,7 @@ import type { FieldType, SpaceField } from "@spacenote/common/types"
 
 /** System fields available for filtering */
 export const SYSTEM_FIELDS: SpaceField[] = [
-  { name: "note.number", type: "int", required: true, options: {}, default: null },
+  { name: "note.number", type: "numeric", required: true, options: { kind: "int", min: null, max: null }, default: null },
   { name: "note.created_at", type: "datetime", required: true, options: {}, default: null },
   { name: "note.author", type: "user", required: true, options: {}, default: null },
 ]
@@ -11,10 +11,8 @@ export const SYSTEM_FIELDS: SpaceField[] = [
 /** Available operators grouped by field type */
 export const OPERATORS_BY_TYPE: Record<FieldType, string[]> = {
   string: ["eq", "ne", "contains", "startswith", "endswith"],
-  markdown: ["eq", "ne", "contains", "startswith", "endswith"],
   boolean: ["eq", "ne"],
-  int: ["eq", "ne", "gt", "gte", "lt", "lte"],
-  float: ["eq", "ne", "gt", "gte", "lt", "lte"],
+  numeric: ["eq", "ne", "gt", "gte", "lt", "lte"],
   datetime: ["eq", "ne", "gt", "gte", "lt", "lte"],
   select: ["eq", "ne", "in", "nin"],
   tags: ["eq", "ne", "in", "nin", "all"],

@@ -1,5 +1,5 @@
 import { Badge, Box, Group, Image, Stack, Text } from "@mantine/core"
-import type { FieldType, SpaceField } from "@spacenote/common/types"
+import type { SpaceField, StringFieldOptions } from "@spacenote/common/types"
 import { formatDate } from "@spacenote/common/utils"
 import { MarkdownDisplay } from "./MarkdownDisplay"
 
@@ -16,11 +16,11 @@ interface FieldViewProps {
   noteContext?: NoteContext
 }
 
-const FULL_WIDTH_TYPES: FieldType[] = ["markdown", "image"]
-
 /** Checks if field type requires full-width layout (markdown and image need more space) */
-function isFullWidth(type: FieldType): boolean {
-  return FULL_WIDTH_TYPES.includes(type)
+function isFullWidth(field: SpaceField): boolean {
+  if (field.type === "image") return true
+  if (field.type === "string" && (field.options as StringFieldOptions).kind === "markdown") return true
+  return false
 }
 
 /** Formats field value for display based on field type */
@@ -30,9 +30,15 @@ function formatValue(field: SpaceField, value: FieldValue, noteContext?: NoteCon
   }
 
   switch (field.type) {
-    case "string":
-    case "int":
-    case "float":
+    case "string": {
+      const opts = field.options as StringFieldOptions
+      if (opts.kind === "markdown") {
+        return <MarkdownDisplay content={String(value)} />
+      }
+      return <Text>{String(value)}</Text>
+    }
+
+    case "numeric":
       return <Text>{String(value)}</Text>
 
     case "boolean":
@@ -61,9 +67,6 @@ function formatValue(field: SpaceField, value: FieldValue, noteContext?: NoteCon
     case "datetime":
       return <Text>{formatDate(String(value))}</Text>
 
-    case "markdown":
-      return <MarkdownDisplay content={String(value)} />
-
     case "image": {
       if (!noteContext) {
         return <Text c="dimmed">—</Text>
@@ -80,7 +83,7 @@ function formatValue(field: SpaceField, value: FieldValue, noteContext?: NoteCon
 
 /** Displays field value in read-only mode with appropriate formatting */
 export function FieldView({ field, value, noteContext }: FieldViewProps) {
-  const fullWidth = isFullWidth(field.type)
+  const fullWidth = isFullWidth(field)
 
   if (fullWidth) {
     return (

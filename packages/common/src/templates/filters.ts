@@ -1,5 +1,5 @@
 import type { Context, Liquid } from "liquidjs"
-import type { SpaceField } from "../types"
+import type { SelectFieldOptions, SpaceField } from "../types"
 import { formatDate } from "../utils/format"
 import { markdownToHtml } from "./markdown"
 
@@ -99,7 +99,9 @@ export function registerFilters(engine: Liquid): void {
     if (!space?.fields) return ""
 
     const field = space.fields.find((f) => f.name === fieldName)
-    const valueMaps = field?.options.value_maps as Record<string, Record<string, string>> | undefined
+    if (field?.type !== "select") return ""
+    const opts = field.options as SelectFieldOptions
+    const valueMaps = opts.value_maps
     const mapValue = valueMaps?.[mapName]?.[value]
 
     return typeof mapValue === "string" ? mapValue : ""

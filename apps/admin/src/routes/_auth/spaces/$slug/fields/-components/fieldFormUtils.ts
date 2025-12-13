@@ -1,5 +1,12 @@
 import { z } from "zod"
-import type { FieldType, SpaceField } from "@spacenote/common/types"
+import type {
+  FieldType,
+  ImageFieldOptions,
+  NumericFieldOptions,
+  SelectFieldOptions,
+  SpaceField,
+  StringFieldOptions,
+} from "@spacenote/common/types"
 
 export const addFieldSchema = z.object({
   name: z
@@ -8,6 +15,12 @@ export const addFieldSchema = z.object({
     .regex(/^[a-zA-Z0-9_-]+$/, { message: "Name must contain only letters, numbers, hyphens and underscores" }),
   type: z.string().min(1, { message: "Type is required" }),
   required: z.boolean(),
+  // String options
+  stringKind: z.enum(["single_line", "multi_line", "markdown"]),
+  minLength: z.number().nullable(),
+  maxLength: z.number().nullable(),
+  // Numeric options
+  numericKind: z.enum(["int", "float", "decimal"]),
   // Select options
   selectValues: z.array(z.string()),
   valueMaps: z.array(
@@ -17,7 +30,7 @@ export const addFieldSchema = z.object({
       values: z.record(z.string(), z.string()),
     })
   ),
-  // Int/Float options
+  // Numeric min/max
   minValue: z.number().nullable(),
   maxValue: z.number().nullable(),
   // Image options
@@ -29,8 +42,7 @@ export const addFieldSchema = z.object({
   defaultTags: z.array(z.string()),
   defaultUser: z.string().nullable(),
   defaultDatetime: z.string().nullable(),
-  defaultInt: z.number().nullable(),
-  defaultFloat: z.number().nullable(),
+  defaultNumeric: z.number().nullable(),
 })
 
 export type FormValues = z.infer<typeof addFieldSchema>
@@ -39,10 +51,27 @@ export type FormValues = z.infer<typeof addFieldSchema>
 export function buildOptions(values: FormValues): SpaceField["options"] {
   const fieldType = values.type as FieldType
 
-  if (fieldType === "select" && values.selectValues.length > 0) {
-    const options: SpaceField["options"] = { values: values.selectValues }
+  if (fieldType === "string") {
+    const opts: StringFieldOptions = {
+      kind: values.stringKind,
+      min_length: values.minLength,
+      max_length: values.maxLength,
+    }
+    return opts
+  }
 
-    // Add value_maps if any maps are defined
+  if (fieldType === "numeric") {
+    const opts: NumericFieldOptions = {
+      kind: values.numericKind,
+      min: values.minValue,
+      max: values.maxValue,
+    }
+    return opts
+  }
+
+  if (fieldType === "select" && values.selectValues.length > 0) {
+    let valueMaps: Record<string, Record<string, string>> | null = null
+
     if (values.valueMaps.length > 0) {
       const valueMapsObj: Record<string, Record<string, string>> = {}
       for (const map of values.valueMaps) {
@@ -51,18 +80,15 @@ export function buildOptions(values: FormValues): SpaceField["options"] {
         }
       }
       if (Object.keys(valueMapsObj).length > 0) {
-        options.value_maps = valueMapsObj
+        valueMaps = valueMapsObj
       }
     }
 
-    return options
-  }
-
-  if (fieldType === "int" || fieldType === "float") {
-    const numOptions: Record<string, number> = {}
-    if (values.minValue !== null) numOptions.min = values.minValue
-    if (values.maxValue !== null) numOptions.max = values.maxValue
-    if (Object.keys(numOptions).length > 0) return numOptions
+    const opts: SelectFieldOptions = {
+      values: values.selectValues,
+      value_maps: valueMaps,
+    }
+    return opts
   }
 
   if (fieldType === "image" && values.maxWidth !== null) {
@@ -78,7 +104,6 @@ export function buildDefault(values: FormValues): SpaceField["default"] {
 
   switch (fieldType) {
     case "string":
-    case "markdown":
       return values.defaultString || null
     case "boolean":
       return values.defaultBoolean
@@ -90,10 +115,8 @@ export function buildDefault(values: FormValues): SpaceField["default"] {
       return values.defaultUser
     case "datetime":
       return values.defaultDatetime
-    case "int":
-      return values.defaultInt
-    case "float":
-      return values.defaultFloat
+    case "numeric":
+      return values.defaultNumeric
     default:
       return null
   }
@@ -105,6 +128,10 @@ export function parseFieldToFormValues(field: SpaceField): FormValues {
     name: field.name,
     type: field.type,
     required: field.required,
+    stringKind: "single_line",
+    minLength: null,
+    maxLength: null,
+    numericKind: "int",
     selectValues: [],
     valueMaps: [],
     minValue: null,
@@ -116,17 +143,34 @@ export function parseFieldToFormValues(field: SpaceField): FormValues {
     defaultTags: [],
     defaultUser: null,
     defaultDatetime: null,
-    defaultInt: null,
-    defaultFloat: null,
+    defaultNumeric: null,
   }
 
   // Parse options based on field type
-  if (field.type === "select" && "values" in field.options) {
-    values.selectValues = field.options.values as string[]
+  if (field.type === "string") {
+    const opts = field.options as StringFieldOptions
+    // Form only supports single_line, multi_line, markdown - default others to single_line
+    const supportedKinds = ["single_line", "multi_line", "markdown"] as const
+    values.stringKind = supportedKinds.includes(opts.kind as (typeof supportedKinds)[number])
+      ? (opts.kind as (typeof supportedKinds)[number])
+      : "single_line"
+    values.minLength = opts.min_length
+    values.maxLength = opts.max_length
+  }
 
-    if ("value_maps" in field.options) {
-      const maps = field.options.value_maps as Record<string, Record<string, string>>
-      values.valueMaps = Object.entries(maps).map(([name, mapValues]) => ({
+  if (field.type === "numeric") {
+    const opts = field.options as NumericFieldOptions
+    values.numericKind = opts.kind
+    values.minValue = opts.min
+    values.maxValue = opts.max
+  }
+
+  if (field.type === "select") {
+    const opts = field.options as SelectFieldOptions
+    values.selectValues = opts.values
+
+    if (opts.value_maps) {
+      values.valueMaps = Object.entries(opts.value_maps).map(([name, mapValues]) => ({
         id: crypto.randomUUID(),
         name,
         values: mapValues,
@@ -134,20 +178,15 @@ export function parseFieldToFormValues(field: SpaceField): FormValues {
     }
   }
 
-  if (field.type === "int" || field.type === "float") {
-    if ("min" in field.options) values.minValue = field.options.min as number
-    if ("max" in field.options) values.maxValue = field.options.max as number
-  }
-
-  if (field.type === "image" && "max_width" in field.options) {
-    values.maxWidth = field.options.max_width as number
+  if (field.type === "image") {
+    const opts = field.options as ImageFieldOptions
+    values.maxWidth = opts.max_width ?? null
   }
 
   // Parse default value
   if (field.default !== null) {
     switch (field.type) {
       case "string":
-      case "markdown":
         values.defaultString = field.default as string
         break
       case "boolean":
@@ -165,11 +204,8 @@ export function parseFieldToFormValues(field: SpaceField): FormValues {
       case "datetime":
         values.defaultDatetime = field.default as string
         break
-      case "int":
-        values.defaultInt = field.default as number
-        break
-      case "float":
-        values.defaultFloat = field.default as number
+      case "numeric":
+        values.defaultNumeric = field.default as number
         break
     }
   }

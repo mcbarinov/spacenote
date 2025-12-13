@@ -8,14 +8,12 @@ import { ErrorMessage, PageHeader } from "@spacenote/common/components"
 import { SpaceTabs } from "@/components/SpaceTabs"
 import type { UpdateFieldRequest } from "@spacenote/common/types"
 import { StringFieldConfig } from "../-components/StringFieldConfig"
-import { MarkdownFieldConfig } from "../-components/MarkdownFieldConfig"
 import { BooleanFieldConfig } from "../-components/BooleanFieldConfig"
 import { SelectFieldConfig } from "../-components/SelectFieldConfig"
 import { TagsFieldConfig } from "../-components/TagsFieldConfig"
 import { UserFieldConfig } from "../-components/UserFieldConfig"
 import { DatetimeFieldConfig } from "../-components/DatetimeFieldConfig"
-import { IntFieldConfig } from "../-components/IntFieldConfig"
-import { FloatFieldConfig } from "../-components/FloatFieldConfig"
+import { NumericFieldConfig } from "../-components/NumericFieldConfig"
 import { ImageFieldConfig } from "../-components/ImageFieldConfig"
 import {
   addFieldSchema,
@@ -91,14 +89,12 @@ function EditFieldPage() {
             <Checkbox label="Required" {...form.getInputProps("required", { type: "checkbox" })} />
 
             {fieldType === "string" && <StringFieldConfig form={form} />}
-            {fieldType === "markdown" && <MarkdownFieldConfig form={form} />}
             {fieldType === "boolean" && <BooleanFieldConfig form={form} />}
             {fieldType === "select" && <SelectFieldConfig form={form} />}
             {fieldType === "tags" && <TagsFieldConfig form={form} />}
             {fieldType === "user" && <UserFieldConfig form={form} space={space} />}
             {fieldType === "datetime" && <DatetimeFieldConfig form={form} />}
-            {fieldType === "int" && <IntFieldConfig form={form} />}
-            {fieldType === "float" && <FloatFieldConfig form={form} />}
+            {fieldType === "numeric" && <NumericFieldConfig form={form} />}
             {fieldType === "image" && <ImageFieldConfig form={form} />}
 
             {updateFieldMutation.error && <ErrorMessage error={updateFieldMutation.error} />}

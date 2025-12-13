@@ -1,8 +1,16 @@
 """Filter validation utilities."""
 
 from datetime import UTC, datetime
+from decimal import Decimal, InvalidOperation
 
-from spacenote.core.modules.field.models import FieldOption, FieldType, FieldValueType, SpaceField, SpecialValue
+from spacenote.core.modules.field.models import (
+    FieldType,
+    FieldValueType,
+    NumericFieldOptions,
+    SelectFieldOptions,
+    SpaceField,
+    SpecialValue,
+)
 from spacenote.core.modules.filter.models import (
     FIELD_TYPE_OPERATORS,
     Filter,
@@ -52,32 +60,41 @@ def _validate_boolean_value(field: SpaceField, value: FieldValueType) -> bool:
     return value
 
 
-def _validate_int_value(field: SpaceField, value: FieldValueType) -> int:
-    """Validate and normalize integer field filter value."""
+def _validate_numeric_value(field: SpaceField, value: FieldValueType) -> int | float | Decimal:
+    """Validate and normalize numeric field filter value."""
+    if not isinstance(field.options, NumericFieldOptions):
+        raise ValidationError(f"Numeric field '{field.name}' must have NumericFieldOptions")
+
     if isinstance(value, str):
         try:
-            return int(value)
-        except ValueError as e:
-            raise ValidationError(f"Filter value for integer field '{field.name}' must be an integer, got string: {value}") from e
+            if field.options.kind == "int":
+                return int(value)
+            if field.options.kind == "float":
+                return float(value)
+            if field.options.kind == "decimal":
+                return Decimal(value)
+        except (ValueError, InvalidOperation) as e:
+            kind = field.options.kind
+            raise ValidationError(
+                f"Filter value for {kind} field '{field.name}' must be a valid {kind}, got string: {value}"
+            ) from e
 
-    if not isinstance(value, int) or isinstance(value, bool):
-        raise ValidationError(f"Filter value for integer field '{field.name}' must be an integer, got {type(value).__name__}")
+    if field.options.kind == "int":
+        if not isinstance(value, int) or isinstance(value, bool):
+            raise ValidationError(f"Filter value for int field '{field.name}' must be an integer")
+        return value
+    if field.options.kind == "float":
+        if not isinstance(value, (int, float)) or isinstance(value, bool):
+            raise ValidationError(f"Filter value for float field '{field.name}' must be numeric")
+        return float(value)
+    if field.options.kind == "decimal":
+        if isinstance(value, Decimal):
+            return value
+        if isinstance(value, (int, float)):
+            return Decimal(str(value))
+        raise ValidationError(f"Filter value for decimal field '{field.name}' must be numeric")
 
-    return value
-
-
-def _validate_float_value(field: SpaceField, value: FieldValueType) -> float:
-    """Validate and normalize float field filter value."""
-    if isinstance(value, str):
-        try:
-            return float(value)
-        except ValueError as e:
-            raise ValidationError(f"Filter value for float field '{field.name}' must be a number, got string: {value}") from e
-
-    if not isinstance(value, int | float) or isinstance(value, bool):
-        raise ValidationError(f"Filter value for float field '{field.name}' must be a number, got {type(value).__name__}")
-
-    return float(value)
+    raise ValidationError(f"Unknown numeric kind: {field.options.kind}")
 
 
 def _validate_datetime_value(field: SpaceField, value: FieldValueType) -> datetime:
@@ -120,9 +137,9 @@ def _validate_user_value(field: SpaceField, value: FieldValueType, space: Space)
 
 def _validate_select_value(field: SpaceField, operator: FilterOperator, value: FieldValueType) -> str | list[str]:
     """Validate and normalize select field filter value."""
-    allowed_values = field.options.get(FieldOption.VALUES)
-    if not allowed_values or not isinstance(allowed_values, list):
-        raise ValidationError(f"Select field '{field.name}' must have VALUES option defined")
+    if not isinstance(field.options, SelectFieldOptions):
+        raise ValidationError(f"Select field '{field.name}' must have SelectFieldOptions")
+    allowed_values = field.options.values
 
     if operator in (FilterOperator.IN, FilterOperator.NIN):
         if not isinstance(value, list):
@@ -162,14 +179,12 @@ def _validate_filter_value(field: SpaceField, operator: FilterOperator, value: F
 
     if field.type == FieldType.SELECT:
         return _validate_select_value(field, operator, value)
-    if field.type in {FieldType.STRING, FieldType.MARKDOWN}:
+    if field.type == FieldType.STRING:
         return _validate_string_value(field, value)
     if field.type == FieldType.BOOLEAN:
         return _validate_boolean_value(field, value)
-    if field.type == FieldType.INT:
-        return _validate_int_value(field, value)
-    if field.type == FieldType.FLOAT:
-        return _validate_float_value(field, value)
+    if field.type == FieldType.NUMERIC:
+        return _validate_numeric_value(field, value)
     if field.type == FieldType.DATETIME:
         return _validate_datetime_value(field, value)
     if field.type == FieldType.USER:

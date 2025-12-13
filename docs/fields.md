@@ -2,41 +2,7 @@
 
 Field system for custom note schemas. Each space defines its own fields.
 
-## Field Types
-
-| Type | Value Type | Description |
-|------|-----------|-------------|
-| `string` | `str` | Plain text |
-| `markdown` | `str` | Markdown text |
-| `boolean` | `bool` | True/false (`true`, `1`, `yes`, `on` / `false`, `0`, `no`, `off`) |
-| `select` | `str` | Single choice from predefined values |
-| `tags` | `list[str]` | Comma-separated list (auto-deduped) |
-| `user` | `str` | Space member username |
-| `datetime` | `datetime` | ISO 8601 datetime |
-| `int` | `int` | Integer with optional min/max |
-| `float` | `float` | Decimal with optional min/max |
-| `image` | `int` | Attachment number (auto-converts to WebP) |
-
-## Field Options
-
-| Option | Applies To | Type | Description |
-|--------|-----------|------|-------------|
-| `values` | select | `list[str]` | **Required.** Allowed values |
-| `value_maps` | select | `dict[str, dict[str, str]]` | Metadata maps for values |
-| `min` | int, float | `number` | Minimum allowed value |
-| `max` | int, float | `number` | Maximum allowed value |
-| `max_width` | image | `int` | Max width in pixels for WebP conversion |
-
-## Special Values
-
-| Value | Applies To | Description |
-|-------|-----------|-------------|
-| `$me` | user | Current logged-in user |
-| `$now` | datetime | Current timestamp (UTC) |
-
-Can be used in `default` or as input value.
-
-## Field Definition
+## 1. Field Definition
 
 ```json
 {
@@ -44,72 +10,103 @@ Can be used in `default` or as input value.
   "type": "string",
   "required": false,
   "default": null,
-  "options": {}
+  "options": { "kind": "single_line" }
 }
 ```
 
 | Property | Type | Default | Description |
 |----------|------|---------|-------------|
 | `name` | `str` | — | Unique identifier (alphanumeric, `_`, `-`) |
-| `type` | `FieldType` | — | One of the types above |
+| `type` | `FieldType` | — | One of the types below |
 | `required` | `bool` | `false` | Require non-empty value |
 | `default` | varies | `null` | Default value (type-specific) |
-| `options` | `dict` | `{}` | Type-specific options |
+| `options` | `object` | — | Type-specific options (required, see each type) |
 
-## VALUE_MAPS
+## 2. Field Types
 
-Metadata mapping for `select` field values. Maps each value to display strings.
+### 2.1 string
 
-### Structure
+Value: `str`
+
+#### 2.1.1 Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `kind` | `"single_line"` \| `"multi_line"` \| `"markdown"` \| `"json"` \| `"toml"` \| `"yaml"` | `"single_line"` | String format |
+| `min_length` | `int` | — | Minimum length |
+| `max_length` | `int` | — | Maximum length |
+
+#### 2.1.2 Examples
+
+```json
+{ "name": "title", "type": "string", "required": true, "options": { "kind": "single_line" } }
+```
+```json
+{ "name": "body", "type": "string", "options": { "kind": "markdown" } }
+```
+```json
+{ "name": "slug", "type": "string", "options": { "kind": "single_line", "min_length": 3, "max_length": 50 } }
+```
+
+### 2.2 boolean
+
+Value: `bool`
+
+#### 2.2.1 Options
+
+No options. Use `"options": {}`.
+
+#### 2.2.2 Parsing
+
+Accepts: `true`, `1`, `yes`, `on` → true | `false`, `0`, `no`, `off` → false
+
+#### 2.2.3 Examples
+
+```json
+{ "name": "is_archived", "type": "boolean", "default": false, "options": {} }
+```
+
+### 2.3 select
+
+Value: `str`
+
+#### 2.3.1 Options
+
+| Option | Type | Required | Description |
+|--------|------|----------|-------------|
+| `values` | `list[str]` | Yes | Allowed values |
+| `value_maps` | `dict[str, dict[str, str]]` | No | Metadata maps (see 2.3.2) |
+
+#### 2.3.2 value_maps
+
+Metadata mapping for values. Maps each value to display strings.
+
+##### 2.3.2.1 Structure
 
 ```json
 {
-  "type": "select",
-  "options": {
-    "values": ["new", "in_progress", "done"],
-    "value_maps": {
-      "emoji": {
-        "new": "🆕",
-        "in_progress": "⏳",
-        "done": "✅"
-      },
-      "label": {
-        "new": "New",
-        "in_progress": "In Progress",
-        "done": "Done"
-      }
+  "value_maps": {
+    "emoji": {
+      "new": "🆕",
+      "in_progress": "⏳",
+      "done": "✅"
+    },
+    "label": {
+      "new": "New",
+      "in_progress": "In Progress",
+      "done": "Done"
     }
   }
 }
 ```
 
-### Validation Rules
+##### 2.3.2.2 Validation Rules
 
 1. Each map must cover ALL values (no missing keys)
 2. Each map must NOT have extra keys beyond values
 3. All mapped values must be strings
 
-## Examples
-
-### string
-
-```json
-{ "name": "title", "type": "string", "required": true }
-```
-
-### markdown
-
-```json
-{ "name": "body", "type": "markdown" }
-```
-
-### boolean
-
-```json
-{ "name": "is_archived", "type": "boolean", "default": false }
-```
-
-### select
+#### 2.3.3 Examples
 
 ```json
 {
@@ -126,27 +123,56 @@ Metadata mapping for `select` field values. Maps each value to display strings.
 }
 ```
 
-### tags
+### 2.4 tags
+
+Value: `list[str]`
+
+#### 2.4.1 Options
+
+No options. Use `"options": {}`.
+
+#### 2.4.2 Parsing
+
+Input: `"bug, feature, bug"` → Stored: `["bug", "feature"]` (comma-separated, auto-deduped)
+
+#### 2.4.3 Examples
 
 ```json
-{ "name": "labels", "type": "tags" }
+{ "name": "labels", "type": "tags", "options": {} }
 ```
 
-Input: `"bug, feature, bug"` → Stored: `["bug", "feature"]`
+### 2.5 user
 
-### user
+Value: `str`
+
+#### 2.5.1 Options
+
+No options. Use `"options": {}`.
+
+#### 2.5.2 Special Values
+
+`$me` — current logged-in user (can be used in `default` or as input value)
+
+#### 2.5.3 Examples
 
 ```json
-{ "name": "assignee", "type": "user", "default": "$me" }
+{ "name": "assignee", "type": "user", "default": "$me", "options": {} }
 ```
 
-### datetime
+### 2.6 datetime
 
-```json
-{ "name": "due_date", "type": "datetime", "default": "$now" }
-```
+Value: `datetime`
 
-Accepted formats:
+#### 2.6.1 Options
+
+No options. Use `"options": {}`.
+
+#### 2.6.2 Special Values
+
+`$now` — current timestamp UTC (can be used in `default` or as input value)
+
+#### 2.6.3 Accepted Formats
+
 - `2025-01-15T08:30:00`
 - `2025-01-15T08:30`
 - `2025-01-15 08:30:00`
@@ -154,22 +180,55 @@ Accepted formats:
 - `2025-01-15T08:30:00.123456`
 - `2025-01-15T08:30:00Z`
 
-### int
+#### 2.6.4 Examples
 
 ```json
-{ "name": "priority", "type": "int", "options": { "min": 1, "max": 5 } }
+{ "name": "due_date", "type": "datetime", "default": "$now", "options": {} }
 ```
 
-### float
+### 2.7 numeric
+
+Value: `int`, `float`, or `Decimal`
+
+#### 2.7.1 Options
+
+| Option | Type | Required | Description |
+|--------|------|----------|-------------|
+| `kind` | `"int"` \| `"float"` \| `"decimal"` | Yes | Numeric type |
+| `min` | `number` | No | Minimum value |
+| `max` | `number` | No | Maximum value |
+
+Use `decimal` for financial calculations or any scenario requiring exact decimal precision.
+
+#### 2.7.2 Examples
 
 ```json
-{ "name": "rating", "type": "float", "options": { "min": 0, "max": 10 } }
+{ "name": "priority", "type": "numeric", "options": { "kind": "int", "min": 1, "max": 5 } }
+```
+```json
+{ "name": "rating", "type": "numeric", "options": { "kind": "float", "min": 0.0, "max": 10.0 } }
+```
+```json
+{ "name": "price", "type": "numeric", "options": { "kind": "decimal", "min": 0, "max": 999999.99 } }
 ```
 
-### image
+### 2.8 image
+
+Value: `int` (attachment number)
+
+#### 2.8.1 Options
+
+| Option | Type | Required | Description |
+|--------|------|----------|-------------|
+| `max_width` | `int` | No | Max width in pixels for WebP conversion |
+
+Image auto-converts to WebP with optional resize.
+
+#### 2.8.2 Examples
 
 ```json
 { "name": "photo", "type": "image", "required": true, "options": { "max_width": 1280 } }
 ```
-
-Value is attachment number. Image auto-converts to WebP with optional resize.
+```json
+{ "name": "avatar", "type": "image", "options": {} }
+```

@@ -909,6 +909,11 @@ export type components = {
       file: string
     }
     /**
+     * BooleanFieldOptions
+     * @description Options for BOOLEAN field type.
+     */
+    BooleanFieldOptions: Record<string, never>
+    /**
      * ChangePasswordRequest
      * @description Password change request.
      */
@@ -1086,6 +1091,11 @@ export type components = {
       password: string
     }
     /**
+     * DatetimeFieldOptions
+     * @description Options for DATETIME field type.
+     */
+    DatetimeFieldOptions: Record<string, never>
+    /**
      * ErrorResponse
      * @description Standard error response format.
      * @example {
@@ -1149,17 +1159,11 @@ export type components = {
       attachments: components["schemas"]["AttachmentExport"][] | null
     }
     /**
-     * FieldOption
-     * @description Configuration options for field types.
-     * @enum {string}
-     */
-    FieldOption: "values" | "min" | "max" | "value_maps" | "max_width"
-    /**
      * FieldType
      * @description Available field types for space schemas.
      * @enum {string}
      */
-    FieldType: "string" | "markdown" | "boolean" | "select" | "tags" | "user" | "datetime" | "int" | "float" | "image"
+    FieldType: "string" | "boolean" | "select" | "tags" | "user" | "datetime" | "numeric" | "image"
     /**
      * Filter
      * @description Filter definition for a space.
@@ -1214,6 +1218,17 @@ export type components = {
     HTTPValidationError: {
       /** Detail */
       detail?: components["schemas"]["ValidationError"][]
+    }
+    /**
+     * ImageFieldOptions
+     * @description Options for IMAGE field type.
+     */
+    ImageFieldOptions: {
+      /**
+       * Max Width
+       * @description Maximum width for image resizing
+       */
+      max_width: number | null
     }
     /**
      * LoginRequest
@@ -1342,6 +1357,28 @@ export type components = {
       fields: {
         [key: string]: string | boolean | string[] | number | null
       }
+    }
+    /**
+     * NumericFieldOptions
+     * @description Options for NUMERIC field type.
+     */
+    NumericFieldOptions: {
+      /**
+       * Kind
+       * @description Numeric type
+       * @enum {string}
+       */
+      kind: "int" | "float" | "decimal"
+      /**
+       * Min
+       * @description Minimum value
+       */
+      min: number | null
+      /**
+       * Max
+       * @description Maximum value
+       */
+      max: number | null
     }
     /** PaginationResult[Comment] */
     PaginationResult_Comment_: {
@@ -1475,6 +1512,26 @@ export type components = {
        * @description Upload timestamp
        */
       created_at: string
+    }
+    /**
+     * SelectFieldOptions
+     * @description Options for SELECT field type.
+     */
+    SelectFieldOptions: {
+      /**
+       * Values
+       * @description Allowed values for selection
+       */
+      values: string[]
+      /**
+       * Value Maps
+       * @description Named maps: map_name → {value → display_label}
+       */
+      value_maps: {
+        [key: string]: {
+          [key: string]: string
+        }
+      } | null
     }
     /**
      * SetTemplateRequest
@@ -1619,24 +1676,51 @@ export type components = {
       required: boolean
       /**
        * Options
-       * @description Field type-specific options (e.g., 'values' for select, 'min'/'max' for numeric types, 'value_maps' for select metadata, 'max_width' for image)
+       * @description Field type-specific options
        */
-      options: {
-        [key: string]:
-          | string[]
-          | number
-          | {
-              [key: string]: {
-                [key: string]: string
-              }
-            }
-      }
+      options:
+        | components["schemas"]["StringFieldOptions"]
+        | components["schemas"]["NumericFieldOptions"]
+        | components["schemas"]["BooleanFieldOptions"]
+        | components["schemas"]["SelectFieldOptions"]
+        | components["schemas"]["TagsFieldOptions"]
+        | components["schemas"]["UserFieldOptions"]
+        | components["schemas"]["DatetimeFieldOptions"]
+        | components["schemas"]["ImageFieldOptions"]
       /**
        * Default
        * @description Default value for this field
        */
       default: string | boolean | string[] | number | null
     }
+    /**
+     * StringFieldOptions
+     * @description Options for STRING field type.
+     */
+    StringFieldOptions: {
+      /**
+       * Kind
+       * @description String representation format
+       * @default single_line
+       * @enum {string}
+       */
+      kind: "single_line" | "multi_line" | "markdown" | "json" | "toml" | "yaml"
+      /**
+       * Min Length
+       * @description Minimum string length
+       */
+      min_length: number | null
+      /**
+       * Max Length
+       * @description Maximum string length
+       */
+      max_length: number | null
+    }
+    /**
+     * TagsFieldOptions
+     * @description Options for TAGS field type.
+     */
+    TagsFieldOptions: Record<string, never>
     /**
      * TelegramMirror
      * @description Links note to its Telegram mirror post.
@@ -1808,14 +1892,7 @@ export type components = {
        * @description Field type-specific options
        */
       options?: {
-        [key: string]:
-          | string[]
-          | number
-          | {
-              [key: string]: {
-                [key: string]: string
-              }
-            }
+        [key: string]: unknown
       }
       /**
        * Default
@@ -1876,6 +1953,11 @@ export type components = {
        */
       title: string
     }
+    /**
+     * UserFieldOptions
+     * @description Options for USER field type.
+     */
+    UserFieldOptions: Record<string, never>
     /**
      * UserView
      * @description User account information (API representation).

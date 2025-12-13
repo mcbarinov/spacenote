@@ -1,14 +1,17 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
-import { Group, Select } from "@mantine/core"
+import { ActionIcon, Group, Select } from "@mantine/core"
 import { useSuspenseQuery } from "@tanstack/react-query"
+import { IconFilter } from "@tabler/icons-react"
 import { api } from "@spacenote/common/api"
 import { LinkButton, NavigationTabs, PageHeader } from "@spacenote/common/components"
 import { z } from "zod"
+import { useState } from "react"
 import { NotesListDefault } from "./-components/NotesListDefault"
 import { NotesListJson } from "./-components/NotesListJson"
 import { NotesListTemplate } from "./-components/NotesListTemplate"
 import { ViewModeMenu } from "./-components/ViewModeMenu"
 import { ActiveQueryFilters } from "./-components/ActiveQueryFilters"
+import { AdhocFilterDrawer } from "./-components/AdhocFilterDrawer"
 
 const searchSchema = z.object({
   filter: z.string().optional(),
@@ -43,6 +46,7 @@ function SpacePage() {
   const navigate = useNavigate()
   const space = api.cache.useSpace(slug)
   const { data: notesList } = useSuspenseQuery(api.queries.listNotes(slug, filter, q))
+  const [adhocFilterOpened, setAdhocFilterOpened] = useState(false)
 
   // Template key: web:note:list:{filter}, defaults to "all" when no filter selected
   const filterName = filter ?? "all"
@@ -95,6 +99,15 @@ function SpacePage() {
                 }
               />
             )}
+            <ActionIcon
+              variant="light"
+              onClick={() => {
+                setAdhocFilterOpened(true)
+              }}
+              title="Adhoc Filter"
+            >
+              <IconFilter size={18} />
+            </ActionIcon>
             <ViewModeMenu slug={slug} filter={filter} currentView={resolvedView} hasTemplate={hasTemplate} />
           </Group>
         }
@@ -106,9 +119,19 @@ function SpacePage() {
       {resolvedView === "template" && template && (
         <NotesListTemplate notes={notesList.items} space={space} template={template} q={q} filter={filter} />
       )}
-      {resolvedView === "default" && (
-        <NotesListDefault notes={notesList.items} space={space} displayFields={displayFields} q={q} />
-      )}
+      {resolvedView === "default" && <NotesListDefault notes={notesList.items} space={space} displayFields={displayFields} />}
+
+      <AdhocFilterDrawer
+        key={q}
+        opened={adhocFilterOpened}
+        onClose={() => {
+          setAdhocFilterOpened(false)
+        }}
+        space={space}
+        q={q}
+        filter={filter}
+        view={view}
+      />
     </>
   )
 }

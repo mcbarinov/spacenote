@@ -7,6 +7,11 @@ export type SpaceField = components["schemas"]["SpaceField"]
 export type FieldType = components["schemas"]["FieldType"]
 export type Note = components["schemas"]["Note"]
 
+// Field options
+export type StringFieldOptions = components["schemas"]["StringFieldOptions"]
+export type NumericFieldOptions = components["schemas"]["NumericFieldOptions"]
+export type SelectFieldOptions = components["schemas"]["SelectFieldOptions"]
+
 // Pagination
 export type NotesList = components["schemas"]["PaginationResult_Note_"]
 

@@ -1,6 +1,6 @@
-import { TextInput, Checkbox, Select, NumberInput, TagsInput } from "@mantine/core"
+import { TextInput, Textarea, Checkbox, Select, NumberInput, TagsInput } from "@mantine/core"
 import { DateTimePicker } from "@mantine/dates"
-import type { SpaceField } from "@spacenote/common/types"
+import type { NumericFieldOptions, SelectFieldOptions, SpaceField, StringFieldOptions } from "@spacenote/common/types"
 import { MarkdownEditor } from "./MarkdownEditor"
 import { ImageFieldInput } from "./ImageFieldInput"
 
@@ -44,7 +44,32 @@ export function FieldInput({ field, value, onChange, error, spaceMembers }: Fiel
   }
 
   switch (field.type) {
-    case "string":
+    case "string": {
+      const opts = field.options as StringFieldOptions
+      if (opts.kind === "markdown") {
+        return (
+          <MarkdownEditor
+            {...commonProps}
+            value={asString(value)}
+            onChange={(v) => {
+              onChange(v)
+            }}
+          />
+        )
+      }
+      if (opts.kind === "multi_line") {
+        return (
+          <Textarea
+            {...commonProps}
+            value={asString(value)}
+            onChange={(e) => {
+              onChange(e.currentTarget.value)
+            }}
+            autosize
+            minRows={3}
+          />
+        )
+      }
       return (
         <TextInput
           {...commonProps}
@@ -54,17 +79,7 @@ export function FieldInput({ field, value, onChange, error, spaceMembers }: Fiel
           }}
         />
       )
-
-    case "markdown":
-      return (
-        <MarkdownEditor
-          {...commonProps}
-          value={asString(value)}
-          onChange={(v) => {
-            onChange(v)
-          }}
-        />
-      )
+    }
 
     case "boolean":
       return (
@@ -80,11 +95,11 @@ export function FieldInput({ field, value, onChange, error, spaceMembers }: Fiel
       )
 
     case "select": {
-      const options = (field.options.values as string[] | undefined) ?? []
+      const opts = field.options as SelectFieldOptions
       return (
         <Select
           {...commonProps}
-          data={options}
+          data={opts.values}
           value={asString(value) || null}
           onChange={(v) => {
             onChange(v)
@@ -105,8 +120,8 @@ export function FieldInput({ field, value, onChange, error, spaceMembers }: Fiel
         />
       )
 
-    case "int":
-    case "float":
+    case "numeric": {
+      const opts = field.options as NumericFieldOptions
       return (
         <NumberInput
           {...commonProps}
@@ -114,11 +129,12 @@ export function FieldInput({ field, value, onChange, error, spaceMembers }: Fiel
           onChange={(v) => {
             onChange(v)
           }}
-          min={field.options.min as number | undefined}
-          max={field.options.max as number | undefined}
-          allowDecimal={field.type === "float"}
+          min={opts.min ?? undefined}
+          max={opts.max ?? undefined}
+          allowDecimal={opts.kind !== "int"}
         />
       )
+    }
 
     case "datetime":
       return (

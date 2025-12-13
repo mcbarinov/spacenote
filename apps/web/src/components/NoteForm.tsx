@@ -23,8 +23,7 @@ function getDefaultValue(field: SpaceField, currentUser: string): unknown {
   switch (field.type) {
     case "boolean":
       return false
-    case "int":
-    case "float":
+    case "numeric":
       return ""
     case "tags":
       return []

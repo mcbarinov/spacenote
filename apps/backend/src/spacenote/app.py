@@ -1,6 +1,7 @@
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from pathlib import Path
+from typing import Any
 
 from spacenote.config import Config
 from spacenote.core.core import Core
@@ -8,7 +9,7 @@ from spacenote.core.modules.attachment import storage as attachment_storage
 from spacenote.core.modules.attachment.models import Attachment, PendingAttachment
 from spacenote.core.modules.comment.models import Comment
 from spacenote.core.modules.export.models import ExportData
-from spacenote.core.modules.field.models import FieldOption, FieldOptionValueType, FieldValueType, SpaceField
+from spacenote.core.modules.field.models import FieldValueType, SpaceField
 from spacenote.core.modules.filter.models import Filter
 from spacenote.core.modules.image.processor import WebpOptions
 from spacenote.core.modules.note.models import Note
@@ -156,7 +157,7 @@ class App:
         slug: str,
         field_name: str,
         required: bool,
-        options: dict[FieldOption, FieldOptionValueType],
+        options: dict[str, Any],
         default: FieldValueType,
     ) -> SpaceField:
         """Update field in space (admin only). Returns validated field."""

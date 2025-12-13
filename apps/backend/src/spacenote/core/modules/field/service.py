@@ -1,6 +1,8 @@
+from typing import Any
+
 import structlog
 
-from spacenote.core.modules.field.models import FieldOption, FieldOptionValueType, FieldValueType, SpaceField
+from spacenote.core.modules.field.models import FieldValueType, SpaceField
 from spacenote.core.modules.field.validators import VALIDATORS, ParseContext
 from spacenote.core.service import Service
 from spacenote.errors import NotFoundError, ValidationError
@@ -43,7 +45,7 @@ class FieldService(Service):
         slug: str,
         field_name: str,
         required: bool,
-        options: dict[FieldOption, FieldOptionValueType],
+        options: dict[str, Any],
         default: FieldValueType,
     ) -> SpaceField:
         """Update a field in a space. Only required, options, and default can be changed."""

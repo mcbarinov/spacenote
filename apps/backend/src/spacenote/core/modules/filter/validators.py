@@ -4,10 +4,10 @@ from datetime import UTC, datetime
 from decimal import Decimal
 
 from spacenote.core.modules.field.models import (
-    FieldOption,
     FieldType,
     FieldValueType,
     NumericFieldOptions,
+    SelectFieldOptions,
     SpaceField,
     SpecialValue,
 )
@@ -137,11 +137,9 @@ def _validate_user_value(field: SpaceField, value: FieldValueType, space: Space)
 
 def _validate_select_value(field: SpaceField, operator: FilterOperator, value: FieldValueType) -> str | list[str]:
     """Validate and normalize select field filter value."""
-    if not isinstance(field.options, dict):
-        raise ValidationError(f"Select field '{field.name}' must have dict options")
-    allowed_values = field.options.get(FieldOption.VALUES)
-    if not allowed_values or not isinstance(allowed_values, list):
-        raise ValidationError(f"Select field '{field.name}' must have VALUES option defined")
+    if not isinstance(field.options, SelectFieldOptions):
+        raise ValidationError(f"Select field '{field.name}' must have SelectFieldOptions")
+    allowed_values = field.options.values
 
     if operator in (FilterOperator.IN, FilterOperator.NIN):
         if not isinstance(value, list):

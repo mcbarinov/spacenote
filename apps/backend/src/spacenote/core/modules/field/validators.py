@@ -6,10 +6,11 @@ from datetime import UTC, datetime
 from decimal import Decimal, InvalidOperation
 
 from spacenote.core.modules.field.models import (
-    FieldOption,
     FieldType,
     FieldValueType,
+    ImageFieldOptions,
     NumericFieldOptions,
+    SelectFieldOptions,
     SpaceField,
     SpecialValue,
     StringFieldOptions,
@@ -59,6 +60,8 @@ class StringValidator(FieldValidator):
 
     @classmethod
     def _validate_field(cls, field: SpaceField, _space: Space) -> SpaceField:
+        if not isinstance(field.options, StringFieldOptions):
+            raise ValidationError("STRING field options must be StringFieldOptions")
         return field
 
     @classmethod
@@ -211,54 +214,19 @@ class SelectValidator(FieldValidator):
 
     @classmethod
     def _validate_field(cls, field: SpaceField, _space: Space) -> SpaceField:
-        if not isinstance(field.options, dict):
-            raise ValidationError("SELECT field options must be a dict")
-        if FieldOption.VALUES not in field.options:
-            raise ValidationError("SELECT fields must have 'values' option")
+        if not isinstance(field.options, SelectFieldOptions):
+            raise ValidationError("SELECT field options must be SelectFieldOptions")
 
-        values = field.options[FieldOption.VALUES]
-        if not isinstance(values, list) or not all(isinstance(v, str) for v in values):
-            raise ValidationError("SELECT 'values' must be a list of strings")
-
-        if field.default and field.default not in values:
+        if field.default and field.default not in field.options.values:
             raise ValidationError(f"Default value '{field.default}' is not in allowed values")
-
-        if FieldOption.VALUE_MAPS in field.options:
-            value_maps = field.options[FieldOption.VALUE_MAPS]
-            if isinstance(value_maps, dict):
-                cls._validate_value_maps(value_maps, values)
 
         return field
 
     @classmethod
-    def _validate_value_maps(cls, value_maps: dict[str, dict[str, str]], values: list[str]) -> None:
-        """Validate VALUE_MAPS structure."""
-        if not isinstance(value_maps, dict):
-            raise ValidationError("value_maps must be a dictionary")
-
-        for map_name, map_data in value_maps.items():
-            if not isinstance(map_name, str):
-                raise ValidationError(f"value_maps keys must be strings, got {type(map_name).__name__}")
-
-            if not isinstance(map_data, dict):
-                raise ValidationError(f"value_maps['{map_name}'] must be a dictionary")
-
-            missing_keys = set(values) - set(map_data.keys())
-            if missing_keys:
-                raise ValidationError(f"value_maps['{map_name}'] missing entries for: {', '.join(missing_keys)}")
-
-            extra_keys = set(map_data.keys()) - set(values)
-            if extra_keys:
-                raise ValidationError(f"value_maps['{map_name}'] has unknown keys: {', '.join(extra_keys)}")
-
-            for key, value in map_data.items():
-                if not isinstance(value, str):
-                    raise ValidationError(f"value_maps['{map_name}']['{key}'] must be a string, got {type(value).__name__}")
-
-    @classmethod
     def _parse_value(cls, field: SpaceField, _space: Space, raw: str | None, _ctx: ParseContext) -> FieldValueType:
-        if not isinstance(field.options, dict):
-            raise ValidationError("Invalid field configuration: SELECT field options must be a dict")
+        if not isinstance(field.options, SelectFieldOptions):
+            raise ValidationError("Invalid field configuration: SELECT field options must be SelectFieldOptions")
+
         if raw is None:
             if field.default is not None:
                 return field.default
@@ -269,12 +237,8 @@ class SelectValidator(FieldValidator):
         if raw == "" and not field.required:
             return None
 
-        values = field.options[FieldOption.VALUES]
-        if not isinstance(values, list):
-            raise ValidationError("Invalid field configuration: VALUES must be a list")
-
-        if raw not in values:
-            raise ValidationError(f"Invalid choice for field '{field.name}': '{raw}'. Allowed: {', '.join(values)}")
+        if raw not in field.options.values:
+            raise ValidationError(f"Invalid choice for field '{field.name}': '{raw}'. Allowed: {', '.join(field.options.values)}")
 
         return raw
 
@@ -394,12 +358,8 @@ class ImageValidator(FieldValidator):
 
     @classmethod
     def _validate_field(cls, field: SpaceField, _space: Space) -> SpaceField:
-        if not isinstance(field.options, dict):
-            raise ValidationError("IMAGE field options must be a dict")
-        if FieldOption.MAX_WIDTH in field.options:
-            val = field.options[FieldOption.MAX_WIDTH]
-            if not isinstance(val, int) or val <= 0:
-                raise ValidationError("max_width must be a positive integer")
+        if not isinstance(field.options, ImageFieldOptions):
+            raise ValidationError("IMAGE field options must be ImageFieldOptions")
         return field
 
     @classmethod

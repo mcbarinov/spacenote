@@ -5,7 +5,14 @@ from typing import TYPE_CHECKING
 
 from pydantic import Field
 
-from spacenote.core.modules.field.models import FieldType, FieldValueType, NumericFieldOptions, SpaceField
+from spacenote.core.modules.field.models import (
+    DatetimeFieldOptions,
+    FieldType,
+    FieldValueType,
+    NumericFieldOptions,
+    SpaceField,
+    UserFieldOptions,
+)
 from spacenote.core.schema import OpenAPIModel
 
 if TYPE_CHECKING:
@@ -125,10 +132,16 @@ def get_system_field_definitions() -> dict[str, SpaceField]:
         "note.number": SpaceField(
             name="note.number", type=FieldType.NUMERIC, required=True, options=NumericFieldOptions(kind="int")
         ),
-        "note.author": SpaceField(name="note.author", type=FieldType.USER, required=True),
-        "note.created_at": SpaceField(name="note.created_at", type=FieldType.DATETIME, required=True),
-        "note.edited_at": SpaceField(name="note.edited_at", type=FieldType.DATETIME, required=False),
-        "note.activity_at": SpaceField(name="note.activity_at", type=FieldType.DATETIME, required=True),
+        "note.author": SpaceField(name="note.author", type=FieldType.USER, required=True, options=UserFieldOptions()),
+        "note.created_at": SpaceField(
+            name="note.created_at", type=FieldType.DATETIME, required=True, options=DatetimeFieldOptions()
+        ),
+        "note.edited_at": SpaceField(
+            name="note.edited_at", type=FieldType.DATETIME, required=False, options=DatetimeFieldOptions()
+        ),
+        "note.activity_at": SpaceField(
+            name="note.activity_at", type=FieldType.DATETIME, required=True, options=DatetimeFieldOptions()
+        ),
     }
 
 

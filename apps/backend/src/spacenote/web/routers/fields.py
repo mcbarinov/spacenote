@@ -1,7 +1,9 @@
+from typing import Any
+
 from fastapi import APIRouter
 from pydantic import BaseModel, Field
 
-from spacenote.core.modules.field.models import FieldOption, FieldOptionValueType, FieldValueType, SpaceField
+from spacenote.core.modules.field.models import FieldValueType, SpaceField
 from spacenote.web.deps import AppDep, AuthTokenDep
 from spacenote.web.openapi import ErrorResponse
 
@@ -12,7 +14,7 @@ class UpdateFieldRequest(BaseModel):
     """Field update request - only editable properties."""
 
     required: bool = Field(..., description="Whether this field is required")
-    options: dict[FieldOption, FieldOptionValueType] = Field(default_factory=dict, description="Field type-specific options")
+    options: dict[str, Any] = Field(default_factory=dict, description="Field type-specific options")
     default: FieldValueType = Field(None, description="Default value for this field")
 
 

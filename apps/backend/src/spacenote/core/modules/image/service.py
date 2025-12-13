@@ -5,7 +5,7 @@ from typing import Any
 import structlog
 
 from spacenote.core.modules.attachment import storage as attachment_storage
-from spacenote.core.modules.field.models import FieldOption, FieldType
+from spacenote.core.modules.field.models import FieldType, ImageFieldOptions
 from spacenote.core.modules.image import storage as image_storage
 from spacenote.core.modules.image.processor import WebpOptions, create_webp_image
 from spacenote.core.service import Service
@@ -40,9 +40,8 @@ class ImageService(Service):
             attachment = await self.core.services.attachment.finalize_pending(pending_number, space_slug, note_number)
             result[field_name] = attachment.number
 
-            options = field_options.get(field_name, {})
-            max_width_opt = options.get(FieldOption.MAX_WIDTH) if isinstance(options, dict) else None
-            max_width = int(max_width_opt) if isinstance(max_width_opt, (int, float)) else None
+            options = field_options.get(field_name)
+            max_width = options.max_width if isinstance(options, ImageFieldOptions) else None
             self._schedule_image_generation(space_slug, note_number, attachment.number, max_width)
 
         return result

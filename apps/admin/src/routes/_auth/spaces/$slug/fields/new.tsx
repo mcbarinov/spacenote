@@ -8,14 +8,12 @@ import { ErrorMessage, PageHeader } from "@spacenote/common/components"
 import { SpaceTabs } from "@/components/SpaceTabs"
 import type { FieldType, SpaceField } from "@spacenote/common/types"
 import { StringFieldConfig } from "./-components/StringFieldConfig"
-import { MarkdownFieldConfig } from "./-components/MarkdownFieldConfig"
 import { BooleanFieldConfig } from "./-components/BooleanFieldConfig"
 import { SelectFieldConfig } from "./-components/SelectFieldConfig"
 import { TagsFieldConfig } from "./-components/TagsFieldConfig"
 import { UserFieldConfig } from "./-components/UserFieldConfig"
 import { DatetimeFieldConfig } from "./-components/DatetimeFieldConfig"
-import { IntFieldConfig } from "./-components/IntFieldConfig"
-import { FloatFieldConfig } from "./-components/FloatFieldConfig"
+import { NumericFieldConfig } from "./-components/NumericFieldConfig"
 import { ImageFieldConfig } from "./-components/ImageFieldConfig"
 import { addFieldSchema, buildDefault, buildOptions, type FormValues } from "./-components/fieldFormUtils"
 
@@ -23,7 +21,7 @@ export const Route = createFileRoute("/_auth/spaces/$slug/fields/new")({
   component: AddFieldPage,
 })
 
-const FIELD_TYPES: FieldType[] = ["string", "markdown", "boolean", "select", "tags", "user", "datetime", "int", "float", "image"]
+const FIELD_TYPES: FieldType[] = ["string", "boolean", "select", "tags", "user", "datetime", "numeric", "image"]
 
 /** Form to add a new field to a space */
 function AddFieldPage() {
@@ -37,6 +35,10 @@ function AddFieldPage() {
       name: "",
       type: "string",
       required: false,
+      stringKind: "single_line",
+      minLength: null,
+      maxLength: null,
+      numericKind: "int",
       selectValues: [],
       valueMaps: [],
       minValue: null,
@@ -48,8 +50,7 @@ function AddFieldPage() {
       defaultTags: [],
       defaultUser: null,
       defaultDatetime: null,
-      defaultInt: null,
-      defaultFloat: null,
+      defaultNumeric: null,
     },
     validate: zod4Resolver(addFieldSchema),
   })
@@ -89,14 +90,12 @@ function AddFieldPage() {
             <Checkbox label="Required" {...form.getInputProps("required", { type: "checkbox" })} />
 
             {fieldType === "string" && <StringFieldConfig form={form} />}
-            {fieldType === "markdown" && <MarkdownFieldConfig form={form} />}
             {fieldType === "boolean" && <BooleanFieldConfig form={form} />}
             {fieldType === "select" && <SelectFieldConfig form={form} />}
             {fieldType === "tags" && <TagsFieldConfig form={form} />}
             {fieldType === "user" && <UserFieldConfig form={form} space={space} />}
             {fieldType === "datetime" && <DatetimeFieldConfig form={form} />}
-            {fieldType === "int" && <IntFieldConfig form={form} />}
-            {fieldType === "float" && <FloatFieldConfig form={form} />}
+            {fieldType === "numeric" && <NumericFieldConfig form={form} />}
             {fieldType === "image" && <ImageFieldConfig form={form} />}
 
             {addFieldMutation.error && <ErrorMessage error={addFieldMutation.error} />}

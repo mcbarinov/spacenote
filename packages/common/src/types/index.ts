@@ -11,6 +11,7 @@ export type Note = components["schemas"]["Note"]
 export type StringFieldOptions = components["schemas"]["StringFieldOptions"]
 export type NumericFieldOptions = components["schemas"]["NumericFieldOptions"]
 export type SelectFieldOptions = components["schemas"]["SelectFieldOptions"]
+export type ImageFieldOptions = components["schemas"]["ImageFieldOptions"]
 
 // Pagination
 export type NotesList = components["schemas"]["PaginationResult_Note_"]

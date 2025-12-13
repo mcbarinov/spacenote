@@ -1,7 +1,7 @@
 """Filter validation utilities."""
 
 from datetime import UTC, datetime
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 
 from spacenote.core.modules.field.models import (
     FieldType,
@@ -73,7 +73,7 @@ def _validate_numeric_value(field: SpaceField, value: FieldValueType) -> int | f
                 return float(value)
             if field.options.kind == "decimal":
                 return Decimal(value)
-        except (ValueError, Exception) as e:
+        except (ValueError, InvalidOperation) as e:
             kind = field.options.kind
             raise ValidationError(
                 f"Filter value for {kind} field '{field.name}' must be a valid {kind}, got string: {value}"

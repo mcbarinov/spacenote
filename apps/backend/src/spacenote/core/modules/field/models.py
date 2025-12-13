@@ -1,6 +1,7 @@
 """Field system for custom note schemas."""
 
 from datetime import datetime
+from decimal import Decimal
 from enum import StrEnum
 from typing import Literal
 
@@ -8,8 +9,8 @@ from pydantic import BaseModel, Field, model_validator
 
 from spacenote.core.schema import OpenAPIModel
 
-FieldOptionValueType = list[str] | int | float | dict[str, dict[str, str]]
-FieldValueType = str | bool | list[str] | int | float | datetime | None
+FieldOptionValueType = list[str] | int | float | Decimal | dict[str, dict[str, str]]
+FieldValueType = str | bool | list[str] | int | float | Decimal | datetime | None
 
 
 class FieldType(StrEnum):
@@ -21,8 +22,7 @@ class FieldType(StrEnum):
     TAGS = "tags"
     USER = "user"
     DATETIME = "datetime"
-    INT = "int"
-    FLOAT = "float"
+    NUMERIC = "numeric"
     IMAGE = "image"
 
 
@@ -46,7 +46,7 @@ class SpecialValue(StrEnum):
 class StringFieldOptions(BaseModel):
     """Options for STRING field type."""
 
-    format: Literal["single_line", "multi_line", "markdown", "json", "toml", "yaml"] = "single_line"
+    kind: Literal["single_line", "multi_line", "markdown", "json", "toml", "yaml"] = "single_line"
     min_length: int | None = None
     max_length: int | None = None
 
@@ -61,18 +61,32 @@ class StringFieldOptions(BaseModel):
         return self
 
 
+class NumericFieldOptions(BaseModel):
+    """Options for NUMERIC field type."""
+
+    kind: Literal["int", "float", "decimal"]
+    min: float | None = None
+    max: float | None = None
+
+    @model_validator(mode="after")
+    def validate_range(self) -> NumericFieldOptions:
+        if self.min is not None and self.max is not None and self.min > self.max:
+            raise ValueError("min must be <= max")
+        return self
+
+
 class SpaceField(OpenAPIModel):
     """Field definition in a space schema."""
 
     name: str = Field(..., description="Field identifier (must be unique within space)")
     type: FieldType = Field(..., description="Field data type")
     required: bool = Field(False, description="Whether this field is required")
-    options: StringFieldOptions | dict[FieldOption, FieldOptionValueType] = Field(
+    options: StringFieldOptions | NumericFieldOptions | dict[FieldOption, FieldOptionValueType] = Field(
         default_factory=dict,
         description=(
-            "Field type-specific options (StringFieldOptions for STRING fields, "
-            "dict for other field types: 'values' for select, 'min'/'max' for numeric types, "
-            "'value_maps' for select metadata, 'max_width' for image)"
+            "Field type-specific options (StringFieldOptions for STRING, "
+            "NumericFieldOptions for NUMERIC, dict for other field types: "
+            "'values' for select, 'value_maps' for select metadata, 'max_width' for image)"
         ),
     )
     default: FieldValueType = Field(None, description="Default value for this field")

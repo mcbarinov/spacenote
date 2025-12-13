@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 
 from pydantic import Field
 
-from spacenote.core.modules.field.models import FieldType, FieldValueType, SpaceField
+from spacenote.core.modules.field.models import FieldType, FieldValueType, NumericFieldOptions, SpaceField
 from spacenote.core.schema import OpenAPIModel
 
 if TYPE_CHECKING:
@@ -79,15 +79,7 @@ FIELD_TYPE_OPERATORS: dict[FieldType, set[FilterOperator]] = {
         FilterOperator.EQ,
         FilterOperator.NE,
     },
-    FieldType.INT: {
-        FilterOperator.EQ,
-        FilterOperator.NE,
-        FilterOperator.GT,
-        FilterOperator.GTE,
-        FilterOperator.LT,
-        FilterOperator.LTE,
-    },
-    FieldType.FLOAT: {
+    FieldType.NUMERIC: {
         FilterOperator.EQ,
         FilterOperator.NE,
         FilterOperator.GT,
@@ -130,7 +122,9 @@ def get_system_field_definitions() -> dict[str, SpaceField]:
     System fields use 'note.' prefix to distinguish from custom fields.
     """
     return {
-        "note.number": SpaceField(name="note.number", type=FieldType.INT, required=True),
+        "note.number": SpaceField(
+            name="note.number", type=FieldType.NUMERIC, required=True, options=NumericFieldOptions(kind="int")
+        ),
         "note.author": SpaceField(name="note.author", type=FieldType.USER, required=True),
         "note.created_at": SpaceField(name="note.created_at", type=FieldType.DATETIME, required=True),
         "note.edited_at": SpaceField(name="note.edited_at", type=FieldType.DATETIME, required=False),

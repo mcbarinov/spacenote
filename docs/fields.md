@@ -6,25 +6,27 @@ Field system for custom note schemas. Each space defines its own fields.
 
 | Type | Value Type | Description |
 |------|-----------|-------------|
-| `string` | `str` | Plain text |
-| `markdown` | `str` | Markdown text |
+| `string` | `str` | Text with kind: single_line, multi_line, markdown, json, toml, yaml |
 | `boolean` | `bool` | True/false (`true`, `1`, `yes`, `on` / `false`, `0`, `no`, `off`) |
 | `select` | `str` | Single choice from predefined values |
 | `tags` | `list[str]` | Comma-separated list (auto-deduped) |
 | `user` | `str` | Space member username |
 | `datetime` | `datetime` | ISO 8601 datetime |
-| `int` | `int` | Integer with optional min/max |
-| `float` | `float` | Decimal with optional min/max |
+| `numeric` | `int`, `float`, or `Decimal` | Number with kind: int, float, or decimal (precise) |
 | `image` | `int` | Attachment number (auto-converts to WebP) |
 
 ## Field Options
 
 | Option | Applies To | Type | Description |
 |--------|-----------|------|-------------|
+| `kind` | string | `"single_line"` \| `"multi_line"` \| `"markdown"` \| `"json"` \| `"toml"` \| `"yaml"` | String type (default: `"single_line"`) |
+| `min_length` | string | `int` | Minimum string length |
+| `max_length` | string | `int` | Maximum string length |
 | `values` | select | `list[str]` | **Required.** Allowed values |
 | `value_maps` | select | `dict[str, dict[str, str]]` | Metadata maps for values |
-| `min` | int, float | `number` | Minimum allowed value |
-| `max` | int, float | `number` | Maximum allowed value |
+| `kind` | numeric | `"int"` \| `"float"` \| `"decimal"` | **Required.** Numeric type |
+| `min` | numeric | `number` | Minimum allowed value |
+| `max` | numeric | `number` | Maximum allowed value |
 | `max_width` | image | `int` | Max width in pixels for WebP conversion |
 
 ## Special Values
@@ -93,14 +95,33 @@ Metadata mapping for `select` field values. Maps each value to display strings.
 
 ### string
 
+The `string` field type supports different kinds of text:
+
+- **single_line**: Short text without newlines (e.g., title, name)
+- **multi_line**: Long text with newlines (e.g., comment, description)
+- **markdown**: Markdown-formatted text
+- **json**: JSON text (will validate syntax)
+- **toml**: TOML text (will validate syntax)
+- **yaml**: YAML text (will validate syntax)
+
+**Simple string (single line):**
 ```json
 { "name": "title", "type": "string", "required": true }
 ```
 
-### markdown
-
+**Multi-line text:**
 ```json
-{ "name": "body", "type": "markdown" }
+{ "name": "description", "type": "string", "options": { "kind": "multi_line" } }
+```
+
+**Markdown:**
+```json
+{ "name": "body", "type": "string", "options": { "kind": "markdown" } }
+```
+
+**With length constraints:**
+```json
+{ "name": "slug", "type": "string", "options": { "kind": "single_line", "min_length": 3, "max_length": 50 } }
 ```
 
 ### boolean
@@ -154,16 +175,29 @@ Accepted formats:
 - `2025-01-15T08:30:00.123456`
 - `2025-01-15T08:30:00Z`
 
-### int
+### numeric
 
+The `numeric` field type supports three kinds of numbers:
+
+- **int**: Integer values (stored as BSON Int32/Int64)
+- **float**: Floating-point values (stored as BSON Double, IEEE 754)
+- **decimal**: Precise decimal values (stored as BSON Decimal128, no floating-point errors)
+
+Use `decimal` for financial calculations, currency, or any scenario requiring exact decimal precision.
+
+**Integer:**
 ```json
-{ "name": "priority", "type": "int", "options": { "min": 1, "max": 5 } }
+{ "name": "priority", "type": "numeric", "options": { "kind": "int", "min": 1, "max": 5 } }
 ```
 
-### float
-
+**Float:**
 ```json
-{ "name": "rating", "type": "float", "options": { "min": 0, "max": 10 } }
+{ "name": "rating", "type": "numeric", "options": { "kind": "float", "min": 0.0, "max": 10.0 } }
+```
+
+**Decimal (precise):**
+```json
+{ "name": "price", "type": "numeric", "options": { "kind": "decimal", "min": 0, "max": 999999.99 } }
 ```
 
 ### image

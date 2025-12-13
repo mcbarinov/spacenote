@@ -5,6 +5,8 @@ from contextlib import asynccontextmanager
 from typing import Any
 from urllib.parse import urlparse
 
+from bson.codec_options import CodecOptions, TypeRegistry
+from bson.decimal128 import DecimalDecoder, DecimalEncoder
 from pymongo import AsyncMongoClient
 from pymongo.asynchronous.database import AsyncDatabase
 
@@ -87,8 +89,18 @@ class Core:
 
     def __init__(self, config: Config) -> None:
         self.config = config
+
+        # Configure TypeRegistry with Decimal codec
+        type_registry = TypeRegistry([DecimalEncoder(), DecimalDecoder()])
+        codec_options: CodecOptions[dict[str, Any]] = CodecOptions(type_registry=type_registry, tz_aware=True)
+
+        # Initialize MongoDB client
         self.mongo_client = AsyncMongoClient(config.database_url, uuidRepresentation="standard", tz_aware=True)
-        self.database = self.mongo_client.get_database(urlparse(config.database_url).path[1:])
+
+        # Get database with codec options
+        db_name = urlparse(config.database_url).path[1:]
+        self.database = self.mongo_client.get_database(db_name, codec_options=codec_options)
+
         self.services = ServiceRegistry(self)
 
     @asynccontextmanager

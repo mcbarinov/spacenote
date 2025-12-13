@@ -3,11 +3,13 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import UTC, datetime
+from decimal import Decimal, InvalidOperation
 
 from spacenote.core.modules.field.models import (
     FieldOption,
     FieldType,
     FieldValueType,
+    NumericFieldOptions,
     SpaceField,
     SpecialValue,
     StringFieldOptions,
@@ -74,7 +76,7 @@ class StringValidator(FieldValidator):
         value = raw
 
         if isinstance(field.options, StringFieldOptions):
-            if field.options.format == "single_line" and "\n" in value:
+            if field.options.kind == "single_line" and "\n" in value:
                 raise ValidationError(f"Field '{field.name}' does not allow newlines")
 
             if field.options.min_length is not None and len(value) < field.options.min_length:
@@ -115,25 +117,38 @@ class BooleanValidator(FieldValidator):
         raise ValidationError(f"Invalid boolean value for field '{field.name}': {raw}")
 
 
-class IntValidator(FieldValidator):
-    """Validator for integer fields."""
+class NumericValidator(FieldValidator):
+    """Validator for numeric fields (int, float, decimal)."""
 
     @classmethod
     def _validate_field(cls, field: SpaceField, _space: Space) -> SpaceField:
-        if not isinstance(field.options, dict):
-            raise ValidationError("INT field options must be a dict")
-        for opt in (FieldOption.MIN, FieldOption.MAX):
-            if opt in field.options:
-                val = field.options[opt]
-                if not isinstance(val, (int, float)):
-                    raise ValidationError(f"{opt} must be numeric")
+        if not isinstance(field.options, NumericFieldOptions):
+            raise ValidationError("NUMERIC field options must be NumericFieldOptions")
+
+        if field.default is not None:
+            cls._validate_default_type(field.name, field.default, field.options.kind)
+
         return field
+
+    @classmethod
+    def _validate_default_type(cls, field_name: str, default: FieldValueType, kind: str) -> None:
+        """Validate default value matches the numeric kind."""
+        if kind == "int" and not isinstance(default, int):
+            raise ValidationError(f"Default value for int field '{field_name}' must be int")
+        if kind == "float" and not isinstance(default, (int, float)):
+            raise ValidationError(f"Default value for float field '{field_name}' must be numeric")
+        if kind == "decimal" and not isinstance(default, (int, float, Decimal)):
+            raise ValidationError(f"Default value for decimal field '{field_name}' must be numeric")
 
     @classmethod
     def _parse_value(cls, field: SpaceField, _space: Space, raw: str | None, _ctx: ParseContext) -> FieldValueType:
         if raw is None:
             if field.default is not None:
-                return field.default
+                if not isinstance(field.options, NumericFieldOptions):
+                    raise ValidationError(
+                        f"Invalid field configuration: NUMERIC field '{field.name}' options must be NumericFieldOptions"
+                    )
+                return cls._convert_default(field.default, field.options)
             if field.required:
                 raise ValidationError(f"Required field '{field.name}' has no value")
             return None
@@ -141,78 +156,54 @@ class IntValidator(FieldValidator):
         if raw == "" and not field.required:
             return None
 
+        if not isinstance(field.options, NumericFieldOptions):
+            raise ValidationError(
+                f"Invalid field configuration: NUMERIC field '{field.name}' options must be NumericFieldOptions"
+            )
+
+        parsed_value: int | float | Decimal
         try:
-            int_value = int(raw)
-        except ValueError as e:
-            raise ValidationError(f"Invalid integer value for field '{field.name}': {raw}") from e
+            if field.options.kind == "int":
+                parsed_value = int(raw)
+            elif field.options.kind == "float":
+                parsed_value = float(raw)
+            elif field.options.kind == "decimal":
+                parsed_value = Decimal(raw)
+            else:
+                raise ValidationError(f"Unknown numeric kind: {field.options.kind}")
+        except (ValueError, InvalidOperation) as e:
+            raise ValidationError(f"Invalid {field.options.kind} value for field '{field.name}': {raw}") from e
 
-        cls._validate_numeric_range(field, int_value)
-        return int_value
+        cls._validate_numeric_range(field, parsed_value)
+        return parsed_value
 
     @classmethod
-    def _validate_numeric_range(cls, field: SpaceField, value: int) -> None:
+    def _convert_default(cls, default: FieldValueType, options: NumericFieldOptions) -> int | float | Decimal:
+        """Convert default value to appropriate type based on kind."""
+        if options.kind == "int" and isinstance(default, int):
+            return default
+        if options.kind == "float" and isinstance(default, (int, float)):
+            return float(default)
+        if options.kind == "decimal":
+            if isinstance(default, Decimal):
+                return default
+            if isinstance(default, (int, float)):
+                return Decimal(str(default))
+        raise ValidationError(f"Cannot convert default value to {options.kind}")
+
+    @classmethod
+    def _validate_numeric_range(cls, field: SpaceField, value: float | Decimal) -> None:
         """Validate numeric value is within min/max range."""
-        if not isinstance(field.options, dict):
+        if not isinstance(field.options, NumericFieldOptions):
             return
-        if FieldOption.MIN in field.options:
-            min_val = field.options[FieldOption.MIN]
-            if isinstance(min_val, (int, float)) and value < min_val:
-                raise ValidationError(f"Value for field '{field.name}' is below minimum: {value} < {min_val}")
 
-        if FieldOption.MAX in field.options:
-            max_val = field.options[FieldOption.MAX]
-            if isinstance(max_val, (int, float)) and value > max_val:
-                raise ValidationError(f"Value for field '{field.name}' is above maximum: {value} > {max_val}")
+        comparable_value = float(value)
 
+        if field.options.min is not None and comparable_value < field.options.min:
+            raise ValidationError(f"Value for field '{field.name}' is below minimum: {value} < {field.options.min}")
 
-class FloatValidator(FieldValidator):
-    """Validator for float fields."""
-
-    @classmethod
-    def _validate_field(cls, field: SpaceField, _space: Space) -> SpaceField:
-        if not isinstance(field.options, dict):
-            raise ValidationError("FLOAT field options must be a dict")
-        for opt in (FieldOption.MIN, FieldOption.MAX):
-            if opt in field.options:
-                val = field.options[opt]
-                if not isinstance(val, (int, float)):
-                    raise ValidationError(f"{opt} must be numeric")
-        return field
-
-    @classmethod
-    def _parse_value(cls, field: SpaceField, _space: Space, raw: str | None, _ctx: ParseContext) -> FieldValueType:
-        if raw is None:
-            if field.default is not None:
-                return field.default
-            if field.required:
-                raise ValidationError(f"Required field '{field.name}' has no value")
-            return None
-
-        if raw == "" and not field.required:
-            return None
-
-        try:
-            float_value = float(raw)
-        except ValueError as e:
-            raise ValidationError(f"Invalid float value for field '{field.name}': {raw}") from e
-
-        cls._validate_numeric_range(field, float_value)
-        return float_value
-
-    @classmethod
-    def _validate_numeric_range(cls, field: SpaceField, value: float) -> None:
-        """Validate numeric value is within min/max range."""
-        if not isinstance(field.options, dict):
-            return
-        if FieldOption.MIN in field.options:
-            min_val = field.options[FieldOption.MIN]
-            if isinstance(min_val, (int, float)) and value < min_val:
-                raise ValidationError(f"Value for field '{field.name}' is below minimum: {value} < {min_val}")
-
-        if FieldOption.MAX in field.options:
-            max_val = field.options[FieldOption.MAX]
-            if isinstance(max_val, (int, float)) and value > max_val:
-                raise ValidationError(f"Value for field '{field.name}' is above maximum: {value} > {max_val}")
+        if field.options.max is not None and comparable_value > field.options.max:
+            raise ValidationError(f"Value for field '{field.name}' is above maximum: {value} > {field.options.max}")
 
 
 class SelectValidator(FieldValidator):
@@ -432,8 +423,7 @@ class ImageValidator(FieldValidator):
 VALIDATORS: dict[FieldType, type[FieldValidator]] = {
     FieldType.STRING: StringValidator,
     FieldType.BOOLEAN: BooleanValidator,
-    FieldType.INT: IntValidator,
-    FieldType.FLOAT: FloatValidator,
+    FieldType.NUMERIC: NumericValidator,
     FieldType.SELECT: SelectValidator,
     FieldType.TAGS: TagsValidator,
     FieldType.DATETIME: DateTimeValidator,

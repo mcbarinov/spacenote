@@ -57,7 +57,6 @@ DOMAIN=your-domain.com
 EMAIL=admin@your-domain.com
 MONGODB_ROOT_USERNAME=root
 MONGODB_ROOT_PASSWORD=<generate with: openssl rand -hex 32>
-SESSION_SECRET_KEY=<generate with: openssl rand -hex 32>
 
 # Optional
 TELEGRAM_BOT_TOKEN=

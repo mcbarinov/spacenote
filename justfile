@@ -118,3 +118,46 @@ agent-admin-dev:
 [group("agent")]
 agent-backend-dev:
     cd apps/backend && SPACENOTE_PORT=3101 uv run python -m watchfiles "python -m spacenote.main" src
+
+
+# === Deploy Commands ===
+
+GHCR_USER := "mcbarinov"
+
+[group("deploy")]
+deploy-build: deploy-build-backend deploy-build-web deploy-build-admin
+
+[group("deploy")]
+deploy-build-backend:
+    docker build -f apps/backend/Dockerfile -t ghcr.io/{{GHCR_USER}}/spacenote-backend:latest apps/backend
+
+[group("deploy")]
+deploy-build-web:
+    docker build -f apps/web/Dockerfile -t ghcr.io/{{GHCR_USER}}/spacenote-web:latest .
+
+[group("deploy")]
+deploy-build-admin:
+    docker build -f apps/admin/Dockerfile --build-arg VITE_BASE_PATH=/admin/ -t ghcr.io/{{GHCR_USER}}/spacenote-admin:latest .
+
+[group("deploy")]
+deploy-push: deploy-push-backend deploy-push-web deploy-push-admin
+
+[group("deploy")]
+deploy-push-backend:
+    docker push ghcr.io/{{GHCR_USER}}/spacenote-backend:latest
+
+[group("deploy")]
+deploy-push-web:
+    docker push ghcr.io/{{GHCR_USER}}/spacenote-web:latest
+
+[group("deploy")]
+deploy-push-admin:
+    docker push ghcr.io/{{GHCR_USER}}/spacenote-admin:latest
+
+[group("deploy")]
+deploy-local:
+    cd deploy && docker compose -f docker-compose.local.yml up --build
+
+[group("deploy")]
+deploy-local-down:
+    cd deploy && docker compose -f docker-compose.local.yml down

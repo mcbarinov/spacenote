@@ -1,0 +1,116 @@
+services:
+  caddy:
+    image: caddy:2-alpine
+    container_name: spacenote-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN: ${DOMAIN}
+      EMAIL: ${EMAIL:-}
+    volumes:
+      - ./data/caddy-data:/data
+      - ./data/caddy-config:/config
+    entrypoint: /bin/sh
+    command: >
+      -c "echo '
+      {
+        email ${EMAIL:-}
+      }
+
+      ${DOMAIN} {
+        reverse_proxy /api/* backend:8000 {
+          transport http {
+            read_timeout 10m
+            write_timeout 10m
+          }
+        }
+        reverse_proxy /admin/* admin:4173 {
+          transport http {
+            read_timeout 10m
+            write_timeout 10m
+          }
+        }
+        reverse_proxy web:4173 {
+          transport http {
+            read_timeout 10m
+            write_timeout 10m
+          }
+        }
+      }
+      ' | caddy run --config /dev/stdin --adapter caddyfile"
+    networks:
+      - spacenote-network
+
+  mongodb:
+    image: mongodb/mongodb-community-server:8.0-ubi9
+    container_name: spacenote-mongodb
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:27017:27017"
+    environment:
+      MONGODB_INITDB_ROOT_USERNAME: ${MONGODB_ROOT_USERNAME}
+      MONGODB_INITDB_ROOT_PASSWORD: ${MONGODB_ROOT_PASSWORD}
+      MONGODB_INITDB_DATABASE: spacenote
+    volumes:
+      - ./data/mongodb:/data/db:z
+    networks:
+      - spacenote-network
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh --username ${MONGODB_ROOT_USERNAME} --password ${MONGODB_ROOT_PASSWORD} --authenticationDatabase admin --eval \"db.adminCommand('ping')\" || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  backend:
+    image: ${BACKEND_IMAGE:-ghcr.io/mcbarinov/spacenote-backend:latest}
+    container_name: spacenote-backend
+    restart: unless-stopped
+    user: "1000:1000"
+    environment:
+      SPACENOTE_DATABASE_URL: mongodb://${MONGODB_ROOT_USERNAME}:${MONGODB_ROOT_PASSWORD}@mongodb:27017/spacenote?authSource=admin
+      SPACENOTE_SESSION_SECRET_KEY: ${SESSION_SECRET_KEY}
+      SPACENOTE_CORS_ORIGINS: '["https://${DOMAIN}"]'
+      SPACENOTE_FRONTEND_URL: https://${DOMAIN}
+      SPACENOTE_HOST: 0.0.0.0
+      SPACENOTE_PORT: 8000
+      SPACENOTE_DEBUG: ${DEBUG:-false}
+      SPACENOTE_TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      SPACENOTE_ATTACHMENTS_PATH: /data/attachments
+      SPACENOTE_IMAGES_PATH: /data/images
+    volumes:
+      - ./data/attachments:/data/attachments
+      - ./data/images:/data/images
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - spacenote-network
+
+  web:
+    image: ${WEB_IMAGE:-ghcr.io/mcbarinov/spacenote-web:latest}
+    container_name: spacenote-web
+    restart: unless-stopped
+    environment:
+      API_URL: https://${DOMAIN}
+    depends_on:
+      - backend
+    networks:
+      - spacenote-network
+
+  admin:
+    image: ${ADMIN_IMAGE:-ghcr.io/mcbarinov/spacenote-admin:latest}
+    # Note: For production builds, use: docker build --build-arg VITE_BASE_PATH=/admin/ ...
+    container_name: spacenote-admin
+    restart: unless-stopped
+    environment:
+      API_URL: https://${DOMAIN}
+    depends_on:
+      - backend
+    networks:
+      - spacenote-network
+
+networks:
+  spacenote-network:
+    driver: bridge

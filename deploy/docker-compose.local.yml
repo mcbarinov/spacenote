@@ -1,0 +1,82 @@
+services:
+  mongodb:
+    image: mongodb/mongodb-community-server:8.0-ubi9
+    container_name: spacenote-mongodb-local
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGODB_INITDB_ROOT_USERNAME: ${MONGODB_ROOT_USERNAME:-root}
+      MONGODB_INITDB_ROOT_PASSWORD: ${MONGODB_ROOT_PASSWORD:-localdev}
+      MONGODB_INITDB_DATABASE: spacenote
+    volumes:
+      - ./data/mongodb:/data/db:z
+    networks:
+      - spacenote-local
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      start_period: 5s
+      interval: 5s
+      timeout: 10s
+      retries: 3
+
+  backend:
+    build:
+      context: ../apps/backend
+      dockerfile: Dockerfile
+    container_name: spacenote-backend-local
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      SPACENOTE_DATABASE_URL: mongodb://${MONGODB_ROOT_USERNAME:-root}:${MONGODB_ROOT_PASSWORD:-localdev}@mongodb:27017/spacenote?authSource=admin
+      SPACENOTE_SESSION_SECRET_KEY: ${SESSION_SECRET_KEY:-local_dev_secret_key_must_be_at_least_32_chars}
+      SPACENOTE_CORS_ORIGINS: '["http://localhost:4173", "http://localhost:4174"]'
+      SPACENOTE_FRONTEND_URL: http://localhost:4173
+      SPACENOTE_HOST: 0.0.0.0
+      SPACENOTE_PORT: 8000
+      SPACENOTE_DEBUG: ${DEBUG:-true}
+      SPACENOTE_ATTACHMENTS_PATH: /data/attachments
+      SPACENOTE_IMAGES_PATH: /data/images
+    volumes:
+      - ./data/attachments:/data/attachments
+      - ./data/images:/data/images
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - spacenote-local
+
+  web:
+    build:
+      context: ..
+      dockerfile: apps/web/Dockerfile
+    container_name: spacenote-web-local
+    restart: unless-stopped
+    ports:
+      - "4173:4173"
+    environment:
+      API_URL: http://localhost:8000
+    depends_on:
+      - backend
+    networks:
+      - spacenote-local
+
+  admin:
+    build:
+      context: ..
+      dockerfile: apps/admin/Dockerfile
+    container_name: spacenote-admin-local
+    restart: unless-stopped
+    ports:
+      - "4174:4173"
+    environment:
+      API_URL: http://localhost:8000
+    depends_on:
+      - backend
+    networks:
+      - spacenote-local
+
+networks:
+  spacenote-local:
+    driver: bridge

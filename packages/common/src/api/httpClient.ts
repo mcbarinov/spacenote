@@ -1,11 +1,31 @@
 import ky, { type KyInstance } from "ky"
 import { AppError } from "../errors/AppError"
 
-const baseUrl = import.meta.env.VITE_API_BASE_URL as string | undefined
-
-if (!baseUrl) {
-  throw new Error("VITE_API_BASE_URL environment variable is required")
+declare global {
+  interface Window {
+    __SPACENOTE_CONFIG__?: { API_URL: string }
+  }
 }
+
+function getBaseUrl(): string {
+  // Development: use VITE_API_BASE_URL from .env
+  if (import.meta.env.DEV) {
+    const envUrl = import.meta.env.VITE_API_BASE_URL as string | undefined
+    if (!envUrl) {
+      throw new Error("VITE_API_BASE_URL is not defined in .env file")
+    }
+    return envUrl
+  }
+
+  // Production: use runtime config from window.__SPACENOTE_CONFIG__
+  const config = window.__SPACENOTE_CONFIG__
+  if (!config?.API_URL) {
+    throw new Error("API_URL is not configured. Please check runtime-config.js")
+  }
+  return config.API_URL
+}
+
+const baseUrl = getBaseUrl()
 
 /** Configured ky instance for API requests */
 export let httpClient: KyInstance

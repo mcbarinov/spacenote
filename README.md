@@ -12,6 +12,9 @@ spacenote/
 │   └── admin/              # React frontend for admins
 ├── packages/               # Shared packages
 │   └── common/             # @spacenote/common - shared frontend code
+├── ai/                      # AI agent resources
+│   ├── commands/           # Claude Code slash commands
+│   └── rules/              # AI coding guidelines
 ├── pnpm-workspace.yaml     # pnpm workspace configuration
 ├── package.json            # Root package.json
 └── README.md
@@ -50,10 +53,20 @@ Shared frontend code for all React applications:
 | `docs/concepts.md` | Domain model, features, key decisions (read first) |
 | `docs/fields.md` | Field types, options, special values, VALUE_MAPS |
 | `docs/backend.md` | Backend architecture (DB schema, services) |
-| `docs/backend-ai.md` | AI coding rules for backend |
 | `docs/frontend.md` | Frontend architecture (routing, data layer) |
-| `docs/frontend-ai.md` | AI coding rules for frontend |
 | `docs/space-examples.md` | Space configuration examples |
+
+## AI Agents
+
+Resources for AI coding assistants (Claude Code, etc.):
+
+- `ai/commands/` — Slash commands for starting sessions and code reviews
+- `ai/rules/` — Coding guidelines for backend and frontend
+
+To use commands with Claude Code, create a symlink:
+```bash
+ln -s ../ai/commands .claude/commands
+```
 
 ## Technology Stack
 

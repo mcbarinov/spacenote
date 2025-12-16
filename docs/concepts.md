@@ -22,7 +22,7 @@ Basic content unit within a space:
 - Belongs to exactly one space
 - Identified by sequential number within space (e.g., note #7 in `task-tracker`)
 - Follows space's field schema
-- Tracks author and timestamps (created, edited)
+- Tracks author and timestamps (created, edited, last activity)
 
 ### 1.3 Fields
 
@@ -39,9 +39,11 @@ See `docs/fields.md` for detailed field types, options, and VALUE_MAPS reference
 System user account:
 
 - Identified by username
-- Two roles: regular user (creates content) and administrator (manages system)
-- Regular users are members of spaces
-- Administrators cannot be members of spaces
+- Single administrator: user with `username="admin"`
+- All other users are regular users who can be members of spaces
+- Administrator cannot be a member of spaces
+
+**Intentionally simple**: No self-registration, password recovery, or display names. For small teams where the admin creates all accounts manually.
 
 ### 1.5 Comment
 

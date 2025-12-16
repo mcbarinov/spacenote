@@ -4,7 +4,7 @@
 
 **IMPORTANT**: Always read README.md first to understand the project context and structure.
 
-**IMPORTANT**: Always read and follow local instructions from `.claude/local-rules.md` if this file exists.
+**IMPORTANT**: Always read and follow AI rules from `ai/rules/` directory.
 
 ## Project Status
 
@@ -22,19 +22,4 @@
 
 5. **Linter rules enforcement** - Never disable linter rules with inline comments (e.g., `// eslint-disable`, `# noqa`, `# type: ignore`) without explicit permission. Always try to fix the code according to the linter's suggestions first. If you believe the linter is incorrect in a specific case, ask for permission to disable the rule and provide a clear comment explaining why the exception is necessary.
 
-6. **Run linters after changes** - Always run the appropriate linter checks after modifying code to ensure code quality standards are met. For backend changes, run `just backend-lint`. For other parts of the project, use the corresponding lint commands from the justfile.
-
-## Agent Development
-
-Development servers have separate ports for human and agent use:
-
-| App    | Human Port | Agent Port | Human Command      | Agent Command          |
-|--------|------------|------------|--------------------|------------------------|
-| web    | 3000       | 3001       | just web-dev       | just agent-web-dev     |
-| admin  | 3200       | 3201       | just admin-dev     | just agent-admin-dev   |
-| api    | 3100       | 3101       | just backend-dev   | just agent-backend-dev |
-
-**Rules for agents:**
-- Never start/stop/restart servers on human ports (3000, 3100, 3200)
-- Always use `agent-*` commands when you need to run dev servers
-- Human servers are managed by the user and should remain untouched
+6. **Run linters after changes** - Always run the appropriate linter checks after modifying code. See `ai/rules/project.md` for commands.

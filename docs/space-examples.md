@@ -16,16 +16,16 @@ Simple task tracker for a small team.
   "title": "Tasks",
   "description": "Team task tracker",
   "fields": [
-    { "name": "title", "type": "string", "required": true },
-    { "name": "body", "type": "markdown" },
-    { "name": "assignee", "type": "user", "required": true, "default": "$me" },
+    { "name": "title", "type": "string", "required": true, "options": { "kind": "single_line" } },
+    { "name": "body", "type": "string", "options": { "kind": "markdown" } },
+    { "name": "assignee", "type": "user", "required": true, "default": "$me", "options": {} },
     { "name": "status", "type": "select", "required": true, "default": "new",
       "options": { "values": ["new", "in_progress", "paused", "completed", "cancelled"] }
     },
     { "name": "priority", "type": "select", "required": true, "default": "medium",
       "options": { "values": ["low", "medium", "high"] }
     },
-    { "name": "tags", "type": "tags" }
+    { "name": "tags", "type": "tags", "options": {} }
   ]
 }
 ```
@@ -88,13 +88,13 @@ Photo-based meal tracking with ratings.
   "description": "Photo-based meal tracking",
   "fields": [
     { "name": "image", "type": "image", "required": true, "options": { "max_width": 1280 } },
-    { "name": "meal_time", "type": "datetime", "required": true, "default": "$now" },
-    { "name": "ingredients", "type": "tags" },
-    { "name": "tags", "type": "tags" },
+    { "name": "meal_time", "type": "datetime", "required": true, "default": "$now", "options": {} },
+    { "name": "ingredients", "type": "tags", "options": {} },
+    { "name": "tags", "type": "tags", "options": {} },
     { "name": "taste", "type": "select", "options": { "values": ["1", "2", "3", "4", "5"] } },
     { "name": "afterfeel", "type": "select", "options": { "values": ["1", "2", "3", "4", "5"] } },
-    { "name": "recipe", "type": "markdown" },
-    { "name": "notes", "type": "markdown" }
+    { "name": "recipe", "type": "string", "options": { "kind": "markdown" } },
+    { "name": "notes", "type": "string", "options": { "kind": "markdown" } }
   ]
 }
 ```

@@ -1,0 +1,27 @@
+# Virtual environment
+.venv/
+
+# Caches
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+__pycache__/
+*.pyc
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# IDE
+.vscode/
+.idea/
+
+# Tests (not needed in production)
+tests/
+
+# Documentation
+*.md
+
+# OS files
+.DS_Store

@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1.6
+
 # Build stage
 FROM python:3.14-slim AS builder
 
@@ -5,10 +7,19 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
 WORKDIR /app
 
+# Copy only dependency files first (layer caching)
 COPY pyproject.toml uv.lock ./
+
+# Install dependencies with BuildKit cache
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-dev --no-install-project --link-mode=copy
+
+# Copy source code
 COPY ./src ./src
 
-RUN uv sync --frozen --no-dev --no-editable
+# Install the project (deps already cached)
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-dev --no-editable --link-mode=copy
 
 # Production stage
 FROM python:3.14-slim

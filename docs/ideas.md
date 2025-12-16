@@ -76,16 +76,3 @@ Could use STRING but loses URL validation and clickable rendering in UI.
 ## 8. API
 
 ## 9. Developer Experience
-
-### 9.1 Repository-based .claude/commands
-
-Store `.claude/commands/` in the repository instead of locally.
-
-Benefits:
-- Version controlled with the codebase
-- Shared across team members
-- Project-specific commands stay with the project
-
-Current state: commands stored in `~/.claude/commands/` (user-local).
-
-Desired: support `.claude/commands/` in project root, similar to `.claude/CLAUDE.md`.

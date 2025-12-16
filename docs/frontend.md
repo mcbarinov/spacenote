@@ -669,4 +669,4 @@ p-sm, p-md, p-lg
 ### Files
 
 - `packages/common/src/styles/templates.css` — CSS classes
-- `packages/common/src/templates/` — LiquidJS renderer (TBD)
+- `packages/common/src/templates/` — LiquidJS renderer

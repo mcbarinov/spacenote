@@ -22,7 +22,7 @@ Basic content unit within a space:
 - Belongs to exactly one space
 - Identified by sequential number within space (e.g., note #7 in `task-tracker`)
 - Follows space's field schema
-- Tracks author and timestamps (created, edited)
+- Tracks author and timestamps (created, edited, last activity)
 
 ### 1.3 Fields
 

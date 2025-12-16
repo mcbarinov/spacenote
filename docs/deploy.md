@@ -1,5 +1,34 @@
 # Deployment Guide
 
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────┐
+│                    Internet                         │
+└─────────────────────┬───────────────────────────────┘
+                      │ :80/:443
+┌─────────────────────▼───────────────────────────────┐
+│                    Caddy                            │
+│              (reverse proxy + SSL)                  │
+└──────┬──────────────┬──────────────────┬────────────┘
+       │ /api/*       │ /admin/*         │ /*
+┌──────▼──────┐ ┌─────▼──────┐ ┌─────────▼─────────┐
+│   Backend   │ │   Admin    │ │       Web         │
+│  (FastAPI)  │ │  (serve)   │ │     (serve)       │
+└──────┬──────┘ └────────────┘ └───────────────────┘
+       │
+┌──────▼──────┐
+│   MongoDB   │
+└─────────────┘
+```
+
+**Key decisions:**
+- **Caddy**: Auto-SSL via Let's Encrypt, simple config
+- **GHCR**: Free container registry for public repos
+- **Multi-stage builds**: Smaller images, BuildKit caching
+- **Runtime config**: `entrypoint.sh` injects API_URL at start (no rebuild for different envs)
+- **Non-root**: Backend runs as uid 1000 for security
+
 ## Workflow
 
 1. **Dev machine**: `just deploy-push` (builds linux/amd64 images and pushes to GHCR)

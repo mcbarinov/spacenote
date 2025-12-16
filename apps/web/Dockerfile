@@ -45,7 +45,7 @@ FROM node:24-alpine AS runner
 
 WORKDIR /app
 
-RUN npm install --global serve@14
+RUN npm install --global serve@14 && apk add --no-cache wget
 
 COPY --from=builder /app/apps/web/dist ./dist
 COPY apps/web/entrypoint.sh /entrypoint.sh

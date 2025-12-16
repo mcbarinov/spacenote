@@ -203,3 +203,8 @@ deploy-local:
 [group("deploy")]
 deploy-local-down:
     cd deploy && docker compose -f docker-compose.local.yml down
+
+# Clean Docker build cache
+[group("deploy")]
+deploy-prune:
+    docker builder prune -f

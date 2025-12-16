@@ -9,6 +9,9 @@ ENV PATH="$PNPM_HOME:$PATH"
 
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
+# Configure pnpm store for BuildKit cache
+RUN pnpm config set store-dir /pnpm/store
+
 # Copy workspace configuration
 COPY pnpm-lock.yaml pnpm-workspace.yaml ./
 
@@ -16,8 +19,9 @@ COPY pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY packages/common/package.json ./packages/common/
 COPY apps/admin/package.json ./apps/admin/
 
-# Install dependencies
-RUN pnpm install --frozen-lockfile
+# Install dependencies (with BuildKit cache for pnpm store)
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
+    pnpm install --frozen-lockfile
 
 # Copy source code
 COPY packages/common ./packages/common
@@ -31,11 +35,12 @@ ARG VITE_BASE_PATH=/
 
 WORKDIR /app/apps/admin
 
+# Build (skip tsc type checking - done locally before push)
 RUN VITE_GIT_COMMIT_HASH=${GIT_COMMIT_HASH} \
     VITE_GIT_COMMIT_DATE=${GIT_COMMIT_DATE} \
     VITE_BUILD_TIME=${BUILD_TIME} \
     VITE_BASE_PATH=${VITE_BASE_PATH} \
-    pnpm build
+    pnpm vite build
 
 # Production stage
 FROM node:24-alpine AS runner

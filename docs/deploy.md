@@ -2,7 +2,7 @@
 
 ## Workflow
 
-1. **Dev machine**: `just deploy-build` → `just deploy-push` (images go to GHCR)
+1. **Dev machine**: `just deploy-build` (builds and pushes multi-arch images to GHCR)
 2. **Server**: `docker compose pull && docker compose up -d`
 
 ## Prerequisites
@@ -47,6 +47,10 @@ mv .env.example .env
 
 # Edit .env with your settings
 nano .env
+
+# Create data directories with correct permissions
+mkdir -p ./data/attachments ./data/images
+chown -R 1000:1000 ./data/attachments ./data/images
 ```
 
 ### 3. Configure .env
@@ -68,15 +72,13 @@ DEBUG=false
 ### Build & Push (dev machine)
 
 ```bash
-# Build all images
+# Build and push all images (multi-arch: amd64 + arm64)
 just deploy-build
-
-# Push to GHCR
-just deploy-push
 
 # Or build and push specific service
 just deploy-build-backend
-just deploy-push-backend
+just deploy-build-web
+just deploy-build-admin
 ```
 
 ### Deploy (server)
@@ -127,12 +129,14 @@ All data stored in bind mounts under `./data/`:
 
 ```
 data/
-├── mongodb/        # Database files
-├── attachments/    # User uploads
-├── images/         # Processed images
+├── mongodb/        # Database files (created by MongoDB container)
+├── attachments/    # User uploads (uid 1000)
+├── images/         # Processed images (uid 1000)
 ├── caddy-data/     # SSL certificates
 └── caddy-config/   # Caddy config
 ```
+
+**Note:** `attachments/` and `images/` must be owned by uid 1000 (backend user).
 
 ## Backup
 
@@ -176,15 +180,21 @@ docker compose logs caddy
 docker compose restart caddy
 ```
 
-**Database connection errors:**
+**MongoDB fails to start:**
 ```bash
-# Check MongoDB is healthy
-docker compose ps mongodb
+# Check logs
 docker compose logs mongodb
+
+# If "Permission denied" on /data/db/journal - reset MongoDB data
+docker compose down
+sudo rm -rf ./data/mongodb
+docker compose up -d
 ```
 
-**Permission errors on data folders:**
+**Backend permission errors (attachments/images):**
 ```bash
 # Backend runs as uid 1000
+sudo mkdir -p ./data/attachments ./data/images
 sudo chown -R 1000:1000 ./data/attachments ./data/images
+docker compose restart backend
 ```

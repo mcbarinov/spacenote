@@ -129,30 +129,34 @@ deploy-build: deploy-build-backend deploy-build-web deploy-build-admin
 
 [group("deploy")]
 deploy-build-backend:
-    docker build -f apps/backend/Dockerfile -t ghcr.io/{{GHCR_USER}}/spacenote-backend:latest apps/backend
+    docker buildx build --platform linux/amd64,linux/arm64 \
+        --build-arg GIT_COMMIT_HASH=$(git rev-parse --short HEAD) \
+        --build-arg GIT_COMMIT_DATE=$(git log -1 --format=%cI) \
+        --build-arg BUILD_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ") \
+        -f apps/backend/Dockerfile \
+        -t ghcr.io/{{GHCR_USER}}/spacenote-backend:latest \
+        --push apps/backend
 
 [group("deploy")]
 deploy-build-web:
-    docker build -f apps/web/Dockerfile -t ghcr.io/{{GHCR_USER}}/spacenote-web:latest .
+    docker buildx build --platform linux/amd64,linux/arm64 \
+        --build-arg GIT_COMMIT_HASH=$(git rev-parse --short HEAD) \
+        --build-arg GIT_COMMIT_DATE=$(git log -1 --format=%cI) \
+        --build-arg BUILD_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ") \
+        -f apps/web/Dockerfile \
+        -t ghcr.io/{{GHCR_USER}}/spacenote-web:latest \
+        --push .
 
 [group("deploy")]
 deploy-build-admin:
-    docker build -f apps/admin/Dockerfile --build-arg VITE_BASE_PATH=/admin/ -t ghcr.io/{{GHCR_USER}}/spacenote-admin:latest .
-
-[group("deploy")]
-deploy-push: deploy-push-backend deploy-push-web deploy-push-admin
-
-[group("deploy")]
-deploy-push-backend:
-    docker push ghcr.io/{{GHCR_USER}}/spacenote-backend:latest
-
-[group("deploy")]
-deploy-push-web:
-    docker push ghcr.io/{{GHCR_USER}}/spacenote-web:latest
-
-[group("deploy")]
-deploy-push-admin:
-    docker push ghcr.io/{{GHCR_USER}}/spacenote-admin:latest
+    docker buildx build --platform linux/amd64,linux/arm64 \
+        --build-arg GIT_COMMIT_HASH=$(git rev-parse --short HEAD) \
+        --build-arg GIT_COMMIT_DATE=$(git log -1 --format=%cI) \
+        --build-arg BUILD_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ") \
+        --build-arg VITE_BASE_PATH=/admin/ \
+        -f apps/admin/Dockerfile \
+        -t ghcr.io/{{GHCR_USER}}/spacenote-admin:latest \
+        --push .
 
 [group("deploy")]
 deploy-local:

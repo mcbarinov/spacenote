@@ -20,16 +20,19 @@ services:
       }
 
       ${DOMAIN} {
+        redir /admin /admin/
         reverse_proxy /api/* backend:8000 {
           transport http {
             read_timeout 10m
             write_timeout 10m
           }
         }
-        reverse_proxy /admin/* admin:4173 {
-          transport http {
-            read_timeout 10m
-            write_timeout 10m
+        handle_path /admin/* {
+          reverse_proxy admin:4173 {
+            transport http {
+              read_timeout 10m
+              write_timeout 10m
+            }
           }
         }
         reverse_proxy web:4173 {
@@ -54,7 +57,7 @@ services:
       MONGODB_INITDB_ROOT_PASSWORD: ${MONGODB_ROOT_PASSWORD}
       MONGODB_INITDB_DATABASE: spacenote
     volumes:
-      - ./data/mongodb:/data/db:z
+      - ./data/mongodb:/data:z
     networks:
       - spacenote-network
     healthcheck:

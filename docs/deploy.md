@@ -2,7 +2,7 @@
 
 ## Workflow
 
-1. **Dev machine**: `just deploy-build` (builds and pushes multi-arch images to GHCR)
+1. **Dev machine**: `just deploy-push` (builds linux/amd64 images and pushes to GHCR)
 2. **Server**: `docker compose pull && docker compose up -d`
 
 ## Prerequisites
@@ -72,10 +72,16 @@ DEBUG=false
 ### Build & Push (dev machine)
 
 ```bash
-# Build and push all images (multi-arch: amd64 + arm64)
-just deploy-build
+# Build and push all images to GHCR (linux/amd64)
+just deploy-push
 
-# Or build and push specific service
+# Or push specific service
+just deploy-push-backend
+just deploy-push-web
+just deploy-push-admin
+
+# Build locally for testing (native arch, loads into local Docker)
+just deploy-build
 just deploy-build-backend
 just deploy-build-web
 just deploy-build-admin

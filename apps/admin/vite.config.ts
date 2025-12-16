@@ -6,6 +6,7 @@ import path from "path"
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: process.env.VITE_BASE_PATH ?? "/",
   plugins: [devtools({ eventBusConfig: { port: 42070 } }), tanstackRouter({ target: "react", autoCodeSplitting: true }), react()],
   resolve: {
     alias: {

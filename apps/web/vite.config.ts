@@ -13,6 +13,8 @@ export default defineConfig({
     },
   },
   server: {
+    // Proxy /api requests to backend for images and attachments served via relative URLs
+    // (e.g., /api/v1/spaces/{slug}/notes/{number}/images/{field})
     proxy: {
       "/api": {
         target: "http://localhost:3100",

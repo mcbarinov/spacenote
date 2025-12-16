@@ -7,5 +7,6 @@ export function createAppRouter<T extends AnyRoute>(routeTree: T) {
     routeTree,
     context: { queryClient },
     defaultPreloadStaleTime: 0,
+    basepath: import.meta.env.BASE_URL,
   })
 }

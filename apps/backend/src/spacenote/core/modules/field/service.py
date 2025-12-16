@@ -2,7 +2,7 @@ from typing import Any
 
 import structlog
 
-from spacenote.core.modules.field.models import FieldValueType, SpaceField
+from spacenote.core.modules.field.models import FIELD_TYPE_OPTIONS, FieldValueType, SpaceField
 from spacenote.core.modules.field.validators import VALIDATORS, ParseContext
 from spacenote.core.service import Service
 from spacenote.errors import NotFoundError, ValidationError
@@ -57,11 +57,13 @@ class FieldService(Service):
             raise NotFoundError(f"Field '{field_name}' not found in space")
 
         # Create updated field preserving name and type
+        options_class = FIELD_TYPE_OPTIONS[existing_field.type]
+        typed_options = options_class(**options)
         updated_field = SpaceField(
             name=existing_field.name,
             type=existing_field.type,
             required=required,
-            options=options,
+            options=typed_options,
             default=default,
         )
 

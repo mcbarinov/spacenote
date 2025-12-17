@@ -137,3 +137,15 @@ Users and spaces are cached in memory due to small system limits:
 - Frontend: TanStack Query cache, preloaded in auth layout
 - Reads served from cache without database/API queries
 - Cache refreshed after mutations
+
+### 3.3 Image Storage
+
+IMAGE fields store attachment numbers, not image data directly:
+
+- **Original preserved**: Attachments keep the original uploaded file
+- **IMAGE field**: References processed version (WebP, resized)
+
+Why store originals:
+
+- EXIF metadata preservation (location, camera info, timestamps)
+- Future regeneration with different parameters (size, format, compression)

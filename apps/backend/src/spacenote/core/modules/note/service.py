@@ -72,10 +72,10 @@ class NoteService(Service):
         """Create note from raw fields."""
         space = self.core.services.space.get_space(space_slug)
 
-        pending = await self._load_pending_attachments_for_field_parsing(space, raw_fields)
+        pending_attachments = await self._load_pending_attachments_for_field_parsing(space, raw_fields)
 
         parsed_fields = self.core.services.field.parse_raw_fields(
-            space_slug, raw_fields, current_user=author, pending_attachments=pending
+            space_slug, raw_fields, current_user=author, pending_attachments=pending_attachments
         )
         next_number = await self.core.services.counter.get_next_sequence(space_slug, CounterType.NOTE)
 
@@ -143,23 +143,22 @@ class NoteService(Service):
         self, space: Space, raw_fields: dict[str, str]
     ) -> list[PendingAttachment]:
         """Load pending attachments needed for field value parsing."""
-        needed: set[int] = set()
+        pending_numbers: set[int] = set()
 
         # DATETIME fields with $exif.created_at.{field} default need the referenced image's EXIF data
         for field in space.fields:
-            if field.type != FieldType.DATETIME or not isinstance(field.default, str):
+            if field.type != FieldType.DATETIME:
                 continue
-            ref = DateTimeValidator.parse_exif_ref(field.default)
-            if not ref:
+            image_field = DateTimeValidator.get_exif_source_field(field.default)
+            if not image_field:
                 continue
-            raw_value = raw_fields.get(ref.image_field)
+            raw_value = raw_fields.get(image_field)
             if raw_value:
                 with contextlib.suppress(ValueError):
-                    needed.add(int(raw_value))
+                    pending_numbers.add(int(raw_value))
 
-        # Load all needed pending attachments
         result: list[PendingAttachment] = []
-        for num in needed:
+        for num in pending_numbers:
             with contextlib.suppress(NotFoundError):
                 result.append(await self.core.services.attachment.get_pending_attachment(num))
 

@@ -1,4 +1,4 @@
-import { Select } from "@mantine/core"
+import { TextInput } from "@mantine/core"
 import type { UseFormReturnType } from "@mantine/form"
 import type { FormValues } from "./fieldFormUtils"
 
@@ -9,12 +9,11 @@ interface Props {
 /** Options and default for datetime field type */
 export function DatetimeFieldConfig({ form }: Props) {
   return (
-    <Select
+    <TextInput
       label="Default"
       placeholder="No default"
-      data={[{ value: "$now", label: "$now (current time)" }]}
+      description="Supported: $now, ISO datetime (2024-01-15T10:30:00Z), $exif.created_at.{image_field}|{fallback}"
       {...form.getInputProps("defaultDatetime")}
-      clearable
     />
   )
 }

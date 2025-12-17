@@ -70,6 +70,7 @@ class NoteService(Service):
 
     async def create_note(self, space_slug: str, author: str, raw_fields: dict[str, str]) -> Note:
         """Create note from raw fields."""
+        logger.debug("create_note_request", space_slug=space_slug, raw_fields=raw_fields)
         space = self.core.services.space.get_space(space_slug)
 
         pending_attachments = await self._load_pending_attachments_for_field_parsing(space, raw_fields)

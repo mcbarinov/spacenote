@@ -102,7 +102,12 @@ export function NoteForm({ space, mode, note }: NoteFormProps) {
   const mutation = mode === "create" ? createMutation : updateMutation
 
   const handleSubmit = form.onSubmit((values) => {
-    const raw_fields = formValuesToRawFields(values)
+    // Filter out hidden fields in create mode - backend applies their defaults
+    const fieldsToSend =
+      mode === "create"
+        ? Object.fromEntries(Object.entries(values).filter(([key]) => !space.hidden_fields_on_create.includes(key)))
+        : values
+    const raw_fields = formValuesToRawFields(fieldsToSend)
     mutation.mutate(
       { raw_fields },
       {

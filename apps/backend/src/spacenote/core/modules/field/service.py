@@ -2,6 +2,7 @@ from typing import Any
 
 import structlog
 
+from spacenote.core.modules.attachment.models import PendingAttachment
 from spacenote.core.modules.field.models import FIELD_TYPE_OPTIONS, FieldValueType, SpaceField
 from spacenote.core.modules.field.validators import VALIDATORS, ParseContext
 from spacenote.core.service import Service
@@ -90,20 +91,11 @@ class FieldService(Service):
         raw_fields: dict[str, str],
         current_user: str | None = None,
         partial: bool = False,
+        pending_attachments: list[PendingAttachment] | None = None,
     ) -> dict[str, FieldValueType]:
-        """Parse raw string field values to typed values.
-
-        Args:
-            space_slug: The space slug to get field definitions
-            raw_fields: Dictionary of field names to raw string values
-            current_user: Current user for $me substitution
-            partial: If True, only validate provided fields (for partial updates)
-
-        Returns:
-            Dictionary of field names to parsed typed values
-        """
+        """Parse raw string field values to typed values."""
         space = self.core.services.space.get_space(space_slug)
-        ctx = ParseContext(current_user=current_user)
+        ctx = ParseContext(current_user=current_user, raw_fields=raw_fields, pending_attachments=pending_attachments)
         parsed: dict[str, FieldValueType] = {}
 
         # Check for unknown fields first

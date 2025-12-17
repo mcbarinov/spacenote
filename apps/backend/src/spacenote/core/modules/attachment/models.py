@@ -1,10 +1,27 @@
 from datetime import datetime
-from typing import Any
 
 from pydantic import Field
 
 from spacenote.core.db import MongoModel
+from spacenote.core.schema import OpenAPIModel
 from spacenote.utils import now
+
+
+class ImageMeta(OpenAPIModel):
+    """Typed metadata for image files."""
+
+    width: int
+    height: int
+    format: str | None
+    exif_created_at: datetime | None = None
+
+
+class AttachmentMeta(OpenAPIModel):
+    """Extracted file metadata."""
+
+    image: ImageMeta | None = None
+    exif: dict[str, str] | None = None
+    error: str | None = None
 
 
 class PendingAttachment(MongoModel):
@@ -20,10 +37,7 @@ class PendingAttachment(MongoModel):
     filename: str = Field(..., description="Original filename")
     size: int = Field(..., description="File size in bytes")
     mime_type: str = Field(..., description="MIME type")
-    meta: dict[str, Any] = Field(
-        ...,
-        description="Extracted file metadata. For images: {image: {width, height, format}, exif?: {...}, error?: string}",
-    )
+    meta: AttachmentMeta = Field(default_factory=AttachmentMeta, description="Extracted file metadata")
     created_at: datetime = Field(default_factory=now, description="Upload timestamp")
 
 
@@ -45,8 +59,5 @@ class Attachment(MongoModel):
     filename: str = Field(..., description="Original filename")
     size: int = Field(..., description="File size in bytes")
     mime_type: str = Field(..., description="MIME type")
-    meta: dict[str, Any] = Field(
-        ...,
-        description="Extracted file metadata. For images: {image: {width, height, format}, exif?: {...}, error?: string}",
-    )
+    meta: AttachmentMeta = Field(default_factory=AttachmentMeta, description="Extracted file metadata")
     created_at: datetime = Field(default_factory=now, description="Upload timestamp")

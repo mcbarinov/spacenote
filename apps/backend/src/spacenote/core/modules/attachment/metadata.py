@@ -1,11 +1,11 @@
 import asyncio
 import logging
 from pathlib import Path
-from typing import Any
 
 from PIL import Image
 
-from spacenote.core.modules.image.exif import extract_exif
+from spacenote.core.modules.attachment.models import AttachmentMeta, ImageMeta
+from spacenote.core.modules.image.exif import extract_exif, parse_exif_datetime
 
 logger = logging.getLogger(__name__)
 
@@ -21,35 +21,32 @@ _IMAGE_MIME_TYPES = frozenset(
 )
 
 
-async def extract_metadata(file_path: Path, mime_type: str) -> dict[str, Any]:
-    """Extract metadata from file. Returns {} for unsupported formats."""
+async def extract_metadata(file_path: Path, mime_type: str) -> AttachmentMeta:
+    """Extract metadata from file."""
     if mime_type in _IMAGE_MIME_TYPES:
         return await _extract_image_metadata(file_path)
-    return {}
+    return AttachmentMeta()
 
 
-async def _extract_image_metadata(file_path: Path) -> dict[str, Any]:
+async def _extract_image_metadata(file_path: Path) -> AttachmentMeta:
     """Extract metadata from image file."""
     try:
         return await asyncio.to_thread(_extract_image_metadata_sync, file_path)
     except Exception as e:
         logger.exception("Failed to extract image metadata from %s", file_path)
-        return {"error": str(e)}
+        return AttachmentMeta(error=str(e))
 
 
-def _extract_image_metadata_sync(file_path: Path) -> dict[str, Any]:
+def _extract_image_metadata_sync(file_path: Path) -> AttachmentMeta:
     """Sync implementation for image metadata extraction."""
-    result: dict[str, Any] = {}
-
     with Image.open(file_path) as img:
-        result["image"] = {
-            "width": img.width,
-            "height": img.height,
-            "format": img.format,
-        }
+        image_meta = ImageMeta(width=img.width, height=img.height, format=img.format)
 
     exif_data = extract_exif(file_path)
     if exif_data:
-        result["exif"] = exif_data
+        exif_created_at = parse_exif_datetime(exif_data)
+        if exif_created_at:
+            image_meta.exif_created_at = exif_created_at
+        return AttachmentMeta(image=image_meta, exif=exif_data)
 
-    return result
+    return AttachmentMeta(image=image_meta)

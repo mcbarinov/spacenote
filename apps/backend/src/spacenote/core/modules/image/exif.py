@@ -1,5 +1,6 @@
 """EXIF metadata extraction from images."""
 
+from datetime import UTC, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
@@ -116,3 +117,33 @@ def _convert_value_to_string(value: object) -> str | None:
             return str(value)
     except Exception:
         return None
+
+
+def parse_exif_datetime(exif: dict[str, str]) -> datetime | None:
+    """Extract creation datetime from EXIF data.
+
+    Uses DateTimeOriginal (preferred) or DateTime as fallback.
+    Applies OffsetTimeOriginal timezone if present, otherwise treats as UTC.
+
+    EXIF datetime format: "YYYY:MM:DD HH:MM:SS"
+    Offset format: "+HH:MM" or "-HH:MM"
+    """
+    date_str = exif.get("DateTimeOriginal") or exif.get("DateTime")
+    if not date_str:
+        return None
+
+    try:
+        dt = datetime.strptime(date_str, "%Y:%m:%d %H:%M:%S").replace(tzinfo=UTC)
+
+        offset_str = exif.get("OffsetTimeOriginal")
+        if offset_str:
+            sign = 1 if offset_str[0] == "+" else -1
+            parts = offset_str[1:].split(":")
+            hours = int(parts[0])
+            minutes = int(parts[1]) if len(parts) > 1 else 0
+            offset = timezone(timedelta(hours=sign * hours, minutes=sign * minutes))
+            dt = dt.replace(tzinfo=offset)
+    except (ValueError, IndexError):
+        return None
+    else:
+        return dt

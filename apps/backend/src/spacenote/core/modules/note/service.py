@@ -1,3 +1,4 @@
+import contextlib
 from functools import cached_property
 from typing import Any
 
@@ -5,9 +6,12 @@ import structlog
 from pymongo.asynchronous.collection import AsyncCollection
 
 from spacenote.core.db import Collection
+from spacenote.core.modules.attachment.models import PendingAttachment
 from spacenote.core.modules.counter.models import CounterType
 from spacenote.core.modules.field.models import FieldType
+from spacenote.core.modules.field.validators import DateTimeValidator
 from spacenote.core.modules.note.models import Note
+from spacenote.core.modules.space.models import Space
 from spacenote.core.pagination import PaginationResult
 from spacenote.core.service import Service
 from spacenote.errors import NotFoundError
@@ -67,7 +71,12 @@ class NoteService(Service):
     async def create_note(self, space_slug: str, author: str, raw_fields: dict[str, str]) -> Note:
         """Create note from raw fields."""
         space = self.core.services.space.get_space(space_slug)
-        parsed_fields = self.core.services.field.parse_raw_fields(space_slug, raw_fields, current_user=author)
+
+        pending = await self._load_pending_attachments_for_field_parsing(space, raw_fields)
+
+        parsed_fields = self.core.services.field.parse_raw_fields(
+            space_slug, raw_fields, current_user=author, pending_attachments=pending
+        )
         next_number = await self.core.services.counter.get_next_sequence(space_slug, CounterType.NOTE)
 
         # Process IMAGE fields (if any): finalize pending attachments and schedule WebP generation
@@ -129,6 +138,32 @@ class NoteService(Service):
 
         await self._collection.insert_many([n.to_mongo() for n in notes])
         return len(notes)
+
+    async def _load_pending_attachments_for_field_parsing(
+        self, space: Space, raw_fields: dict[str, str]
+    ) -> list[PendingAttachment]:
+        """Load pending attachments needed for field value parsing."""
+        needed: set[int] = set()
+
+        # DATETIME fields with $exif.created_at.{field} default need the referenced image's EXIF data
+        for field in space.fields:
+            if field.type != FieldType.DATETIME or not isinstance(field.default, str):
+                continue
+            ref = DateTimeValidator.parse_exif_ref(field.default)
+            if not ref:
+                continue
+            raw_value = raw_fields.get(ref.image_field)
+            if raw_value:
+                with contextlib.suppress(ValueError):
+                    needed.add(int(raw_value))
+
+        # Load all needed pending attachments
+        result: list[PendingAttachment] = []
+        for num in needed:
+            with contextlib.suppress(NotFoundError):
+                result.append(await self.core.services.attachment.get_pending_attachment(num))
+
+        return result
 
     def _set_title(self, note: Note) -> None:
         """Compute and set note title from template."""

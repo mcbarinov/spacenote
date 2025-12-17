@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from decimal import Decimal, InvalidOperation
 
+from spacenote.core.modules.attachment.models import PendingAttachment
 from spacenote.core.modules.field.models import (
     FieldType,
     FieldValueType,
@@ -23,7 +24,12 @@ from spacenote.errors import ValidationError
 class ParseContext:
     """Context for parsing field values."""
 
+    # Username of current user, used for $me substitution in USER fields
     current_user: str | None = None
+    # Original raw string values from request, used to look up related field values (e.g. image field for $exif)
+    raw_fields: dict[str, str] | None = None
+    # Pending attachments loaded for parsing, used by DATETIME fields with $exif.created_at defaults
+    pending_attachments: list[PendingAttachment] | None = None
 
 
 class FieldValidator(ABC):
@@ -267,20 +273,74 @@ class TagsValidator(FieldValidator):
 
 
 class DateTimeValidator(FieldValidator):
-    """Validator for datetime fields."""
+    """Validator for datetime fields.
+
+    Supports $exif.created_at.{image_field}|{fallback} default syntax
+    to extract creation datetime from image EXIF metadata.
+    """
+
+    @dataclass
+    class _ExifRef:
+        """Reference to EXIF created_at from image field."""
+
+        image_field: str
+        fallback: str | None
+
+    @staticmethod
+    def parse_exif_ref(value: str) -> _ExifRef | None:
+        """Parse $exif.created_at.{field}|{fallback} syntax."""
+        if not isinstance(value, str) or not value.startswith("$exif.created_at."):
+            return None
+        rest = value[17:]
+        parts = rest.split("|", 1)
+        image_field = parts[0]
+        fallback = parts[1] if len(parts) > 1 else None
+        if not image_field:
+            return None
+        return DateTimeValidator._ExifRef(image_field, fallback)
 
     @classmethod
-    def _validate_field(cls, field: SpaceField, _space: Space) -> SpaceField:
-        if field.default and field.default != SpecialValue.NOW and not isinstance(field.default, datetime):
-            raise ValidationError("DATETIME field default must be datetime or $now")
-        return field
+    def _validate_field(cls, field: SpaceField, space: Space) -> SpaceField:
+        if field.default is None:
+            return field
+
+        if field.default == SpecialValue.NOW:
+            return field
+
+        if isinstance(field.default, datetime):
+            return field
+
+        if isinstance(field.default, str):
+            ref = cls.parse_exif_ref(field.default)
+            if ref:
+                cls._validate_exif_ref(ref, space)
+                return field
+
+        raise ValidationError("DATETIME field default must be datetime, $now, or $exif.created_at.{field}")
 
     @classmethod
-    def _parse_value(cls, field: SpaceField, _space: Space, raw: str | None, _ctx: ParseContext) -> FieldValueType:
+    def _validate_exif_ref(cls, ref: _ExifRef, space: Space) -> None:
+        ref_field = space.get_field(ref.image_field)
+        if ref_field is None:
+            raise ValidationError(f"EXIF default references unknown field: {ref.image_field}")
+        if ref_field.type != FieldType.IMAGE:
+            raise ValidationError(f"EXIF default must reference IMAGE field, got {ref_field.type}")
+
+        if ref.fallback is not None and ref.fallback != SpecialValue.NOW:
+            raise ValidationError(f"Invalid EXIF fallback: {ref.fallback}. Supported: $now")
+
+    @classmethod
+    def _parse_value(cls, field: SpaceField, _space: Space, raw: str | None, ctx: ParseContext) -> FieldValueType:
         if raw is None:
             if field.default is not None:
                 if field.default == SpecialValue.NOW:
                     return datetime.now(UTC)
+
+                if isinstance(field.default, str):
+                    ref = cls.parse_exif_ref(field.default)
+                    if ref:
+                        return cls._resolve_exif_ref(ref, ctx)
+
                 return field.default
             if field.required:
                 raise ValidationError(f"Required field '{field.name}' has no value")
@@ -306,6 +366,33 @@ class DateTimeValidator(FieldValidator):
                 continue
 
         raise ValidationError(f"Invalid datetime format for field '{field.name}': {raw}")
+
+    @classmethod
+    def _resolve_exif_ref(cls, ref: _ExifRef, ctx: ParseContext) -> datetime | None:
+        if not ctx.raw_fields or not ctx.pending_attachments:
+            return cls._resolve_fallback(ref.fallback)
+
+        raw_value = ctx.raw_fields.get(ref.image_field)
+        if not raw_value:
+            return cls._resolve_fallback(ref.fallback)
+
+        try:
+            pending_number = int(raw_value)
+        except ValueError:
+            return cls._resolve_fallback(ref.fallback)
+
+        # Find pending attachment by number
+        pending = next((p for p in ctx.pending_attachments if p.number == pending_number), None)
+        if not pending or not pending.meta.image or not pending.meta.image.exif_created_at:
+            return cls._resolve_fallback(ref.fallback)
+
+        return pending.meta.image.exif_created_at
+
+    @classmethod
+    def _resolve_fallback(cls, fallback: str | None) -> datetime | None:
+        if fallback == SpecialValue.NOW:
+            return datetime.now(UTC)
+        return None
 
 
 class UserValidator(FieldValidator):

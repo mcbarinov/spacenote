@@ -1,6 +1,7 @@
 """EXIF metadata extraction from images."""
 
 from pathlib import Path
+from typing import Any
 
 from PIL import Image
 from PIL.ExifTags import GPSTAGS, IFD, TAGS
@@ -71,7 +72,7 @@ def extract_exif(file_path: Path) -> dict[str, str]:
         return {}
 
 
-def _extract_gps_info(gps_ifd: dict) -> dict[str, str]:
+def _extract_gps_info(gps_ifd: dict[int, Any]) -> dict[str, str]:
     """Extract GPS information from GPS IFD.
 
     Args:

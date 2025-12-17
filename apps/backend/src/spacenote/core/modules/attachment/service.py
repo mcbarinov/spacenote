@@ -5,6 +5,7 @@ from pymongo.asynchronous.collection import AsyncCollection
 
 from spacenote.core.db import Collection
 from spacenote.core.modules.attachment import storage
+from spacenote.core.modules.attachment.metadata import extract_metadata
 from spacenote.core.modules.attachment.models import Attachment, PendingAttachment
 from spacenote.core.modules.counter.models import CounterType
 from spacenote.core.service import Service
@@ -36,12 +37,16 @@ class AttachmentService(Service):
 
         storage.write_pending_attachment_file(self.core.config.attachments_path, number, content)
 
+        file_path = storage.get_pending_attachment_path(self.core.config.attachments_path, number)
+        meta = await extract_metadata(file_path, mime_type)
+
         pending = PendingAttachment(
             number=number,
             author=author,
             filename=filename,
             size=len(content),
             mime_type=mime_type,
+            meta=meta,
         )
         await self._pending_collection.insert_one(pending.to_mongo())
         return pending
@@ -61,6 +66,9 @@ class AttachmentService(Service):
 
         storage.write_attachment_file(self.core.config.attachments_path, space_slug, note_number, number, content)
 
+        file_path = storage.get_attachment_file_path(self.core.config.attachments_path, space_slug, note_number, number)
+        meta = await extract_metadata(file_path, mime_type)
+
         attachment = Attachment(
             space_slug=space_slug,
             note_number=note_number,
@@ -69,6 +77,7 @@ class AttachmentService(Service):
             filename=filename,
             size=len(content),
             mime_type=mime_type,
+            meta=meta,
         )
         await self._attachments_collection.insert_one(attachment.to_mongo())
         return attachment
@@ -115,6 +124,7 @@ class AttachmentService(Service):
             filename=pending.filename,
             size=pending.size,
             mime_type=pending.mime_type,
+            meta=pending.meta,
         )
         await self._attachments_collection.insert_one(attachment.to_mongo())
         await self._pending_collection.delete_one({"number": pending_number})

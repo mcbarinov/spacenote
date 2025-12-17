@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Any
 
 from pydantic import Field
 
@@ -19,6 +20,10 @@ class PendingAttachment(MongoModel):
     filename: str = Field(..., description="Original filename")
     size: int = Field(..., description="File size in bytes")
     mime_type: str = Field(..., description="MIME type")
+    meta: dict[str, Any] = Field(
+        ...,
+        description="Extracted file metadata. For images: {image: {width, height, format}, exif?: {...}, error?: string}",
+    )
     created_at: datetime = Field(default_factory=now, description="Upload timestamp")
 
 
@@ -40,4 +45,8 @@ class Attachment(MongoModel):
     filename: str = Field(..., description="Original filename")
     size: int = Field(..., description="File size in bytes")
     mime_type: str = Field(..., description="MIME type")
+    meta: dict[str, Any] = Field(
+        ...,
+        description="Extracted file metadata. For images: {image: {width, height, format}, exif?: {...}, error?: string}",
+    )
     created_at: datetime = Field(default_factory=now, description="Upload timestamp")

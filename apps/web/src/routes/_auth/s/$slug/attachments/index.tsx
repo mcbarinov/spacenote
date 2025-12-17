@@ -1,10 +1,33 @@
 import { createFileRoute } from "@tanstack/react-router"
-import { ActionIcon, Group, Table, Text } from "@mantine/core"
+import { ActionIcon, Code, Group, Table, Text, UnstyledButton } from "@mantine/core"
+import { modals } from "@mantine/modals"
 import { IconDownload } from "@tabler/icons-react"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { api } from "@spacenote/common/api"
 import { LinkButton, NavigationTabs, PageHeader } from "@spacenote/common/components"
 import { formatDate, formatFileSize } from "@spacenote/common/utils"
+
+/** Displays meta keys, opens modal with full JSON on click */
+function MetaCell({ meta }: { meta: Record<string, unknown> }) {
+  const keys = Object.keys(meta)
+  if (keys.length === 0) return <Text c="dimmed">-</Text>
+
+  function handleClick() {
+    modals.open({
+      title: "Metadata",
+      size: "lg",
+      children: <Code block>{JSON.stringify(meta, null, 2)}</Code>,
+    })
+  }
+
+  return (
+    <UnstyledButton onClick={handleClick}>
+      <Text c="blue" td="underline">
+        {keys.join(", ")}
+      </Text>
+    </UnstyledButton>
+  )
+}
 
 export const Route = createFileRoute("/_auth/s/$slug/attachments/")({
   loader: async ({ context, params }) => {
@@ -49,6 +72,7 @@ function AttachmentsPage() {
               <Table.Th>Filename</Table.Th>
               <Table.Th>Size</Table.Th>
               <Table.Th>Type</Table.Th>
+              <Table.Th>Meta</Table.Th>
               <Table.Th>Author</Table.Th>
               <Table.Th>Created</Table.Th>
               <Table.Th />
@@ -61,6 +85,9 @@ function AttachmentsPage() {
                 <Table.Td>{attachment.filename}</Table.Td>
                 <Table.Td>{formatFileSize(attachment.size)}</Table.Td>
                 <Table.Td>{attachment.mime_type}</Table.Td>
+                <Table.Td>
+                  <MetaCell meta={attachment.meta} />
+                </Table.Td>
                 <Table.Td>{attachment.author}</Table.Td>
                 <Table.Td>{formatDate(attachment.created_at)}</Table.Td>
                 <Table.Td>

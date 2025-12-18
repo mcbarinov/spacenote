@@ -1,6 +1,12 @@
 import { TextInput, Textarea, Checkbox, Select, NumberInput, TagsInput } from "@mantine/core"
 import { DateTimePicker } from "@mantine/dates"
-import type { NumericFieldOptions, SelectFieldOptions, SpaceField, StringFieldOptions } from "@spacenote/common/types"
+import type {
+  AttachmentMeta,
+  NumericFieldOptions,
+  SelectFieldOptions,
+  SpaceField,
+  StringFieldOptions,
+} from "@spacenote/common/types"
 import { MarkdownEditor } from "./MarkdownEditor"
 import { ImageFieldInput } from "./ImageFieldInput"
 
@@ -10,6 +16,8 @@ interface FieldInputProps {
   onChange: (value: unknown) => void
   error?: string
   spaceMembers?: string[]
+  /** Called with image metadata after upload (for EXIF extraction) */
+  onImageMetadata?: (meta: AttachmentMeta | null) => void
 }
 
 /** Type-safe string coercion for form values */
@@ -36,7 +44,7 @@ function asStringArray(value: unknown): string[] {
 }
 
 /** Renders appropriate input control based on field type */
-export function FieldInput({ field, value, onChange, error, spaceMembers }: FieldInputProps) {
+export function FieldInput({ field, value, onChange, error, spaceMembers, onImageMetadata }: FieldInputProps) {
   const commonProps = {
     label: field.name,
     required: field.required,
@@ -165,7 +173,14 @@ export function FieldInput({ field, value, onChange, error, spaceMembers }: Fiel
     case "image": {
       const pendingNumber = typeof value === "number" ? value : null
       return (
-        <ImageFieldInput label={field.name} required={field.required} error={error} value={pendingNumber} onChange={onChange} />
+        <ImageFieldInput
+          label={field.name}
+          required={field.required}
+          error={error}
+          value={pendingNumber}
+          onChange={onChange}
+          onMetadata={onImageMetadata}
+        />
       )
     }
 

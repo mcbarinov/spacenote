@@ -1,24 +1,69 @@
+import { useCallback, useMemo } from "react"
 import { Button, Group, Paper, Stack } from "@mantine/core"
 import { useForm } from "@mantine/form"
 import { notifications } from "@mantine/notifications"
 import { useNavigate } from "@tanstack/react-router"
 import { ErrorMessage } from "@spacenote/common/components"
 import { api } from "@spacenote/common/api"
-import type { Note, Space, SpaceField } from "@spacenote/common/types"
+import type { AttachmentMeta, Note, Space, SpaceField } from "@spacenote/common/types"
 import { FieldInput } from "./FieldInput"
+
+interface ExifBinding {
+  datetimeField: string
+  imageField: string
+  fallback: string | null
+}
+
+const EXIF_DEFAULT_REGEX = /^\$exif\.created_at:(\w+)(?:\|(.+))?$/
+
+/** Parses $exif.created_at:{field}|{fallback} default value */
+function parseExifDefault(defaultValue: string): { imageField: string; fallback: string | null } | null {
+  const match = EXIF_DEFAULT_REGEX.exec(defaultValue)
+  if (!match) return null
+  return { imageField: match[1], fallback: match[2] || null }
+}
+
+/** Finds all datetime→image EXIF bindings in space fields */
+function getExifBindings(fields: SpaceField[]): ExifBinding[] {
+  return fields
+    .filter((f): f is SpaceField & { default: string } => f.type === "datetime" && typeof f.default === "string")
+    .map((f) => {
+      const parsed = parseExifDefault(f.default)
+      return parsed ? { datetimeField: f.name, ...parsed } : null
+    })
+    .filter((b): b is ExifBinding => b !== null)
+}
+
+/** Checks if value is empty (null, undefined, or empty string) */
+function isEmpty(value: unknown): boolean {
+  return value === "" || value == null
+}
+
+/** Resolves fallback value like $now to actual value */
+function resolveExifFallback(fallback: string | null): string | null {
+  if (fallback === "$now") {
+    return new Date().toISOString()
+  }
+  return fallback
+}
 
 /** Gets initial form value for field based on type and default */
 function getDefaultValue(field: SpaceField, currentUser: string): unknown {
-  if (field.default !== null) {
+  const defaultValue = field.default
+  if (defaultValue !== null) {
     // Resolve $me for user fields
-    if (field.type === "user" && field.default === "$me") {
+    if (field.type === "user" && defaultValue === "$me") {
       return currentUser
     }
     // Resolve $now for datetime fields
-    if (field.type === "datetime" && field.default === "$now") {
+    if (field.type === "datetime" && defaultValue === "$now") {
       return new Date().toISOString()
     }
-    return field.default
+    // $exif.created_at defaults start empty, filled on image upload
+    if (field.type === "datetime" && typeof defaultValue === "string" && defaultValue.startsWith("$exif.created_at:")) {
+      return ""
+    }
+    return defaultValue
   }
   switch (field.type) {
     case "boolean":
@@ -101,6 +146,22 @@ export function NoteForm({ space, mode, note }: NoteFormProps) {
   const updateMutation = api.mutations.useUpdateNote(slug, note?.number ?? 0)
   const mutation = mode === "create" ? createMutation : updateMutation
 
+  // EXIF bindings: datetime fields that should auto-populate from image EXIF (create mode only)
+  const exifBindings = useMemo(() => (mode === "create" ? getExifBindings(space.fields) : []), [mode, space.fields])
+
+  /** Creates handler for image field that populates bound datetime fields from EXIF */
+  const createImageMetadataHandler = useCallback(
+    (imageFieldName: string) => (meta: AttachmentMeta | null) => {
+      for (const binding of exifBindings.filter((b) => b.imageField === imageFieldName)) {
+        if (isEmpty(form.getValues()[binding.datetimeField])) {
+          const value = meta?.image?.exif_created_at ?? resolveExifFallback(binding.fallback)
+          if (value) form.setFieldValue(binding.datetimeField, value)
+        }
+      }
+    },
+    [exifBindings, form]
+  )
+
   const handleSubmit = form.onSubmit((values) => {
     // Filter out hidden fields in create mode - backend applies their defaults
     const fieldsToSend =
@@ -129,7 +190,13 @@ export function NoteForm({ space, mode, note }: NoteFormProps) {
       <form onSubmit={handleSubmit}>
         <Stack gap="md">
           {visibleFields.map((field) => (
-            <FieldInput key={field.name} field={field} spaceMembers={space.members} {...form.getInputProps(field.name)} />
+            <FieldInput
+              key={field.name}
+              field={field}
+              spaceMembers={space.members}
+              {...form.getInputProps(field.name)}
+              onImageMetadata={field.type === "image" ? createImageMetadataHandler(field.name) : undefined}
+            />
           ))}
           {mutation.error && <ErrorMessage error={mutation.error} />}
           <Group justify="flex-end">

@@ -9,7 +9,7 @@ import { CommentList } from "./-components/CommentList"
 import { NoteDetailsDefault } from "./-components/NoteDetailsDefault"
 import { NoteDetailsJson } from "./-components/NoteDetailsJson"
 import { NoteDetailsTemplate } from "./-components/NoteDetailsTemplate"
-import { ViewModeMenu } from "./-components/ViewModeMenu"
+import { ViewModeMenu } from "@/components/ViewModeMenu"
 
 const searchSchema = z.object({
   view: z.enum(["default", "template", "json"]).optional(),

@@ -92,6 +92,11 @@ class App:
         await self._core.services.access.ensure_admin(auth_token)
         await self._core.services.user.delete_user(username)
 
+    async def set_password(self, auth_token: AuthToken, username: str, new_password: str) -> None:
+        """Set user password (admin only)."""
+        await self._core.services.access.ensure_admin(auth_token)
+        await self._core.services.user.set_password(username, new_password)
+
     # --- Spaces ---
 
     async def list_spaces(self, auth_token: AuthToken) -> list[Space]:

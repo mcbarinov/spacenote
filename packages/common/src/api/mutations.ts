@@ -76,6 +76,14 @@ export function useDeleteUser() {
   })
 }
 
+/** Sets password for a user (admin only) */
+export function useSetUserPassword() {
+  return useMutation({
+    mutationFn: ({ username, password }: { username: string; password: string }) =>
+      httpClient.put(`api/v1/users/${username}/password`, { json: { password } }),
+  })
+}
+
 /** Creates a new space */
 export function useCreateSpace() {
   const queryClient = useQueryClient()

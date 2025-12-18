@@ -71,6 +71,13 @@ class UserService(Service):
         await self._collection.update_one({"username": username}, {"$set": {"password_hash": hash_password(new_password)}})
         await self.update_user_cache(username)
 
+    async def set_password(self, username: str, new_password: str) -> None:
+        """Set user password (no old password required)."""
+        self.get_user(username)
+        validate_password(new_password)
+        await self._collection.update_one({"username": username}, {"$set": {"password_hash": hash_password(new_password)}})
+        await self.update_user_cache(username)
+
     async def delete_user(self, username: str) -> None:
         """Delete a user from the system."""
         if not self.has_user(username):

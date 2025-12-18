@@ -79,7 +79,10 @@ class UserService(Service):
         if username == "admin":
             raise ValidationError("Cannot delete admin user")
 
-        # TODO: When spaces are implemented, check if user is member of any space
+        for space in self.core.services.space.list_all_spaces():
+            if username in space.members:
+                raise ValidationError(f"Cannot delete user '{username}': member of space '{space.slug}'")
+
         await self._collection.delete_one({"username": username})
         del self._users[username]
 

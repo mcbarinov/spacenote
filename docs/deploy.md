@@ -67,19 +67,17 @@ curl -fsSL https://get.docker.com | sh
 mkdir -p /opt/spacenote
 cd /opt/spacenote
 
-# Download docker-compose.yml
+# Download docker-compose.yml and .env
 curl -O https://raw.githubusercontent.com/mcbarinov/spacenote/main/deploy/docker-compose.yml
-
-# Create .env from example
 curl -O https://raw.githubusercontent.com/mcbarinov/spacenote/main/deploy/.env.example
 mv .env.example .env
-
-# Edit .env with your settings
-nano .env
 
 # Create data directories with correct permissions
 mkdir -p ./data/attachments ./data/images
 chown -R 1000:1000 ./data/attachments ./data/images
+
+# Edit .env with your settings
+nano .env
 ```
 
 ### 3. Configure .env

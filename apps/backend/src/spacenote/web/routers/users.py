@@ -65,3 +65,28 @@ async def create_user(create_data: CreateUserRequest, app: AppDep, auth_token: A
 async def delete_user(username: str, app: AppDep, auth_token: AuthTokenDep) -> None:
     """Delete user (admin only)."""
     await app.delete_user(auth_token, username)
+
+
+class SetPasswordRequest(BaseModel):
+    """Set password request."""
+
+    password: str = Field(..., min_length=1, description="New password")
+
+
+@router.put(
+    "/users/{username}/password",
+    summary="Set user password",
+    description="Set password for any user. Only accessible by admin users.",
+    operation_id="setUserPassword",
+    status_code=204,
+    responses={
+        204: {"description": "Password set successfully"},
+        400: {"model": ErrorResponse, "description": "Invalid password"},
+        401: {"model": ErrorResponse, "description": "Not authenticated"},
+        403: {"model": ErrorResponse, "description": "Admin privileges required"},
+        404: {"model": ErrorResponse, "description": "User not found"},
+    },
+)
+async def set_password(username: str, request: SetPasswordRequest, app: AppDep, auth_token: AuthTokenDep) -> None:
+    """Set user password (admin only)."""
+    await app.set_password(auth_token, username, request.password)

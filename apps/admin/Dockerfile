@@ -50,13 +50,9 @@ WORKDIR /app
 RUN npm install --global serve@14 && apk add --no-cache wget
 
 COPY --from=builder /app/apps/admin/dist ./dist
-COPY apps/admin/entrypoint.sh /entrypoint.sh
-
-RUN chmod +x /entrypoint.sh
 
 ENV NODE_ENV=production
 
 EXPOSE 4173
 
-ENTRYPOINT ["/entrypoint.sh"]
 CMD ["serve", "-s", "dist", "-l", "4173"]

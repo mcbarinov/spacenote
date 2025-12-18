@@ -1,4 +1,29 @@
 services:
+  caddy:
+    image: caddy:2-alpine
+    container_name: spacenote-caddy-local
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    entrypoint: /bin/sh
+    command: >
+      -c "echo '
+      :80 {
+        redir /admin /admin/
+        reverse_proxy /api/* backend:8000
+        handle_path /admin/* {
+          reverse_proxy admin:4173
+        }
+        reverse_proxy web:4173
+      }
+      ' | caddy run --config /dev/stdin --adapter caddyfile"
+    networks:
+      - spacenote-local
+    depends_on:
+      - backend
+      - web
+      - admin
+
   mongodb:
     image: mongodb/mongodb-community-server:8.0-ubi9
     container_name: spacenote-mongodb-local
@@ -26,11 +51,9 @@ services:
       dockerfile: Dockerfile
     container_name: spacenote-backend-local
     restart: unless-stopped
-    ports:
-      - "8000:8000"
     environment:
       SPACENOTE_DATABASE_URL: mongodb://${MONGODB_ROOT_USERNAME:-root}:${MONGODB_ROOT_PASSWORD:-localdev}@mongodb:27017/spacenote?authSource=admin
-      SPACENOTE_CORS_ORIGINS: '["http://localhost:4173", "http://localhost:4174"]'
+      SPACENOTE_CORS_ORIGINS: '["http://localhost:8080"]'
       SPACENOTE_HOST: 0.0.0.0
       SPACENOTE_PORT: 8000
       SPACENOTE_DEBUG: ${DEBUG:-true}
@@ -51,10 +74,6 @@ services:
       dockerfile: apps/web/Dockerfile
     container_name: spacenote-web-local
     restart: unless-stopped
-    ports:
-      - "4173:4173"
-    environment:
-      API_URL: http://localhost:8000
     depends_on:
       - backend
     networks:
@@ -64,12 +83,10 @@ services:
     build:
       context: ..
       dockerfile: apps/admin/Dockerfile
+      args:
+        VITE_BASE_PATH: /admin/
     container_name: spacenote-admin-local
     restart: unless-stopped
-    ports:
-      - "4174:4173"
-    environment:
-      API_URL: http://localhost:8000
     depends_on:
       - backend
     networks:

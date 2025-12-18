@@ -26,7 +26,7 @@
 - **Caddy**: Auto-SSL via Let's Encrypt, simple config
 - **GHCR**: Free container registry for public repos
 - **Multi-stage builds**: Smaller images, BuildKit caching
-- **Runtime config**: `entrypoint.sh` injects API_URL at start (no rebuild for different envs)
+- **Relative API paths**: Frontend uses `/api` path, Caddy routes to backend
 - **Non-root**: Backend runs as uid 1000 for security
 
 ## Workflow
@@ -152,11 +152,11 @@ just deploy-local
 just deploy-local-down
 ```
 
-Local ports:
-- Web: http://localhost:4173
-- Admin: http://localhost:4174
-- Backend: http://localhost:8000
-- MongoDB: localhost:27017
+Local URLs (via Caddy at port 8080):
+- Web: http://localhost:8080
+- Admin: http://localhost:8080/admin/
+- API: http://localhost:8080/api/
+- MongoDB: localhost:27017 (direct access)
 
 ## Data Persistence
 

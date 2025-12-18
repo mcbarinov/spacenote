@@ -1,4 +1,3 @@
-import contextlib
 from functools import cached_property
 from typing import Any
 
@@ -6,12 +5,9 @@ import structlog
 from pymongo.asynchronous.collection import AsyncCollection
 
 from spacenote.core.db import Collection
-from spacenote.core.modules.attachment.models import PendingAttachment
 from spacenote.core.modules.counter.models import CounterType
 from spacenote.core.modules.field.models import FieldType
-from spacenote.core.modules.field.validators import DateTimeValidator
 from spacenote.core.modules.note.models import Note
-from spacenote.core.modules.space.models import Space
 from spacenote.core.pagination import PaginationResult
 from spacenote.core.service import Service
 from spacenote.errors import NotFoundError
@@ -73,11 +69,7 @@ class NoteService(Service):
         logger.debug("create_note_request", space_slug=space_slug, raw_fields=raw_fields)
         space = self.core.services.space.get_space(space_slug)
 
-        pending_attachments = await self._load_pending_attachments_for_field_parsing(space, raw_fields)
-
-        parsed_fields = self.core.services.field.parse_raw_fields(
-            space_slug, raw_fields, current_user=author, pending_attachments=pending_attachments
-        )
+        parsed_fields = await self.core.services.field.parse_raw_fields(space_slug, raw_fields, current_user=author)
         next_number = await self.core.services.counter.get_next_sequence(space_slug, CounterType.NOTE)
 
         # Process IMAGE fields (if any): finalize pending attachments and schedule WebP generation
@@ -101,7 +93,7 @@ class NoteService(Service):
     async def update_note_fields(self, space_slug: str, number: int, raw_fields: dict[str, str], current_user: str) -> Note:
         """Update specific note fields with validation (partial update)."""
         old_note = await self.get_note(space_slug, number)
-        parsed_fields = self.core.services.field.parse_raw_fields(space_slug, raw_fields, current_user, partial=True)
+        parsed_fields = await self.core.services.field.parse_raw_fields(space_slug, raw_fields, current_user, partial=True)
 
         timestamp = now()
         update_doc: dict[str, Any] = {"edited_at": timestamp, "activity_at": timestamp}
@@ -139,31 +131,6 @@ class NoteService(Service):
 
         await self._collection.insert_many([n.to_mongo() for n in notes])
         return len(notes)
-
-    async def _load_pending_attachments_for_field_parsing(
-        self, space: Space, raw_fields: dict[str, str]
-    ) -> list[PendingAttachment]:
-        """Load pending attachments needed for field value parsing."""
-        pending_numbers: set[int] = set()
-
-        # DATETIME fields with $exif.created_at.{field} default need the referenced image's EXIF data
-        for field in space.fields:
-            if field.type != FieldType.DATETIME:
-                continue
-            image_field = DateTimeValidator.get_exif_source_field(field.default)
-            if not image_field:
-                continue
-            raw_value = raw_fields.get(image_field)
-            if raw_value:
-                with contextlib.suppress(ValueError):
-                    pending_numbers.add(int(raw_value))
-
-        result: list[PendingAttachment] = []
-        for num in pending_numbers:
-            with contextlib.suppress(NotFoundError):
-                result.append(await self.core.services.attachment.get_pending_attachment(num))
-
-        return result
 
     def _set_title(self, note: Note) -> None:
         """Compute and set note title from template."""

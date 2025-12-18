@@ -275,20 +275,20 @@ class TagsValidator(FieldValidator):
 class DateTimeValidator(FieldValidator):
     """Validator for datetime fields.
 
-    Supports $exif.created_at.{image_field}|{fallback} default syntax
+    Supports $exif.created_at:{image_field}|{fallback} default syntax
     to extract creation datetime from image EXIF metadata.
     """
 
     @dataclass
     class _ExifCreatedAtSource:
-        """Parsed $exif.created_at.{image_field}|{fallback} default specification."""
+        """Parsed $exif.created_at:{image_field}|{fallback} default specification."""
 
         image_field: str
         fallback: str | None
 
     @staticmethod
     def get_exif_source_field(default: FieldValueType) -> str | None:
-        """Extract IMAGE field name from $exif.created_at.{field} default.
+        """Extract IMAGE field name from $exif.created_at:{field} default.
 
         Returns the name of the IMAGE field that provides EXIF created_at timestamp,
         or None if default is not an EXIF reference.
@@ -300,8 +300,8 @@ class DateTimeValidator(FieldValidator):
 
     @staticmethod
     def _parse_exif_created_at_source(value: str) -> _ExifCreatedAtSource | None:
-        """Parse $exif.created_at.{field}|{fallback} syntax into components."""
-        if not value.startswith("$exif.created_at."):
+        """Parse $exif.created_at:{field}|{fallback} syntax into components."""
+        if not value.startswith("$exif.created_at:"):
             return None
         rest = value[17:]
         parts = rest.split("|", 1)
@@ -328,7 +328,7 @@ class DateTimeValidator(FieldValidator):
                 cls._validate_exif_source(source, space)
                 return field
 
-        raise ValidationError("DATETIME field default must be datetime, $now, or $exif.created_at.{field}")
+        raise ValidationError("DATETIME field default must be datetime, $now, or $exif.created_at:{field}")
 
     @classmethod
     def _validate_exif_source(cls, source: _ExifCreatedAtSource, space: Space) -> None:

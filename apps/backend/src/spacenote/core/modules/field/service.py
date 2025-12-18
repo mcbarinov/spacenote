@@ -1,10 +1,12 @@
+import contextlib
 from typing import Any
 
 import structlog
 
 from spacenote.core.modules.attachment.models import PendingAttachment
-from spacenote.core.modules.field.models import FIELD_TYPE_OPTIONS, FieldValueType, SpaceField
-from spacenote.core.modules.field.validators import VALIDATORS, ParseContext
+from spacenote.core.modules.field.models import FIELD_TYPE_OPTIONS, FieldType, FieldValueType, SpaceField
+from spacenote.core.modules.field.validators import VALIDATORS, DateTimeValidator, ParseContext
+from spacenote.core.modules.space.models import Space
 from spacenote.core.service import Service
 from spacenote.errors import NotFoundError, ValidationError
 
@@ -85,16 +87,16 @@ class FieldService(Service):
         logger.debug("field_updated", space_slug=slug, field_name=field_name)
         return validated_field
 
-    def parse_raw_fields(
+    async def parse_raw_fields(
         self,
         space_slug: str,
         raw_fields: dict[str, str],
         current_user: str | None = None,
         partial: bool = False,
-        pending_attachments: list[PendingAttachment] | None = None,
     ) -> dict[str, FieldValueType]:
         """Parse raw string field values to typed values."""
         space = self.core.services.space.get_space(space_slug)
+        pending_attachments = await self._load_pending_attachments(space, raw_fields)
         ctx = ParseContext(current_user=current_user, raw_fields=raw_fields, pending_attachments=pending_attachments)
         parsed: dict[str, FieldValueType] = {}
 
@@ -121,3 +123,26 @@ class FieldService(Service):
                 parsed[field.name] = validator_class.parse_value(field, space, raw_fields.get(field.name), ctx)
 
         return parsed
+
+    async def _load_pending_attachments(self, space: Space, raw_fields: dict[str, str]) -> list[PendingAttachment]:
+        """Load pending attachments needed for field value parsing."""
+        pending_numbers: set[int] = set()
+
+        # DATETIME fields with $exif.created_at:{field} default need the referenced image's EXIF data
+        for field in space.fields:
+            if field.type != FieldType.DATETIME:
+                continue
+            image_field = DateTimeValidator.get_exif_source_field(field.default)
+            if not image_field:
+                continue
+            raw_value = raw_fields.get(image_field)
+            if raw_value:
+                with contextlib.suppress(ValueError):
+                    pending_numbers.add(int(raw_value))
+
+        result: list[PendingAttachment] = []
+        for num in pending_numbers:
+            with contextlib.suppress(NotFoundError):
+                result.append(await self.core.services.attachment.get_pending_attachment(num))
+
+        return result

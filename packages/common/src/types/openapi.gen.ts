@@ -767,6 +767,26 @@ export type paths = {
     patch?: never
     trace?: never
   }
+  "/api/v1/users/{username}/password": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    /**
+     * Set user password
+     * @description Set password for any user. Only accessible by admin users.
+     */
+    put: operations["setUserPassword"]
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   "/health": {
     parameters: {
       query?: never
@@ -1565,6 +1585,17 @@ export type components = {
           [key: string]: string
         }
       } | null
+    }
+    /**
+     * SetPasswordRequest
+     * @description Set password request.
+     */
+    SetPasswordRequest: {
+      /**
+       * Password
+       * @description New password
+       */
+      password: string
     }
     /**
      * SetTemplateRequest
@@ -4717,6 +4748,75 @@ export interface operations {
         content?: never
       }
       /** @description Cannot delete user (self-deletion) */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Admin privileges required */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description User not found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  setUserPassword: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        username: string
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["SetPasswordRequest"]
+      }
+    }
+    responses: {
+      /** @description Password set successfully */
+      204: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+      /** @description Invalid password */
       400: {
         headers: {
           [name: string]: unknown

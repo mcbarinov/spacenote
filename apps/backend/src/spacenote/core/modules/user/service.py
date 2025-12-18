@@ -90,6 +90,9 @@ class UserService(Service):
         """Create default admin user if not exists."""
         if not self.has_user("admin"):
             await self.create_user("admin", "admin")
+            logger.warning(
+                "admin_created_with_default_password", message="Default admin password is 'admin'. Change it immediately."
+            )
 
     async def update_all_users_cache(self) -> None:
         """Reload all users cache from database."""

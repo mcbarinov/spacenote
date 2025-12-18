@@ -9,6 +9,7 @@ from spacenote.app import App
 from spacenote.config import Config
 from spacenote.errors import UserError
 from spacenote.web.error_handlers import general_exception_handler, user_error_handler
+from spacenote.web.middlewares import MaxBodySizeMiddleware
 from spacenote.web.openapi import set_custom_openapi
 from spacenote.web.routers.attachments import router as attachments_router
 from spacenote.web.routers.auth import router as auth_router
@@ -40,13 +41,10 @@ def create_fastapi_app(app_instance: App, config: Config) -> FastAPI:
         lifespan=lifespan,
     )
 
-    # Configure CORS
+    # Configure middlewares
+    app.add_middleware(MaxBodySizeMiddleware, max_body_size=config.max_upload_size)
     app.add_middleware(
-        CORSMiddleware,
-        allow_origins=config.cors_origins,
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
+        CORSMiddleware, allow_origins=config.cors_origins, allow_credentials=True, allow_methods=["*"], allow_headers=["*"]
     )
 
     # Register error handlers

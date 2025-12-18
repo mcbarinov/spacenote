@@ -71,6 +71,13 @@ class TelegramService(Service):
             self._bot = telegram.Bot(token=self.core.config.telegram_bot_token)
             self._worker_task = asyncio.create_task(self._run_worker())
 
+    async def on_stop(self) -> None:
+        """Stop the worker task gracefully."""
+        if self._worker_task is not None:
+            self._worker_task.cancel()
+            with contextlib.suppress(asyncio.CancelledError):
+                await self._worker_task
+
     async def update_settings(self, slug: str, telegram: TelegramSettings | None) -> Space:
         """Update space telegram settings."""
         self.core.services.space.get_space(slug)

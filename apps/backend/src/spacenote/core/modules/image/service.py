@@ -24,6 +24,11 @@ class ImageService(Service):
         """Ensure images directory exists."""
         image_storage.ensure_images_dir(self.core.config.images_path)
 
+    async def on_stop(self) -> None:
+        """Wait for pending image generation tasks to complete."""
+        if self._background_tasks:
+            await asyncio.gather(*self._background_tasks, return_exceptions=True)
+
     async def process_image_fields(self, space_slug: str, note_number: int, image_fields: dict[str, int]) -> dict[str, int]:
         """Process IMAGE fields: finalize pending attachments and schedule WebP generation.
 

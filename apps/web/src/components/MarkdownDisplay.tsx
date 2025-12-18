@@ -11,11 +11,16 @@ export function MarkdownDisplay({ content }: MarkdownDisplayProps) {
   const [html, setHtml] = useState("")
 
   useEffect(() => {
-    // Prevent stale updates when content changes faster than async processing
     let cancelled = false
-    void markdownToHtml(content).then((result) => {
-      if (!cancelled) setHtml(result)
-    })
+    void markdownToHtml(content)
+      .then((result) => {
+        if (!cancelled) setHtml(result)
+      })
+      .catch((error: unknown) => {
+        // eslint-disable-next-line no-console -- Log rendering errors for debugging
+        console.error("Failed to render markdown:", error)
+        if (!cancelled) setHtml(content)
+      })
     return () => {
       cancelled = true
     }

@@ -9,7 +9,7 @@ import { useState } from "react"
 import { NotesListDefault } from "./-components/NotesListDefault"
 import { NotesListJson } from "./-components/NotesListJson"
 import { NotesListTemplate } from "./-components/NotesListTemplate"
-import { ViewModeMenu } from "./-components/ViewModeMenu"
+import { ViewModeMenu } from "@/components/ViewModeMenu"
 import { ActiveQueryFilters } from "./-components/ActiveQueryFilters"
 import { AdhocFilterDrawer } from "./-components/AdhocFilterDrawer"
 

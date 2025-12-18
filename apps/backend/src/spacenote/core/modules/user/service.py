@@ -79,7 +79,10 @@ class UserService(Service):
         if username == "admin":
             raise ValidationError("Cannot delete admin user")
 
-        # TODO: When spaces are implemented, check if user is member of any space
+        for space in self.core.services.space.list_all_spaces():
+            if username in space.members:
+                raise ValidationError(f"Cannot delete user '{username}': member of space '{space.slug}'")
+
         await self._collection.delete_one({"username": username})
         del self._users[username]
 
@@ -87,6 +90,9 @@ class UserService(Service):
         """Create default admin user if not exists."""
         if not self.has_user("admin"):
             await self.create_user("admin", "admin")
+            logger.warning(
+                "admin_created_with_default_password", message="Default admin password is 'admin'. Change it immediately."
+            )
 
     async def update_all_users_cache(self) -> None:
         """Reload all users cache from database."""

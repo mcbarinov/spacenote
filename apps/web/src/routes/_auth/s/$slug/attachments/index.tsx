@@ -1,33 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router"
-import { ActionIcon, Code, Group, Table, Text, UnstyledButton } from "@mantine/core"
-import { modals } from "@mantine/modals"
+import { ActionIcon, Group, Table, Text } from "@mantine/core"
 import { IconDownload } from "@tabler/icons-react"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { api } from "@spacenote/common/api"
 import { LinkButton, NavigationTabs, PageHeader } from "@spacenote/common/components"
 import { formatDate, formatFileSize } from "@spacenote/common/utils"
-
-/** Displays meta keys, opens modal with full JSON on click */
-function MetaCell({ meta }: { meta: Record<string, unknown> }) {
-  const keys = Object.keys(meta)
-  if (keys.length === 0) return <Text c="dimmed">-</Text>
-
-  function handleClick() {
-    modals.open({
-      title: "Metadata",
-      size: "lg",
-      children: <Code block>{JSON.stringify(meta, null, 2)}</Code>,
-    })
-  }
-
-  return (
-    <UnstyledButton onClick={handleClick}>
-      <Text c="blue" td="underline">
-        {keys.join(", ")}
-      </Text>
-    </UnstyledButton>
-  )
-}
+import { MetaCell } from "@/components/MetaCell"
 
 export const Route = createFileRoute("/_auth/s/$slug/attachments/")({
   loader: async ({ context, params }) => {

@@ -66,8 +66,10 @@ class NoteService(Service):
 
     async def create_note(self, space_slug: str, author: str, raw_fields: dict[str, str]) -> Note:
         """Create note from raw fields."""
+        logger.debug("create_note_request", space_slug=space_slug, raw_fields=raw_fields)
         space = self.core.services.space.get_space(space_slug)
-        parsed_fields = self.core.services.field.parse_raw_fields(space_slug, raw_fields, current_user=author)
+
+        parsed_fields = await self.core.services.field.parse_raw_fields(space_slug, raw_fields, current_user=author)
         next_number = await self.core.services.counter.get_next_sequence(space_slug, CounterType.NOTE)
 
         # Process IMAGE fields (if any): finalize pending attachments and schedule WebP generation
@@ -91,7 +93,7 @@ class NoteService(Service):
     async def update_note_fields(self, space_slug: str, number: int, raw_fields: dict[str, str], current_user: str) -> Note:
         """Update specific note fields with validation (partial update)."""
         old_note = await self.get_note(space_slug, number)
-        parsed_fields = self.core.services.field.parse_raw_fields(space_slug, raw_fields, current_user, partial=True)
+        parsed_fields = await self.core.services.field.parse_raw_fields(space_slug, raw_fields, current_user, partial=True)
 
         timestamp = now()
         update_doc: dict[str, Any] = {"edited_at": timestamp, "activity_at": timestamp}

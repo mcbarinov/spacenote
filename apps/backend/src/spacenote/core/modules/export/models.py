@@ -2,6 +2,7 @@ from datetime import datetime
 
 from pydantic import Field
 
+from spacenote.core.modules.attachment.models import AttachmentMeta
 from spacenote.core.modules.field.models import FieldValueType, SpaceField
 from spacenote.core.modules.filter.models import Filter
 from spacenote.core.modules.telegram.models import TelegramSettings
@@ -56,6 +57,7 @@ class AttachmentExport(OpenAPIModel):
     filename: str = Field(..., description="Original filename")
     size: int = Field(..., description="File size in bytes")
     mime_type: str = Field(..., description="MIME type")
+    meta: AttachmentMeta = Field(..., description="Extracted file metadata")
     created_at: datetime = Field(..., description="Upload timestamp")
 
 

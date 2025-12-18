@@ -171,6 +171,17 @@ No options. Use `"options": {}`.
 
 `$now` — current timestamp UTC (can be used in `default` or as input value)
 
+`$exif.created_at:{image_field}` — extract creation datetime from image EXIF metadata (only in `default`)
+
+**Syntax**: `$exif.created_at:{image_field}` or `$exif.created_at:{image_field}|{fallback}`
+
+| Component | Description |
+|-----------|-------------|
+| `{image_field}` | Name of an IMAGE field in the same space |
+| `{fallback}` | Optional. Value if EXIF data missing: `$now` or omit for null |
+
+**EXIF tags**: Reads `DateTimeOriginal` (preferred) or `DateTime` (fallback). Timezone from `OffsetTimeOriginal` if present, otherwise UTC.
+
 #### 2.6.3 Accepted Formats
 
 - `2025-01-15T08:30:00`
@@ -184,6 +195,12 @@ No options. Use `"options": {}`.
 
 ```json
 { "name": "due_date", "type": "datetime", "default": "$now", "options": {} }
+```
+
+EXIF datetime from image (with `$now` fallback if no EXIF data):
+```json
+{ "name": "photo", "type": "image", "required": true, "options": {} }
+{ "name": "taken_at", "type": "datetime", "default": "$exif.created_at:photo|$now", "options": {} }
 ```
 
 ### 2.7 numeric

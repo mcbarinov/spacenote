@@ -98,6 +98,7 @@ class ExportService(Service):
                 filename=attachment.filename,
                 size=attachment.size,
                 mime_type=attachment.mime_type,
+                meta=attachment.meta,
                 created_at=attachment.created_at,
             )
             for attachment in attachments
@@ -185,6 +186,7 @@ class ExportService(Service):
                     filename=a.filename,
                     size=a.size,
                     mime_type=a.mime_type,
+                    meta=a.meta,
                     created_at=a.created_at,
                 )
                 for a in data.attachments

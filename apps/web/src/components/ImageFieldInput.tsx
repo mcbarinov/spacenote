@@ -1,6 +1,7 @@
 import { FileInput, Image, Stack, Group, ActionIcon, Box, Loader, Text } from "@mantine/core"
 import { IconUpload, IconX } from "@tabler/icons-react"
 import { api } from "@spacenote/common/api"
+import type { AttachmentMeta } from "@spacenote/common/types"
 
 export interface ImageFieldInputProps {
   label: string
@@ -10,10 +11,12 @@ export interface ImageFieldInputProps {
   value: number | null
   /** Called with pending attachment number after upload, or null on removal */
   onChange: (value: number | null) => void
+  /** Called with attachment metadata after upload (for EXIF data extraction) */
+  onMetadata?: (meta: AttachmentMeta | null) => void
 }
 
 /** Image upload input with preview, loading, and error states */
-export function ImageFieldInput({ label, required, error, value, onChange }: ImageFieldInputProps) {
+export function ImageFieldInput({ label, required, error, value, onChange, onMetadata }: ImageFieldInputProps) {
   const uploadMutation = api.mutations.useUploadPendingAttachment()
 
   /** Uploads file as pending attachment and updates value with attachment number */
@@ -22,6 +25,7 @@ export function ImageFieldInput({ label, required, error, value, onChange }: Ima
     uploadMutation.mutate(file, {
       onSuccess: (pending) => {
         onChange(pending.number)
+        onMetadata?.(pending.meta)
       },
     })
   }
@@ -29,6 +33,7 @@ export function ImageFieldInput({ label, required, error, value, onChange }: Ima
   /** Clears the selected image */
   const handleRemove = () => {
     onChange(null)
+    onMetadata?.(null)
   }
 
   if (uploadMutation.isPending) {

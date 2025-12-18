@@ -835,6 +835,8 @@ export type components = {
        * @description MIME type
        */
       mime_type: string
+      /** @description Extracted file metadata */
+      meta: components["schemas"]["AttachmentMeta"]
       /**
        * Created At
        * Format: date-time
@@ -877,12 +879,27 @@ export type components = {
        * @description MIME type
        */
       mime_type: string
+      /** @description Extracted file metadata */
+      meta: components["schemas"]["AttachmentMeta"]
       /**
        * Created At
        * Format: date-time
        * @description Upload timestamp
        */
       created_at: string
+    }
+    /**
+     * AttachmentMeta
+     * @description Extracted file metadata.
+     */
+    AttachmentMeta: {
+      image: components["schemas"]["ImageMeta"] | null
+      /** Exif */
+      exif: {
+        [key: string]: string
+      } | null
+      /** Error */
+      error: string | null
     }
     /** Body_uploadNoteAttachment */
     Body_uploadNoteAttachment: {
@@ -1231,6 +1248,20 @@ export type components = {
       max_width: number | null
     }
     /**
+     * ImageMeta
+     * @description Typed metadata for image files.
+     */
+    ImageMeta: {
+      /** Width */
+      width: number
+      /** Height */
+      height: number
+      /** Format */
+      format: string | null
+      /** Exif Created At */
+      exif_created_at: string | null
+    }
+    /**
      * LoginRequest
      * @description Authentication request.
      */
@@ -1506,6 +1537,8 @@ export type components = {
        * @description MIME type
        */
       mime_type: string
+      /** @description Extracted file metadata */
+      meta: components["schemas"]["AttachmentMeta"]
       /**
        * Created At
        * Format: date-time

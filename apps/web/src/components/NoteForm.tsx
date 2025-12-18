@@ -5,6 +5,7 @@ import { notifications } from "@mantine/notifications"
 import { useNavigate } from "@tanstack/react-router"
 import { ErrorMessage } from "@spacenote/common/components"
 import { api } from "@spacenote/common/api"
+import { dateToUTC, utcToLocalDate } from "@spacenote/common/utils"
 import type { AttachmentMeta, Note, Space, SpaceField } from "@spacenote/common/types"
 import { FieldInput } from "./FieldInput"
 
@@ -55,9 +56,9 @@ function getDefaultValue(field: SpaceField, currentUser: string): unknown {
     if (field.type === "user" && defaultValue === "$me") {
       return currentUser
     }
-    // Resolve $now for datetime fields
+    // Resolve $now for datetime fields — return Date for DateTimePicker
     if (field.type === "datetime" && defaultValue === "$now") {
-      return new Date().toISOString()
+      return new Date()
     }
     // $exif.created_at defaults start empty, filled on image upload
     if (field.type === "datetime" && typeof defaultValue === "string" && defaultValue.startsWith("$exif.created_at:")) {
@@ -92,7 +93,7 @@ function valueToString(value: unknown): string | null {
     return value.length > 0 ? value.join(",") : null
   }
   if (value instanceof Date) {
-    return value.toISOString()
+    return dateToUTC(value)
   }
   return null
 }
@@ -106,7 +107,13 @@ function buildInitialValues(
   const initialValues: Record<string, unknown> = {}
   for (const field of fields) {
     if (existingValues && field.name in existingValues) {
-      initialValues[field.name] = existingValues[field.name]
+      const value = existingValues[field.name]
+      // Convert UTC datetime strings to local Date for DateTimePicker
+      if (field.type === "datetime" && typeof value === "string" && value) {
+        initialValues[field.name] = utcToLocalDate(value)
+      } else {
+        initialValues[field.name] = value
+      }
     } else {
       initialValues[field.name] = getDefaultValue(field, currentUser)
     }
@@ -154,8 +161,10 @@ export function NoteForm({ space, mode, note }: NoteFormProps) {
     (imageFieldName: string) => (meta: AttachmentMeta | null) => {
       for (const binding of exifBindings.filter((b) => b.imageField === imageFieldName)) {
         if (isEmpty(form.getValues()[binding.datetimeField])) {
-          const value = meta?.image?.exif_created_at ?? resolveExifFallback(binding.fallback)
-          if (value) form.setFieldValue(binding.datetimeField, value)
+          const utcValue = meta?.image?.exif_created_at ?? resolveExifFallback(binding.fallback)
+          // EXIF and fallback values come in UTC, convert to local Date for DateTimePicker
+          const localDate = utcValue ? utcToLocalDate(utcValue) : null
+          if (localDate) form.setFieldValue(binding.datetimeField, localDate)
         }
       }
     },

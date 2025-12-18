@@ -116,8 +116,6 @@ services:
     image: ${WEB_IMAGE:-ghcr.io/mcbarinov/spacenote-web:latest}
     container_name: spacenote-web
     restart: unless-stopped
-    environment:
-      API_URL: https://${DOMAIN}
     depends_on:
       - backend
     networks:
@@ -135,8 +133,6 @@ services:
     # Note: For production builds, use: docker build --build-arg VITE_BASE_PATH=/admin/ ...
     container_name: spacenote-admin
     restart: unless-stopped
-    environment:
-      API_URL: https://${DOMAIN}
     depends_on:
       - backend
     networks:

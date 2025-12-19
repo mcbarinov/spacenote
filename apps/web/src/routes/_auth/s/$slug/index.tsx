@@ -68,7 +68,7 @@ function SpacePage() {
     <>
       <PageHeader
         title={space.title}
-        breadcrumbs={[{ label: "Home", to: "/" }, { label: `◈ ${space.slug}` }]}
+        breadcrumbs={[{ label: `◈ ${space.slug}` }]}
         topActions={
           <Group gap="sm">
             <NavigationTabs

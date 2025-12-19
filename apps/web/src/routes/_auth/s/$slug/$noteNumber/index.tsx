@@ -54,11 +54,7 @@ function NoteDetailPage() {
     <>
       <PageHeader
         title={note.title}
-        breadcrumbs={[
-          { label: "Home", to: "/" },
-          { label: `◈ ${space.slug}`, to: "/s/$slug", params: { slug } },
-          { label: `Note #${String(note.number)}` },
-        ]}
+        breadcrumbs={[{ label: `◈ ${space.slug}`, to: "/s/$slug", params: { slug } }, { label: `Note #${String(note.number)}` }]}
         topActions={
           <Group gap="sm">
             <NavigationTabs

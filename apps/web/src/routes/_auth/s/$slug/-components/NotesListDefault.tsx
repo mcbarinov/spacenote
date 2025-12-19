@@ -1,5 +1,6 @@
 import { Badge, Group, Table } from "@mantine/core"
 import { useNavigate } from "@tanstack/react-router"
+import { Username } from "@spacenote/common/components"
 import type { Note, Space, SpaceField } from "@spacenote/common/types"
 import { formatDate } from "@spacenote/common/utils"
 
@@ -56,7 +57,7 @@ export function NotesListDefault({ notes, space, displayFields }: NotesListDefau
     if (field === "note.edited_at") return note.edited_at ? formatDate(note.edited_at) : ""
     if (field === "note.activity_at") return formatDate(note.activity_at)
     if (field === "note.title") return note.title
-    if (field === "note.author") return `👤${note.author}`
+    if (field === "note.author") return <Username username={note.author} />
 
     const fieldName = getFieldName(field)
     const fieldType = getFieldType(field, space.fields)
@@ -78,7 +79,7 @@ export function NotesListDefault({ notes, space, displayFields }: NotesListDefau
 
     // User field - display with icon
     if (fieldType === "user" && typeof value === "string") {
-      return `👤${value}`
+      return <Username username={value} />
     }
 
     // Select field - display as badge

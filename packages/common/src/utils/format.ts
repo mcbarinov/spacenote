@@ -1,6 +1,14 @@
-/** Formats date to locale string */
+/** Formats date to YYYY-MM-DD HH:MM:SS */
 export function formatDate(date: string | Date): string {
-  return new Date(date).toLocaleString()
+  const d = new Date(date)
+  const pad = (n: number) => String(n).padStart(2, "0")
+  const year = d.getFullYear()
+  const month = pad(d.getMonth() + 1)
+  const day = pad(d.getDate())
+  const hours = pad(d.getHours())
+  const minutes = pad(d.getMinutes())
+  const seconds = pad(d.getSeconds())
+  return `${String(year)}-${month}-${day} ${hours}:${minutes}:${seconds}`
 }
 
 /** Formats bytes to human-readable size (B, KB, MB) */

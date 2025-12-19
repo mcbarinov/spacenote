@@ -2,6 +2,7 @@ import { useState } from "react"
 import { Pagination, Paper, Stack, Text } from "@mantine/core"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { api, COMMENTS_PAGE_LIMIT } from "@spacenote/common/api"
+import { Username } from "@spacenote/common/components"
 import { formatDate } from "@spacenote/common/utils"
 
 interface CommentListProps {
@@ -29,7 +30,7 @@ export function CommentList({ spaceSlug, noteNumber }: CommentListProps) {
       {data.items.map((comment) => (
         <Paper key={comment.number} p="sm" withBorder>
           <Text size="sm" c="dimmed" mb="xs">
-            {comment.author} · {formatDate(comment.created_at)}
+            <Username username={comment.author} /> · {formatDate(comment.created_at)}
           </Text>
           <Text>{comment.content}</Text>
         </Paper>

@@ -14,13 +14,7 @@ function NewNotePage() {
 
   return (
     <>
-      <PageHeader
-        title="New Note"
-        breadcrumbs={[
-          { label: "Home", to: "/" },
-          { label: `◈ ${space.slug}`, to: "/s/$slug", params: { slug } },
-        ]}
-      />
+      <PageHeader title="New Note" breadcrumbs={[{ label: `◈ ${space.slug}`, to: "/s/$slug", params: { slug } }]} />
       <NoteForm space={space} mode="create" />
     </>
   )

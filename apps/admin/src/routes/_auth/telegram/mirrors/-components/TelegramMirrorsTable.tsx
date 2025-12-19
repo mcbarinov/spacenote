@@ -1,4 +1,5 @@
 import { Paper, Table, Text } from "@mantine/core"
+import { SpaceSlug } from "@spacenote/common/components"
 import type { TelegramMirror } from "@spacenote/common/types"
 import { formatDate } from "@spacenote/common/utils"
 
@@ -32,7 +33,9 @@ export function TelegramMirrorsTable({ mirrors }: TelegramMirrorsTableProps) {
         <Table.Tbody>
           {mirrors.map((mirror) => (
             <Table.Tr key={`${mirror.space_slug}-${String(mirror.note_number)}`}>
-              <Table.Td>{mirror.space_slug}</Table.Td>
+              <Table.Td>
+                <SpaceSlug slug={mirror.space_slug} />
+              </Table.Td>
               <Table.Td>{mirror.note_number}</Table.Td>
               <Table.Td>{mirror.channel_id}</Table.Td>
               <Table.Td>{mirror.message_id}</Table.Td>

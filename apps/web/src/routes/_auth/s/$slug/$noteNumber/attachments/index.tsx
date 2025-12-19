@@ -28,11 +28,7 @@ function NoteAttachmentsPage() {
     <>
       <PageHeader
         title={`Attachments: ${note.title}`}
-        breadcrumbs={[
-          { label: "Home", to: "/" },
-          { label: `◈ ${space.slug}`, to: "/s/$slug", params: { slug } },
-          { label: `Note #${noteNumber}` },
-        ]}
+        breadcrumbs={[{ label: `◈ ${space.slug}`, to: "/s/$slug", params: { slug } }, { label: `Note #${noteNumber}` }]}
         topActions={
           <Group gap="sm">
             <NavigationTabs

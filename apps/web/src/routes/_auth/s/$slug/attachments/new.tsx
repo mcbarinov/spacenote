@@ -38,7 +38,6 @@ function UploadAttachmentPage() {
       <PageHeader
         title="Upload Attachment"
         breadcrumbs={[
-          { label: "Home", to: "/" },
           { label: `◈ ${space.slug}`, to: "/s/$slug", params: { slug } },
           { label: "Attachments", to: "/s/$slug/attachments", params: { slug } },
         ]}

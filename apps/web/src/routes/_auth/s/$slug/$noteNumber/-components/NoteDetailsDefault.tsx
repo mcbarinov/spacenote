@@ -1,4 +1,5 @@
 import { Group, Stack, Text } from "@mantine/core"
+import { Username } from "@spacenote/common/components"
 import type { Note, Space } from "@spacenote/common/types"
 import { formatDate } from "@spacenote/common/utils"
 import { FieldView } from "@/components/FieldView"
@@ -15,7 +16,7 @@ export function NoteDetailsDefault({ note, space }: NoteDetailsDefaultProps) {
       <Stack gap="xs" mb="lg">
         <Group gap="lg">
           <Text size="sm" c="dimmed">
-            Author: {note.author}
+            Author: <Username username={note.author} />
           </Text>
           <Text size="sm" c="dimmed">
             Created: {formatDate(note.created_at)}

@@ -55,6 +55,7 @@ Shared frontend code for all React applications:
 | `docs/backend.md` | Backend architecture (DB schema, services) |
 | `docs/frontend.md` | Frontend architecture (routing, data layer) |
 | `docs/space-examples.md` | Space configuration examples |
+| `docs/behavior.md` | Non-obvious behavioral scenarios (B001, B002, ...) |
 
 ## AI Agents
 

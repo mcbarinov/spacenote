@@ -72,7 +72,7 @@ function SpacePage() {
       <NewPageHeader
         breadcrumbs={[{ label: `◈ ${space.slug}`, to: "/" }, { label: "Notes" }]}
         topActions={
-          <LinkButton to="/s/$slug/new" params={{ slug }} variant="light">
+          <LinkButton to="/s/$slug/new" params={{ slug }}>
             New Note
           </LinkButton>
         }

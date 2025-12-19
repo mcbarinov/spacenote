@@ -4,7 +4,7 @@ import { IconPaperclip } from "@tabler/icons-react"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { z } from "zod"
 import { api, COMMENTS_PAGE_LIMIT } from "@spacenote/common/api"
-import { LinkButton, PageHeader } from "@spacenote/common/components"
+import { LinkButton, NewPageHeader } from "@spacenote/common/components"
 import { CommentForm } from "./-components/CommentForm"
 import { CommentList } from "./-components/CommentList"
 import { NoteDetailsDefault } from "./-components/NoteDetailsDefault"
@@ -53,15 +53,10 @@ function NoteDetailPage() {
 
   return (
     <>
-      <PageHeader
+      <NewPageHeader
         title={note.title}
         breadcrumbs={[{ label: `◈ ${space.slug}`, to: "/s/$slug", params: { slug } }, { label: `Note #${String(note.number)}` }]}
         topActions={
-          <LinkButton to="/s/$slug/$noteNumber/edit" params={{ slug, noteNumber }}>
-            Edit
-          </LinkButton>
-        }
-        actions={
           <Group gap="xs">
             <ViewModeMenu slug={slug} noteNumber={noteNumber} currentView={resolvedView} hasTemplate={hasTemplate} />
             <Link to="/s/$slug/$noteNumber/attachments" params={{ slug, noteNumber }}>
@@ -69,6 +64,9 @@ function NoteDetailPage() {
                 <IconPaperclip size={18} />
               </ActionIcon>
             </Link>
+            <LinkButton to="/s/$slug/$noteNumber/edit" params={{ slug, noteNumber }}>
+              Edit
+            </LinkButton>
           </Group>
         }
       />

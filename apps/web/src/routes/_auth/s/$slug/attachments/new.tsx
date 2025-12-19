@@ -3,7 +3,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { Button, Group, Paper, Stack, FileInput } from "@mantine/core"
 import { notifications } from "@mantine/notifications"
 import { api } from "@spacenote/common/api"
-import { ErrorMessage, PageHeader } from "@spacenote/common/components"
+import { ErrorMessage, NewPageHeader } from "@spacenote/common/components"
 
 export const Route = createFileRoute("/_auth/s/$slug/attachments/new")({
   component: UploadAttachmentPage,
@@ -35,8 +35,7 @@ function UploadAttachmentPage() {
 
   return (
     <>
-      <PageHeader
-        title="Upload Attachment"
+      <NewPageHeader
         breadcrumbs={[
           { label: `◈ ${space.slug}`, to: "/s/$slug", params: { slug } },
           { label: "Attachments", to: "/s/$slug/attachments", params: { slug } },

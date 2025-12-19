@@ -3,7 +3,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { Button, Group, Paper, Stack, FileInput } from "@mantine/core"
 import { notifications } from "@mantine/notifications"
 import { api } from "@spacenote/common/api"
-import { ErrorMessage, PageHeader } from "@spacenote/common/components"
+import { ErrorMessage, NewPageHeader } from "@spacenote/common/components"
 import { useSuspenseQuery } from "@tanstack/react-query"
 
 export const Route = createFileRoute("/_auth/s/$slug/$noteNumber/attachments/new")({
@@ -42,8 +42,8 @@ function UploadNoteAttachmentPage() {
 
   return (
     <>
-      <PageHeader
-        title={`Upload: ${note.title}`}
+      <NewPageHeader
+        title={note.title}
         breadcrumbs={[
           { label: `◈ ${space.slug}`, to: "/s/$slug", params: { slug } },
           { label: `Note #${noteNumber}`, to: "/s/$slug/$noteNumber", params: { slug, noteNumber } },

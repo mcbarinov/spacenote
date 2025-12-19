@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { Button, Checkbox, CopyButton, Group, Paper, Stack, Textarea } from "@mantine/core"
 import { api } from "@spacenote/common/api"
-import { PageHeader } from "@spacenote/common/components"
+import { NewPageHeader } from "@spacenote/common/components"
 import { SpaceTabs } from "@/components/SpaceTabs"
 
 export const Route = createFileRoute("/_auth/spaces/$slug/export/")({
@@ -25,7 +25,7 @@ function ExportPage() {
 
   return (
     <Stack gap="md">
-      <PageHeader
+      <NewPageHeader
         title="Export"
         breadcrumbs={[{ label: "Spaces", to: "/spaces" }, { label: `◈ ${space.slug}` }]}
         topActions={<SpaceTabs space={space} />}

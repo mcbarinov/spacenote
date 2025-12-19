@@ -3,7 +3,7 @@ import { Group, Select, Stack } from "@mantine/core"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { z } from "zod"
 import { api } from "@spacenote/common/api"
-import { PageHeader } from "@spacenote/common/components"
+import { NewPageHeader } from "@spacenote/common/components"
 import { TelegramMirrorsTable } from "./-components/TelegramMirrorsTable"
 
 const searchSchema = z.object({
@@ -39,7 +39,7 @@ function TelegramMirrorsPage() {
 
   return (
     <Stack gap="md">
-      <PageHeader title="Telegram Mirrors" />
+      <NewPageHeader title="Telegram Mirrors" />
 
       <Group>
         <Select

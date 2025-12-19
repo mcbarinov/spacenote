@@ -3,7 +3,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { Alert, Button, Group, Paper, Stack, Textarea } from "@mantine/core"
 import { notifications } from "@mantine/notifications"
 import { api } from "@spacenote/common/api"
-import { ErrorMessage, PageHeader } from "@spacenote/common/components"
+import { ErrorMessage, NewPageHeader } from "@spacenote/common/components"
 import type { ExportData } from "@spacenote/common/types"
 
 export const Route = createFileRoute("/_auth/spaces/import")({
@@ -43,7 +43,7 @@ function ImportSpacePage() {
 
   return (
     <Stack gap="md">
-      <PageHeader title="Import Space" breadcrumbs={[{ label: "Spaces", to: "/spaces" }]} />
+      <NewPageHeader title="Import Space" breadcrumbs={[{ label: "Spaces", to: "/spaces" }]} />
 
       <Paper withBorder p="md">
         <form onSubmit={handleSubmit}>

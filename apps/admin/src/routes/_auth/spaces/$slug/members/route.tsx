@@ -3,7 +3,7 @@ import { useForm } from "@mantine/form"
 import { Button, MultiSelect, Paper, Stack } from "@mantine/core"
 import { notifications } from "@mantine/notifications"
 import { api } from "@spacenote/common/api"
-import { ErrorMessage, PageHeader } from "@spacenote/common/components"
+import { ErrorMessage, NewPageHeader } from "@spacenote/common/components"
 import { SpaceTabs } from "@/components/SpaceTabs"
 
 export const Route = createFileRoute("/_auth/spaces/$slug/members")({
@@ -41,7 +41,7 @@ function SpaceMembersPage() {
 
   return (
     <Stack gap="md">
-      <PageHeader
+      <NewPageHeader
         title="Members"
         breadcrumbs={[{ label: "Spaces", to: "/spaces" }, { label: `◈ ${space.slug}` }]}
         topActions={<SpaceTabs space={space} />}

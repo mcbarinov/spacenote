@@ -4,7 +4,7 @@ import { zod4Resolver } from "mantine-form-zod-resolver"
 import { Badge, Button, Checkbox, Group, Paper, Stack, Text } from "@mantine/core"
 import { notifications } from "@mantine/notifications"
 import { api } from "@spacenote/common/api"
-import { ErrorMessage, PageHeader } from "@spacenote/common/components"
+import { ErrorMessage, NewPageHeader } from "@spacenote/common/components"
 import { SpaceTabs } from "@/components/SpaceTabs"
 import type { UpdateFieldRequest } from "@spacenote/common/types"
 import { StringFieldConfig } from "../-components/StringFieldConfig"
@@ -63,7 +63,7 @@ function EditFieldPage() {
 
   return (
     <Stack gap="md">
-      <PageHeader
+      <NewPageHeader
         title="Edit Field"
         breadcrumbs={[{ label: "Spaces", to: "/spaces" }, { label: `◈ ${space.slug}` }]}
         topActions={<SpaceTabs space={space} />}

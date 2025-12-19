@@ -5,7 +5,7 @@ import { z } from "zod"
 import { Button, Group, MultiSelect, Paper, Stack, TextInput, Textarea } from "@mantine/core"
 import { notifications } from "@mantine/notifications"
 import { api } from "@spacenote/common/api"
-import { ErrorMessage, PageHeader } from "@spacenote/common/components"
+import { ErrorMessage, NewPageHeader } from "@spacenote/common/components"
 import type { CreateSpaceRequest } from "@spacenote/common/types"
 
 export const Route = createFileRoute("/_auth/spaces/new")({
@@ -55,10 +55,10 @@ function CreateSpacePage() {
 
   return (
     <Stack gap="md">
-      <PageHeader
+      <NewPageHeader
         title="Create Space"
         breadcrumbs={[{ label: "Spaces", to: "/spaces" }]}
-        actions={
+        bottomActions={
           <Button component={Link} to="/spaces/import" variant="light">
             Import
           </Button>

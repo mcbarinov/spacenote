@@ -3,7 +3,7 @@ import { Group, Select, Stack } from "@mantine/core"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { z } from "zod"
 import { api } from "@spacenote/common/api"
-import { NewPageHeader } from "@spacenote/common/components"
+import { PageHeader } from "@spacenote/common/components"
 import { TELEGRAM_TASK_STATUSES, TELEGRAM_TASK_TYPES } from "@spacenote/common/types"
 import { TelegramTasksTable } from "./-components/TelegramTasksTable"
 
@@ -44,7 +44,7 @@ function TelegramTasksPage() {
 
   return (
     <Stack gap="md">
-      <NewPageHeader title="Telegram Tasks" />
+      <PageHeader title="Telegram Tasks" />
 
       <Group>
         <Select

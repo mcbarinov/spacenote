@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { Stack } from "@mantine/core"
 import { api } from "@spacenote/common/api"
-import { LinkButton, NewPageHeader } from "@spacenote/common/components"
+import { LinkButton, PageHeader } from "@spacenote/common/components"
 import { SpaceTabs } from "@/components/SpaceTabs"
 import { FieldsTable } from "./-components/FieldsTable"
 
@@ -16,7 +16,7 @@ function FieldsPage() {
 
   return (
     <Stack gap="md">
-      <NewPageHeader
+      <PageHeader
         title="Fields"
         breadcrumbs={[{ label: "Spaces", to: "/spaces" }, { label: `◈ ${space.slug}` }]}
         topActions={<SpaceTabs space={space} />}

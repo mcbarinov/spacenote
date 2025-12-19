@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { api } from "@spacenote/common/api"
-import { NewPageHeader } from "@spacenote/common/components"
+import { PageHeader } from "@spacenote/common/components"
 import { NoteForm } from "@/components/NoteForm"
 
 export const Route = createFileRoute("/_auth/s/$slug/$noteNumber/edit")({
@@ -19,7 +19,7 @@ function EditNotePage() {
 
   return (
     <>
-      <NewPageHeader
+      <PageHeader
         breadcrumbs={[
           { label: `◈ ${space.slug}`, to: "/s/$slug", params: { slug } },
           { label: `Note #${String(note.number)}`, to: "/s/$slug/$noteNumber", params: { slug, noteNumber } },

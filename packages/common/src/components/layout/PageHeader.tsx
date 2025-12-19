@@ -8,7 +8,7 @@ export interface BreadcrumbItem {
   params?: Record<string, string>
 }
 
-interface NewPageHeaderProps {
+interface PageHeaderProps {
   title?: string
   breadcrumbs?: BreadcrumbItem[]
   topActions?: ReactNode
@@ -16,7 +16,7 @@ interface NewPageHeaderProps {
 }
 
 /** Page header with optional title, breadcrumbs, and action slots */
-export function NewPageHeader({ title, breadcrumbs, topActions, bottomActions }: NewPageHeaderProps) {
+export function PageHeader({ title, breadcrumbs, topActions, bottomActions }: PageHeaderProps) {
   const hasTopRow = Boolean(breadcrumbs?.length) || Boolean(topActions)
   const hasBottomRow = Boolean(title) || Boolean(bottomActions)
 

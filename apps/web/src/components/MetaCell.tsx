@@ -7,7 +7,8 @@ interface MetaCellProps {
 
 /** Displays attachment metadata as clickable table cell. Shows keys as link, opens modal with full JSON on click. */
 export function MetaCell({ meta }: MetaCellProps) {
-  const keys = Object.keys(meta)
+  // Only show keys with actual data (not null/undefined)
+  const keys = Object.keys(meta).filter((key) => meta[key] != null)
   if (keys.length === 0) return <Text c="dimmed">-</Text>
 
   function handleClick() {

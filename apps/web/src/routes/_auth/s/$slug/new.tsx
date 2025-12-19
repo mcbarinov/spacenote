@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { api } from "@spacenote/common/api"
-import { NewPageHeader } from "@spacenote/common/components"
+import { PageHeader } from "@spacenote/common/components"
 import { NoteForm } from "@/components/NoteForm"
 
 export const Route = createFileRoute("/_auth/s/$slug/new")({
@@ -14,7 +14,7 @@ function NewNotePage() {
 
   return (
     <>
-      <NewPageHeader breadcrumbs={[{ label: `◈ ${space.slug}`, to: "/s/$slug", params: { slug } }, { label: "New Note" }]} />
+      <PageHeader breadcrumbs={[{ label: `◈ ${space.slug}`, to: "/s/$slug", params: { slug } }, { label: "New Note" }]} />
       <NoteForm space={space} mode="create" />
     </>
   )

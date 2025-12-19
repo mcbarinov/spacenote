@@ -3,7 +3,7 @@ import { ActionIcon, Table, Text } from "@mantine/core"
 import { IconDownload } from "@tabler/icons-react"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { api } from "@spacenote/common/api"
-import { LinkButton, NewPageHeader } from "@spacenote/common/components"
+import { LinkButton, PageHeader } from "@spacenote/common/components"
 import { formatDate, formatFileSize } from "@spacenote/common/utils"
 import { MetaCell } from "@/components/MetaCell"
 
@@ -22,7 +22,7 @@ function AttachmentsPage() {
 
   return (
     <>
-      <NewPageHeader
+      <PageHeader
         breadcrumbs={[{ label: `◈ ${space.slug}`, to: "/s/$slug", params: { slug } }, { label: "Attachments" }]}
         topActions={
           <LinkButton to="/s/$slug/attachments/new" params={{ slug }}>

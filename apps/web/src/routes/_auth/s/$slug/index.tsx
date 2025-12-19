@@ -3,7 +3,7 @@ import { ActionIcon, Group, Select } from "@mantine/core"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { IconFilter, IconPaperclip } from "@tabler/icons-react"
 import { api } from "@spacenote/common/api"
-import { LinkButton, NewPageHeader } from "@spacenote/common/components"
+import { LinkButton, PageHeader } from "@spacenote/common/components"
 import { z } from "zod"
 import { useState } from "react"
 import { NotesListDefault } from "./-components/NotesListDefault"
@@ -69,7 +69,7 @@ function SpacePage() {
 
   return (
     <>
-      <NewPageHeader
+      <PageHeader
         breadcrumbs={[{ label: `◈ ${space.slug}`, to: "/" }, { label: "Notes" }]}
         topActions={
           <LinkButton to="/s/$slug/new" params={{ slug }}>

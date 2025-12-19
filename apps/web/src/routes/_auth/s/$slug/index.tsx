@@ -30,6 +30,11 @@ function resolveView(view: ViewMode | undefined, hasTemplate: boolean): ViewMode
   return hasTemplate ? "template" : "default"
 }
 
+/** Gets template with fallback: filter-specific → all → undefined */
+function getListTemplate(templates: Record<string, string>, filterName: string): string | undefined {
+  return templates[`web:note:list:${filterName}`] ?? templates["web:note:list:all"]
+}
+
 export const Route = createFileRoute("/_auth/s/$slug/")({
   validateSearch: searchSchema,
   loaderDeps: ({ search }) => ({ filter: search.filter, q: search.q }),
@@ -48,10 +53,8 @@ function SpacePage() {
   const { data: notesList } = useSuspenseQuery(api.queries.listNotes(slug, filter, q))
   const [adhocFilterOpened, setAdhocFilterOpened] = useState(false)
 
-  // Template key: web:note:list:{filter}, defaults to "all" when no filter selected
   const filterName = filter ?? "all"
-  const templateKey = `web:note:list:${filterName}`
-  const template = space.templates[templateKey]
+  const template = getListTemplate(space.templates, filterName)
   const hasTemplate = Boolean(template)
   const resolvedView = resolveView(view, hasTemplate)
 

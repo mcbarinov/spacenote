@@ -1,5 +1,5 @@
 import { ActionIcon, Menu } from "@mantine/core"
-import { IconDotsVertical } from "@tabler/icons-react"
+import { IconEye } from "@tabler/icons-react"
 import { useNavigate } from "@tanstack/react-router"
 
 type ViewMode = "default" | "template" | "json"
@@ -38,7 +38,7 @@ export function ViewModeMenu({ slug, currentView, hasTemplate, filter, noteNumbe
     <Menu>
       <Menu.Target>
         <ActionIcon variant="subtle" color="gray">
-          <IconDotsVertical size={18} />
+          <IconEye size={18} />
         </ActionIcon>
       </Menu.Target>
       <Menu.Dropdown>

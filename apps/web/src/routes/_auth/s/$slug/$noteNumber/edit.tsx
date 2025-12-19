@@ -24,6 +24,7 @@ function EditNotePage() {
         breadcrumbs={[
           { label: `◈ ${space.slug}`, to: "/s/$slug", params: { slug } },
           { label: `Note #${String(note.number)}`, to: "/s/$slug/$noteNumber", params: { slug, noteNumber } },
+          { label: "Edit" },
         ]}
       />
       <NoteForm space={space} mode="edit" note={note} />

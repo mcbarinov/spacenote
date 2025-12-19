@@ -1,9 +1,9 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router"
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
 import { ActionIcon, Group, Select } from "@mantine/core"
 import { useSuspenseQuery } from "@tanstack/react-query"
-import { IconFilter } from "@tabler/icons-react"
+import { IconFilter, IconPaperclip } from "@tabler/icons-react"
 import { api } from "@spacenote/common/api"
-import { LinkButton, NavigationTabs, PageHeader } from "@spacenote/common/components"
+import { LinkButton, PageHeader } from "@spacenote/common/components"
 import { z } from "zod"
 import { useState } from "react"
 import { NotesListDefault } from "./-components/NotesListDefault"
@@ -71,19 +71,11 @@ function SpacePage() {
     <>
       <PageHeader
         title={space.title}
-        breadcrumbs={[{ label: `◈ ${space.slug}` }]}
+        breadcrumbs={[{ label: `◈ ${space.slug}`, to: "/" }, { label: "Notes" }]}
         topActions={
-          <Group gap="sm">
-            <NavigationTabs
-              tabs={[
-                { label: "Notes", to: "/s/$slug", params: { slug } },
-                { label: "Attachments", to: "/s/$slug/attachments", params: { slug } },
-              ]}
-            />
-            <LinkButton to="/s/$slug/new" params={{ slug }} variant="light">
-              New Note
-            </LinkButton>
-          </Group>
+          <LinkButton to="/s/$slug/new" params={{ slug }} variant="light">
+            New Note
+          </LinkButton>
         }
         actions={
           <Group gap="xs">
@@ -103,7 +95,7 @@ function SpacePage() {
               />
             )}
             <ActionIcon
-              variant="light"
+              variant="subtle"
               onClick={() => {
                 setAdhocFilterOpened(true)
               }}
@@ -112,6 +104,11 @@ function SpacePage() {
               <IconFilter size={18} />
             </ActionIcon>
             <ViewModeMenu slug={slug} filter={filter} currentView={resolvedView} hasTemplate={hasTemplate} />
+            <Link to="/s/$slug/attachments" params={{ slug }}>
+              <ActionIcon variant="subtle" title="Attachments">
+                <IconPaperclip size={18} />
+              </ActionIcon>
+            </Link>
           </Group>
         }
       />

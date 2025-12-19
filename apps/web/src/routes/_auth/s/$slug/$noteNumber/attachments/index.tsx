@@ -1,9 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router"
-import { ActionIcon, Group, Table, Text } from "@mantine/core"
-import { IconDownload } from "@tabler/icons-react"
+import { createFileRoute, Link } from "@tanstack/react-router"
+import { ActionIcon, Table, Text } from "@mantine/core"
+import { IconDownload, IconFileText } from "@tabler/icons-react"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { api } from "@spacenote/common/api"
-import { LinkButton, NavigationTabs, PageHeader } from "@spacenote/common/components"
+import { LinkButton, PageHeader } from "@spacenote/common/components"
 import { formatDate, formatFileSize } from "@spacenote/common/utils"
 import { MetaCell } from "@/components/MetaCell"
 
@@ -28,19 +28,22 @@ function NoteAttachmentsPage() {
     <>
       <PageHeader
         title={`Attachments: ${note.title}`}
-        breadcrumbs={[{ label: `◈ ${space.slug}`, to: "/s/$slug", params: { slug } }, { label: `Note #${noteNumber}` }]}
+        breadcrumbs={[
+          { label: `◈ ${space.slug}`, to: "/s/$slug", params: { slug } },
+          { label: `Note #${noteNumber}`, to: "/s/$slug/$noteNumber", params: { slug, noteNumber } },
+          { label: "Attachments" },
+        ]}
         topActions={
-          <Group gap="sm">
-            <NavigationTabs
-              tabs={[
-                { label: "Note", to: "/s/$slug/$noteNumber", params: { slug, noteNumber } },
-                { label: "Attachments", to: "/s/$slug/$noteNumber/attachments", params: { slug, noteNumber } },
-              ]}
-            />
-            <LinkButton to="/s/$slug/$noteNumber/attachments/new" params={{ slug, noteNumber }}>
-              Upload
-            </LinkButton>
-          </Group>
+          <LinkButton to="/s/$slug/$noteNumber/attachments/new" params={{ slug, noteNumber }}>
+            Upload
+          </LinkButton>
+        }
+        actions={
+          <Link to="/s/$slug/$noteNumber" params={{ slug, noteNumber }}>
+            <ActionIcon variant="subtle" title="Note">
+              <IconFileText size={18} />
+            </ActionIcon>
+          </Link>
         }
       />
 

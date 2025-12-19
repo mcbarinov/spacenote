@@ -1,9 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router"
-import { ActionIcon, Group, Table, Text } from "@mantine/core"
-import { IconDownload } from "@tabler/icons-react"
+import { createFileRoute, Link } from "@tanstack/react-router"
+import { ActionIcon, Table, Text } from "@mantine/core"
+import { IconDownload, IconFileText } from "@tabler/icons-react"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { api } from "@spacenote/common/api"
-import { LinkButton, NavigationTabs, PageHeader } from "@spacenote/common/components"
+import { LinkButton, PageHeader } from "@spacenote/common/components"
 import { formatDate, formatFileSize } from "@spacenote/common/utils"
 import { MetaCell } from "@/components/MetaCell"
 
@@ -24,19 +24,18 @@ function AttachmentsPage() {
     <>
       <PageHeader
         title="Attachments"
-        breadcrumbs={[{ label: `◈ ${space.slug}` }]}
+        breadcrumbs={[{ label: `◈ ${space.slug}`, to: "/s/$slug", params: { slug } }, { label: "Attachments" }]}
         topActions={
-          <Group gap="sm">
-            <NavigationTabs
-              tabs={[
-                { label: "Notes", to: "/s/$slug", params: { slug } },
-                { label: "Attachments", to: "/s/$slug/attachments", params: { slug } },
-              ]}
-            />
-            <LinkButton to="/s/$slug/attachments/new" params={{ slug }}>
-              Upload
-            </LinkButton>
-          </Group>
+          <LinkButton to="/s/$slug/attachments/new" params={{ slug }}>
+            Upload
+          </LinkButton>
+        }
+        actions={
+          <Link to="/s/$slug" params={{ slug }}>
+            <ActionIcon variant="light" title="Notes">
+              <IconFileText size={18} />
+            </ActionIcon>
+          </Link>
         }
       />
 

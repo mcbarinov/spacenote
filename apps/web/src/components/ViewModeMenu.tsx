@@ -37,7 +37,7 @@ export function ViewModeMenu({ slug, currentView, hasTemplate, filter, noteNumbe
   return (
     <Menu>
       <Menu.Target>
-        <ActionIcon variant="subtle" color="gray">
+        <ActionIcon variant="subtle">
           <IconEye size={18} />
         </ActionIcon>
       </Menu.Target>

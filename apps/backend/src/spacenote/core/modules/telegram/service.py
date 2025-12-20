@@ -150,9 +150,12 @@ class TelegramService(Service):
             TelegramTaskType.ACTIVITY_NOTE_CREATED, note.space_slug, note.number, {"note": note.model_dump()}
         )
 
-    async def notify_activity_note_updated(self, note: Note, changes: dict[str, tuple[Any, Any]]) -> None:
+    async def notify_activity_note_updated(self, note: Note, changes: dict[str, tuple[Any, Any]], edited_by: str) -> None:
         await self._enqueue_activity_task(
-            TelegramTaskType.ACTIVITY_NOTE_UPDATED, note.space_slug, note.number, {"note": note.model_dump(), "changes": changes}
+            TelegramTaskType.ACTIVITY_NOTE_UPDATED,
+            note.space_slug,
+            note.number,
+            {"note": note.model_dump(), "changes": changes, "edited_by": edited_by},
         )
 
     async def notify_activity_comment_created(self, note: Note, comment: Comment) -> None:

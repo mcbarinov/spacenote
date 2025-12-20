@@ -105,8 +105,13 @@ class NoteService(Service):
         logger.debug("note_updated", space_slug=space_slug, number=number, updated_fields=list(parsed_fields.keys()))
         note = await self.get_note(space_slug, number)
 
-        changes = {name: (old_note.fields.get(name), note.fields.get(name)) for name in parsed_fields}
-        await self.core.services.telegram.notify_activity_note_updated(note, changes)
+        # Build changes dict for Telegram notification: {field_name: (old_value, new_value)}
+        changes = {
+            name: (old_note.fields.get(name), note.fields.get(name))
+            for name in parsed_fields
+            if old_note.fields.get(name) != note.fields.get(name)
+        }
+        await self.core.services.telegram.notify_activity_note_updated(note, changes, current_user)
         await self.core.services.telegram.notify_mirror_update(note)
 
         return note

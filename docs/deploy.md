@@ -32,7 +32,7 @@
 ## Workflow
 
 1. **Dev machine**: `just docker-push` (builds linux/amd64 images and pushes to GHCR)
-2. **Server**: `docker compose pull && docker compose up -d`
+2. **Server**: `docker compose up -d --pull always`
 
 ## Prerequisites
 
@@ -114,16 +114,13 @@ just docker-build-web
 just docker-build-admin
 ```
 
-### Deploy (server)
+### Deploy / Update (server)
 
 ```bash
 cd /opt/spacenote
 
-# Pull new images
-docker compose pull
-
-# Restart with new images
-docker compose up -d
+# Pull and restart
+docker compose up -d --pull always
 
 # Check status
 docker compose ps

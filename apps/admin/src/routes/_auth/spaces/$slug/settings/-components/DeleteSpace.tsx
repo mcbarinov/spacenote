@@ -29,11 +29,12 @@ export function DeleteSpace({ space }: DeleteSpaceProps) {
                 labels: { confirm: "Delete", cancel: "Cancel" },
                 confirmProps: { color: "red" },
                 onConfirm: () => {
-                  void (async () => {
-                    await deleteMutation.mutateAsync(space.slug)
-                    notifications.show({ message: "Space deleted", color: "green" })
-                    void navigate({ to: "/spaces" })
-                  })()
+                  deleteMutation.mutate(space.slug, {
+                    onSuccess: () => {
+                      notifications.show({ message: "Space deleted", color: "green" })
+                      void navigate({ to: "/spaces" })
+                    },
+                  })
                 },
               })
             }}

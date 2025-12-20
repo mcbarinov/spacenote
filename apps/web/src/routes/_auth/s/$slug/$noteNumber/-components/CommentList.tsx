@@ -4,6 +4,7 @@ import { useSuspenseQuery } from "@tanstack/react-query"
 import { api, COMMENTS_PAGE_LIMIT } from "@spacenote/common/api"
 import { Username } from "@spacenote/common/components"
 import { formatDate } from "@spacenote/common/utils"
+import { MarkdownDisplay } from "@/components/MarkdownDisplay"
 
 interface CommentListProps {
   spaceSlug: string
@@ -32,7 +33,7 @@ export function CommentList({ spaceSlug, noteNumber }: CommentListProps) {
           <Text size="sm" c="dimmed" mb="xs">
             <Username username={comment.author} /> · {formatDate(comment.created_at)}
           </Text>
-          <Text>{comment.content}</Text>
+          <MarkdownDisplay content={comment.content} />
         </Paper>
       ))}
       {totalPages > 1 && <Pagination total={totalPages} value={page} onChange={setPage} mt="md" />}

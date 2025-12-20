@@ -31,7 +31,7 @@
 
 ## Workflow
 
-1. **Dev machine**: `just deploy-push` (builds linux/amd64 images and pushes to GHCR)
+1. **Dev machine**: `just docker-push` (builds linux/amd64 images and pushes to GHCR)
 2. **Server**: `docker compose pull && docker compose up -d`
 
 ## Prerequisites
@@ -100,18 +100,18 @@ DEBUG=false
 
 ```bash
 # Build and push all images to GHCR (linux/amd64)
-just deploy-push
+just docker-push
 
 # Or push specific service
-just deploy-push-backend
-just deploy-push-web
-just deploy-push-admin
+just docker-push-backend
+just docker-push-web
+just docker-push-admin
 
 # Build locally for testing (native arch, loads into local Docker)
-just deploy-build
-just deploy-build-backend
-just deploy-build-web
-just deploy-build-admin
+just docker-build
+just docker-build-backend
+just docker-build-web
+just docker-build-admin
 ```
 
 ### Deploy (server)
@@ -144,10 +144,10 @@ Caddy handles SSL certificates automatically via Let's Encrypt.
 
 ```bash
 # Start local stack (builds + runs)
-just deploy-local
+just docker-local
 
 # Stop
-just deploy-local-down
+just docker-local-down
 ```
 
 Local URLs (via Caddy at port 8080):

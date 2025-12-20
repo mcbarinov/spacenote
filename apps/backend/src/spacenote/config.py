@@ -1,5 +1,7 @@
-from pydantic import Field
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+DEFAULT_MAX_UPLOAD_SIZE = 500 * 1024 * 1024
 
 
 class Config(BaseSettings):
@@ -13,4 +15,11 @@ class Config(BaseSettings):
     attachments_path: str = Field(default="./data/attachments", description="Attachment storage path")
     images_path: str = Field(default="./data/images", description="Image storage path")
     telegram_bot_token: str | None = Field(default=None, description="Telegram bot token")
-    max_upload_size: int = Field(default=500 * 1024 * 1024, description="Max file upload size in bytes")
+    max_upload_size: int = Field(default=DEFAULT_MAX_UPLOAD_SIZE, description="Max file upload size in bytes")
+
+    @field_validator("max_upload_size", mode="before")
+    @classmethod
+    def parse_max_upload_size(cls, v: object) -> object:
+        if v == "":
+            return DEFAULT_MAX_UPLOAD_SIZE
+        return v

@@ -43,12 +43,12 @@ function UploadNoteAttachmentPage() {
   return (
     <>
       <PageHeader
-        title={`Upload: ${note.title}`}
+        title={note.title}
         breadcrumbs={[
-          { label: "Home", to: "/" },
           { label: `◈ ${space.slug}`, to: "/s/$slug", params: { slug } },
           { label: `Note #${noteNumber}`, to: "/s/$slug/$noteNumber", params: { slug, noteNumber } },
           { label: "Attachments", to: "/s/$slug/$noteNumber/attachments", params: { slug, noteNumber } },
+          { label: "Upload" },
         ]}
       />
       <Paper withBorder p="xl">

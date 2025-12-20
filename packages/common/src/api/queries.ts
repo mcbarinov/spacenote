@@ -17,6 +17,9 @@ import type {
 /** Default page size for comments pagination */
 export const COMMENTS_PAGE_LIMIT = 100
 
+/** Default page size for notes pagination */
+export const NOTES_PAGE_LIMIT = 50
+
 /** Fetches current authenticated user */
 export function currentUser() {
   return queryOptions({
@@ -43,14 +46,16 @@ export function listSpaces() {
   })
 }
 
-/** Fetches notes for a space with optional filter and adhoc query */
-export function listNotes(spaceSlug: string, filter?: string, q?: string) {
+/** Fetches paginated notes for a space with optional filter and adhoc query */
+export function listNotes(spaceSlug: string, filter?: string, q?: string, page = 1, limit = NOTES_PAGE_LIMIT) {
   return queryOptions({
-    queryKey: ["spaces", spaceSlug, "notes", { filter, q }],
+    queryKey: ["spaces", spaceSlug, "notes", { filter, q, page, limit }],
     queryFn: () => {
-      const searchParams: Record<string, string> = {}
+      const searchParams: Record<string, string | number> = {}
       if (filter) searchParams.filter = filter
       if (q) searchParams.q = q
+      searchParams.limit = limit
+      searchParams.offset = (page - 1) * limit
       return httpClient.get(`api/v1/spaces/${spaceSlug}/notes`, { searchParams }).json<NotesList>()
     },
   })

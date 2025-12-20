@@ -9,7 +9,7 @@ This command initializes a new deployment session by reading the essential proje
 - `README.md` - Monorepo overview and project structure
 - `CLAUDE.md` - Development guidelines and project rules
 - `ai/rules/project.md` - Project rules (git, linting, agent ports)
-- `justfile` - Available commands (deploy-build, deploy-push, deploy-local)
+- `justfile` - Available commands (docker-build, docker-push, docker-local)
 - `docs/deploy.md` - Deployment guide (workflow, server setup, troubleshooting)
 - `deploy/docker-compose.yml` - Production configuration (Caddy, MongoDB, services)
 - `deploy/docker-compose.local.yml` - Local development stack

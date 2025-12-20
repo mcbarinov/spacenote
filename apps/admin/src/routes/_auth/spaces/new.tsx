@@ -58,7 +58,7 @@ function CreateSpacePage() {
       <PageHeader
         title="Create Space"
         breadcrumbs={[{ label: "Spaces", to: "/spaces" }]}
-        actions={
+        bottomActions={
           <Button component={Link} to="/spaces/import" variant="light">
             Import
           </Button>

@@ -15,8 +15,8 @@ export const Route = createFileRoute("/login")({
 })
 
 const loginSchema = z.object({
-  username: z.string().min(2, { message: "Username must be at least 2 characters" }),
-  password: z.string().min(2, { message: "Password must be at least 2 characters" }),
+  username: z.string().min(1, "Username is required"),
+  password: z.string().min(1, "Password is required"),
 })
 
 /** Login page with username/password form */

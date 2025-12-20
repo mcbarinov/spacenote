@@ -20,7 +20,7 @@ function FiltersPage() {
         title="Filters"
         breadcrumbs={[{ label: "Spaces", to: "/spaces" }, { label: `◈ ${space.slug}` }]}
         topActions={<SpaceTabs space={space} />}
-        actions={
+        bottomActions={
           <LinkButton to="/spaces/$slug/filters/new" params={{ slug }} variant="light">
             Add Filter
           </LinkButton>

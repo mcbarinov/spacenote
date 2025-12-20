@@ -1,7 +1,7 @@
 import { Link, createFileRoute } from "@tanstack/react-router"
-import { Button, Group, Paper, Stack, Table, Text, Title } from "@mantine/core"
+import { Button, Group, Paper, Stack, Table, Title } from "@mantine/core"
 import { api } from "@spacenote/common/api"
-import { LinkButton } from "@spacenote/common/components"
+import { LinkButton, SpaceSlug } from "@spacenote/common/components"
 import { SpaceMenu } from "@/components/SpaceMenu"
 import { UsersBlock } from "./-components/users/UsersBlock"
 
@@ -48,9 +48,7 @@ function SpacesBlock() {
               <Table.Tr key={space.slug}>
                 <Table.Td>{space.title}</Table.Td>
                 <Table.Td>
-                  <Text size="sm" c="dimmed">
-                    {space.slug}
-                  </Text>
+                  <SpaceSlug slug={space.slug} />
                 </Table.Td>
                 <Table.Td>
                   <SpaceMenu space={space} />

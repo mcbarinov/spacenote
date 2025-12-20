@@ -1,9 +1,10 @@
-import { createFileRoute } from "@tanstack/react-router"
-import { Divider, Group, Title } from "@mantine/core"
+import { createFileRoute, Link } from "@tanstack/react-router"
+import { ActionIcon, Divider, Group, Title } from "@mantine/core"
+import { IconPaperclip } from "@tabler/icons-react"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { z } from "zod"
 import { api, COMMENTS_PAGE_LIMIT } from "@spacenote/common/api"
-import { LinkButton, NavigationTabs, PageHeader } from "@spacenote/common/components"
+import { LinkButton, PageHeader } from "@spacenote/common/components"
 import { CommentForm } from "./-components/CommentForm"
 import { CommentList } from "./-components/CommentList"
 import { NoteDetailsDefault } from "./-components/NoteDetailsDefault"
@@ -54,20 +55,15 @@ function NoteDetailPage() {
     <>
       <PageHeader
         title={note.title}
-        breadcrumbs={[
-          { label: "Home", to: "/" },
-          { label: `◈ ${space.slug}`, to: "/s/$slug", params: { slug } },
-          { label: `Note #${String(note.number)}` },
-        ]}
+        breadcrumbs={[{ label: `◈ ${space.slug}`, to: "/s/$slug", params: { slug } }, { label: `Note #${String(note.number)}` }]}
         topActions={
-          <Group gap="sm">
-            <NavigationTabs
-              tabs={[
-                { label: "Note", to: "/s/$slug/$noteNumber", params: { slug, noteNumber } },
-                { label: "Attachments", to: "/s/$slug/$noteNumber/attachments", params: { slug, noteNumber } },
-              ]}
-            />
+          <Group gap="xs">
             <ViewModeMenu slug={slug} noteNumber={noteNumber} currentView={resolvedView} hasTemplate={hasTemplate} />
+            <Link to="/s/$slug/$noteNumber/attachments" params={{ slug, noteNumber }}>
+              <ActionIcon variant="subtle" title="Attachments">
+                <IconPaperclip size={18} />
+              </ActionIcon>
+            </Link>
             <LinkButton to="/s/$slug/$noteNumber/edit" params={{ slug, noteNumber }}>
               Edit
             </LinkButton>

@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { Badge, Code, Modal, Paper, Table, Text } from "@mantine/core"
+import { SpaceSlug } from "@spacenote/common/components"
 import type { TelegramTask, TelegramTaskStatus } from "@spacenote/common/types"
 import { formatDate } from "@spacenote/common/utils"
 
@@ -59,7 +60,9 @@ export function TelegramTasksTable({ tasks }: TelegramTasksTableProps) {
                   <Badge color={getStatusColor(task.status)}>{task.status}</Badge>
                 </Table.Td>
                 <Table.Td>{task.task_type}</Table.Td>
-                <Table.Td>{task.space_slug}</Table.Td>
+                <Table.Td>
+                  <SpaceSlug slug={task.space_slug} />
+                </Table.Td>
                 <Table.Td>{task.note_number}</Table.Td>
                 <Table.Td>{task.channel_id}</Table.Td>
                 <Table.Td>{formatDate(task.created_at)}</Table.Td>

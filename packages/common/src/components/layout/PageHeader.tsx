@@ -9,23 +9,22 @@ export interface BreadcrumbItem {
 }
 
 interface PageHeaderProps {
-  title: string
+  title?: string
   breadcrumbs?: BreadcrumbItem[]
-  /** Right side of row 1 (tabs, navigation, etc) */
   topActions?: ReactNode
-  /** Right side of row 2 (buttons, selects, etc) */
-  actions?: ReactNode
+  bottomActions?: ReactNode
 }
 
-/** Unified page header with optional breadcrumbs, tabs, and actions */
-export function PageHeader({ title, breadcrumbs, topActions, actions }: PageHeaderProps) {
-  const hasTopRow = breadcrumbs ?? topActions
+/** Page header with optional title, breadcrumbs, and action slots */
+export function PageHeader({ title, breadcrumbs, topActions, bottomActions }: PageHeaderProps) {
+  const hasTopRow = Boolean(breadcrumbs?.length) || Boolean(topActions)
+  const hasBottomRow = Boolean(title) || Boolean(bottomActions)
 
   return (
     <Stack gap="xs" mb="md">
       {hasTopRow && (
-        <Group justify="space-between">
-          {breadcrumbs ? (
+        <Group justify={breadcrumbs?.length ? "space-between" : "flex-start"}>
+          {breadcrumbs && (
             <Breadcrumbs>
               {breadcrumbs.map((item) =>
                 item.to ? (
@@ -37,19 +36,15 @@ export function PageHeader({ title, breadcrumbs, topActions, actions }: PageHead
                 )
               )}
             </Breadcrumbs>
-          ) : (
-            <div />
           )}
           {topActions}
         </Group>
       )}
-      {actions ? (
-        <Group justify="space-between">
-          <Title order={3}>{title}</Title>
-          {actions}
+      {hasBottomRow && (
+        <Group justify={title ? "space-between" : "flex-start"}>
+          {title && <Title order={3}>{title}</Title>}
+          {bottomActions}
         </Group>
-      ) : (
-        <Title order={3}>{title}</Title>
       )}
     </Stack>
   )

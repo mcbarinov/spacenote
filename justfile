@@ -1,6 +1,8 @@
 set dotenv-load
 set shell := ["bash", "-cu"]
 
+GHCR_USER := "mcbarinov"
+
 # Lint all projects
 lint: common-lint admin-lint web-lint backend-lint
 
@@ -120,17 +122,16 @@ agent-backend-dev:
     cd apps/backend && SPACENOTE_PORT=3101 uv run python -m watchfiles "python -m spacenote.main" src
 
 
-# === Deploy Commands ===
+# === Docker Commands ===
 
-GHCR_USER := "mcbarinov"
+# Build all images locally (native arch)
+[group("docker")]
+docker-build:
+    just docker-build-backend & just docker-build-web & just docker-build-admin & wait
 
-# Local builds (native arch, --load)
-[group("deploy")]
-deploy-build:
-    just deploy-build-backend & just deploy-build-web & just deploy-build-admin & wait
-
-[group("deploy")]
-deploy-build-backend:
+# Build backend image locally
+[group("docker")]
+docker-build-backend:
     docker buildx build \
         --build-arg GIT_COMMIT_HASH=$(git rev-parse --short HEAD) \
         --build-arg GIT_COMMIT_DATE=$(git log -1 --format=%cI) \
@@ -139,8 +140,9 @@ deploy-build-backend:
         -t ghcr.io/{{GHCR_USER}}/spacenote-backend:latest \
         --load apps/backend
 
-[group("deploy")]
-deploy-build-web:
+# Build web image locally
+[group("docker")]
+docker-build-web:
     docker buildx build \
         --build-arg GIT_COMMIT_HASH=$(git rev-parse --short HEAD) \
         --build-arg GIT_COMMIT_DATE=$(git log -1 --format=%cI) \
@@ -149,8 +151,9 @@ deploy-build-web:
         -t ghcr.io/{{GHCR_USER}}/spacenote-web:latest \
         --load .
 
-[group("deploy")]
-deploy-build-admin:
+# Build admin image locally
+[group("docker")]
+docker-build-admin:
     docker buildx build \
         --build-arg GIT_COMMIT_HASH=$(git rev-parse --short HEAD) \
         --build-arg GIT_COMMIT_DATE=$(git log -1 --format=%cI) \
@@ -160,13 +163,14 @@ deploy-build-admin:
         -t ghcr.io/{{GHCR_USER}}/spacenote-admin:latest \
         --load .
 
-# Production push (linux/amd64, --push to GHCR)
-[group("deploy")]
-deploy-push:
-    just deploy-push-backend & just deploy-push-web & just deploy-push-admin & wait
+# Build and push all images to GHCR (linux/amd64)
+[group("docker")]
+docker-push:
+    just docker-push-backend & just docker-push-web & just docker-push-admin & wait
 
-[group("deploy")]
-deploy-push-backend:
+# Build and push backend image to GHCR
+[group("docker")]
+docker-push-backend:
     docker buildx build --platform linux/amd64 \
         --build-arg GIT_COMMIT_HASH=$(git rev-parse --short HEAD) \
         --build-arg GIT_COMMIT_DATE=$(git log -1 --format=%cI) \
@@ -175,8 +179,9 @@ deploy-push-backend:
         -t ghcr.io/{{GHCR_USER}}/spacenote-backend:latest \
         --push apps/backend
 
-[group("deploy")]
-deploy-push-web:
+# Build and push web image to GHCR
+[group("docker")]
+docker-push-web:
     docker buildx build --platform linux/amd64 \
         --build-arg GIT_COMMIT_HASH=$(git rev-parse --short HEAD) \
         --build-arg GIT_COMMIT_DATE=$(git log -1 --format=%cI) \
@@ -185,8 +190,9 @@ deploy-push-web:
         -t ghcr.io/{{GHCR_USER}}/spacenote-web:latest \
         --push .
 
-[group("deploy")]
-deploy-push-admin:
+# Build and push admin image to GHCR
+[group("docker")]
+docker-push-admin:
     docker buildx build --platform linux/amd64 \
         --build-arg GIT_COMMIT_HASH=$(git rev-parse --short HEAD) \
         --build-arg GIT_COMMIT_DATE=$(git log -1 --format=%cI) \
@@ -196,15 +202,17 @@ deploy-push-admin:
         -t ghcr.io/{{GHCR_USER}}/spacenote-admin:latest \
         --push .
 
-[group("deploy")]
-deploy-local:
+# Start local Docker Compose stack
+[group("docker")]
+docker-local:
     cd deploy && docker compose -f docker-compose.local.yml up --build
 
-[group("deploy")]
-deploy-local-down:
+# Stop local Docker Compose stack
+[group("docker")]
+docker-local-down:
     cd deploy && docker compose -f docker-compose.local.yml down
 
 # Clean Docker build cache
-[group("deploy")]
-deploy-prune:
+[group("docker")]
+docker-prune:
     docker builder prune -f

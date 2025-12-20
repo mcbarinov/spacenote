@@ -12,6 +12,7 @@ from spacenote.core.modules.field.models import (
     SpecialValue,
 )
 from spacenote.core.modules.filter.models import (
+    ALL_FILTER_NAME,
     FIELD_TYPE_OPERATORS,
     Filter,
     FilterCondition,
@@ -38,6 +39,8 @@ def validate_filter(space: Space, filter: Filter) -> Filter:
     """Validate filter and return normalized version."""
     if not filter.name or not filter.name.replace("_", "").replace("-", "").isalnum():
         raise ValidationError(f"Invalid filter name: {filter.name}")
+    if filter.name == ALL_FILTER_NAME and not filter.default_columns:
+        raise ValidationError("Filter 'all' must have at least one default column")
 
     validated_conditions = [_validate_condition(c, space) for c in filter.conditions]
     validated_sort = [_validate_sort_field(s, space) for s in filter.sort]

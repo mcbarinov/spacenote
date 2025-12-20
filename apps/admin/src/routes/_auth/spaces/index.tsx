@@ -16,7 +16,7 @@ function SpacesPage() {
     <Stack gap="md">
       <PageHeader
         title="Spaces"
-        actions={
+        bottomActions={
           <Button component={Link} to="/spaces/new">
             Create Space
           </Button>

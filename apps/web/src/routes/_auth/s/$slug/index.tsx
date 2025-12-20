@@ -1,9 +1,9 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router"
-import { ActionIcon, Group, Select } from "@mantine/core"
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
+import { ActionIcon, Group, Pagination, Select, Text } from "@mantine/core"
 import { useSuspenseQuery } from "@tanstack/react-query"
-import { IconFilter } from "@tabler/icons-react"
-import { api } from "@spacenote/common/api"
-import { LinkButton, NavigationTabs, PageHeader } from "@spacenote/common/components"
+import { IconFilter, IconPaperclip } from "@tabler/icons-react"
+import { api, NOTES_PAGE_LIMIT } from "@spacenote/common/api"
+import { LinkButton, PageHeader } from "@spacenote/common/components"
 import { z } from "zod"
 import { useState } from "react"
 import { NotesListDefault } from "./-components/NotesListDefault"
@@ -17,6 +17,7 @@ const searchSchema = z.object({
   filter: z.string().optional(),
   view: z.enum(["default", "template", "json"]).optional(),
   q: z.string().optional(),
+  page: z.coerce.number().optional(),
 })
 
 type ViewMode = "default" | "template" | "json"
@@ -30,11 +31,17 @@ function resolveView(view: ViewMode | undefined, hasTemplate: boolean): ViewMode
   return hasTemplate ? "template" : "default"
 }
 
+/** Gets template with fallback: filter-specific → all → undefined */
+function getListTemplate(templates: Record<string, string>, filterName: string): string | undefined {
+  return templates[`web:note:list:${filterName}`] ?? templates["web:note:list:all"]
+}
+
 export const Route = createFileRoute("/_auth/s/$slug/")({
   validateSearch: searchSchema,
-  loaderDeps: ({ search }) => ({ filter: search.filter, q: search.q }),
+  loaderDeps: ({ search }) => ({ filter: search.filter, q: search.q, page: search.page }),
   loader: async ({ context, params, deps }) => {
-    await context.queryClient.ensureQueryData(api.queries.listNotes(params.slug, deps.filter, deps.q))
+    const page = deps.page ?? 1
+    await context.queryClient.ensureQueryData(api.queries.listNotes(params.slug, deps.filter, deps.q, page))
   },
   component: SpacePage,
 })
@@ -42,16 +49,16 @@ export const Route = createFileRoute("/_auth/s/$slug/")({
 /** Space page with notes list */
 function SpacePage() {
   const { slug } = Route.useParams()
-  const { filter, view, q } = Route.useSearch()
+  const { filter, view, q, page } = Route.useSearch()
   const navigate = useNavigate()
   const space = api.cache.useSpace(slug)
-  const { data: notesList } = useSuspenseQuery(api.queries.listNotes(slug, filter, q))
+  const currentPage = page ?? 1
+  const { data: notesList } = useSuspenseQuery(api.queries.listNotes(slug, filter, q, currentPage))
   const [adhocFilterOpened, setAdhocFilterOpened] = useState(false)
+  const totalPages = Math.ceil(notesList.total / NOTES_PAGE_LIMIT)
 
-  // Template key: web:note:list:{filter}, defaults to "all" when no filter selected
   const filterName = filter ?? "all"
-  const templateKey = `web:note:list:${filterName}`
-  const template = space.templates[templateKey]
+  const template = getListTemplate(space.templates, filterName)
   const hasTemplate = Boolean(template)
   const resolvedView = resolveView(view, hasTemplate)
 
@@ -67,25 +74,17 @@ function SpacePage() {
   return (
     <>
       <PageHeader
-        title={space.title}
-        breadcrumbs={[{ label: "Home", to: "/" }, { label: `◈ ${space.slug}` }]}
+        breadcrumbs={[{ label: `◈ ${space.slug}`, to: "/" }, { label: "Notes" }]}
         topActions={
-          <Group gap="sm">
-            <NavigationTabs
-              tabs={[
-                { label: "Notes", to: "/s/$slug", params: { slug } },
-                { label: "Attachments", to: "/s/$slug/attachments", params: { slug } },
-              ]}
-            />
-            <LinkButton to="/s/$slug/new" params={{ slug }} variant="light">
-              New Note
-            </LinkButton>
-          </Group>
+          <LinkButton to="/s/$slug/new" params={{ slug }}>
+            New Note
+          </LinkButton>
         }
-        actions={
-          <Group gap="xs">
+        bottomActions={
+          <Group gap="xs" wrap="nowrap">
             {space.filters.length > 0 && (
               <Select
+                w="auto"
                 placeholder="All notes"
                 clearable
                 data={space.filters.map((f) => ({ value: f.name, label: f.name }))}
@@ -99,8 +98,11 @@ function SpacePage() {
                 }
               />
             )}
+            <Text size="sm" c="dimmed" style={{ whiteSpace: "nowrap" }}>
+              {notesList.total} notes
+            </Text>
             <ActionIcon
-              variant="light"
+              variant="subtle"
               onClick={() => {
                 setAdhocFilterOpened(true)
               }}
@@ -109,6 +111,11 @@ function SpacePage() {
               <IconFilter size={18} />
             </ActionIcon>
             <ViewModeMenu slug={slug} filter={filter} currentView={resolvedView} hasTemplate={hasTemplate} />
+            <Link to="/s/$slug/attachments" params={{ slug }}>
+              <ActionIcon variant="subtle" title="Attachments">
+                <IconPaperclip size={18} />
+              </ActionIcon>
+            </Link>
           </Group>
         }
       />
@@ -120,6 +127,21 @@ function SpacePage() {
         <NotesListTemplate notes={notesList.items} space={space} template={template} q={q} filter={filter} />
       )}
       {resolvedView === "default" && <NotesListDefault notes={notesList.items} space={space} displayFields={displayFields} />}
+
+      {totalPages > 1 && (
+        <Pagination
+          total={totalPages}
+          value={currentPage}
+          onChange={(newPage) =>
+            void navigate({
+              to: "/s/$slug",
+              params: { slug },
+              search: { filter, view, q, page: newPage },
+            })
+          }
+          mt="md"
+        />
+      )}
 
       <AdhocFilterDrawer
         key={q}

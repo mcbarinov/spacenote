@@ -20,7 +20,7 @@ function FieldsPage() {
         title="Fields"
         breadcrumbs={[{ label: "Spaces", to: "/spaces" }, { label: `◈ ${space.slug}` }]}
         topActions={<SpaceTabs space={space} />}
-        actions={
+        bottomActions={
           <LinkButton to="/spaces/$slug/fields/new" params={{ slug }} variant="light">
             Add Field
           </LinkButton>

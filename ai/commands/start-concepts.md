@@ -11,6 +11,7 @@ This command initializes a session focused on understanding project concepts and
 - `docs/fields.md` - Field types, options, and VALUE_MAPS reference
 - `docs/space-examples.md` - Real-world space configuration examples
 - `docs/ideas.md` - Future improvement ideas and planned features
+- `docs/behavior.md` - Non-obvious behavioral scenarios
 - `CLAUDE.md` - Development guidelines and project rules
 
 **Focus**: High-level domain concepts and data structures, not implementation details.
@@ -28,8 +29,9 @@ This command initializes a session focused on understanding project concepts and
 3. Read `docs/fields.md` for field types and options
 4. Read `docs/space-examples.md` for use case examples
 5. Read `docs/ideas.md` for future improvement ideas
-6. Read `CLAUDE.md` for project guidelines
-7. Confirm readiness to brainstorm
+6. Read `docs/behavior.md` for non-obvious behavioral scenarios
+7. Read `CLAUDE.md` for project guidelines
+8. Confirm readiness to brainstorm
 
 ## Response
 

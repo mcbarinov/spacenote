@@ -66,7 +66,16 @@ class TemplateService(Service):
 
     def render_telegram(self, space: Space, template_key: str, payload: dict[str, Any]) -> str:
         """Render telegram template. Payload is passed directly as context."""
-        return self._render(space, template_key, payload)
+        context = dict(payload)
+
+        if "note" in payload:
+            note = payload["note"]
+            url = f"{self.core.config.site_url}/s/{note['space_slug']}/{note['number']}"
+            if template_key == "telegram:activity_comment_created" and "comment" in payload:
+                url += f"#comment-{payload['comment']['number']}"
+            context["url"] = url
+
+        return self._render(space, template_key, context)
 
     def _render(self, space: Space, template_key: str, context: dict[str, Any]) -> str:
         """Render template with fallback to defaults."""

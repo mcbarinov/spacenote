@@ -1,23 +1,29 @@
 _TELEGRAM_NOTE_CREATED = """\
 📝 {{ note.title }}
-by {{ note.author }}
+-------------------
 {% for field in note.fields %}
 {{ field[0] }}: {{ field[1] }}
-{% endfor %}\
+{% endfor %}
+🔗 {{ url }}
+by 👤 {{ note.author }}
 """
 
 _TELEGRAM_NOTE_UPDATED = """\
 ✏️ {{ note.title }}
+-------------------
 {% for item in changes %}
 {{ item[0] }}: {{ item[1][0] }} → {{ item[1][1] }}
-{% endfor %}\
+{% endfor %}
+🔗 {{ url }}
+by 👤 {{ edited_by }}
 """
 
 _TELEGRAM_COMMENT_CREATED = """\
 💬 {{ note.title }}
 -------------------
 {{ comment.content }}
-by {{ comment.author }}
+🔗 {{ url }}
+by 👤 {{ comment.author }}
 """
 
 _TELEGRAM_MIRROR = """\

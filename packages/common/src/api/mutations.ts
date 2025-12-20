@@ -111,8 +111,9 @@ export function useDeleteSpace() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (slug: string) => httpClient.delete(`api/v1/spaces/${slug}`),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["spaces"] })
+    // Fire-and-forget: don't await to allow navigation before re-render
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["spaces"] })
     },
   })
 }

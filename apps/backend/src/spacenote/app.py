@@ -132,6 +132,11 @@ class App:
         await self._core.services.access.ensure_admin(auth_token)
         return await self._core.services.space.update_hidden_fields_on_create(slug, field_names)
 
+    async def update_editable_fields_on_comment(self, auth_token: AuthToken, slug: str, field_names: list[str]) -> Space:
+        """Update editable fields on comment (admin only)."""
+        await self._core.services.access.ensure_admin(auth_token)
+        return await self._core.services.space.update_editable_fields_on_comment(slug, field_names)
+
     async def delete_space(self, auth_token: AuthToken, slug: str) -> None:
         """Delete space (admin only)."""
         await self._core.services.access.ensure_admin(auth_token)

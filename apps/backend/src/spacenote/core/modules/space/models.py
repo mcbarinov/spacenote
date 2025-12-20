@@ -27,6 +27,9 @@ class Space(MongoModel):
     hidden_fields_on_create: list[str] = Field(
         default_factory=list, description="Field names to hide on note creation form (will use defaults or null)"
     )
+    editable_fields_on_comment: list[str] = Field(
+        default_factory=list, description="Field names that can be edited when adding a comment"
+    )
     templates: dict[str, str] = Field(default_factory=dict, description="Liquid templates keyed by template identifier")
     telegram: TelegramSettings | None = None
     created_at: datetime = Field(default_factory=now, description="Timestamp when the space was created")

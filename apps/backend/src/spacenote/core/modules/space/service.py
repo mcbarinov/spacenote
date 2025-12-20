@@ -97,11 +97,20 @@ class SpaceService(Service):
 
         return await self.update_space_document(slug, {"$set": {"hidden_fields_on_create": field_names}})
 
+    async def update_editable_fields_on_comment(self, slug: str, field_names: list[str]) -> Space:
+        """Update editable fields on comment list."""
+        space = self.get_space(slug)
+
+        # Validate field names exist
+        fields_by_name = {f.name: f for f in space.fields}
+        for name in field_names:
+            if name not in fields_by_name:
+                raise ValidationError(f"Field '{name}' not found in space fields")
+
+        return await self.update_space_document(slug, {"$set": {"editable_fields_on_comment": field_names}})
+
     async def update_space_document(
-        self,
-        slug: str,
-        update: dict[str, Any],
-        array_filters: list[dict[str, Any]] | None = None,
+        self, slug: str, update: dict[str, Any], array_filters: list[dict[str, Any]] | None = None
     ) -> Space:
         """Low-level MongoDB update with automatic cache invalidation.
 

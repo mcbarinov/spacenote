@@ -23,10 +23,10 @@ _TELEGRAM_COMMENT_CREATED = """\
 -------------------
 {{ comment.content }}
 {% if changes %}
-{% for item in changes %}
+{%- for item in changes %}
 {{ item[0] }}: {{ item[1][0] }} → {{ item[1][1] }}
-{% endfor %}
-{% endif %}
+{%- endfor %}
+{%- endif %}
 🔗 {{ url }}
 by 👤 {{ comment.author }}
 """

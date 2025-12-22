@@ -16,6 +16,7 @@ import type {
   Space,
   SpaceField,
   UpdateDescriptionRequest,
+  UpdateEditableFieldsOnCommentRequest,
   UpdateFieldRequest,
   UpdateHiddenFieldsOnCreateRequest,
   UpdateMembersRequest,
@@ -153,6 +154,18 @@ export function useUpdateSpaceHiddenFieldsOnCreate(slug: string) {
   })
 }
 
+/** Updates editable fields on comment */
+export function useUpdateSpaceEditableFieldsOnComment(slug: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (data: UpdateEditableFieldsOnCommentRequest) =>
+      httpClient.patch(`api/v1/spaces/${slug}/editable-fields-on-comment`, { json: data }).json<Space>(),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["spaces"] })
+    },
+  })
+}
+
 /** Updates space members */
 export function useUpdateSpaceMembers(slug: string) {
   const queryClient = useQueryClient()
@@ -255,14 +268,17 @@ export function useUpdateNote(spaceSlug: string, noteNumber: number) {
   })
 }
 
-/** Creates a comment on a note */
+/** Creates a comment on a note (may also update note fields via raw_fields) */
 export function useCreateComment(spaceSlug: string, noteNumber: number) {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (data: CreateCommentRequest) =>
       httpClient.post(`api/v1/spaces/${spaceSlug}/notes/${String(noteNumber)}/comments`, { json: data }).json<Comment>(),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["spaces", spaceSlug, "notes", noteNumber, "comments"] })
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["spaces", spaceSlug, "notes", noteNumber, "comments"] }),
+        queryClient.invalidateQueries({ queryKey: ["spaces", spaceSlug, "notes", noteNumber], exact: true }),
+      ])
     },
   })
 }

@@ -80,7 +80,7 @@ function NoteDetailPage() {
       <Title order={2} mb="md">
         Comments
       </Title>
-      <CommentForm spaceSlug={slug} noteNumber={noteNum} />
+      <CommentForm space={space} note={note} />
       <Divider my="lg" />
       <CommentList spaceSlug={slug} noteNumber={noteNum} />
     </>

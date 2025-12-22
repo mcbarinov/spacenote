@@ -64,6 +64,15 @@ class CommentService(Service):
         raw_fields: dict[str, str] | None = None,
     ) -> Comment:
         """Create a new comment on a note, optionally updating fields."""
+        logger.debug(
+            "create_comment_input",
+            space_slug=space_slug,
+            note_number=note_number,
+            author=author,
+            content=content,
+            parent_number=parent_number,
+            raw_fields=raw_fields,
+        )
         note = await self.core.services.note.get_note(space_slug, note_number)
 
         # Update fields if provided

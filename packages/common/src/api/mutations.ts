@@ -15,6 +15,7 @@ import type {
   SetTemplateRequest,
   Space,
   SpaceField,
+  UpdateDefaultFilterRequest,
   UpdateDescriptionRequest,
   UpdateEditableFieldsOnCommentRequest,
   UpdateFieldRequest,
@@ -343,6 +344,18 @@ export function useUpdateSpaceTelegram(slug: string) {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (data: UpdateTelegramRequest) => httpClient.patch(`api/v1/spaces/${slug}/telegram`, { json: data }).json<Space>(),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["spaces"] })
+    },
+  })
+}
+
+/** Updates space default filter */
+export function useUpdateSpaceDefaultFilter(slug: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (data: UpdateDefaultFilterRequest) =>
+      httpClient.patch(`api/v1/spaces/${slug}/default-filter`, { json: data }).json<Space>(),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["spaces"] })
     },

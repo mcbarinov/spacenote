@@ -4,6 +4,7 @@ import { api } from "@spacenote/common/api"
 import { PageHeader } from "@spacenote/common/components"
 import { SpaceTabs } from "@/components/SpaceTabs"
 import { DeleteSpace } from "./-components/DeleteSpace"
+import { EditDefaultFilter } from "./-components/EditDefaultFilter"
 import { EditDescription } from "./-components/EditDescription"
 import { EditEditableFieldsOnComment } from "./-components/EditEditableFieldsOnComment"
 import { EditHiddenFieldsOnCreate } from "./-components/EditHiddenFieldsOnCreate"
@@ -28,6 +29,7 @@ function SettingsPage() {
       />
       <EditTitle space={space} />
       <EditDescription space={space} />
+      <EditDefaultFilter space={space} />
       <EditHiddenFieldsOnCreate space={space} />
       <EditEditableFieldsOnComment space={space} />
       <EditTelegram space={space} />

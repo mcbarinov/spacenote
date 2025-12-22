@@ -109,6 +109,15 @@ class SpaceService(Service):
 
         return await self.update_space_document(slug, {"$set": {"editable_fields_on_comment": field_names}})
 
+    async def update_default_filter(self, slug: str, default_filter: str) -> Space:
+        """Update default filter for the space."""
+        space = self.get_space(slug)
+
+        if not space.get_filter(default_filter):
+            raise ValidationError(f"Filter '{default_filter}' not found in space")
+
+        return await self.update_space_document(slug, {"$set": {"default_filter": default_filter}})
+
     async def update_space_document(
         self, slug: str, update: dict[str, Any], array_filters: list[dict[str, Any]] | None = None
     ) -> Space:

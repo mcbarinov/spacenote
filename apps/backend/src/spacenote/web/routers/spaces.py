@@ -47,6 +47,12 @@ class UpdateEditableFieldsOnCommentRequest(BaseModel):
     editable_fields_on_comment: list[str] = Field(..., description="Field names that can be edited when adding a comment")
 
 
+class UpdateDefaultFilterRequest(BaseModel):
+    """Space default filter update request."""
+
+    default_filter: str = Field(..., description="Default filter name for the space")
+
+
 @router.get(
     "/spaces",
     summary="List spaces",
@@ -174,6 +180,26 @@ async def update_space_editable_fields_on_comment(
 ) -> Space:
     """Update editable fields on comment (admin only)."""
     return await app.update_editable_fields_on_comment(auth_token, slug, update_data.editable_fields_on_comment)
+
+
+@router.patch(
+    "/spaces/{slug}/default-filter",
+    summary="Update space default filter",
+    description="Update the default filter for a space. Only accessible by admin users.",
+    operation_id="updateSpaceDefaultFilter",
+    responses={
+        200: {"description": "Default filter updated successfully"},
+        400: {"model": ErrorResponse, "description": "Invalid request or filter not found"},
+        401: {"model": ErrorResponse, "description": "Not authenticated"},
+        403: {"model": ErrorResponse, "description": "Admin privileges required"},
+        404: {"model": ErrorResponse, "description": "Space not found"},
+    },
+)
+async def update_space_default_filter(
+    slug: str, update_data: UpdateDefaultFilterRequest, app: AppDep, auth_token: AuthTokenDep
+) -> Space:
+    """Update default filter (admin only)."""
+    return await app.update_default_filter(auth_token, slug, update_data.default_filter)
 
 
 @router.delete(

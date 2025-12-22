@@ -7,7 +7,7 @@ import { formatDate } from "@spacenote/common/utils"
 interface NotesListDefaultProps {
   notes: Note[]
   space: Space
-  displayFields: string[]
+  filter?: string
 }
 
 const SYSTEM_FIELD_LABELS: Record<string, string> = {
@@ -46,8 +46,15 @@ function getFieldType(field: string, spaceFields: SpaceField[]): string | null {
 }
 
 /** Default table view for notes list */
-export function NotesListDefault({ notes, space, displayFields }: NotesListDefaultProps) {
+export function NotesListDefault({ notes, space, filter }: NotesListDefaultProps) {
   const navigate = useNavigate()
+
+  // Column priority: selected filter > "all" filter (allFilter always exists)
+  const selectedFilter = filter ? space.filters.find((f) => f.name === filter) : undefined
+  const allFilter = space.filters.find((f) => f.name === "all")
+  const displayFields = selectedFilter?.default_columns.length
+    ? selectedFilter.default_columns
+    : (allFilter?.default_columns ?? [])
 
   /** Renders field value for display */
   function renderFieldValue(field: string, note: Note): React.ReactNode {

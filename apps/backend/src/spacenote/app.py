@@ -137,6 +137,11 @@ class App:
         await self._core.services.access.ensure_admin(auth_token)
         return await self._core.services.space.update_editable_fields_on_comment(slug, field_names)
 
+    async def update_default_filter(self, auth_token: AuthToken, slug: str, default_filter: str) -> Space:
+        """Update space default filter (admin only)."""
+        await self._core.services.access.ensure_admin(auth_token)
+        return await self._core.services.space.update_default_filter(slug, default_filter)
+
     async def delete_space(self, auth_token: AuthToken, slug: str) -> None:
         """Delete space (admin only)."""
         await self._core.services.access.ensure_admin(auth_token)
@@ -234,7 +239,7 @@ class App:
         self,
         auth_token: AuthToken,
         space_slug: str,
-        filter_name: str,
+        filter_name: str | None = None,
         adhoc_query: str | None = None,
         limit: int = 50,
         offset: int = 0,

@@ -584,6 +584,26 @@ export type paths = {
     patch: operations["updateSpaceEditableFieldsOnComment"]
     trace?: never
   }
+  "/api/v1/spaces/{slug}/default-filter": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    /**
+     * Update space default filter
+     * @description Update the default filter for a space. Only accessible by admin users.
+     */
+    patch: operations["updateSpaceDefaultFilter"]
+    trace?: never
+  }
   "/api/v1/spaces/{slug}": {
     parameters: {
       query?: never
@@ -1672,6 +1692,12 @@ export type components = {
        */
       filters: components["schemas"]["Filter"][]
       /**
+       * Default Filter
+       * @description Default filter name when ?filter= not specified
+       * @default all
+       */
+      default_filter: string
+      /**
        * Hidden Fields On Create
        * @description Field names to hide on note creation form (will use defaults or null)
        */
@@ -1961,6 +1987,17 @@ export type components = {
        * @description Updated comment content
        */
       content: string
+    }
+    /**
+     * UpdateDefaultFilterRequest
+     * @description Space default filter update request.
+     */
+    UpdateDefaultFilterRequest: {
+      /**
+       * Default Filter
+       * @description Default filter name for the space
+       */
+      default_filter: string
     }
     /**
      * UpdateDescriptionRequest
@@ -3537,8 +3574,8 @@ export interface operations {
   listNotes: {
     parameters: {
       query?: {
-        /** @description Filter name to apply */
-        filter?: string
+        /** @description Filter name to apply. If not provided, uses space's default_filter */
+        filter?: string | null
         /** @description Adhoc query string */
         q?: string | null
         /** @description Maximum items to return */
@@ -4279,6 +4316,77 @@ export interface operations {
         }
       }
       /** @description Invalid request */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Admin privileges required */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Space not found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  updateSpaceDefaultFilter: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        slug: string
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateDefaultFilterRequest"]
+      }
+    }
+    responses: {
+      /** @description Default filter updated successfully */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["Space"]
+        }
+      }
+      /** @description Invalid request or filter not found */
       400: {
         headers: {
           [name: string]: unknown

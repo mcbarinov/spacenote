@@ -45,7 +45,9 @@ async def list_notes(
     space_slug: str,
     app: AppDep,
     auth_token: AuthTokenDep,
-    filter_name: Annotated[str, Query(alias="filter", description="Filter name to apply")] = "all",
+    filter_name: Annotated[
+        str | None, Query(alias="filter", description="Filter name to apply. If not provided, uses space's default_filter")
+    ] = None,
     q: Annotated[str | None, Query(description="Adhoc query string")] = None,
     limit: Annotated[int, Query(ge=1, le=100, description="Maximum items to return")] = 50,
     offset: Annotated[int, Query(ge=0, description="Number of items to skip")] = 0,

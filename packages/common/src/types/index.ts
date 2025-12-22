@@ -42,6 +42,7 @@ export type FilterOperator = components["schemas"]["FilterOperator"]
 // Space update requests
 export type UpdateTitleRequest = components["schemas"]["UpdateTitleRequest"]
 export type UpdateDescriptionRequest = components["schemas"]["UpdateDescriptionRequest"]
+export type UpdateDefaultFilterRequest = components["schemas"]["UpdateDefaultFilterRequest"]
 export type UpdateHiddenFieldsOnCreateRequest = components["schemas"]["UpdateHiddenFieldsOnCreateRequest"]
 export type UpdateEditableFieldsOnCommentRequest = components["schemas"]["UpdateEditableFieldsOnCommentRequest"]
 export type UpdateMembersRequest = components["schemas"]["UpdateMembersRequest"]

@@ -256,7 +256,8 @@ class App:
     async def update_note(self, auth_token: AuthToken, space_slug: str, number: int, raw_fields: dict[str, str]) -> Note:
         """Update specific note fields (partial update, members only)."""
         user = await self._core.services.access.ensure_space_member(auth_token, space_slug)
-        return await self._core.services.note.update_note_fields(space_slug, number, raw_fields, user.username)
+        note, _ = await self._core.services.note.update_note_fields(space_slug, number, raw_fields, user.username)
+        return note
 
     # --- Comments ---
 
@@ -273,11 +274,19 @@ class App:
         return await self._core.services.comment.get_comment(space_slug, note_number, number)
 
     async def create_comment(
-        self, auth_token: AuthToken, space_slug: str, note_number: int, content: str, parent_number: int | None = None
+        self,
+        auth_token: AuthToken,
+        space_slug: str,
+        note_number: int,
+        content: str,
+        parent_number: int | None = None,
+        raw_fields: dict[str, str] | None = None,
     ) -> Comment:
-        """Create comment on a note (members only)."""
+        """Create comment on a note, optionally updating fields (members only)."""
         user = await self._core.services.access.ensure_space_member(auth_token, space_slug)
-        return await self._core.services.comment.create_comment(space_slug, note_number, user.username, content, parent_number)
+        return await self._core.services.comment.create_comment(
+            space_slug, note_number, user.username, content, parent_number, raw_fields
+        )
 
     async def update_comment(
         self, auth_token: AuthToken, space_slug: str, note_number: int, number: int, content: str

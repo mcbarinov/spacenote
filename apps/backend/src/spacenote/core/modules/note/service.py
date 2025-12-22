@@ -6,7 +6,7 @@ from pymongo.asynchronous.collection import AsyncCollection
 
 from spacenote.core.db import Collection
 from spacenote.core.modules.counter.models import CounterType
-from spacenote.core.modules.field.models import FieldType
+from spacenote.core.modules.field.models import FieldType, FieldValueType
 from spacenote.core.modules.note.models import Note
 from spacenote.core.pagination import PaginationResult
 from spacenote.core.service import Service
@@ -90,8 +90,15 @@ class NoteService(Service):
         await self.core.services.telegram.notify_mirror_create(note)
         return note
 
-    async def update_note_fields(self, space_slug: str, number: int, raw_fields: dict[str, str], current_user: str) -> Note:
-        """Update specific note fields with validation (partial update)."""
+    async def update_note_fields(
+        self,
+        space_slug: str,
+        number: int,
+        raw_fields: dict[str, str],
+        current_user: str,
+        skip_activity_notification: bool = False,
+    ) -> tuple[Note, dict[str, tuple[FieldValueType, FieldValueType]]]:
+        """Update specific note fields. Returns (updated_note, changes)."""
         old_note = await self.get_note(space_slug, number)
         parsed_fields = await self.core.services.field.parse_raw_fields(space_slug, raw_fields, current_user, partial=True)
 
@@ -105,16 +112,17 @@ class NoteService(Service):
         logger.debug("note_updated", space_slug=space_slug, number=number, updated_fields=list(parsed_fields.keys()))
         note = await self.get_note(space_slug, number)
 
-        # Build changes dict for Telegram notification: {field_name: (old_value, new_value)}
-        changes = {
+        changes: dict[str, tuple[FieldValueType, FieldValueType]] = {
             name: (old_note.fields.get(name), note.fields.get(name))
             for name in parsed_fields
             if old_note.fields.get(name) != note.fields.get(name)
         }
-        await self.core.services.telegram.notify_activity_note_updated(note, changes, current_user)
+
+        if not skip_activity_notification:
+            await self.core.services.telegram.notify_activity_note_updated(note, changes, current_user)
         await self.core.services.telegram.notify_mirror_update(note)
 
-        return note
+        return note, changes
 
     async def update_activity(self, space_slug: str, number: int, *, commented: bool = False) -> None:
         """Update note activity timestamps (called on comment create/edit/delete)."""

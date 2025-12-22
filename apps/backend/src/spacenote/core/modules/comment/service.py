@@ -7,6 +7,7 @@ from pymongo.asynchronous.collection import AsyncCollection
 from spacenote.core.db import Collection
 from spacenote.core.modules.comment.models import Comment
 from spacenote.core.modules.counter.models import CounterType
+from spacenote.core.modules.field.models import FieldValueType
 from spacenote.core.pagination import PaginationResult
 from spacenote.core.service import Service
 from spacenote.errors import NotFoundError, ValidationError
@@ -60,9 +61,22 @@ class CommentService(Service):
         author: str,
         content: str,
         parent_number: int | None = None,
+        raw_fields: dict[str, str] | None = None,
     ) -> Comment:
-        """Create a new comment on a note."""
+        """Create a new comment on a note, optionally updating fields."""
         note = await self.core.services.note.get_note(space_slug, note_number)
+
+        # Update fields if provided
+        changes: dict[str, tuple[FieldValueType, FieldValueType]] | None = None
+        if raw_fields:
+            space = self.core.services.space.get_space(space_slug)
+            for field_name in raw_fields:
+                if field_name not in space.editable_fields_on_comment:
+                    raise ValidationError(f"Field '{field_name}' is not editable when commenting")
+
+            note, changes = await self.core.services.note.update_note_fields(
+                space_slug, note_number, raw_fields, author, skip_activity_notification=True
+            )
 
         # Validate parent exists if specified
         if parent_number is not None:
@@ -86,7 +100,7 @@ class CommentService(Service):
         await self._collection.insert_one(comment.to_mongo())
         await self.core.services.note.update_activity(space_slug, note_number, commented=True)
         logger.debug("comment_created", space_slug=space_slug, note_number=note_number, number=next_number, author=author)
-        await self.core.services.telegram.notify_activity_comment_created(note, comment)
+        await self.core.services.telegram.notify_activity_comment_created(note, comment, changes)
         return comment
 
     async def update_comment(self, space_slug: str, note_number: int, number: int, content: str) -> Comment:

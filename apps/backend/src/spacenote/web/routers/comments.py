@@ -16,6 +16,7 @@ class CreateCommentRequest(BaseModel):
 
     content: str = Field(..., min_length=1, description="Comment content")
     parent_number: int | None = Field(None, description="Parent comment number for threading")
+    raw_fields: dict[str, str] | None = Field(None, description="Fields to update (must be in space.editable_fields_on_comment)")
 
 
 class UpdateCommentRequest(BaseModel):
@@ -80,7 +81,9 @@ async def get_comment(space_slug: str, note_number: int, number: int, app: AppDe
 async def create_comment(
     space_slug: str, note_number: int, request: CreateCommentRequest, app: AppDep, auth_token: AuthTokenDep
 ) -> Comment:
-    return await app.create_comment(auth_token, space_slug, note_number, request.content, request.parent_number)
+    return await app.create_comment(
+        auth_token, space_slug, note_number, request.content, request.parent_number, request.raw_fields
+    )
 
 
 @router.patch(

@@ -33,3 +33,46 @@ If `?view` is NOT specified (first match wins):
 **Notes**:
 - `?view=template` is only valid if template exists (for filter or `all`)
 - If `filter` param is omitted, `filter_name` defaults to `all`
+
+---
+
+## B002: Telegram Mirror Message Formats
+
+**Context**: Telegram API limits for mirror channel messages.
+
+**Two formats:**
+
+| Format | Template Directive | Telegram API | Char Limit |
+|--------|-------------------|--------------|------------|
+| text | (none) | sendMessage / editMessageText | 4096 |
+| photo | `{# photo: field_name #}` | sendPhoto / editMessageCaption | 1024 |
+
+**Format detection** (template `telegram:mirror`):
+- First line `{# photo: <field_name> #}` → photo format, image from specified IMAGE field
+- Otherwise → text format
+
+**Template examples:**
+
+Text format:
+```liquid
+<b>{{ note.fields.title }}</b>
+{{ note.fields.description }}
+```
+
+Photo format:
+```liquid
+{# photo: image #}
+<b>{{ note.fields.title }}</b>
+{{ note.fields.description }}
+```
+
+**API methods:**
+
+| Operation | text | photo |
+|-----------|------|-------|
+| Create | sendMessage | sendPhoto |
+| Edit | editMessageText | editMessageCaption |
+
+**Notes:**
+- Multiple images not supported (Telegram limitation)
+- Photo caption ≤1024 chars, text ≤4096 chars (Telegram enforced)

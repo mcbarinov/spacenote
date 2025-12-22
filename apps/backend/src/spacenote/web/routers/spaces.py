@@ -41,6 +41,12 @@ class UpdateHiddenFieldsOnCreateRequest(BaseModel):
     hidden_fields_on_create: list[str] = Field(..., description="Field names to hide on note creation form")
 
 
+class UpdateEditableFieldsOnCommentRequest(BaseModel):
+    """Space editable fields on comment update request."""
+
+    editable_fields_on_comment: list[str] = Field(..., description="Field names that can be edited when adding a comment")
+
+
 @router.get(
     "/spaces",
     summary="List spaces",
@@ -148,6 +154,26 @@ async def update_space_hidden_fields_on_create(
 ) -> Space:
     """Update hidden fields on create (admin only)."""
     return await app.update_hidden_fields_on_create(auth_token, slug, update_data.hidden_fields_on_create)
+
+
+@router.patch(
+    "/spaces/{slug}/editable-fields-on-comment",
+    summary="Update editable fields on comment",
+    description="Update which fields can be edited when adding a comment. Only accessible by admin users.",
+    operation_id="updateSpaceEditableFieldsOnComment",
+    responses={
+        200: {"description": "Editable fields on comment updated successfully"},
+        400: {"model": ErrorResponse, "description": "Invalid request"},
+        401: {"model": ErrorResponse, "description": "Not authenticated"},
+        403: {"model": ErrorResponse, "description": "Admin privileges required"},
+        404: {"model": ErrorResponse, "description": "Space not found"},
+    },
+)
+async def update_space_editable_fields_on_comment(
+    slug: str, update_data: UpdateEditableFieldsOnCommentRequest, app: AppDep, auth_token: AuthTokenDep
+) -> Space:
+    """Update editable fields on comment (admin only)."""
+    return await app.update_editable_fields_on_comment(auth_token, slug, update_data.editable_fields_on_comment)
 
 
 @router.delete(

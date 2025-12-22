@@ -564,6 +564,26 @@ export type paths = {
     patch: operations["updateSpaceHiddenFieldsOnCreate"]
     trace?: never
   }
+  "/api/v1/spaces/{slug}/editable-fields-on-comment": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    /**
+     * Update editable fields on comment
+     * @description Update which fields can be edited when adding a comment. Only accessible by admin users.
+     */
+    patch: operations["updateSpaceEditableFieldsOnComment"]
+    trace?: never
+  }
   "/api/v1/spaces/{slug}": {
     parameters: {
       query?: never
@@ -1070,6 +1090,13 @@ export type components = {
        * @description Parent comment number for threading
        */
       parent_number?: number | null
+      /**
+       * Raw Fields
+       * @description Fields to update (must be in space.editable_fields_on_comment)
+       */
+      raw_fields?: {
+        [key: string]: string
+      } | null
     }
     /**
      * CreateNoteRequest
@@ -1650,6 +1677,11 @@ export type components = {
        */
       hidden_fields_on_create: string[]
       /**
+       * Editable Fields On Comment
+       * @description Field names that can be edited when adding a comment
+       */
+      editable_fields_on_comment: string[]
+      /**
        * Templates
        * @description Liquid templates keyed by template identifier
        */
@@ -1940,6 +1972,17 @@ export type components = {
        * @description New space description
        */
       description: string
+    }
+    /**
+     * UpdateEditableFieldsOnCommentRequest
+     * @description Space editable fields on comment update request.
+     */
+    UpdateEditableFieldsOnCommentRequest: {
+      /**
+       * Editable Fields On Comment
+       * @description Field names that can be edited when adding a comment
+       */
+      editable_fields_on_comment: string[]
     }
     /**
      * UpdateFieldRequest
@@ -4156,6 +4199,77 @@ export interface operations {
     }
     responses: {
       /** @description Hidden fields on create updated successfully */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["Space"]
+        }
+      }
+      /** @description Invalid request */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Admin privileges required */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Space not found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  updateSpaceEditableFieldsOnComment: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        slug: string
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateEditableFieldsOnCommentRequest"]
+      }
+    }
+    responses: {
+      /** @description Editable fields on comment updated successfully */
       200: {
         headers: {
           [name: string]: unknown

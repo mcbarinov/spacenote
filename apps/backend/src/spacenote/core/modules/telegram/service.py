@@ -10,6 +10,7 @@ import telegram
 from spacenote.core.db import Collection
 from spacenote.core.modules.comment.models import Comment
 from spacenote.core.modules.counter.models import CounterType
+from spacenote.core.modules.field.models import FieldValueType
 from spacenote.core.modules.note.models import Note
 from spacenote.core.modules.space.models import Space
 from spacenote.core.modules.telegram.models import (
@@ -158,12 +159,20 @@ class TelegramService(Service):
             {"note": note.model_dump(), "changes": changes, "edited_by": edited_by},
         )
 
-    async def notify_activity_comment_created(self, note: Note, comment: Comment) -> None:
+    async def notify_activity_comment_created(
+        self,
+        note: Note,
+        comment: Comment,
+        updated_fields: dict[str, tuple[FieldValueType, FieldValueType]] | None = None,
+    ) -> None:
+        payload: dict[str, Any] = {"note": note.model_dump(), "comment": comment.model_dump()}
+        if updated_fields:
+            payload["changes"] = updated_fields
         await self._enqueue_activity_task(
             TelegramTaskType.ACTIVITY_COMMENT_CREATED,
             note.space_slug,
             note.number,
-            {"note": note.model_dump(), "comment": comment.model_dump()},
+            payload,
         )
 
     async def _enqueue_activity_task(

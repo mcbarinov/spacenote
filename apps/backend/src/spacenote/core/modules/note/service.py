@@ -32,12 +32,23 @@ class NoteService(Service):
         self,
         space_slug: str,
         current_user: str,
-        filter_name: str,
+        filter_name: str | None = None,
         adhoc_query: str | None = None,
         limit: int = 50,
         offset: int = 0,
     ) -> PaginationResult[Note]:
-        """List paginated notes in space."""
+        """List paginated notes in space.
+
+        Args:
+            filter_name: Filter to apply. If None, uses Space.default_filter.
+        """
+        if filter_name is None:
+            space = self.core.services.space.get_space(space_slug)
+            filter_name = space.default_filter
+            # Fallback if default_filter references a deleted filter
+            if not space.get_filter(filter_name):
+                filter_name = "all"
+
         query, sort_spec = self.core.services.filter.build_query(space_slug, filter_name, current_user, adhoc_query)
 
         total = await self._collection.count_documents(query)

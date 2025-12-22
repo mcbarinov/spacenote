@@ -40,6 +40,10 @@ class FilterService(Service):
 
         await self.core.services.space.update_space_document(slug, {"$pull": {"filters": {"name": filter_name}}})
 
+        # Reset default_filter to "all" if deleting the current default
+        if space.default_filter == filter_name:
+            await self.core.services.space.update_space_document(slug, {"$set": {"default_filter": ALL_FILTER_NAME}})
+
         # Remove associated template if it exists
         template_key = f"web:note:list:{filter_name}"
         if template_key in space.templates:

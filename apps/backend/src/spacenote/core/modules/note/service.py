@@ -110,6 +110,7 @@ class NoteService(Service):
         skip_activity_notification: bool = False,
     ) -> tuple[Note, dict[str, tuple[FieldValueType, FieldValueType]]]:
         """Update specific note fields. Returns (updated_note, changes)."""
+        logger.debug("update_note_request", space_slug=space_slug, number=number, raw_fields=raw_fields)
         old_note = await self.get_note(space_slug, number)
         parsed_fields = await self.core.services.field.parse_raw_fields(space_slug, raw_fields, current_user, partial=True)
 

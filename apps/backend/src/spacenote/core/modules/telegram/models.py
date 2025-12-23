@@ -58,6 +58,8 @@ class TelegramTask(MongoModel):
 
     retries: int = Field(default=0, description="Number of retry attempts")
     error: str | None = Field(default=None, description="Last error message")
+    request_log: dict[str, Any] | None = Field(default=None, description="Parameters sent to Telegram API")
+    response_log: dict[str, Any] | None = Field(default=None, description="Response from Telegram API")
 
 
 class TelegramMirror(MongoModel):

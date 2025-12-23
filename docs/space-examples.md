@@ -36,11 +36,11 @@ Simple task tracker for a small team.
 [
   {
     "number": 1,
-    "author": "m",
+    "author": "bob",
     "fields": {
       "title": "Fix login page bug",
       "body": "Users can't login with email containing +",
-      "assignee": "m",
+      "assignee": "bob",
       "status": "in_progress",
       "priority": "high",
       "tags": ["bug", "auth"]
@@ -48,11 +48,11 @@ Simple task tracker for a small team.
   },
   {
     "number": 2,
-    "author": "f",
+    "author": "alice",
     "fields": {
       "title": "Update documentation",
       "body": null,
-      "assignee": "f",
+      "assignee": "alice",
       "status": "new",
       "priority": "low",
       "tags": ["docs"]
@@ -60,11 +60,11 @@ Simple task tracker for a small team.
   },
   {
     "number": 3,
-    "author": "m",
+    "author": "bob",
     "fields": {
       "title": "Weekly sync meeting",
       "body": "Discuss project roadmap",
-      "assignee": "f",
+      "assignee": "alice",
       "status": "completed",
       "priority": "medium",
       "tags": null
@@ -77,7 +77,14 @@ Simple task tracker for a small team.
 
 ## food-journal
 
-Photo-based meal tracking with ratings.
+Photo-first meal tracking. Every entry starts with a photo — the timestamp is auto-extracted from EXIF.
+
+**Purpose**: Build a visual eating diary to spot patterns and track reactions to food.
+
+**Use cases**:
+- Identify foods that cause negative reactions (heaviness, nausea, bloating)
+- Track eating habits over time
+- Remember what you ate at specific places or occasions
 
 ### Space Definition
 
@@ -87,17 +94,26 @@ Photo-based meal tracking with ratings.
   "title": "Food Journal",
   "description": "Photo-based meal tracking",
   "fields": [
-    { "name": "image", "type": "image", "required": true, "options": { "max_width": 1280 } },
-    { "name": "meal_time", "type": "datetime", "required": true, "default": "$now", "options": {} },
-    { "name": "ingredients", "type": "tags", "options": {} },
-    { "name": "tags", "type": "tags", "options": {} },
-    { "name": "taste", "type": "select", "options": { "values": ["1", "2", "3", "4", "5"] } },
-    { "name": "afterfeel", "type": "select", "options": { "values": ["1", "2", "3", "4", "5"] } },
-    { "name": "recipe", "type": "string", "options": { "kind": "markdown" } },
+    { "name": "photo", "type": "image", "required": true, "options": { "max_width": 1280 } },
+    { "name": "meal_time", "type": "datetime", "required": true, "default": "$exif.created_at:photo|$now", "options": {} },
+    { "name": "foods", "type": "tags", "options": {} },
+    { "name": "reactions", "type": "tags", "options": {} },
+    { "name": "context", "type": "tags", "options": {} },
     { "name": "notes", "type": "string", "options": { "kind": "markdown" } }
   ]
 }
 ```
+
+### Fields
+
+| Field | Purpose |
+|-------|---------|
+| photo | Visual record of the meal |
+| meal_time | When (auto-extracted from photo EXIF, fallback to now) |
+| foods | What was eaten: `oatmeal`, `soup`, `strawberries`, `pasta` |
+| reactions | Taste and physical feedback: `delicious`, `too salty`, `overate`, `heaviness`, `nausea` |
+| context | Setting and circumstances: `outdoors`, `home cooking`, `chinese restaurant`, `junk food` |
+| notes | Anything else worth remembering |
 
 ### Example Notes
 
@@ -105,29 +121,37 @@ Photo-based meal tracking with ratings.
 [
   {
     "number": 1,
-    "author": "alice",
+    "author": "bob",
     "fields": {
-      "image": 1,
+      "photo": 1,
       "meal_time": "2025-01-15T08:30:00Z",
-      "ingredients": ["eggs", "bacon", "toast"],
-      "tags": ["breakfast", "protein"],
-      "taste": "4",
-      "afterfeel": "5",
-      "recipe": null,
-      "notes": "Quick morning meal before work"
+      "foods": ["oatmeal", "banana", "honey"],
+      "reactions": ["tasty", "light"],
+      "context": ["breakfast", "home"],
+      "notes": null
     }
   },
   {
     "number": 2,
     "author": "bob",
     "fields": {
-      "image": 1,
-      "meal_time": "2025-01-15T19:00:00Z",
-      "ingredients": ["pasta", "tomato", "basil", "parmesan"],
-      "tags": ["dinner", "italian"],
-      "taste": "5",
-      "afterfeel": "4",
-      "recipe": "1. Boil pasta\n2. Make sauce\n3. Combine",
+      "photo": 2,
+      "meal_time": "2025-01-15T13:00:00Z",
+      "foods": ["pho", "spring rolls"],
+      "reactions": ["delicious", "overate", "heaviness"],
+      "context": ["vietnamese restaurant", "lunch with friends"],
+      "notes": "The large portion was too much. Next time order small."
+    }
+  },
+  {
+    "number": 3,
+    "author": "bob",
+    "fields": {
+      "photo": 3,
+      "meal_time": "2025-01-16T19:30:00Z",
+      "foods": ["grilled chicken", "salad", "bread"],
+      "reactions": ["bland", "still hungry"],
+      "context": ["outdoor bbq", "diet attempt"],
       "notes": null
     }
   }

@@ -38,41 +38,39 @@ If `?view` is NOT specified (first match wins):
 
 ## B002: Telegram Mirror Message Formats
 
-**Context**: Telegram API limits for mirror channel messages.
+**Constraint**: Telegram API does not allow changing message type after creation. Text messages can only be edited via `editMessageText`, photo messages only via `editMessageMedia`. Conversion between types is impossible.
 
-**Two formats:**
+**Configuration**: `TelegramSettings.mirror_channel` — single channel for note mirroring.
 
-| Format | Template Directive | Telegram API | Char Limit |
-|--------|-------------------|--------------|------------|
-| text | (none) | sendMessage / editMessageText | 4096 |
-| photo | `{# photo: field_name #}` | sendPhoto / editMessageCaption | 1024 |
+**Format determination**: Parsed from `telegram:mirror` template at task creation time.
 
-**Format detection** (template `telegram:mirror`):
-- First line `{# photo: <field_name> #}` → photo format, image from specified IMAGE field
-- Otherwise → text format
+| Template | Format | Telegram API |
+|----------|--------|--------------|
+| Has `{# photo: field_name #}` directive | `photo` | sendPhoto / editMessageMedia |
+| No directive | `text` | sendMessage / editMessageText |
 
-**Template examples:**
+**Photo directive**: First line of template, specifies IMAGE field name. Stripped before sending.
 
-Text format:
-```liquid
-<b>{{ note.fields.title }}</b>
-{{ note.fields.description }}
-```
-
-Photo format:
 ```liquid
 {# photo: image #}
 <b>{{ note.fields.title }}</b>
 {{ note.fields.description }}
 ```
 
-**API methods:**
+**Storage**: `TelegramMirror.message_format` stores format (`text`/`photo`) used at creation for correct API selection on update.
 
-| Operation | text | photo |
-|-----------|------|-------|
-| Create | sendMessage | sendPhoto |
-| Edit | editMessageText | editMessageCaption |
+**Character limits**:
 
-**Notes:**
-- Multiple images not supported (Telegram limitation)
-- Photo caption ≤1024 chars, text ≤4096 chars (Telegram enforced)
+| Format | Limit |
+|--------|-------|
+| text | 4096 chars |
+| photo | 1024 chars (caption) |
+
+**Behavior**:
+1. Note created → parse template → determine format → create task
+2. Note updated → lookup `TelegramMirror.message_format` → use corresponding API
+3. Template changed → existing mirrors keep their format, new notes use new format
+
+**Validation**:
+- Template save: `{# photo: field_name #}` must reference existing IMAGE field in space schema
+- Task processing: If photo field is empty/null → mark task as `failed`

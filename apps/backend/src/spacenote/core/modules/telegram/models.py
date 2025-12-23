@@ -37,6 +37,11 @@ class TelegramTaskStatus(StrEnum):
     FAILED = "failed"
 
 
+class MessageFormat(StrEnum):
+    TEXT = "text"
+    PHOTO = "photo"
+
+
 class TelegramTask(MongoModel):
     """Task for Telegram message delivery. Processed by single worker."""
 
@@ -62,5 +67,6 @@ class TelegramMirror(MongoModel):
     note_number: int = Field(..., description="Note number within space")
     channel_id: str = Field(..., description="Telegram channel ID or @username")
     message_id: int = Field(..., description="Telegram message ID for edit_message_text")
+    message_format: MessageFormat = Field(..., description="Message format: text or photo")
     created_at: datetime = Field(default_factory=now, description="Creation timestamp")
     updated_at: datetime | None = Field(default=None, description="Last sync timestamp")

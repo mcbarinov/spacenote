@@ -4,8 +4,10 @@ import structlog
 from liquid import Template
 from liquid.exceptions import LiquidError
 
+from spacenote.core.modules.field.models import FieldType
 from spacenote.core.modules.note.models import Note
 from spacenote.core.modules.space.models import Space
+from spacenote.core.modules.telegram.utils import parse_photo_directive
 from spacenote.core.modules.template.defaults import DEFAULT_TEMPLATES
 from spacenote.core.service import Service
 from spacenote.errors import ValidationError
@@ -47,6 +49,16 @@ class TemplateService(Service):
                     Template(content)
                 except LiquidError as e:
                     raise ValidationError(f"Invalid Liquid template syntax: {e}") from e
+
+                # Validate photo directive for telegram:mirror
+                if key == "telegram:mirror":
+                    photo_field, _ = parse_photo_directive(content)
+                    if photo_field:
+                        field = space.get_field(photo_field)
+                        if field is None:
+                            raise ValidationError(f"Photo directive references unknown field: {photo_field}")
+                        if field.type != FieldType.IMAGE:
+                            raise ValidationError(f"Photo directive field '{photo_field}' must be IMAGE type")
         else:
             raise ValidationError(f"Invalid template key: {key}")
 

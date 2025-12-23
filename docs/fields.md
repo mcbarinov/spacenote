@@ -178,7 +178,7 @@ No options. Use `"options": {}`.
 | Component | Description |
 |-----------|-------------|
 | `{image_field}` | Name of an IMAGE field in the same space |
-| `{fallback}` | Optional. Value if EXIF data missing: `$now` or omit for null |
+| `{fallback}` | Optional. Value if EXIF data missing: `$now`, datetime literal, or omit for null |
 
 **EXIF tags**: Reads `DateTimeOriginal` (preferred) or `DateTime` (fallback). Timezone from `OffsetTimeOriginal` if present, otherwise UTC.
 

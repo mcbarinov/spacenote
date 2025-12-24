@@ -1,6 +1,7 @@
 import asyncio
 import contextlib
 from functools import cached_property
+from pathlib import Path
 from typing import Any
 
 import structlog
@@ -11,15 +12,19 @@ from spacenote.core.db import Collection
 from spacenote.core.modules.comment.models import Comment
 from spacenote.core.modules.counter.models import CounterType
 from spacenote.core.modules.field.models import FieldValueType
+from spacenote.core.modules.image import storage as image_storage
 from spacenote.core.modules.note.models import Note
 from spacenote.core.modules.space.models import Space
+from spacenote.core.modules.telegram import bot as telegram_bot
 from spacenote.core.modules.telegram.models import (
+    MessageFormat,
     TelegramMirror,
     TelegramSettings,
     TelegramTask,
     TelegramTaskStatus,
     TelegramTaskType,
 )
+from spacenote.core.modules.telegram.utils import parse_photo_directive
 from spacenote.core.pagination import PaginationResult
 from spacenote.core.service import Service
 from spacenote.errors import NotFoundError
@@ -41,15 +46,6 @@ class TelegramService(Service):
         if self._bot is None:
             raise RuntimeError("Telegram bot not configured")
         return self._bot
-
-    async def _send_message(self, chat_id: str, text: str) -> int:
-        """Send message to Telegram, return message_id."""
-        message = await self.bot.send_message(chat_id=chat_id, text=text, parse_mode="HTML")
-        return message.message_id
-
-    async def _edit_message(self, chat_id: str, message_id: int, text: str) -> None:
-        """Edit existing Telegram message text."""
-        await self.bot.edit_message_text(chat_id=chat_id, message_id=message_id, text=text, parse_mode="HTML")
 
     @cached_property
     def _tasks_collection(self) -> AsyncCollection[dict[str, Any]]:
@@ -265,9 +261,14 @@ class TelegramService(Service):
         if not text:
             raise ValueError(f"No template found for {template_key}")
 
+        request_log = {"method": "sendMessage", "chat_id": task.channel_id, "text": text, "parse_mode": "HTML"}
+
         try:
-            await self._send_message(chat_id=task.channel_id, text=text)
-            await self._update_task(task, {"$set": {"status": "completed"}})
+            message = await telegram_bot.send_message(self.bot, chat_id=task.channel_id, text=text)
+            response_log = message.to_dict()
+            await self._update_task(
+                task, {"$set": {"status": "completed", "request_log": request_log, "response_log": response_log}}
+            )
             logger.debug("telegram_task_completed", task_type=task.task_type, space_slug=task.space_slug, number=task.number)
         except RetryAfter as e:
             retry_seconds = e.retry_after if isinstance(e.retry_after, int) else e.retry_after.total_seconds()
@@ -282,16 +283,38 @@ class TelegramService(Service):
     async def _process_mirror_task(self, task: TelegramTask) -> None:
         """Process mirror task: create or update Telegram message and track in mirrors collection."""
         space = self.core.services.space.get_space(task.space_slug)
-        text = self.core.services.template.render_telegram(space, "telegram:mirror", task.payload)
-        if not text:
+        rendered = self.core.services.template.render_telegram(space, "telegram:mirror", task.payload)
+        if not rendered:
             raise ValueError("No template found for telegram:mirror")
+
+        photo_field, text = parse_photo_directive(rendered)
+
+        photo_path: Path | None = None
+        if photo_field:
+            message_format = MessageFormat.PHOTO
+            # Get WebP image path from note's IMAGE field
+            note = task.payload["note"]
+            attachment_number = note.get("fields", {}).get(photo_field)
+            if attachment_number is None:
+                await self._mark_failed(task, f"Photo field '{photo_field}' is empty")
+                return
+            photo_path = image_storage.get_image_path(
+                self.core.config.images_path, note["space_slug"], note["number"], attachment_number
+            )
+            if not photo_path.exists():
+                await self._mark_failed(task, f"Image not found for field '{photo_field}'")
+                return
+        else:
+            message_format = MessageFormat.TEXT
 
         try:
             if task.task_type == TelegramTaskType.MIRROR_CREATE:
-                await self._mirror_create(task, text)
+                request_log, response_log = await self._mirror_create(task, text, message_format, photo_path)
             else:
-                await self._mirror_update(task, text)
-            await self._update_task(task, {"$set": {"status": "completed"}})
+                request_log, response_log = await self._mirror_update(task, text, photo_path)
+            await self._update_task(
+                task, {"$set": {"status": "completed", "request_log": request_log, "response_log": response_log}}
+            )
             logger.debug("telegram_task_completed", task_type=task.task_type, space_slug=task.space_slug, number=task.number)
         except RetryAfter as e:
             retry_seconds = e.retry_after if isinstance(e.retry_after, int) else e.retry_after.total_seconds()
@@ -303,25 +326,65 @@ class TelegramService(Service):
             logger.exception("telegram_task_unhandled_error", task_type=task.task_type, error=str(e))
             await self._mark_failed(task, f"Unhandled error: {e}")
 
-    async def _mirror_create(self, task: TelegramTask, text: str) -> None:
-        """Send new mirror message and create mirror record."""
-        message_id = await self._send_message(chat_id=task.channel_id, text=text)
+    async def _mirror_create(
+        self, task: TelegramTask, text: str, message_format: MessageFormat, photo_path: Path | None
+    ) -> tuple[dict[str, Any], dict[str, Any]]:
+        """Send new mirror message and create mirror record. Returns (request_log, response_log)."""
+        if message_format == MessageFormat.PHOTO and photo_path:
+            request_log: dict[str, Any] = {
+                "method": "sendPhoto",
+                "chat_id": task.channel_id,
+                "caption": text,
+                "photo_path": str(photo_path),
+                "parse_mode": "HTML",
+            }
+            message = await telegram_bot.send_photo(self.bot, task.channel_id, photo_path, text)
+        else:
+            request_log = {"method": "sendMessage", "chat_id": task.channel_id, "text": text, "parse_mode": "HTML"}
+            message = await telegram_bot.send_message(self.bot, task.channel_id, text)
+
+        response_log = message.to_dict()
+
         mirror = TelegramMirror(
             space_slug=task.space_slug,
             note_number=task.note_number,
             channel_id=task.channel_id,
-            message_id=message_id,
+            message_id=message.message_id,
+            message_format=message_format,
         )
         await self._mirrors_collection.insert_one(mirror.to_mongo())
-        logger.debug("telegram_mirror_created", space_slug=task.space_slug, note_number=task.note_number, message_id=message_id)
+        logger.debug(
+            "telegram_mirror_created", space_slug=task.space_slug, note_number=task.note_number, message_id=message.message_id
+        )
+        return request_log, response_log
 
-    async def _mirror_update(self, task: TelegramTask, text: str) -> None:
-        """Edit existing mirror message or create new if mirror record missing."""
+    async def _mirror_update(
+        self, task: TelegramTask, text: str, photo_path: Path | None
+    ) -> tuple[dict[str, Any], dict[str, Any]]:
+        """Edit existing mirror message or create new if missing. Returns (request_log, response_log)."""
         doc = await self._mirrors_collection.find_one({"space_slug": task.space_slug, "note_number": task.note_number})
         if doc:
             mirror = TelegramMirror.model_validate(doc)
             try:
-                await self._edit_message(chat_id=task.channel_id, message_id=mirror.message_id, text=text)
+                if mirror.message_format == MessageFormat.PHOTO and photo_path:
+                    request_log: dict[str, Any] = {
+                        "method": "editMessageMedia",
+                        "chat_id": task.channel_id,
+                        "message_id": mirror.message_id,
+                        "caption": text,
+                        "photo_path": str(photo_path),
+                    }
+                    result = await telegram_bot.edit_photo(self.bot, task.channel_id, mirror.message_id, photo_path, text)
+                else:
+                    request_log = {
+                        "method": "editMessageText",
+                        "chat_id": task.channel_id,
+                        "message_id": mirror.message_id,
+                        "text": text,
+                        "parse_mode": "HTML",
+                    }
+                    result = await telegram_bot.edit_message(self.bot, task.channel_id, mirror.message_id, text)
+                response_log: dict[str, Any] = result.to_dict() if isinstance(result, telegram.Message) else {"unchanged": True}
                 await self._mirrors_collection.update_one(
                     {"space_slug": task.space_slug, "note_number": task.note_number},
                     {"$set": {"updated_at": now()}},
@@ -331,11 +394,12 @@ class TelegramService(Service):
                 if "message to edit not found" in str(e).lower() or "message can't be edited" in str(e).lower():
                     logger.warning("telegram_mirror_message_gone", space_slug=task.space_slug, note_number=task.note_number)
                     await self._mirrors_collection.delete_one({"space_slug": task.space_slug, "note_number": task.note_number})
-                    await self._mirror_create(task, text)
-                else:
-                    raise
-        else:
-            await self._mirror_create(task, text)
+                    return await self._mirror_create(task, text, mirror.message_format, photo_path)
+                raise
+            return request_log, response_log
+        # No existing mirror, determine format from current template
+        message_format = MessageFormat.PHOTO if photo_path else MessageFormat.TEXT
+        return await self._mirror_create(task, text, message_format, photo_path)
 
     async def _handle_error(self, task: TelegramTask, error: Exception) -> None:
         """Handle task error with retry logic."""

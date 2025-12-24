@@ -172,11 +172,12 @@ export function NoteForm({ space, mode, note }: NoteFormProps) {
   )
 
   const handleSubmit = form.onSubmit((values) => {
-    // Filter out hidden fields in create mode - backend applies their defaults
+    // Create mode: filter out hidden fields - backend applies their defaults
+    // Edit mode: only send fields that were actually changed
     const fieldsToSend =
       mode === "create"
         ? Object.fromEntries(Object.entries(values).filter(([key]) => !space.hidden_fields_on_create.includes(key)))
-        : values
+        : Object.fromEntries(Object.entries(values).filter(([key]) => form.isDirty(key)))
     const raw_fields = formValuesToRawFields(fieldsToSend)
     mutation.mutate(
       { raw_fields },
@@ -209,7 +210,7 @@ export function NoteForm({ space, mode, note }: NoteFormProps) {
           ))}
           {mutation.error && <ErrorMessage error={mutation.error} />}
           <Group justify="flex-end">
-            <Button type="submit" loading={mutation.isPending}>
+            <Button type="submit" loading={mutation.isPending} disabled={mode === "edit" && !form.isDirty()}>
               {mode === "create" ? "Create" : "Save"}
             </Button>
           </Group>

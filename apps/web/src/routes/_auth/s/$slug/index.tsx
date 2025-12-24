@@ -74,7 +74,7 @@ function SpacePage() {
         }
         bottomActions={
           <Group gap="xs" wrap="nowrap">
-            {space.filters.length > 0 && (
+            {space.filters.length > 1 && (
               <Select
                 w="auto"
                 placeholder="All notes"

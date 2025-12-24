@@ -16,7 +16,7 @@ export const addFieldSchema = z.object({
   type: z.string().min(1, { message: "Type is required" }),
   required: z.boolean(),
   // String options
-  stringKind: z.enum(["single_line", "multi_line", "markdown"]),
+  stringKind: z.enum(["line", "text", "markdown"]),
   minLength: z.number().nullable(),
   maxLength: z.number().nullable(),
   // Numeric options
@@ -128,7 +128,7 @@ export function parseFieldToFormValues(field: SpaceField): FormValues {
     name: field.name,
     type: field.type,
     required: field.required,
-    stringKind: "single_line",
+    stringKind: "line",
     minLength: null,
     maxLength: null,
     numericKind: "int",
@@ -149,11 +149,11 @@ export function parseFieldToFormValues(field: SpaceField): FormValues {
   // Parse options based on field type
   if (field.type === "string") {
     const opts = field.options as StringFieldOptions
-    // Form only supports single_line, multi_line, markdown - default others to single_line
-    const supportedKinds = ["single_line", "multi_line", "markdown"] as const
+    // Form only supports line, text, markdown - default others to line
+    const supportedKinds = ["line", "text", "markdown"] as const
     values.stringKind = supportedKinds.includes(opts.kind as (typeof supportedKinds)[number])
       ? (opts.kind as (typeof supportedKinds)[number])
-      : "single_line"
+      : "line"
     values.minLength = opts.min_length
     values.maxLength = opts.max_length
   }

@@ -37,8 +37,8 @@ class SpecialValue(StrEnum):
 class StringFieldOptions(OpenAPIModel):
     """Options for STRING field type."""
 
-    kind: Literal["single_line", "multi_line", "markdown", "json", "toml", "yaml"] = Field(
-        "single_line", description="String representation format"
+    kind: Literal["line", "text", "markdown", "json", "toml", "yaml"] = Field(
+        "line", description="String format: line (no newlines), text (multiline), markdown, json, toml, yaml"
     )
     min_length: int | None = Field(None, description="Minimum string length")
     max_length: int | None = Field(None, description="Maximum string length")

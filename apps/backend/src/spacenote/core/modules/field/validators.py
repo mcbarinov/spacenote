@@ -85,7 +85,7 @@ class StringValidator(FieldValidator):
         value = raw
 
         if isinstance(field.options, StringFieldOptions):
-            if field.options.kind == "single_line" and "\n" in value:
+            if field.options.kind == "line" and "\n" in value:
                 raise ValidationError(f"Field '{field.name}' does not allow newlines")
 
             if field.options.min_length is not None and len(value) < field.options.min_length:

@@ -199,6 +199,18 @@ docker exec -it spacenote-mongodb mongosh -u root -p
 curl https://your-domain.com/api/health
 ```
 
+## MongoDB Shell Access
+
+**Local:**
+```bash
+mongosh spacenote
+```
+
+**Production (Docker):**
+```bash
+docker exec -it spacenote-mongodb mongosh -u root -p --authenticationDatabase admin spacenote
+```
+
 ## Troubleshooting
 
 **SSL certificate issues:**

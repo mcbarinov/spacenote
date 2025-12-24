@@ -65,7 +65,7 @@ export function FieldInput({ field, value, onChange, error, spaceMembers, onImag
           />
         )
       }
-      if (opts.kind === "multi_line") {
+      if (opts.kind === "text") {
         return (
           <Textarea
             {...commonProps}

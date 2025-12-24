@@ -3,7 +3,7 @@ import type { UseFormReturnType } from "@mantine/form"
 import type { StringFieldOptions } from "@spacenote/common/types"
 import type { FormValues } from "./fieldFormUtils"
 
-const STRING_KINDS = ["single_line", "multi_line", "markdown"] satisfies StringFieldOptions["kind"][]
+const STRING_KINDS = ["line", "text", "markdown"] satisfies StringFieldOptions["kind"][]
 
 interface Props {
   form: UseFormReturnType<FormValues>

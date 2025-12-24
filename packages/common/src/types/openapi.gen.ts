@@ -1822,11 +1822,11 @@ export type components = {
     StringFieldOptions: {
       /**
        * Kind
-       * @description String representation format
-       * @default single_line
+       * @description String format: line (no newlines), text (multiline), markdown, json, toml, yaml
+       * @default line
        * @enum {string}
        */
-      kind: "single_line" | "multi_line" | "markdown" | "json" | "toml" | "yaml"
+      kind: "line" | "text" | "markdown" | "json" | "toml" | "yaml"
       /**
        * Min Length
        * @description Minimum string length

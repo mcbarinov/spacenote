@@ -16,7 +16,7 @@ Simple task tracker for a small team.
   "title": "Tasks",
   "description": "Team task tracker",
   "fields": [
-    { "name": "title", "type": "string", "required": true, "options": { "kind": "single_line" } },
+    { "name": "title", "type": "string", "required": true, "options": { "kind": "line" } },
     { "name": "body", "type": "string", "options": { "kind": "markdown" } },
     { "name": "assignee", "type": "user", "required": true, "default": "$me", "options": {} },
     { "name": "status", "type": "select", "required": true, "default": "new",

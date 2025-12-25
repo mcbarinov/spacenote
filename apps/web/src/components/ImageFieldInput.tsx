@@ -18,6 +18,7 @@ export interface ImageFieldInputProps {
 /** Image upload input with preview, loading, and error states */
 export function ImageFieldInput({ label, required, error, value, onChange, onMetadata }: ImageFieldInputProps) {
   const uploadMutation = api.mutations.useUploadPendingAttachment()
+  const deleteMutation = api.mutations.useDeletePendingAttachment()
 
   /** Uploads file as pending attachment and updates value with attachment number */
   const handleFileChange = (file: File | null) => {
@@ -30,8 +31,11 @@ export function ImageFieldInput({ label, required, error, value, onChange, onMet
     })
   }
 
-  /** Clears the selected image */
+  /** Clears the selected image and deletes pending attachment from server */
   const handleRemove = () => {
+    if (value !== null) {
+      deleteMutation.mutate(value)
+    }
     onChange(null)
     onMetadata?.(null)
   }

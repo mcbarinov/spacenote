@@ -327,6 +327,13 @@ export function useUploadPendingAttachment() {
   })
 }
 
+/** Deletes a pending attachment */
+export function useDeletePendingAttachment() {
+  return useMutation({
+    mutationFn: (number: number) => httpClient.delete(`api/v1/attachments/pending/${String(number)}`),
+  })
+}
+
 /** Sets a template for the space */
 export function useSetTemplate(spaceSlug: string) {
   const queryClient = useQueryClient()

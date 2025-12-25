@@ -35,11 +35,6 @@ function getExifBindings(fields: SpaceField[]): ExifBinding[] {
     .filter((b): b is ExifBinding => b !== null)
 }
 
-/** Checks if value is empty (null, undefined, or empty string) */
-function isEmpty(value: unknown): boolean {
-  return value === "" || value == null
-}
-
 /** Resolves fallback value like $now to actual value */
 function resolveExifFallback(fallback: string | null): string | null {
   if (fallback === "$now") {
@@ -160,9 +155,12 @@ export function NoteForm({ space, mode, note }: NoteFormProps) {
   const createImageMetadataHandler = useCallback(
     (imageFieldName: string) => (meta: AttachmentMeta | null) => {
       for (const binding of exifBindings.filter((b) => b.imageField === imageFieldName)) {
-        if (isEmpty(form.getValues()[binding.datetimeField])) {
-          const utcValue = meta?.image?.exif_created_at ?? resolveExifFallback(binding.fallback)
-          // EXIF and fallback values come in UTC, convert to local Date for DateTimePicker
+        if (meta === null) {
+          // Image removed: clear datetime field
+          form.setFieldValue(binding.datetimeField, "")
+        } else {
+          // Image uploaded: update datetime with EXIF or fallback
+          const utcValue = meta.image?.exif_created_at ?? resolveExifFallback(binding.fallback)
           const localDate = utcValue ? utcToLocalDate(utcValue) : null
           if (localDate) form.setFieldValue(binding.datetimeField, localDate)
         }

@@ -22,6 +22,7 @@ def setup_logging(debug: bool) -> None:
     logging.getLogger("telegram").setLevel(logging.WARNING)
     logging.getLogger("httpcore").setLevel(logging.WARNING)
     logging.getLogger("httpx").setLevel(logging.WARNING)
+    logging.getLogger("PIL").setLevel(logging.WARNING)
 
     processors: list[structlog.types.Processor] = [
         structlog.stdlib.filter_by_level,

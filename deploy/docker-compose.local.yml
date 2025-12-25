@@ -1,6 +1,6 @@
 services:
   caddy:
-    image: caddy:2-alpine
+    image: ${CADDY_IMAGE:-caddy:2.10.2-alpine}
     container_name: spacenote-caddy-local
     restart: unless-stopped
     ports:
@@ -25,7 +25,7 @@ services:
       - admin
 
   mongodb:
-    image: mongodb/mongodb-community-server:8.0-ubi9
+    image: ${MONGODB_IMAGE:-mongodb/mongodb-community-server:8.0.12-ubi9}
     container_name: spacenote-mongodb-local
     restart: unless-stopped
     ports:

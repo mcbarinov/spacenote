@@ -1,6 +1,7 @@
 from functools import cached_property
 from typing import Any
 
+import structlog
 from pymongo.asynchronous.collection import AsyncCollection
 
 from spacenote.core.db import Collection
@@ -10,6 +11,8 @@ from spacenote.core.modules.attachment.models import Attachment, PendingAttachme
 from spacenote.core.modules.counter.models import CounterType
 from spacenote.core.service import Service
 from spacenote.errors import NotFoundError
+
+logger = structlog.get_logger(__name__)
 
 GLOBAL_COUNTER_KEY = "__global__"
 
@@ -49,6 +52,7 @@ class AttachmentService(Service):
             meta=meta,
         )
         await self._pending_collection.insert_one(pending.to_mongo())
+        logger.debug("pending_attachment_created", number=number, filename=filename, size=len(content))
         return pending
 
     async def get_pending_attachment(self, number: int) -> PendingAttachment:
@@ -57,6 +61,12 @@ class AttachmentService(Service):
         if doc is None:
             raise NotFoundError(f"Pending attachment not found: {number}")
         return PendingAttachment.model_validate(doc)
+
+    async def delete_pending_attachment(self, number: int) -> None:
+        """Delete pending attachment (DB record + file)."""
+        await self._pending_collection.delete_one({"number": number})
+        storage.delete_pending_attachment_file(self.core.config.attachments_path, number)
+        logger.debug("pending_attachment_deleted", number=number)
 
     async def create_attachment(
         self, space_slug: str, note_number: int | None, author: str, filename: str, content: bytes, mime_type: str

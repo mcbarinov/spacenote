@@ -35,7 +35,7 @@ function AddFieldPage() {
       name: "",
       type: "string",
       required: false,
-      stringKind: "single_line",
+      stringKind: "line",
       minLength: null,
       maxLength: null,
       numericKind: "int",

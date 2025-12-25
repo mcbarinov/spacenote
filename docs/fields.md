@@ -10,7 +10,7 @@ Field system for custom note schemas. Each space defines its own fields.
   "type": "string",
   "required": false,
   "default": null,
-  "options": { "kind": "single_line" }
+  "options": { "kind": "line" }
 }
 ```
 
@@ -32,20 +32,29 @@ Value: `str`
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `kind` | `"single_line"` \| `"multi_line"` \| `"markdown"` \| `"json"` \| `"toml"` \| `"yaml"` | `"single_line"` | String format |
+| `kind` | `"line"` \| `"text"` \| `"markdown"` \| `"json"` \| `"toml"` \| `"yaml"` | `"line"` | String format |
 | `min_length` | `int` | — | Minimum length |
 | `max_length` | `int` | — | Maximum length |
+
+**Kind values:**
+- `line` — single line, newlines forbidden
+- `text` — multiline text, newlines allowed
+- `markdown` — multiline markdown content
+- `json`, `toml`, `yaml` — structured data formats
 
 #### 2.1.2 Examples
 
 ```json
-{ "name": "title", "type": "string", "required": true, "options": { "kind": "single_line" } }
+{ "name": "title", "type": "string", "required": true, "options": { "kind": "line" } }
 ```
 ```json
 { "name": "body", "type": "string", "options": { "kind": "markdown" } }
 ```
 ```json
-{ "name": "slug", "type": "string", "options": { "kind": "single_line", "min_length": 3, "max_length": 50 } }
+{ "name": "slug", "type": "string", "options": { "kind": "line", "min_length": 3, "max_length": 50 } }
+```
+```json
+{ "name": "description", "type": "string", "options": { "kind": "text" } }
 ```
 
 ### 2.2 boolean

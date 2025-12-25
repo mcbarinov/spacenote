@@ -7,4 +7,13 @@ declare module "@tanstack/react-router" {
   }
 }
 
+// Suppress react-live JSX transform warning (dev-only, harmless)
+const originalWarn = console.warn
+console.warn = (...args: unknown[]) => {
+  if (typeof args[0] === "string" && args[0].includes("outdated JSX transform")) {
+    return
+  }
+  originalWarn.apply(console, args)
+}
+
 runApp({ isAdmin: true }, routeTree)

@@ -92,6 +92,19 @@
   line-height: var(--mantine-line-height);
 }
 
+.MultilineText {
+  white-space: pre-wrap;
+  word-break: break-word;
+
+  & a {
+    color: var(--mantine-color-anchor);
+    text-decoration: none;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
 /* === Text Modifiers === */
 
 .size-xs {

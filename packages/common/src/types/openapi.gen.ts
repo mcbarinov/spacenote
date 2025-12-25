@@ -24,6 +24,30 @@ export type paths = {
     patch?: never
     trace?: never
   }
+  "/api/v1/attachments/pending/{number}": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * Download pending attachment
+     * @description Download a pending attachment file. Only the owner can download. Use `?format=webp` to convert images to WebP. Optional `&option=max_width:800` to resize.
+     */
+    get: operations["downloadPendingAttachment"]
+    put?: never
+    post?: never
+    /**
+     * Delete pending attachment
+     * @description Delete a pending attachment. Only the owner or admin can delete.
+     */
+    delete: operations["deletePendingAttachment"]
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   "/api/v1/spaces/{space_slug}/attachments": {
     parameters: {
       query?: never
@@ -66,26 +90,6 @@ export type paths = {
      * @description Upload a file directly to a note.
      */
     post: operations["uploadNoteAttachment"]
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
-  "/api/v1/attachments/pending/{number}": {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    /**
-     * Download pending attachment
-     * @description Download a pending attachment file. Only the owner can download. Use `?format=webp` to convert images to WebP. Optional `&option=max_width:800` to resize.
-     */
-    get: operations["downloadPendingAttachment"]
-    put?: never
-    post?: never
     delete?: never
     options?: never
     head?: never
@@ -1356,6 +1360,11 @@ export type components = {
       token: string
     }
     /**
+     * MessageFormat
+     * @enum {string}
+     */
+    MessageFormat: "text" | "photo"
+    /**
      * Note
      * @description Note with custom fields stored in a space.
      */
@@ -1822,11 +1831,11 @@ export type components = {
     StringFieldOptions: {
       /**
        * Kind
-       * @description String representation format
-       * @default single_line
+       * @description String format: line (no newlines), text (multiline), markdown, json, toml, yaml
+       * @default line
        * @enum {string}
        */
-      kind: "single_line" | "multi_line" | "markdown" | "json" | "toml" | "yaml"
+      kind: "line" | "text" | "markdown" | "json" | "toml" | "yaml"
       /**
        * Min Length
        * @description Minimum string length
@@ -1868,6 +1877,8 @@ export type components = {
        * @description Telegram message ID for edit_message_text
        */
       message_id: number
+      /** @description Message format: text or photo */
+      message_format: components["schemas"]["MessageFormat"]
       /**
        * Created At
        * Format: date-time
@@ -1957,6 +1968,20 @@ export type components = {
        * @description Last error message
        */
       error: string | null
+      /**
+       * Request Log
+       * @description Parameters sent to Telegram API
+       */
+      request_log: {
+        [key: string]: unknown
+      } | null
+      /**
+       * Response Log
+       * @description Response from Telegram API
+       */
+      response_log: {
+        [key: string]: unknown
+      } | null
     }
     /**
      * TelegramTaskStatus
@@ -2155,6 +2180,124 @@ export interface operations {
       }
       /** @description Not authenticated */
       401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  downloadPendingAttachment: {
+    parameters: {
+      query?: {
+        format?: string | null
+        option?: string | null
+      }
+      header?: never
+      path: {
+        number: number
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description File content */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": unknown
+          "application/octet-stream": unknown
+        }
+      }
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Not the owner of this attachment */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Attachment not found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  deletePendingAttachment: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        number: number
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Attachment deleted */
+      204: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Not the owner or admin */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Attachment not found */
+      404: {
         headers: {
           [name: string]: unknown
         }
@@ -2396,68 +2539,6 @@ export interface operations {
         }
       }
       /** @description Space or note not found */
-      404: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          "application/json": components["schemas"]["ErrorResponse"]
-        }
-      }
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          "application/json": components["schemas"]["HTTPValidationError"]
-        }
-      }
-    }
-  }
-  downloadPendingAttachment: {
-    parameters: {
-      query?: {
-        format?: string | null
-        option?: string | null
-      }
-      header?: never
-      path: {
-        number: number
-      }
-      cookie?: never
-    }
-    requestBody?: never
-    responses: {
-      /** @description File content */
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          "application/json": unknown
-          "application/octet-stream": unknown
-        }
-      }
-      /** @description Not authenticated */
-      401: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          "application/json": components["schemas"]["ErrorResponse"]
-        }
-      }
-      /** @description Not the owner of this attachment */
-      403: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          "application/json": components["schemas"]["ErrorResponse"]
-        }
-      }
-      /** @description Attachment not found */
       404: {
         headers: {
           [name: string]: unknown

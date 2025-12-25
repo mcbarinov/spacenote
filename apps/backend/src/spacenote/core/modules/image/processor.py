@@ -8,7 +8,11 @@ from PIL import Image
 
 from spacenote.errors import ValidationError
 
-pillow_heif.register_heif_opener()
+
+def init_pil() -> None:
+    """Initialize PIL at startup to avoid lazy loading during requests."""
+    pillow_heif.register_heif_opener()
+    Image.init()
 
 
 @dataclass

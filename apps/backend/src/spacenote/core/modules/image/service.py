@@ -7,7 +7,7 @@ import structlog
 from spacenote.core.modules.attachment import storage as attachment_storage
 from spacenote.core.modules.field.models import FieldType, ImageFieldOptions
 from spacenote.core.modules.image import storage as image_storage
-from spacenote.core.modules.image.processor import WebpOptions, create_webp_image
+from spacenote.core.modules.image.processor import WebpOptions, create_webp_image, init_pil
 from spacenote.core.service import Service
 from spacenote.errors import NotFoundError, ValidationError
 
@@ -21,7 +21,8 @@ class ImageService(Service):
         self._background_tasks: set[asyncio.Task[Any]] = set()
 
     async def on_start(self) -> None:
-        """Ensure images directory exists."""
+        """Initialize PIL and ensure images directory exists."""
+        init_pil()
         image_storage.ensure_images_dir(self.core.config.images_path)
 
     async def on_stop(self) -> None:

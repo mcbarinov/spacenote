@@ -1,6 +1,7 @@
 from functools import cached_property
 from typing import Any
 
+import structlog
 from pymongo.asynchronous.collection import AsyncCollection
 
 from spacenote.core.db import Collection
@@ -10,6 +11,8 @@ from spacenote.core.modules.attachment.models import Attachment, PendingAttachme
 from spacenote.core.modules.counter.models import CounterType
 from spacenote.core.service import Service
 from spacenote.errors import NotFoundError
+
+logger = structlog.get_logger(__name__)
 
 GLOBAL_COUNTER_KEY = "__global__"
 
@@ -49,6 +52,7 @@ class AttachmentService(Service):
             meta=meta,
         )
         await self._pending_collection.insert_one(pending.to_mongo())
+        logger.debug("pending_attachment_created", number=number, filename=filename, size=len(content))
         return pending
 
     async def get_pending_attachment(self, number: int) -> PendingAttachment:

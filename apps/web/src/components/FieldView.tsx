@@ -1,5 +1,5 @@
 import { Badge, Box, Group, Image, Stack, Text } from "@mantine/core"
-import { Username } from "@spacenote/common/components"
+import { MultilineText, Username } from "@spacenote/common/components"
 import type { SpaceField, StringFieldOptions } from "@spacenote/common/types"
 import { formatDate } from "@spacenote/common/utils"
 import { MarkdownDisplay } from "./MarkdownDisplay"
@@ -35,6 +35,9 @@ function formatValue(field: SpaceField, value: FieldValue, noteContext?: NoteCon
       const opts = field.options as StringFieldOptions
       if (opts.kind === "markdown") {
         return <MarkdownDisplay content={String(value)} />
+      }
+      if (opts.kind === "text") {
+        return <MultilineText>{String(value)}</MultilineText>
       }
       return <Text>{String(value)}</Text>
     }

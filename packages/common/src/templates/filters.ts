@@ -32,6 +32,15 @@ export function registerFilters(engine: Liquid): void {
     return value ?? defaultValue
   })
 
+  // Auto-link URLs in text
+  engine.registerFilter("autolink", (value: string) => {
+    if (!value) return ""
+    return value.replace(
+      /https?:\/\/[^\s<>"']+/g,
+      (url) => `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`
+    )
+  })
+
   /** Gets value from field's value_maps (e.g., color, icon) */
   engine.registerFilter("value_map", function (value: string, fieldName: string, mapName: string) {
     if (!value || !fieldName || !mapName) return ""

@@ -17,7 +17,7 @@ Simple task tracker for a small team.
   "description": "Team task tracker",
   "fields": [
     { "name": "title", "type": "string", "required": true, "options": { "kind": "line" } },
-    { "name": "body", "type": "string", "options": { "kind": "markdown" } },
+    { "name": "body", "type": "string", "options": { "kind": "text" } },
     { "name": "assignee", "type": "user", "required": true, "default": "$me", "options": {} },
     { "name": "status", "type": "select", "required": true, "default": "new",
       "options": { "values": ["new", "in_progress", "paused", "completed", "cancelled"] }
@@ -99,7 +99,7 @@ Photo-first meal tracking. Every entry starts with a photo — the timestamp is 
     { "name": "foods", "type": "tags", "options": {} },
     { "name": "reactions", "type": "tags", "options": {} },
     { "name": "context", "type": "tags", "options": {} },
-    { "name": "notes", "type": "string", "options": { "kind": "markdown" } }
+    { "name": "notes", "type": "string", "options": { "kind": "text" } }
   ]
 }
 ```

@@ -62,6 +62,12 @@ class AttachmentService(Service):
             raise NotFoundError(f"Pending attachment not found: {number}")
         return PendingAttachment.model_validate(doc)
 
+    async def delete_pending_attachment(self, number: int) -> None:
+        """Delete pending attachment (DB record + file)."""
+        await self._pending_collection.delete_one({"number": number})
+        storage.delete_pending_attachment_file(self.core.config.attachments_path, number)
+        logger.debug("pending_attachment_deleted", number=number)
+
     async def create_attachment(
         self, space_slug: str, note_number: int | None, author: str, filename: str, content: bytes, mime_type: str
     ) -> Attachment:

@@ -23,11 +23,7 @@ router = APIRouter(tags=["attachments"])
         401: {"model": ErrorResponse, "description": "Not authenticated"},
     },
 )
-async def upload_pending(
-    file: UploadFile,
-    app: AppDep,
-    auth_token: AuthTokenDep,
-) -> PendingAttachment:
+async def upload_pending_attachment(file: UploadFile, app: AppDep, auth_token: AuthTokenDep) -> PendingAttachment:
     content = await file.read()
     return await app.upload_pending_attachment(
         auth_token,
@@ -35,6 +31,23 @@ async def upload_pending(
         content=content,
         mime_type=file.content_type or "application/octet-stream",
     )
+
+
+@router.delete(
+    "/attachments/pending/{number}",
+    summary="Delete pending attachment",
+    description="Delete a pending attachment. Only the owner or admin can delete.",
+    operation_id="deletePendingAttachment",
+    status_code=204,
+    responses={
+        204: {"description": "Attachment deleted"},
+        401: {"model": ErrorResponse, "description": "Not authenticated"},
+        403: {"model": ErrorResponse, "description": "Not the owner or admin"},
+        404: {"model": ErrorResponse, "description": "Attachment not found"},
+    },
+)
+async def delete_pending_attachment(number: int, app: AppDep, auth_token: AuthTokenDep) -> None:
+    await app.delete_pending_attachment(auth_token, number)
 
 
 @router.post(
@@ -50,12 +63,7 @@ async def upload_pending(
         404: {"model": ErrorResponse, "description": "Space not found"},
     },
 )
-async def upload_space_attachment(
-    space_slug: str,
-    file: UploadFile,
-    app: AppDep,
-    auth_token: AuthTokenDep,
-) -> Attachment:
+async def upload_space_attachment(space_slug: str, file: UploadFile, app: AppDep, auth_token: AuthTokenDep) -> Attachment:
     content = await file.read()
     return await app.upload_space_attachment(
         auth_token,
@@ -80,11 +88,7 @@ async def upload_space_attachment(
     },
 )
 async def upload_note_attachment(
-    space_slug: str,
-    note_number: int,
-    file: UploadFile,
-    app: AppDep,
-    auth_token: AuthTokenDep,
+    space_slug: str, note_number: int, file: UploadFile, app: AppDep, auth_token: AuthTokenDep
 ) -> Attachment:
     content = await file.read()
     return await app.upload_note_attachment(
@@ -108,11 +112,7 @@ async def upload_note_attachment(
         404: {"model": ErrorResponse, "description": "Space not found"},
     },
 )
-async def list_space_attachments(
-    space_slug: str,
-    app: AppDep,
-    auth_token: AuthTokenDep,
-) -> list[Attachment]:
+async def list_space_attachments(space_slug: str, app: AppDep, auth_token: AuthTokenDep) -> list[Attachment]:
     return await app.list_space_attachments(auth_token, space_slug)
 
 
@@ -127,12 +127,7 @@ async def list_space_attachments(
         404: {"model": ErrorResponse, "description": "Space or note not found"},
     },
 )
-async def list_note_attachments(
-    space_slug: str,
-    note_number: int,
-    app: AppDep,
-    auth_token: AuthTokenDep,
-) -> list[Attachment]:
+async def list_note_attachments(space_slug: str, note_number: int, app: AppDep, auth_token: AuthTokenDep) -> list[Attachment]:
     return await app.list_note_attachments(auth_token, space_slug, note_number)
 
 

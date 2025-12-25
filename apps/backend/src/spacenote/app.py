@@ -314,6 +314,11 @@ class App:
         user = await self._core.services.access.ensure_authenticated(auth_token)
         return await self._core.services.attachment.create_pending_attachment(user.username, filename, content, mime_type)
 
+    async def delete_pending_attachment(self, auth_token: AuthToken, number: int) -> None:
+        """Delete pending attachment (owner or admin only)."""
+        await self._core.services.access.ensure_pending_attachment_owner_or_admin(auth_token, number)
+        await self._core.services.attachment.delete_pending_attachment(number)
+
     async def upload_space_attachment(
         self, auth_token: AuthToken, space_slug: str, filename: str, content: bytes, mime_type: str
     ) -> Attachment:

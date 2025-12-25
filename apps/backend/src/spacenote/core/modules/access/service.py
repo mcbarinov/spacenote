@@ -55,3 +55,13 @@ class AccessService(Service):
         if pending.author != user.username:
             raise AccessDeniedError("Only the owner can access this attachment")
         return user, pending
+
+    async def ensure_pending_attachment_owner_or_admin(
+        self, auth_token: AuthToken, number: int
+    ) -> tuple[User, PendingAttachment]:
+        """Verify user is admin or owns the pending attachment."""
+        user = await self.ensure_authenticated(auth_token)
+        pending = await self.core.services.attachment.get_pending_attachment(number)
+        if user.username not in {"admin", pending.author}:
+            raise AccessDeniedError("Only the owner or admin can delete this attachment")
+        return user, pending

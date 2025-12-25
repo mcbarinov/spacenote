@@ -55,6 +55,13 @@ def read_pending_attachment_file(attachments_path: str, number: int) -> bytes:
     return get_pending_attachment_path(attachments_path, number).read_bytes()
 
 
+def delete_pending_attachment_file(attachments_path: str, number: int) -> None:
+    """Delete pending attachment file from disk."""
+    path = get_pending_attachment_path(attachments_path, number)
+    if path.exists():
+        path.unlink()
+
+
 def read_attachment_file(attachments_path: str, space_slug: str, note_number: int | None, number: int) -> bytes:
     """Read attachment file from disk."""
     return get_attachment_file_path(attachments_path, space_slug, note_number, number).read_bytes()

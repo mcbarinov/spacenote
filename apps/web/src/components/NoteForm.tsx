@@ -5,14 +5,21 @@ import { notifications } from "@mantine/notifications"
 import { useNavigate } from "@tanstack/react-router"
 import { ErrorMessage } from "@spacenote/common/components"
 import { api } from "@spacenote/common/api"
-import { dateToUTC, utcToLocalDate } from "@spacenote/common/utils"
-import type { AttachmentMeta, Note, Space, SpaceField } from "@spacenote/common/types"
+import {
+  computeExifDatetime,
+  formatDatetimeForApi,
+  getCurrentDatetimeForKind,
+  parseDatetimeFromApi,
+  type DatetimeKind,
+} from "@spacenote/common/utils"
+import type { AttachmentMeta, DatetimeFieldOptions, Note, Space, SpaceField } from "@spacenote/common/types"
 import { FieldInput } from "./FieldInput"
 
 interface ExifBinding {
   datetimeField: string
   imageField: string
   fallback: string | null
+  kind: DatetimeKind
 }
 
 const EXIF_DEFAULT_REGEX = /^\$exif\.created_at:(\w+)(?:\|(.+))?$/
@@ -30,15 +37,17 @@ function getExifBindings(fields: SpaceField[]): ExifBinding[] {
     .filter((f): f is SpaceField & { default: string } => f.type === "datetime" && typeof f.default === "string")
     .map((f) => {
       const parsed = parseExifDefault(f.default)
-      return parsed ? { datetimeField: f.name, ...parsed } : null
+      if (!parsed) return null
+      const opts = f.options as DatetimeFieldOptions
+      return { datetimeField: f.name, kind: opts.kind, ...parsed }
     })
     .filter((b): b is ExifBinding => b !== null)
 }
 
-/** Resolves fallback value like $now to actual value */
-function resolveExifFallback(fallback: string | null): string | null {
+/** Resolves fallback value like $now to actual value based on kind */
+function resolveExifFallback(fallback: string | null, kind: DatetimeKind): string | null {
   if (fallback === "$now") {
-    return new Date().toISOString()
+    return getCurrentDatetimeForKind(kind)
   }
   return fallback
 }
@@ -74,7 +83,7 @@ function getDefaultValue(field: SpaceField, currentUser: string): unknown {
 }
 
 /** Converts form value to raw_fields string format for API */
-function valueToString(value: unknown): string | null {
+function valueToString(value: unknown, field: SpaceField): string | null {
   if (value === "" || value === null || value === undefined) {
     return null
   }
@@ -88,7 +97,13 @@ function valueToString(value: unknown): string | null {
     return value.length > 0 ? value.join(",") : null
   }
   if (value instanceof Date) {
-    return dateToUTC(value)
+    // For datetime fields, format based on kind
+    if (field.type === "datetime") {
+      const opts = field.options as DatetimeFieldOptions
+      return formatDatetimeForApi(value, opts.kind)
+    }
+    // Fallback for other Date values (shouldn't happen)
+    return formatDatetimeForApi(value, "utc")
   }
   return null
 }
@@ -103,9 +118,10 @@ function buildInitialValues(
   for (const field of fields) {
     if (existingValues && field.name in existingValues) {
       const value = existingValues[field.name]
-      // Convert UTC datetime strings to local Date for DateTimePicker
+      // Convert datetime strings to Date for picker based on kind
       if (field.type === "datetime" && typeof value === "string" && value) {
-        initialValues[field.name] = utcToLocalDate(value)
+        const opts = field.options as DatetimeFieldOptions
+        initialValues[field.name] = parseDatetimeFromApi(value, opts.kind)
       } else {
         initialValues[field.name] = value
       }
@@ -117,10 +133,13 @@ function buildInitialValues(
 }
 
 /** Converts form values to raw_fields format for API submission */
-function formValuesToRawFields(values: Record<string, unknown>): Record<string, string> {
+function formValuesToRawFields(values: Record<string, unknown>, fields: SpaceField[]): Record<string, string> {
+  const fieldMap = new Map(fields.map((f) => [f.name, f]))
   const raw_fields: Record<string, string> = {}
   for (const [key, value] of Object.entries(values)) {
-    const str = valueToString(value)
+    const field = fieldMap.get(key)
+    if (!field) continue
+    const str = valueToString(value, field)
     if (str !== null) {
       raw_fields[key] = str
     }
@@ -159,10 +178,15 @@ export function NoteForm({ space, mode, note }: NoteFormProps) {
           // Image removed: clear datetime field
           form.setFieldValue(binding.datetimeField, "")
         } else {
-          // Image uploaded: update datetime with EXIF or fallback
-          const utcValue = meta.image?.exif_created_at ?? resolveExifFallback(binding.fallback)
-          const localDate = utcValue ? utcToLocalDate(utcValue) : null
-          if (localDate) form.setFieldValue(binding.datetimeField, localDate)
+          // Image uploaded: compute datetime from EXIF based on kind, or use fallback
+          const exifValue = computeExifDatetime(
+            meta.image?.exif_date_time_original,
+            meta.image?.exif_offset_time_original,
+            binding.kind
+          )
+          const datetimeValue = exifValue ?? resolveExifFallback(binding.fallback, binding.kind)
+          const dateObj = datetimeValue ? parseDatetimeFromApi(datetimeValue, binding.kind) : null
+          if (dateObj) form.setFieldValue(binding.datetimeField, dateObj)
         }
       }
     },
@@ -176,7 +200,7 @@ export function NoteForm({ space, mode, note }: NoteFormProps) {
       mode === "create"
         ? Object.fromEntries(Object.entries(values).filter(([key]) => !space.hidden_fields_on_create.includes(key)))
         : Object.fromEntries(Object.entries(values).filter(([key]) => form.isDirty(key)))
-    const raw_fields = formValuesToRawFields(fieldsToSend)
+    const raw_fields = formValuesToRawFields(fieldsToSend, space.fields)
     mutation.mutate(
       { raw_fields },
       {

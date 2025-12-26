@@ -1,7 +1,7 @@
 import { Badge, Box, Group, Image, Stack, Text } from "@mantine/core"
 import { MultilineText, Username } from "@spacenote/common/components"
-import type { SpaceField, StringFieldOptions } from "@spacenote/common/types"
-import { formatDate } from "@spacenote/common/utils"
+import type { DatetimeFieldOptions, SpaceField, StringFieldOptions } from "@spacenote/common/types"
+import { formatDatetime } from "@spacenote/common/utils"
 import { MarkdownDisplay } from "./MarkdownDisplay"
 
 type FieldValue = string | boolean | string[] | number | null | undefined
@@ -68,8 +68,10 @@ function formatValue(field: SpaceField, value: FieldValue, noteContext?: NoteCon
     case "user":
       return <Username username={String(value)} />
 
-    case "datetime":
-      return <Text>{formatDate(String(value))}</Text>
+    case "datetime": {
+      const opts = field.options as DatetimeFieldOptions
+      return <Text>{formatDatetime(String(value), opts.kind)}</Text>
+    }
 
     case "image": {
       if (!noteContext) {

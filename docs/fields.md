@@ -207,9 +207,9 @@ Current timestamp. Behavior depends on `kind`:
 
 For `local` and `date`, the Space's `timezone` field determines the current time/date.
 
-##### $exif.created_at (only for `kind: "utc"`)
+##### $exif.created_at
 
-Extract creation datetime from image EXIF metadata. Only allowed for `kind: "utc"`.
+Extract creation datetime from image EXIF metadata.
 
 **Syntax**: `$exif.created_at:{image_field}` or `$exif.created_at:{image_field}|{fallback}`
 
@@ -218,7 +218,15 @@ Extract creation datetime from image EXIF metadata. Only allowed for `kind: "utc
 | `{image_field}` | Name of an IMAGE field in the same space |
 | `{fallback}` | Optional. Value if EXIF data missing: `$now`, datetime literal, or omit for null |
 
-**EXIF tags**: Reads `DateTimeOriginal` (preferred) or `DateTime` (fallback). Timezone from `OffsetTimeOriginal` if present, otherwise UTC.
+**EXIF tags**: Reads `DateTimeOriginal`. Timezone from `OffsetTimeOriginal` if present.
+
+**Behavior by kind**:
+
+| Kind | Behavior |
+|------|----------|
+| `utc` | Converts to UTC using `OffsetTimeOriginal` if present |
+| `local` | Uses EXIF datetime as-is (naive datetime) |
+| `date` | Extracts date part only |
 
 #### 2.6.4 Accepted Input Formats
 
@@ -250,7 +258,7 @@ Date only:
 { "name": "birthday", "type": "datetime", "options": { "kind": "date" } }
 ```
 
-EXIF datetime from image (only for `utc`):
+EXIF datetime from image:
 ```json
 { "name": "photo", "type": "image", "required": true, "options": {} }
 { "name": "taken_at", "type": "datetime", "default": "$exif.created_at:photo|$now", "options": { "kind": "utc" } }

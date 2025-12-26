@@ -156,7 +156,7 @@ export function parseFieldToFormValues(field: SpaceField): FormValues {
     defaultSelect: null,
     defaultTags: [],
     defaultUser: null,
-    defaultDatetime: null,
+    defaultDatetime: "",
     defaultNumeric: null,
   }
 
@@ -199,7 +199,7 @@ export function parseFieldToFormValues(field: SpaceField): FormValues {
 
   if (field.type === "datetime") {
     const opts = field.options as DatetimeFieldOptions
-    values.datetimeKind = opts.kind ?? "utc"
+    values.datetimeKind = opts.kind
   }
 
   // Parse default value

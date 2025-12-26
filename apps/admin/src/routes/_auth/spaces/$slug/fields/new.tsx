@@ -50,7 +50,7 @@ function AddFieldPage() {
       defaultSelect: null,
       defaultTags: [],
       defaultUser: null,
-      defaultDatetime: null,
+      defaultDatetime: "",
       defaultNumeric: null,
     },
     validate: zod4Resolver(addFieldSchema),

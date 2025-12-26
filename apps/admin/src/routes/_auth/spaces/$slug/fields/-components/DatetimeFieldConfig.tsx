@@ -9,19 +9,13 @@ interface Props {
 
 /** Options and default for datetime field type */
 export function DatetimeFieldConfig({ form }: Props) {
-  const kind = form.getValues().datetimeKind
-
   return (
     <Stack gap="sm">
       <Select label="Kind" data={[...DATETIME_KINDS]} {...form.getInputProps("datetimeKind")} />
       <TextInput
         label="Default"
         placeholder="No default"
-        description={
-          kind === "utc"
-            ? "Supported: $now, ISO datetime (2024-01-15T10:30:00Z), $exif.created_at:{image_field}|{fallback}"
-            : "Supported: $now, ISO datetime"
-        }
+        description="Supported: $now, ISO datetime, $exif.created_at:{image_field}|{fallback}"
         {...form.getInputProps("defaultDatetime")}
       />
     </Stack>

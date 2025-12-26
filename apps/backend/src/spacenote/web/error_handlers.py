@@ -7,6 +7,7 @@ from fastapi.responses import JSONResponse
 from spacenote.errors import (
     AccessDeniedError,
     AuthenticationError,
+    ImageProcessingError,
     NotFoundError,
     UserError,
     ValidationError,
@@ -34,6 +35,7 @@ async def user_error_handler(request: Request, exc: Exception) -> JSONResponse:
         AccessDeniedError: status.HTTP_403_FORBIDDEN,
         NotFoundError: status.HTTP_404_NOT_FOUND,
         ValidationError: status.HTTP_400_BAD_REQUEST,
+        ImageProcessingError: status.HTTP_202_ACCEPTED,
     }
 
     status_code = status_code_map.get(type(exc), status.HTTP_400_BAD_REQUEST)

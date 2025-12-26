@@ -33,3 +33,10 @@ class AccessDeniedError(UserError):
 
 class ValidationError(UserError):
     """Raised when user input fails validation."""
+
+
+class ImageProcessingError(UserError):
+    """Raised when image is still being processed."""
+
+    def __init__(self, message: str = "Image is still processing") -> None:
+        super().__init__(message)

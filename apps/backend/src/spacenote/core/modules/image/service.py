@@ -9,7 +9,7 @@ from spacenote.core.modules.field.models import FieldType, ImageFieldOptions
 from spacenote.core.modules.image import storage as image_storage
 from spacenote.core.modules.image.processor import WebpOptions, create_webp_image, init_pil
 from spacenote.core.service import Service
-from spacenote.errors import NotFoundError, ValidationError
+from spacenote.errors import ImageProcessingError, NotFoundError, ValidationError
 
 logger = structlog.get_logger(__name__)
 
@@ -115,7 +115,11 @@ class ImageService(Service):
 
         path = image_storage.get_image_path(self.core.config.images_path, space_slug, note_number, attachment_number)
         if not path.exists():
-            raise NotFoundError("Image not found")
+            try:
+                await self.core.services.attachment.get_attachment(space_slug, note_number, attachment_number)
+                raise ImageProcessingError
+            except NotFoundError:
+                raise NotFoundError("Image not found") from None
         return path
 
     def delete_images_by_space(self, space_slug: str) -> None:

@@ -13,7 +13,16 @@ class ImageMeta(OpenAPIModel):
     width: int
     height: int
     format: str | None
-    exif_created_at: datetime | None = None
+    exif_date_time_original: str | None = Field(
+        None,
+        description="EXIF DateTimeOriginal tag (ISO: YYYY-MM-DDTHH:MM:SS). "
+        "Used with exif_offset_time_original to compute $exif.created_at field default.",
+    )
+    exif_offset_time_original: str | None = Field(
+        None,
+        description="EXIF OffsetTimeOriginal tag (+HH:MM or -HH:MM). "
+        "Timezone offset for exif_date_time_original. None if camera didn't record timezone.",
+    )
 
 
 class AttachmentMeta(OpenAPIModel):

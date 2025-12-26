@@ -5,7 +5,7 @@ from pathlib import Path
 from PIL import Image
 
 from spacenote.core.modules.attachment.models import AttachmentMeta, ImageMeta
-from spacenote.core.modules.image.exif import extract_exif, parse_exif_datetime
+from spacenote.core.modules.image.exif import extract_exif, get_exif_datetime_components
 
 logger = logging.getLogger(__name__)
 
@@ -44,9 +44,9 @@ def _extract_image_metadata_sync(file_path: Path) -> AttachmentMeta:
 
     exif_data = extract_exif(file_path)
     if exif_data:
-        exif_created_at = parse_exif_datetime(exif_data)
-        if exif_created_at:
-            image_meta.exif_created_at = exif_created_at
+        dt_original, offset_original = get_exif_datetime_components(exif_data)
+        image_meta.exif_date_time_original = dt_original
+        image_meta.exif_offset_time_original = offset_original
         return AttachmentMeta(image=image_meta, exif=exif_data)
 
     return AttachmentMeta(image=image_meta)

@@ -1337,8 +1337,16 @@ export type components = {
             height: number;
             /** Format */
             format: string | null;
-            /** Exif Created At */
-            exif_created_at: string | null;
+            /**
+             * Exif Date Time Original
+             * @description EXIF DateTimeOriginal tag (ISO: YYYY-MM-DDTHH:MM:SS). Used with exif_offset_time_original to compute $exif.created_at field default.
+             */
+            exif_date_time_original: string | null;
+            /**
+             * Exif Offset Time Original
+             * @description EXIF OffsetTimeOriginal tag (+HH:MM or -HH:MM). Timezone offset for exif_date_time_original. None if camera didn't record timezone.
+             */
+            exif_offset_time_original: string | null;
         };
         /**
          * LoginRequest

@@ -2,7 +2,7 @@
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from datetime import UTC, date, datetime, tzinfo
+from datetime import UTC, date, datetime, timedelta, tzinfo
 from decimal import Decimal, InvalidOperation
 from zoneinfo import ZoneInfo
 
@@ -359,9 +359,7 @@ class DateTimeValidator(FieldValidator):
         if isinstance(field.default, str):
             source = cls._parse_exif_created_at_source(field.default)
             if source:
-                if kind != "utc":
-                    raise ValidationError("$exif.created_at is only allowed for datetime fields with kind: utc")
-                cls._validate_exif_source(source, space)
+                cls._validate_exif_source(source, space, kind)
                 return field
 
         match kind:
@@ -377,7 +375,7 @@ class DateTimeValidator(FieldValidator):
                 raise ValidationError(f"Unknown datetime kind: {kind}")
 
     @classmethod
-    def _validate_exif_source(cls, source: _ExifCreatedAtSource, space: Space) -> None:
+    def _validate_exif_source(cls, source: _ExifCreatedAtSource, space: Space, kind: str) -> None:
         """Validate that EXIF source references a valid IMAGE field."""
         ref_field = space.get_field(source.image_field)
         if ref_field is None:
@@ -385,12 +383,19 @@ class DateTimeValidator(FieldValidator):
         if ref_field.type != FieldType.IMAGE:
             raise ValidationError(f"EXIF default must reference IMAGE field, got {ref_field.type}")
 
-        if (
-            source.fallback is not None
-            and source.fallback != SpecialValue.NOW
-            and cls._parse_datetime(source.fallback, UTC) is None
-        ):
-            raise ValidationError(f"Invalid EXIF fallback: {source.fallback}. Use $now or datetime literal")
+        if source.fallback is None or source.fallback == SpecialValue.NOW:
+            return
+
+        match kind:
+            case "utc":
+                if cls._parse_datetime(source.fallback, UTC) is None:
+                    raise ValidationError(f"Invalid EXIF fallback: {source.fallback}. Use $now or datetime literal")
+            case "local":
+                if cls._parse_datetime(source.fallback, None) is None:
+                    raise ValidationError(f"Invalid EXIF fallback: {source.fallback}. Use $now or datetime literal")
+            case "date":
+                if cls._parse_date_only(source.fallback) is None:
+                    raise ValidationError(f"Invalid EXIF fallback: {source.fallback}. Use $now or date literal")
 
     @classmethod
     def _resolve_now(cls, kind: str, space: Space) -> datetime | date:
@@ -419,7 +424,7 @@ class DateTimeValidator(FieldValidator):
                 if isinstance(field.default, str):
                     source = cls._parse_exif_created_at_source(field.default)
                     if source:
-                        return cls._resolve_exif_source(source, ctx)
+                        return cls._resolve_exif_source(source, kind, space, ctx)
 
                 return field.default
             if field.required:
@@ -448,33 +453,73 @@ class DateTimeValidator(FieldValidator):
         raise ValidationError(f"Invalid datetime format for field '{field.name}': {raw}")
 
     @classmethod
-    def _resolve_exif_source(cls, source: _ExifCreatedAtSource, ctx: ParseContext) -> datetime | None:
-        """Extract EXIF created_at from the referenced IMAGE field's pending attachment."""
+    def _resolve_exif_source(
+        cls, source: _ExifCreatedAtSource, kind: str, space: Space, ctx: ParseContext
+    ) -> datetime | date | None:
+        """Extract EXIF datetime from the referenced IMAGE field's pending attachment."""
         if not ctx.raw_fields or not ctx.pending_attachments:
-            return cls._resolve_fallback(source.fallback)
+            return cls._resolve_fallback(source.fallback, kind, space)
 
         raw_value = ctx.raw_fields.get(source.image_field)
         if not raw_value:
-            return cls._resolve_fallback(source.fallback)
+            return cls._resolve_fallback(source.fallback, kind, space)
 
         try:
             pending_number = int(raw_value)
         except ValueError:
-            return cls._resolve_fallback(source.fallback)
+            return cls._resolve_fallback(source.fallback, kind, space)
 
         pending = next((p for p in ctx.pending_attachments if p.number == pending_number), None)
-        if not pending or not pending.meta.image or not pending.meta.image.exif_created_at:
-            return cls._resolve_fallback(source.fallback)
+        if not pending or not pending.meta.image or not pending.meta.image.exif_date_time_original:
+            return cls._resolve_fallback(source.fallback, kind, space)
 
-        return pending.meta.image.exif_created_at
+        dt_original = pending.meta.image.exif_date_time_original
+        offset_original = pending.meta.image.exif_offset_time_original
+
+        return cls._compute_exif_datetime(dt_original, offset_original, kind)
 
     @classmethod
-    def _resolve_fallback(cls, fallback: str | None) -> datetime | None:
+    def _compute_exif_datetime(cls, dt_original: str, offset_original: str | None, kind: str) -> datetime | date | None:
+        """Compute datetime value from EXIF components based on kind."""
+        match kind:
+            case "utc":
+                parsed = cls._parse_datetime(dt_original, UTC)
+                if not parsed:
+                    return None
+                if offset_original:
+                    # Apply offset: dt_original is local time, convert to UTC
+                    try:
+                        sign = 1 if offset_original[0] == "+" else -1
+                        parts = offset_original[1:].split(":")
+                        hours = int(parts[0])
+                        minutes = int(parts[1]) if len(parts) > 1 else 0
+                        offset_seconds = sign * (hours * 3600 + minutes * 60)
+                        parsed = parsed - timedelta(seconds=offset_seconds)
+                    except (ValueError, IndexError):
+                        pass
+                return parsed
+            case "local":
+                return cls._parse_datetime(dt_original, None)
+            case "date":
+                return cls._parse_date_only(dt_original[:10]) if len(dt_original) >= 10 else None
+            case _:
+                raise ValidationError(f"Unknown datetime kind: {kind}")
+
+    @classmethod
+    def _resolve_fallback(cls, fallback: str | None, kind: str, space: Space) -> datetime | date | None:
         if fallback is None:
             return None
         if fallback == SpecialValue.NOW:
-            return datetime.now(UTC)
-        return cls._parse_datetime(fallback, UTC)
+            return cls._resolve_now(kind, space)
+        match kind:
+            case "utc":
+                return cls._parse_datetime(fallback, UTC)
+            case "local":
+                return cls._parse_datetime(fallback, None)
+            case "date":
+                return cls._parse_date_only(fallback)
+            case _:
+                raise ValidationError(f"Unknown datetime kind: {kind}")
 
 
 class UserValidator(FieldValidator):

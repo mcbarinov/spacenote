@@ -12,6 +12,16 @@ export type StringFieldOptions = components["schemas"]["StringFieldOptions"]
 export type NumericFieldOptions = components["schemas"]["NumericFieldOptions"]
 export type SelectFieldOptions = components["schemas"]["SelectFieldOptions"]
 export type ImageFieldOptions = components["schemas"]["ImageFieldOptions"]
+export type DatetimeFieldOptions = components["schemas"]["DatetimeFieldOptions"]
+
+// Field option kinds
+export type StringKind = StringFieldOptions["kind"]
+export type NumericKind = NumericFieldOptions["kind"]
+export type DatetimeKind = NonNullable<DatetimeFieldOptions["kind"]>
+
+export const STRING_KINDS = ["line", "text", "markdown"] as const satisfies readonly StringKind[]
+export const NUMERIC_KINDS = ["int", "float", "decimal"] as const satisfies readonly NumericKind[]
+export const DATETIME_KINDS = ["utc", "local", "date"] as const satisfies readonly DatetimeKind[]
 
 // Pagination
 export type NotesList = components["schemas"]["PaginationResult_Note_"]

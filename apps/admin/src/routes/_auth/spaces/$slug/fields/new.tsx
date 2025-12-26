@@ -39,6 +39,7 @@ function AddFieldPage() {
       minLength: null,
       maxLength: null,
       numericKind: "int",
+      datetimeKind: "utc",
       selectValues: [],
       valueMaps: [],
       minValue: null,

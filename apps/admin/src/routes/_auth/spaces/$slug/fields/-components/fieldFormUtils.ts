@@ -1,11 +1,15 @@
 import { z } from "zod"
-import type {
-  FieldType,
-  ImageFieldOptions,
-  NumericFieldOptions,
-  SelectFieldOptions,
-  SpaceField,
-  StringFieldOptions,
+import {
+  DATETIME_KINDS,
+  NUMERIC_KINDS,
+  STRING_KINDS,
+  type DatetimeFieldOptions,
+  type FieldType,
+  type ImageFieldOptions,
+  type NumericFieldOptions,
+  type SelectFieldOptions,
+  type SpaceField,
+  type StringFieldOptions,
 } from "@spacenote/common/types"
 
 export const addFieldSchema = z.object({
@@ -16,11 +20,13 @@ export const addFieldSchema = z.object({
   type: z.string().min(1, { message: "Type is required" }),
   required: z.boolean(),
   // String options
-  stringKind: z.enum(["line", "text", "markdown"]),
+  stringKind: z.enum(STRING_KINDS),
   minLength: z.number().nullable(),
   maxLength: z.number().nullable(),
   // Numeric options
-  numericKind: z.enum(["int", "float", "decimal"]),
+  numericKind: z.enum(NUMERIC_KINDS),
+  // Datetime options
+  datetimeKind: z.enum(DATETIME_KINDS),
   // Select options
   selectValues: z.array(z.string()),
   valueMaps: z.array(
@@ -95,6 +101,13 @@ export function buildOptions(values: FormValues): SpaceField["options"] {
     return { max_width: values.maxWidth }
   }
 
+  if (fieldType === "datetime") {
+    const opts: DatetimeFieldOptions = {
+      kind: values.datetimeKind,
+    }
+    return opts
+  }
+
   return {}
 }
 
@@ -132,6 +145,7 @@ export function parseFieldToFormValues(field: SpaceField): FormValues {
     minLength: null,
     maxLength: null,
     numericKind: "int",
+    datetimeKind: "utc",
     selectValues: [],
     valueMaps: [],
     minValue: null,
@@ -181,6 +195,11 @@ export function parseFieldToFormValues(field: SpaceField): FormValues {
   if (field.type === "image") {
     const opts = field.options as ImageFieldOptions
     values.maxWidth = opts.max_width ?? null
+  }
+
+  if (field.type === "datetime") {
+    const opts = field.options as DatetimeFieldOptions
+    values.datetimeKind = opts.kind ?? "utc"
   }
 
   // Parse default value

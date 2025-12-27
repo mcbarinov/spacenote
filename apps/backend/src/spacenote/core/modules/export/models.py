@@ -18,9 +18,12 @@ class SpaceExport(OpenAPIModel):
     members: list[str] = Field(..., description="List of member usernames")
     fields: list[SpaceField] = Field(..., description="Field definitions")
     filters: list[Filter] = Field(..., description="Filter definitions")
+    default_filter: str = Field(..., description="Default filter name")
     hidden_fields_on_create: list[str] = Field(..., description="Fields hidden on note creation form")
+    editable_fields_on_comment: list[str] = Field(..., description="Field names editable when adding a comment")
     templates: dict[str, str] = Field(default_factory=dict, description="Liquid templates")
     telegram: TelegramSettings | None = Field(default=None, description="Telegram integration settings")
+    timezone: str = Field(..., description="Space timezone in IANA format")
     created_at: datetime = Field(..., description="Creation timestamp")
 
 

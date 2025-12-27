@@ -35,9 +35,12 @@ class ExportService(Service):
             members=space.members,
             fields=space.fields,
             filters=space.filters,
+            default_filter=space.default_filter,
             hidden_fields_on_create=space.hidden_fields_on_create,
+            editable_fields_on_comment=space.editable_fields_on_comment,
             templates=space.templates,
             telegram=space.telegram,
+            timezone=space.timezone,
             created_at=space.created_at,
         )
 
@@ -127,9 +130,12 @@ class ExportService(Service):
             members=data.space.members,
             fields=data.space.fields,
             filters=data.space.filters,
+            default_filter=data.space.default_filter,
             hidden_fields_on_create=data.space.hidden_fields_on_create,
+            editable_fields_on_comment=data.space.editable_fields_on_comment,
             templates=data.space.templates,
             telegram=data.space.telegram,
+            timezone=data.space.timezone,
             created_at=data.space.created_at,
         )
         space = await self.core.services.space.import_space(space_model)

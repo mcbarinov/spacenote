@@ -2,7 +2,7 @@
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from datetime import UTC, date, datetime, timedelta, tzinfo
+from datetime import UTC, date, datetime, timedelta, timezone, tzinfo
 from decimal import Decimal, InvalidOperation
 from zoneinfo import ZoneInfo
 
@@ -492,14 +492,15 @@ class DateTimeValidator(FieldValidator):
                 if not parsed:
                     return None
                 if offset_original:
-                    # Apply offset: dt_original is local time, convert to UTC
+                    # dt_original is local time (e.g., "10:00" in "+03:00" timezone)
+                    # Convert to UTC by constructing proper timezone-aware datetime
                     try:
                         sign = 1 if offset_original[0] == "+" else -1
                         parts = offset_original[1:].split(":")
                         hours = int(parts[0])
                         minutes = int(parts[1]) if len(parts) > 1 else 0
-                        offset_seconds = sign * (hours * 3600 + minutes * 60)
-                        parsed = parsed - timedelta(seconds=offset_seconds)
+                        local_tz = timezone(timedelta(hours=sign * hours, minutes=sign * minutes))
+                        parsed = parsed.replace(tzinfo=local_tz).astimezone(UTC)
                     except (ValueError, IndexError):
                         pass
                 return parsed
@@ -507,6 +508,7 @@ class DateTimeValidator(FieldValidator):
                 parsed = cls._parse_datetime(dt_original, None)
                 return parsed.strftime(cls._LOCAL_FORMAT) if parsed else None
             case "date":
+                # Extract first 10 chars (length of "YYYY-MM-DD") from EXIF datetime string
                 parsed_date = cls._parse_date_only(dt_original[:10]) if len(dt_original) >= 10 else None
                 return parsed_date.strftime(cls._DATE_FORMAT) if parsed_date else None
             case _:

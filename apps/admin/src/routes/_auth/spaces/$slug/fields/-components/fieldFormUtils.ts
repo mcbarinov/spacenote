@@ -127,7 +127,8 @@ export function buildDefault(values: FormValues): SpaceField["default"] {
     case "user":
       return values.defaultUser
     case "datetime":
-      return values.defaultDatetime
+      // Convert empty string to null (form uses "" for controlled input)
+      return values.defaultDatetime === "" ? null : values.defaultDatetime
     case "numeric":
       return values.defaultNumeric
     default:
@@ -156,7 +157,7 @@ export function parseFieldToFormValues(field: SpaceField): FormValues {
     defaultSelect: null,
     defaultTags: [],
     defaultUser: null,
-    defaultDatetime: "",
+    defaultDatetime: "", // Empty string for controlled TextInput (null causes React warning)
     defaultNumeric: null,
   }
 

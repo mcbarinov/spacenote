@@ -151,6 +151,7 @@ def _validate_local_datetime_filter_value(field: SpaceField, value: FieldValueTy
     if isinstance(value, str):
         for fmt in datetime_formats:
             try:
+                # Naive datetime is intentional: "local" kind stores time without timezone
                 parsed = datetime.strptime(value, fmt)  # noqa: DTZ007
                 return parsed.strftime("%Y-%m-%d %H:%M:%S")
             except ValueError:

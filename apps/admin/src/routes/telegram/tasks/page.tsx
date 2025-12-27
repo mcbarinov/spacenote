@@ -15,7 +15,7 @@ const searchSchema = z.object({
   status: z.enum(["pending", "completed", "failed"]).optional(),
 })
 
-export const Route = createFileRoute("/_auth/telegram/tasks")({
+export const Route = createFileRoute("/_auth.layout/telegram/tasks")({
   validateSearch: searchSchema,
   loaderDeps: ({ search }) => search,
   loader: async ({ context, deps }) => {

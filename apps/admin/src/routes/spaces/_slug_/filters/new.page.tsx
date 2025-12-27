@@ -8,49 +8,30 @@ import { api } from "@spacenote/common/api"
 import { ErrorMessage, PageHeader } from "@spacenote/common/components"
 import { SpaceTabs } from "@/components/SpaceTabs"
 import type { FilterOperator } from "@spacenote/common/types"
-import { ConditionRow } from "../-components/ConditionRow"
-import {
-  allFilterSchema,
-  type FilterFormValues,
-  filterSchema,
-  generateConditionId,
-  SYSTEM_FIELDS,
-} from "../-components/filterFormUtils"
+import { ConditionRow } from "./-components/ConditionRow"
+import { type FilterFormValues, filterSchema, generateConditionId, SYSTEM_FIELDS } from "./-components/filterFormUtils"
 
-export const Route = createFileRoute("/_auth/spaces/$slug/filters/$filterName/edit")({
-  component: EditFilterPage,
+export const Route = createFileRoute("/_auth.layout/spaces/$slug/filters/new")({
+  component: AddFilterPage,
 })
 
-/** Form to edit an existing filter */
-function EditFilterPage() {
-  const { slug, filterName } = Route.useParams()
+/** Form to add a new filter to a space */
+function AddFilterPage() {
+  const { slug } = Route.useParams()
   const navigate = useNavigate()
   const space = api.cache.useSpace(slug)
-  const updateFilterMutation = api.mutations.useUpdateFilter(slug, filterName)
-
-  const filter = space.filters.find((f) => f.name === filterName)
-  if (!filter) {
-    throw new Error(`Filter "${filterName}" not found`)
-  }
-
-  // "all" filter is special - only sort and default_columns can be modified
-  const isAllFilter = filterName === "all"
+  const addFilterMutation = api.mutations.useAddFilter(slug)
 
   const allFields = [...space.fields.map((f) => ({ ...f, name: `note.fields.${f.name}` })), ...SYSTEM_FIELDS]
 
   const form = useForm<FilterFormValues>({
     initialValues: {
-      name: filter.name,
-      defaultColumns: filter.default_columns.join(", "),
-      conditions: filter.conditions.map((c, i) => ({
-        id: `condition-${String(i)}`,
-        field: c.field,
-        operator: c.operator,
-        value: c.value,
-      })),
-      sort: filter.sort,
+      name: "",
+      defaultColumns: "",
+      conditions: [],
+      sort: [],
     },
-    validate: zod4Resolver(isAllFilter ? allFilterSchema : filterSchema),
+    validate: zod4Resolver(filterSchema),
   })
 
   const addCondition = () => {
@@ -80,7 +61,7 @@ function EditFilterPage() {
         value: c.value as string | number | boolean | string[] | null,
       }))
 
-    updateFilterMutation.mutate(
+    addFilterMutation.mutate(
       {
         name: values.name,
         default_columns: defaultColumns,
@@ -90,7 +71,7 @@ function EditFilterPage() {
       {
         onSuccess: () => {
           notifications.show({
-            message: "Filter updated successfully",
+            message: "Filter added successfully",
             color: "green",
           })
           void navigate({ to: "/spaces/$slug/filters", params: { slug } })
@@ -102,7 +83,7 @@ function EditFilterPage() {
   return (
     <Stack gap="md">
       <PageHeader
-        title={`Edit Filter: ${filterName}`}
+        title="New Filter"
         breadcrumbs={[{ label: "Spaces", to: "/spaces" }, { label: `◈ ${space.slug}` }]}
         topActions={<SpaceTabs space={space} />}
       />
@@ -110,13 +91,7 @@ function EditFilterPage() {
       <Paper withBorder p="md">
         <form onSubmit={handleSubmit}>
           <Stack gap="md">
-            <TextInput
-              label="Name"
-              placeholder="filter_name"
-              withAsterisk
-              disabled={isAllFilter}
-              {...form.getInputProps("name")}
-            />
+            <TextInput label="Name" placeholder="filter_name" autoFocus withAsterisk {...form.getInputProps("name")} />
 
             <TextInput
               label="Default Columns"
@@ -125,35 +100,33 @@ function EditFilterPage() {
               {...form.getInputProps("defaultColumns")}
             />
 
-            {!isAllFilter && (
-              <Stack gap="xs">
-                <Title order={4}>
-                  Conditions <span style={{ color: "var(--mantine-color-red-6)" }}>*</span>
-                </Title>
-                {form.errors.conditions && typeof form.errors.conditions === "string" && (
-                  <span style={{ color: "var(--mantine-color-red-6)", fontSize: "var(--mantine-font-size-sm)" }}>
-                    {form.errors.conditions}
-                  </span>
-                )}
-                {form.values.conditions.map((condition, index) => (
-                  <ConditionRow
-                    key={condition.id}
-                    condition={condition}
-                    index={index}
-                    allFields={allFields}
-                    spaceFields={space.fields}
-                    spaceMembers={space.members}
-                    form={form}
-                    onRemove={() => {
-                      removeCondition(index)
-                    }}
-                  />
-                ))}
-                <Button variant="light" leftSection={<IconPlus size={16} />} onClick={addCondition}>
-                  Add Condition
-                </Button>
-              </Stack>
-            )}
+            <Stack gap="xs">
+              <Title order={4}>
+                Conditions <span style={{ color: "var(--mantine-color-red-6)" }}>*</span>
+              </Title>
+              {form.errors.conditions && typeof form.errors.conditions === "string" && (
+                <span style={{ color: "var(--mantine-color-red-6)", fontSize: "var(--mantine-font-size-sm)" }}>
+                  {form.errors.conditions}
+                </span>
+              )}
+              {form.values.conditions.map((condition, index) => (
+                <ConditionRow
+                  key={condition.id}
+                  condition={condition}
+                  index={index}
+                  allFields={allFields}
+                  spaceFields={space.fields}
+                  spaceMembers={space.members}
+                  form={form}
+                  onRemove={() => {
+                    removeCondition(index)
+                  }}
+                />
+              ))}
+              <Button variant="light" leftSection={<IconPlus size={16} />} onClick={addCondition}>
+                Add Condition
+              </Button>
+            </Stack>
 
             <TagsInput
               label="Sort"
@@ -163,11 +136,11 @@ function EditFilterPage() {
               {...form.getInputProps("sort")}
             />
 
-            {updateFilterMutation.error && <ErrorMessage error={updateFilterMutation.error} />}
+            {addFilterMutation.error && <ErrorMessage error={addFilterMutation.error} />}
 
             <Group justify="flex-end">
-              <Button type="submit" loading={updateFilterMutation.isPending}>
-                Save Changes
+              <Button type="submit" loading={addFilterMutation.isPending}>
+                Add Filter
               </Button>
             </Group>
           </Stack>

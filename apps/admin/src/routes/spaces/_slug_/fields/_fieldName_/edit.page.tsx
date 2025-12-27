@@ -23,7 +23,7 @@ import {
   type FormValues,
 } from "../-components/fieldFormUtils"
 
-export const Route = createFileRoute("/_auth/spaces/$slug/fields/$fieldName/edit")({
+export const Route = createFileRoute("/_auth.layout/spaces/$slug/fields/$fieldName/edit")({
   component: EditFieldPage,
 })
 

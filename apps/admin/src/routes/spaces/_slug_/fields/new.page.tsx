@@ -17,7 +17,7 @@ import { NumericFieldConfig } from "./-components/NumericFieldConfig"
 import { ImageFieldConfig } from "./-components/ImageFieldConfig"
 import { addFieldSchema, buildDefault, buildOptions, type FormValues } from "./-components/fieldFormUtils"
 
-export const Route = createFileRoute("/_auth/spaces/$slug/fields/new")({
+export const Route = createFileRoute("/_auth.layout/spaces/$slug/fields/new")({
   component: AddFieldPage,
 })
 

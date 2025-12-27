@@ -6,7 +6,7 @@ import { api } from "@spacenote/common/api"
 import { PageHeader } from "@spacenote/common/components"
 import { SpaceTabs } from "@/components/SpaceTabs"
 
-export const Route = createFileRoute("/_auth/spaces/$slug/export/")({
+export const Route = createFileRoute("/_auth.layout/spaces/$slug/export")({
   loader: async ({ context, params }) => {
     await context.queryClient.ensureQueryData(api.queries.exportSpace(params.slug, false))
   },

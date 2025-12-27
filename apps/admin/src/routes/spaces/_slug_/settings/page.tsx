@@ -11,7 +11,7 @@ import { EditHiddenFieldsOnCreate } from "./-components/EditHiddenFieldsOnCreate
 import { EditTelegram } from "./-components/EditTelegram"
 import { EditTitle } from "./-components/EditTitle"
 
-export const Route = createFileRoute("/_auth/spaces/$slug/settings/")({
+export const Route = createFileRoute("/_auth.layout/spaces/$slug/settings")({
   component: SettingsPage,
 })
 

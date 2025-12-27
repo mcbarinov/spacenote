@@ -38,6 +38,9 @@ importers:
       '@tanstack/react-router':
         specifier: ^1.143.11
         version: 1.143.11(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      '@tanstack/virtual-file-routes':
+        specifier: ^1.141.0
+        version: 1.141.0
       dayjs:
         specifier: ^1.11.19
         version: 1.11.19

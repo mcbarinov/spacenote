@@ -6,7 +6,7 @@ import { api } from "@spacenote/common/api"
 import { ErrorMessage, PageHeader } from "@spacenote/common/components"
 import type { ExportData } from "@spacenote/common/types"
 
-export const Route = createFileRoute("/_auth/spaces/import")({
+export const Route = createFileRoute("/_auth.layout/spaces/import")({
   component: ImportSpacePage,
 })
 

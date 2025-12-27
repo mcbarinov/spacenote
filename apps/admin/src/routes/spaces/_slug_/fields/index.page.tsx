@@ -5,7 +5,7 @@ import { LinkButton, PageHeader } from "@spacenote/common/components"
 import { SpaceTabs } from "@/components/SpaceTabs"
 import { FieldsTable } from "./-components/FieldsTable"
 
-export const Route = createFileRoute("/_auth/spaces/$slug/fields/")({
+export const Route = createFileRoute("/_auth.layout/spaces/$slug/fields/")({
   component: FieldsPage,
 })
 

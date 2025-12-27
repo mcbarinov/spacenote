@@ -4,7 +4,7 @@ import { api } from "@spacenote/common/api"
 import { PageHeader } from "@spacenote/common/components"
 import { SpacesTable } from "./-components/SpacesTable"
 
-export const Route = createFileRoute("/_auth/spaces/")({
+export const Route = createFileRoute("/_auth.layout/spaces/")({
   component: SpacesPage,
 })
 

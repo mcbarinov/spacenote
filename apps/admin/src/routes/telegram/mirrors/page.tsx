@@ -10,7 +10,7 @@ const searchSchema = z.object({
   space_slug: z.string().optional(),
 })
 
-export const Route = createFileRoute("/_auth/telegram/mirrors")({
+export const Route = createFileRoute("/_auth.layout/telegram/mirrors")({
   validateSearch: searchSchema,
   loaderDeps: ({ search }) => search,
   loader: async ({ context, deps }) => {

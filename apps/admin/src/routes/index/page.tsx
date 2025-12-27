@@ -5,7 +5,7 @@ import { LinkButton, SpaceSlug } from "@spacenote/common/components"
 import { SpaceMenu } from "@/components/SpaceMenu"
 import { UsersBlock } from "./-components/users/UsersBlock"
 
-export const Route = createFileRoute("/_auth/")({
+export const Route = createFileRoute("/_auth.layout/")({
   component: HomePage,
 })
 

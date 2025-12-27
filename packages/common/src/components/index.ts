@@ -7,6 +7,7 @@ export { MultilineText } from "./ui/MultilineText"
 export { CustomLink } from "./navigation/CustomLink"
 export { LinkButton } from "./navigation/LinkButton"
 export { NavigationTabs } from "./navigation/NavigationTabs"
+export { RetryableImage } from "./ui/RetryableImage"
 
 export { Header } from "./layout/Header"
 export { Footer } from "./layout/Footer"

@@ -3,6 +3,7 @@ import type { Note, Space } from "../types"
 import { registerFilters } from "./filters"
 
 export { markdownToHtml } from "./markdown"
+export { initImageRetry } from "./imageRetry"
 
 const engine = new Liquid({
   strictFilters: false,

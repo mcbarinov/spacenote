@@ -8,7 +8,9 @@ declare module "@tanstack/react-router" {
 }
 
 // Suppress react-live JSX transform warning (dev-only, harmless)
+// eslint-disable-next-line no-console
 const originalWarn = console.warn
+// eslint-disable-next-line no-console
 console.warn = (...args: unknown[]) => {
   if (typeof args[0] === "string" && args[0].includes("outdated JSX transform")) {
     return

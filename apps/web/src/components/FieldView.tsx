@@ -1,5 +1,5 @@
-import { Badge, Box, Group, Image, Stack, Text } from "@mantine/core"
-import { MultilineText, Username } from "@spacenote/common/components"
+import { Badge, Box, Group, Stack, Text } from "@mantine/core"
+import { MultilineText, RetryableImage, Username } from "@spacenote/common/components"
 import type { DatetimeFieldOptions, SpaceField, StringFieldOptions } from "@spacenote/common/types"
 import { formatDatetime } from "@spacenote/common/utils"
 import { MarkdownDisplay } from "./MarkdownDisplay"
@@ -77,9 +77,8 @@ function formatValue(field: SpaceField, value: FieldValue, noteContext?: NoteCon
       if (!noteContext) {
         return <Text c="dimmed">—</Text>
       }
-      // Image fields are stored as processed images, served via note-specific endpoint
       const imageUrl = `/api/v1/spaces/${noteContext.slug}/notes/${String(noteContext.noteNumber)}/images/${field.name}`
-      return <Image src={imageUrl} maw={400} radius="sm" />
+      return <RetryableImage src={imageUrl} maw={400} radius="sm" />
     }
 
     default:

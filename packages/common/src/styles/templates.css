@@ -331,9 +331,35 @@
   display: block;
   max-width: 100%;
   height: auto;
+  min-height: 150px;
+  background: var(--mantine-color-gray-light);
+  border-radius: var(--mantine-radius-sm);
+  animation: imageLoadingPulse 1.5s ease-in-out infinite;
 
   &.radius-sm {
     border-radius: var(--mantine-radius-sm);
+  }
+}
+
+.Image--loaded {
+  min-height: unset;
+  background: none;
+  animation: none;
+}
+
+.Image--error {
+  animation: none;
+  position: relative;
+
+  &::before {
+    content: "Image failed to load";
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--mantine-color-dimmed);
+    font-size: var(--mantine-font-size-sm);
   }
 }
 
@@ -403,4 +429,16 @@
 
 .mt-sm {
   margin-top: var(--mantine-spacing-sm);
+}
+
+/* === Animation === */
+
+@keyframes imageLoadingPulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }

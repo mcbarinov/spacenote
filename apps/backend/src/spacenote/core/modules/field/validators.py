@@ -2,11 +2,13 @@
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime, timedelta, timezone, tzinfo
 from decimal import Decimal, InvalidOperation
+from zoneinfo import ZoneInfo
 
 from spacenote.core.modules.attachment.models import PendingAttachment
 from spacenote.core.modules.field.models import (
+    DatetimeFieldOptions,
     FieldType,
     FieldValueType,
     ImageFieldOptions,
@@ -275,9 +277,16 @@ class TagsValidator(FieldValidator):
 class DateTimeValidator(FieldValidator):
     """Validator for datetime fields.
 
-    Supports $exif.created_at:{image_field}|{fallback} default syntax
-    to extract creation datetime from image EXIF metadata.
+    Supports three kinds:
+    - utc: UTC-aware datetime, stored as MongoDB Date
+    - local: naive datetime (wall clock time), stored as string "YYYY-MM-DD HH:MM:SS"
+    - date: date only, stored as string "YYYY-MM-DD"
+
+    Supports $exif.created_at:{image_field}|{fallback} default syntax (only for kind: utc).
     """
+
+    _LOCAL_FORMAT = "%Y-%m-%d %H:%M:%S"
+    _DATE_FORMAT = "%Y-%m-%d"
 
     _DATETIME_FORMATS = [
         "%Y-%m-%dT%H:%M:%S",
@@ -289,14 +298,22 @@ class DateTimeValidator(FieldValidator):
     ]
 
     @classmethod
-    def _parse_datetime_string(cls, value: str) -> datetime | None:
-        """Parse datetime string using supported formats. Returns None if invalid."""
+    def _parse_datetime(cls, value: str, tz: tzinfo | None) -> datetime | None:
+        """Parse datetime string with specified timezone (None for naive datetime)."""
         for fmt in cls._DATETIME_FORMATS:
             try:
-                return datetime.strptime(value, fmt).replace(tzinfo=UTC)
+                return datetime.strptime(value, fmt).replace(tzinfo=tz)
             except ValueError:
                 continue
         return None
+
+    @classmethod
+    def _parse_date_only(cls, value: str) -> date | None:
+        """Parse date string to date object."""
+        try:
+            return date.fromisoformat(value)
+        except ValueError:
+            return None
 
     @dataclass
     class _ExifCreatedAtSource:
@@ -332,25 +349,38 @@ class DateTimeValidator(FieldValidator):
 
     @classmethod
     def _validate_field(cls, field: SpaceField, space: Space) -> SpaceField:
+        if not isinstance(field.options, DatetimeFieldOptions):
+            raise ValidationError("DATETIME field options must be DatetimeFieldOptions")
+        kind = field.options.kind
+
         if field.default is None:
             return field
 
         if field.default == SpecialValue.NOW:
             return field
 
-        if isinstance(field.default, datetime):
-            return field
-
         if isinstance(field.default, str):
             source = cls._parse_exif_created_at_source(field.default)
             if source:
-                cls._validate_exif_source(source, space)
+                cls._validate_exif_source(source, space, kind)
                 return field
 
-        raise ValidationError("DATETIME field default must be datetime, $now, or $exif.created_at:{field}")
+        match kind:
+            case "utc" if isinstance(field.default, datetime):
+                return field
+            case "local" if isinstance(field.default, datetime):
+                return field
+            case "date" if isinstance(field.default, date):
+                return field
+            case "utc" | "local" | "date":
+                raise ValidationError(
+                    f"DATETIME default must be $now, $exif.created_at:{{image_field}}, or datetime/date for kind: {kind}"
+                )
+            case _:
+                raise ValidationError(f"Unknown datetime kind: {kind}")
 
     @classmethod
-    def _validate_exif_source(cls, source: _ExifCreatedAtSource, space: Space) -> None:
+    def _validate_exif_source(cls, source: _ExifCreatedAtSource, space: Space, kind: str) -> None:
         """Validate that EXIF source references a valid IMAGE field."""
         ref_field = space.get_field(source.image_field)
         if ref_field is None:
@@ -358,24 +388,48 @@ class DateTimeValidator(FieldValidator):
         if ref_field.type != FieldType.IMAGE:
             raise ValidationError(f"EXIF default must reference IMAGE field, got {ref_field.type}")
 
-        if (
-            source.fallback is not None
-            and source.fallback != SpecialValue.NOW
-            and cls._parse_datetime_string(source.fallback) is None
-        ):
-            raise ValidationError(f"Invalid EXIF fallback: {source.fallback}. Use $now or datetime literal")
+        if source.fallback is None or source.fallback == SpecialValue.NOW:
+            return
+
+        match kind:
+            case "utc":
+                if cls._parse_datetime(source.fallback, UTC) is None:
+                    raise ValidationError(f"Invalid EXIF fallback: {source.fallback}. Use $now or datetime literal")
+            case "local":
+                if cls._parse_datetime(source.fallback, None) is None:
+                    raise ValidationError(f"Invalid EXIF fallback: {source.fallback}. Use $now or datetime literal")
+            case "date":
+                if cls._parse_date_only(source.fallback) is None:
+                    raise ValidationError(f"Invalid EXIF fallback: {source.fallback}. Use $now or date literal")
 
     @classmethod
-    def _parse_value(cls, field: SpaceField, _space: Space, raw: str | None, ctx: ParseContext) -> FieldValueType:
+    def _resolve_now(cls, kind: str, space: Space) -> datetime | str:
+        """Resolve $now based on kind and space timezone."""
+        match kind:
+            case "utc":
+                return datetime.now(UTC)
+            case "local":
+                return datetime.now(ZoneInfo(space.timezone)).strftime(cls._LOCAL_FORMAT)
+            case "date":
+                return datetime.now(ZoneInfo(space.timezone)).strftime(cls._DATE_FORMAT)
+            case _:
+                raise ValidationError(f"Unknown datetime kind: {kind}")
+
+    @classmethod
+    def _parse_value(cls, field: SpaceField, space: Space, raw: str | None, ctx: ParseContext) -> FieldValueType:
+        if not isinstance(field.options, DatetimeFieldOptions):
+            raise ValidationError("DATETIME field options must be DatetimeFieldOptions")
+        kind = field.options.kind
+
         if raw is None:
             if field.default is not None:
                 if field.default == SpecialValue.NOW:
-                    return datetime.now(UTC)
+                    return cls._resolve_now(kind, space)
 
                 if isinstance(field.default, str):
                     source = cls._parse_exif_created_at_source(field.default)
                     if source:
-                        return cls._resolve_exif_source(source, ctx)
+                        return cls._resolve_exif_source(source, kind, space, ctx)
 
                 return field.default
             if field.required:
@@ -386,42 +440,97 @@ class DateTimeValidator(FieldValidator):
             return None
 
         if raw == SpecialValue.NOW:
-            return datetime.now(UTC)
+            return cls._resolve_now(kind, space)
 
-        parsed = cls._parse_datetime_string(raw)
-        if parsed is not None:
-            return parsed
+        match kind:
+            case "utc":
+                if (parsed_dt := cls._parse_datetime(raw, UTC)) is not None:
+                    return parsed_dt
+            case "local":
+                if (parsed_dt := cls._parse_datetime(raw, None)) is not None:
+                    return parsed_dt.strftime(cls._LOCAL_FORMAT)
+            case "date":
+                if (parsed_date := cls._parse_date_only(raw)) is not None:
+                    return parsed_date.strftime(cls._DATE_FORMAT)
+            case _:
+                raise ValidationError(f"Unknown datetime kind: {kind}")
 
         raise ValidationError(f"Invalid datetime format for field '{field.name}': {raw}")
 
     @classmethod
-    def _resolve_exif_source(cls, source: _ExifCreatedAtSource, ctx: ParseContext) -> datetime | None:
-        """Extract EXIF created_at from the referenced IMAGE field's pending attachment."""
+    def _resolve_exif_source(
+        cls, source: _ExifCreatedAtSource, kind: str, space: Space, ctx: ParseContext
+    ) -> datetime | str | None:
+        """Extract EXIF datetime from the referenced IMAGE field's pending attachment."""
         if not ctx.raw_fields or not ctx.pending_attachments:
-            return cls._resolve_fallback(source.fallback)
+            return cls._resolve_fallback(source.fallback, kind, space)
 
         raw_value = ctx.raw_fields.get(source.image_field)
         if not raw_value:
-            return cls._resolve_fallback(source.fallback)
+            return cls._resolve_fallback(source.fallback, kind, space)
 
         try:
             pending_number = int(raw_value)
         except ValueError:
-            return cls._resolve_fallback(source.fallback)
+            return cls._resolve_fallback(source.fallback, kind, space)
 
         pending = next((p for p in ctx.pending_attachments if p.number == pending_number), None)
-        if not pending or not pending.meta.image or not pending.meta.image.exif_created_at:
-            return cls._resolve_fallback(source.fallback)
+        if not pending or not pending.meta.image or not pending.meta.image.exif_date_time_original:
+            return cls._resolve_fallback(source.fallback, kind, space)
 
-        return pending.meta.image.exif_created_at
+        dt_original = pending.meta.image.exif_date_time_original
+        offset_original = pending.meta.image.exif_offset_time_original
+
+        return cls._compute_exif_datetime(dt_original, offset_original, kind)
 
     @classmethod
-    def _resolve_fallback(cls, fallback: str | None) -> datetime | None:
+    def _compute_exif_datetime(cls, dt_original: str, offset_original: str | None, kind: str) -> datetime | str | None:
+        """Compute datetime value from EXIF components based on kind."""
+        match kind:
+            case "utc":
+                parsed = cls._parse_datetime(dt_original, UTC)
+                if not parsed:
+                    return None
+                if offset_original:
+                    # dt_original is local time (e.g., "10:00" in "+03:00" timezone)
+                    # Convert to UTC by constructing proper timezone-aware datetime
+                    try:
+                        sign = 1 if offset_original[0] == "+" else -1
+                        parts = offset_original[1:].split(":")
+                        hours = int(parts[0])
+                        minutes = int(parts[1]) if len(parts) > 1 else 0
+                        local_tz = timezone(timedelta(hours=sign * hours, minutes=sign * minutes))
+                        parsed = parsed.replace(tzinfo=local_tz).astimezone(UTC)
+                    except (ValueError, IndexError):
+                        pass
+                return parsed
+            case "local":
+                parsed = cls._parse_datetime(dt_original, None)
+                return parsed.strftime(cls._LOCAL_FORMAT) if parsed else None
+            case "date":
+                # Extract first 10 chars (length of "YYYY-MM-DD") from EXIF datetime string
+                parsed_date = cls._parse_date_only(dt_original[:10]) if len(dt_original) >= 10 else None
+                return parsed_date.strftime(cls._DATE_FORMAT) if parsed_date else None
+            case _:
+                raise ValidationError(f"Unknown datetime kind: {kind}")
+
+    @classmethod
+    def _resolve_fallback(cls, fallback: str | None, kind: str, space: Space) -> datetime | str | None:
         if fallback is None:
             return None
         if fallback == SpecialValue.NOW:
-            return datetime.now(UTC)
-        return cls._parse_datetime_string(fallback)
+            return cls._resolve_now(kind, space)
+        match kind:
+            case "utc":
+                return cls._parse_datetime(fallback, UTC)
+            case "local":
+                parsed = cls._parse_datetime(fallback, None)
+                return parsed.strftime(cls._LOCAL_FORMAT) if parsed else None
+            case "date":
+                parsed_date = cls._parse_date_only(fallback)
+                return parsed_date.strftime(cls._DATE_FORMAT) if parsed_date else None
+            case _:
+                raise ValidationError(f"Unknown datetime kind: {kind}")
 
 
 class UserValidator(FieldValidator):

@@ -1,5 +1,6 @@
 import { Card, Text, Title } from "@mantine/core"
 import { Link } from "@tanstack/react-router"
+import { SpaceSlug } from "@spacenote/common/components"
 import type { Space } from "@spacenote/common/types"
 
 interface SpaceCardProps {
@@ -11,6 +12,9 @@ export default function SpaceCard({ space }: SpaceCardProps) {
   return (
     <Link to="/s/$slug" params={{ slug: space.slug }} style={{ textDecoration: "none" }}>
       <Card shadow="sm" padding="lg" withBorder>
+        <Text size="xs" c="dimmed" mb={4}>
+          <SpaceSlug slug={space.slug} />
+        </Text>
         <Title order={3} mb="xs">
           {space.title}
         </Title>

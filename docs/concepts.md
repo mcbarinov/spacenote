@@ -13,6 +13,7 @@ A container that groups related notes. Each space represents a project or domain
 - Unique slug identifier (e.g., `task-tracker`, `food-journal`)
 - Custom field schema defining note structure
 - List of members who can access the space
+- Timezone (IANA format, default: `UTC`) — used for `$now` in `local`/`date` datetime fields
 - Up to 100 spaces per deployment
 
 ### 1.2 Note

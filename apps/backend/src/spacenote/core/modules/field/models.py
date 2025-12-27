@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
 from decimal import Decimal
 from enum import StrEnum
 from typing import Literal
@@ -11,7 +11,7 @@ from pydantic import Field, model_validator
 
 from spacenote.core.schema import OpenAPIModel
 
-FieldValueType = str | bool | list[str] | int | float | Decimal | datetime | None
+FieldValueType = str | bool | list[str] | int | float | Decimal | datetime | date | None
 
 
 class FieldType(StrEnum):
@@ -105,6 +105,8 @@ class UserFieldOptions(OpenAPIModel):
 
 class DatetimeFieldOptions(OpenAPIModel):
     """Options for DATETIME field type."""
+
+    kind: Literal["utc", "local", "date"] = Field("utc", description="Datetime kind: utc, local (naive), or date")
 
 
 class ImageFieldOptions(OpenAPIModel):

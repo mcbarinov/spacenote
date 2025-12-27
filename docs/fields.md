@@ -170,17 +170,46 @@ No options. Use `"options": {}`.
 
 ### 2.6 datetime
 
-Value: `datetime`
+Value: `datetime` or `date` (depends on `kind`)
 
 #### 2.6.1 Options
 
-No options. Use `"options": {}`.
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `kind` | `"utc"` \| `"local"` \| `"date"` | `"utc"` | Datetime kind |
 
-#### 2.6.2 Special Values
+#### 2.6.2 Kinds
 
-`$now` — current timestamp UTC (can be used in `default` or as input value)
+| Kind | Python Type | MongoDB Storage | Description |
+|------|-------------|-----------------|-------------|
+| `utc` | `datetime` (aware, UTC) | `Date()` | Absolute moment in time |
+| `local` | `datetime` (naive) | string `"YYYY-MM-DD HH:MM:SS"` | Wall clock time without timezone |
+| `date` | `date` | string `"YYYY-MM-DD"` | Date only, no time component |
 
-`$exif.created_at:{image_field}` — extract creation datetime from image EXIF metadata (only in `default`)
+**When to use:**
+- `utc` — events that happen at a specific moment (created_at, deadline with time)
+- `local` — times where timezone doesn't matter (meal time, wake up time)
+- `date` — dates without time (birthday, due date)
+
+**Note:** `local` means "datetime without timezone", not "user's local time". The value is stored exactly as entered.
+
+#### 2.6.3 Special Values
+
+##### $now
+
+Current timestamp. Behavior depends on `kind`:
+
+| Kind | Behavior |
+|------|----------|
+| `utc` | `datetime.now(UTC)` |
+| `local` | Current time in Space timezone, stored without timezone |
+| `date` | Current date in Space timezone |
+
+For `local` and `date`, the Space's `timezone` field determines the current time/date.
+
+##### $exif.created_at
+
+Extract creation datetime from image EXIF metadata.
 
 **Syntax**: `$exif.created_at:{image_field}` or `$exif.created_at:{image_field}|{fallback}`
 
@@ -189,10 +218,19 @@ No options. Use `"options": {}`.
 | `{image_field}` | Name of an IMAGE field in the same space |
 | `{fallback}` | Optional. Value if EXIF data missing: `$now`, datetime literal, or omit for null |
 
-**EXIF tags**: Reads `DateTimeOriginal` (preferred) or `DateTime` (fallback). Timezone from `OffsetTimeOriginal` if present, otherwise UTC.
+**EXIF tags**: Reads `DateTimeOriginal`. Timezone from `OffsetTimeOriginal` if present.
 
-#### 2.6.3 Accepted Formats
+**Behavior by kind**:
 
+| Kind | Behavior |
+|------|----------|
+| `utc` | Converts to UTC using `OffsetTimeOriginal` if present |
+| `local` | Uses EXIF datetime as-is (naive datetime) |
+| `date` | Extracts date part only |
+
+#### 2.6.4 Accepted Input Formats
+
+For `utc` and `local`:
 - `2025-01-15T08:30:00`
 - `2025-01-15T08:30`
 - `2025-01-15 08:30:00`
@@ -200,16 +238,30 @@ No options. Use `"options": {}`.
 - `2025-01-15T08:30:00.123456`
 - `2025-01-15T08:30:00Z`
 
-#### 2.6.4 Examples
+For `date`:
+- `2025-01-15`
 
+#### 2.6.5 Examples
+
+UTC datetime (default, current behavior):
 ```json
-{ "name": "due_date", "type": "datetime", "default": "$now", "options": {} }
+{ "name": "created_at", "type": "datetime", "default": "$now", "options": { "kind": "utc" } }
 ```
 
-EXIF datetime from image (with `$now` fallback if no EXIF data):
+Local datetime (wall clock time):
+```json
+{ "name": "meal_time", "type": "datetime", "options": { "kind": "local" } }
+```
+
+Date only:
+```json
+{ "name": "birthday", "type": "datetime", "options": { "kind": "date" } }
+```
+
+EXIF datetime from image:
 ```json
 { "name": "photo", "type": "image", "required": true, "options": {} }
-{ "name": "taken_at", "type": "datetime", "default": "$exif.created_at:photo|$now", "options": {} }
+{ "name": "taken_at", "type": "datetime", "default": "$exif.created_at:photo|$now", "options": { "kind": "utc" } }
 ```
 
 ### 2.7 numeric

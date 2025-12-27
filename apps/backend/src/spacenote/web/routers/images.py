@@ -14,6 +14,7 @@ router = APIRouter(tags=["images"])
     operation_id="downloadImage",
     responses={
         200: {"description": "Image (WebP format)"},
+        202: {"model": ErrorResponse, "description": "Image is still processing"},
         401: {"model": ErrorResponse, "description": "Not authenticated"},
         403: {"model": ErrorResponse, "description": "Not a member of this space"},
         404: {"model": ErrorResponse, "description": "Space, note, field, or image not found"},

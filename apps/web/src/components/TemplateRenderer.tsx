@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { useNavigate } from "@tanstack/react-router"
-import { renderTemplate, type NoteDetailContext, type NoteListContext } from "@spacenote/common/templates"
+import { renderTemplate, initImageRetry, type NoteDetailContext, type NoteListContext } from "@spacenote/common/templates"
 import "@spacenote/common/styles/templates.css"
 
 interface TemplateRendererProps {
@@ -12,16 +12,26 @@ interface TemplateRendererProps {
 export function TemplateRenderer({ template, context }: TemplateRendererProps) {
   const [html, setHtml] = useState("")
   const navigate = useNavigate()
+  const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     let cancelled = false
-    void renderTemplate(template, context).then(({ html }) => {
-      if (!cancelled) setHtml(html)
+    void renderTemplate(template, context).then(({ html: newHtml }) => {
+      if (!cancelled) setHtml(newHtml)
     })
     return () => {
       cancelled = true
     }
   }, [template, context])
+
+  // Initialize image retry after HTML is rendered.
+  // Depends on context to re-init images when space data updates (even if HTML is same).
+  useEffect(() => {
+    if (html && containerRef.current) {
+      const cleanup = initImageRetry(containerRef.current)
+      return cleanup
+    }
+  }, [html, context])
 
   /** Intercepts clicks on local links and uses client-side navigation */
   function handleClick(e: React.MouseEvent<HTMLDivElement>) {
@@ -44,6 +54,6 @@ export function TemplateRenderer({ template, context }: TemplateRendererProps) {
   // onClick delegates to anchor elements inside, which handle their own keyboard interactions
   return (
     // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions, react-dom/no-dangerously-set-innerhtml
-    <div onClick={handleClick} dangerouslySetInnerHTML={{ __html: html }} />
+    <div ref={containerRef} onClick={handleClick} dangerouslySetInnerHTML={{ __html: html }} />
   )
 }

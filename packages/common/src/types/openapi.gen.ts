@@ -1182,7 +1182,15 @@ export type components = {
      * DatetimeFieldOptions
      * @description Options for DATETIME field type.
      */
-    DatetimeFieldOptions: Record<string, never>
+    DatetimeFieldOptions: {
+      /**
+       * Kind
+       * @description Datetime kind: utc, local (naive), or date
+       * @default utc
+       * @enum {string}
+       */
+      kind: "utc" | "local" | "date"
+    }
     /**
      * ErrorResponse
      * @description Standard error response format.
@@ -1329,8 +1337,16 @@ export type components = {
       height: number
       /** Format */
       format: string | null
-      /** Exif Created At */
-      exif_created_at: string | null
+      /**
+       * Exif Date Time Original
+       * @description EXIF DateTimeOriginal tag (ISO: YYYY-MM-DDTHH:MM:SS). Used with exif_offset_time_original to compute $exif.created_at field default.
+       */
+      exif_date_time_original: string | null
+      /**
+       * Exif Offset Time Original
+       * @description EXIF OffsetTimeOriginal tag (+HH:MM or -HH:MM). Timezone offset for exif_date_time_original. None if camera didn't record timezone.
+       */
+      exif_offset_time_original: string | null
     }
     /**
      * LoginRequest
@@ -1724,6 +1740,12 @@ export type components = {
         [key: string]: string
       }
       telegram: components["schemas"]["TelegramSettings"] | null
+      /**
+       * Timezone
+       * @description Space timezone in IANA format (e.g., Atlantic/Reykjavik)
+       * @default UTC
+       */
+      timezone: string
       /**
        * Created At
        * Format: date-time

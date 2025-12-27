@@ -1,9 +1,10 @@
 """Filter validation utilities."""
 
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from decimal import Decimal, InvalidOperation
 
 from spacenote.core.modules.field.models import (
+    DatetimeFieldOptions,
     FieldType,
     FieldValueType,
     NumericFieldOptions,
@@ -100,17 +101,76 @@ def _validate_numeric_value(field: SpaceField, value: FieldValueType) -> int | f
     raise ValidationError(f"Unknown numeric kind: {field.options.kind}")
 
 
-def _validate_datetime_value(field: SpaceField, value: FieldValueType) -> datetime:
-    """Validate and normalize datetime field filter value."""
+def _validate_datetime_value(field: SpaceField, value: FieldValueType) -> datetime | date | str:
+    """Validate and normalize datetime field filter value.
+
+    Returns:
+    - datetime for kind='utc' (stored as MongoDB Date)
+    - str for kind='local' (stored as "YYYY-MM-DD HH:MM:SS")
+    - str for kind='date' (stored as "YYYY-MM-DD")
+    """
+    if not isinstance(field.options, DatetimeFieldOptions):
+        raise ValidationError("DATETIME field options must be DatetimeFieldOptions")
+    kind = field.options.kind
+
+    match kind:
+        case "date":
+            return _validate_date_filter_value(field, value)
+        case "local":
+            return _validate_local_datetime_filter_value(field, value)
+        case "utc":
+            return _validate_utc_datetime_filter_value(field, value)
+        case _:
+            raise ValidationError(f"Unknown datetime kind: {kind}")
+
+
+def _validate_date_filter_value(field: SpaceField, value: FieldValueType) -> str:
+    """Validate date filter value, returns ISO date string."""
+    if isinstance(value, date) and not isinstance(value, datetime):
+        return value.isoformat()
     if isinstance(value, str):
-        datetime_formats = [
-            "%Y-%m-%dT%H:%M:%S",
-            "%Y-%m-%dT%H:%M",
-            "%Y-%m-%d %H:%M:%S",
-            "%Y-%m-%d",
-            "%Y-%m-%dT%H:%M:%S.%f",
-            "%Y-%m-%dT%H:%M:%SZ",
-        ]
+        try:
+            date.fromisoformat(value)
+        except ValueError:
+            raise ValidationError(f"Invalid date format for filter on field '{field.name}': {value}") from None
+        else:
+            return value
+    raise ValidationError(f"Filter value for date field '{field.name}' must be a date string (YYYY-MM-DD)")
+
+
+def _validate_local_datetime_filter_value(field: SpaceField, value: FieldValueType) -> str:
+    """Validate local datetime filter value, returns normalized datetime string."""
+    datetime_formats = [
+        "%Y-%m-%dT%H:%M:%S",
+        "%Y-%m-%dT%H:%M",
+        "%Y-%m-%d %H:%M:%S",
+        "%Y-%m-%d",
+    ]
+    if isinstance(value, datetime):
+        return value.strftime("%Y-%m-%d %H:%M:%S")
+    if isinstance(value, str):
+        for fmt in datetime_formats:
+            try:
+                # Naive datetime is intentional: "local" kind stores time without timezone
+                parsed = datetime.strptime(value, fmt)  # noqa: DTZ007
+                return parsed.strftime("%Y-%m-%d %H:%M:%S")
+            except ValueError:
+                continue
+        raise ValidationError(f"Invalid datetime format for filter on field '{field.name}': {value}")
+    raise ValidationError(f"Filter value for local datetime field '{field.name}' must be a datetime string")
+
+
+def _validate_utc_datetime_filter_value(field: SpaceField, value: FieldValueType) -> datetime:
+    """Validate UTC datetime filter value, returns UTC-aware datetime."""
+    datetime_formats = [
+        "%Y-%m-%dT%H:%M:%S",
+        "%Y-%m-%dT%H:%M",
+        "%Y-%m-%d %H:%M:%S",
+        "%Y-%m-%d",
+        "%Y-%m-%dT%H:%M:%S.%f",
+        "%Y-%m-%dT%H:%M:%SZ",
+    ]
+    if isinstance(value, str):
         for fmt in datetime_formats:
             try:
                 return datetime.strptime(value, fmt).replace(tzinfo=UTC)

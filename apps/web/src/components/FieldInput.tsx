@@ -1,7 +1,8 @@
 import { TextInput, Textarea, Checkbox, Select, NumberInput, TagsInput } from "@mantine/core"
-import { DateTimePicker } from "@mantine/dates"
+import { DatePicker, DateTimePicker } from "@mantine/dates"
 import type {
   AttachmentMeta,
+  DatetimeFieldOptions,
   NumericFieldOptions,
   SelectFieldOptions,
   SpaceField,
@@ -144,17 +145,34 @@ export function FieldInput({ field, value, onChange, error, spaceMembers, onImag
       )
     }
 
-    case "datetime":
+    case "datetime": {
+      const opts = field.options as DatetimeFieldOptions
+      const dateValue = value instanceof Date ? value : value ? new Date(asString(value)) : null
+
+      if (opts.kind === "date") {
+        return (
+          <DatePicker
+            {...commonProps}
+            value={dateValue}
+            onChange={(date) => {
+              onChange(date)
+            }}
+            allowDeselect={!field.required}
+          />
+        )
+      }
+
       return (
         <DateTimePicker
           {...commonProps}
-          value={value instanceof Date ? value : value ? new Date(asString(value)) : null}
+          value={dateValue}
           onChange={(date) => {
             onChange(date)
           }}
           clearable={!field.required}
         />
       )
+    }
 
     case "user":
       return (

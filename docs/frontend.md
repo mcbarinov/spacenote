@@ -4,7 +4,7 @@
 
 - **React 19** + **TypeScript 5** + **Vite 7**
 - **Mantine 8** (UI components, forms, notifications)
-- **TanStack Router** (file-based routing, type-safe)
+- **TanStack Router** (virtual file routes, type-safe)
 - **TanStack Query** (server state, caching)
 - **ky** (HTTP client)
 - **Zod** (validation) + **mantine-form-zod-resolver**
@@ -26,27 +26,64 @@ packages/
 └── common/             # @spacenote/common - types, API layer, components, utilities
 ```
 
-### App Structure
+### Routes Organization (Virtual File Routes)
+
+We use **virtual file routes** instead of file-based routing. The `$` character in file-based routing (e.g., `$slug/`) causes shell escaping issues with AI tools. Virtual routes define the tree in `routes.ts` while files use shell-safe names.
+
+#### Naming Conventions
+
+| Type | Simple | With `-components/` |
+|------|--------|---------------------|
+| Layout | `name.layout.tsx` | `name/layout.tsx` |
+| Page | `name.page.tsx` | `name/page.tsx` |
+| Index | `index.page.tsx` | `index/page.tsx` |
+| Param folder | `_param_/` | — |
+
+#### Structure Example
 
 ```
-src/
-├── components/         # App-specific reusable components
-├── routes/             # File-based routing (TanStack Router)
-│   ├── __root.tsx      # Root layout
-│   ├── _auth/          # Authenticated routes
-│   │   ├── route.tsx   # Auth layout + data preloading
-│   │   ├── -components/  # Route-specific components
-│   │   └── users/
-│   │       ├── route.tsx
-│   │       └── -components/
-│   └── login.tsx       # Public route
-├── main.tsx
-└── routeTree.gen.ts    # Auto-generated
+src/routes/
+├── routes.ts                  # Route tree definition
+├── root.layout.tsx
+├── auth.layout.tsx
+├── login.page.tsx             # /login
+│
+├── index/                     # / (has components)
+│   ├── page.tsx
+│   └── -components/
+│
+└── s/_slug_/
+    ├── index/                 # /s/:slug (has components)
+    │   ├── page.tsx
+    │   └── -components/
+    ├── new.page.tsx           # /s/:slug/new
+    └── _noteNumber_/
+        ├── index/             # /s/:slug/:noteNumber
+        │   ├── page.tsx
+        │   └── -components/
+        └── edit.page.tsx      # /s/:slug/:noteNumber/edit
 ```
 
-**Route structure:**
-- Simple routes: `login.tsx` (single file)
-- Routes with components: `users/route.tsx` + `users/-components/` (folder)
+#### routes.ts Example
+
+```typescript
+import { rootRoute, route, layout, index } from '@tanstack/virtual-file-routes'
+
+export const routes = rootRoute('root.layout.tsx', [
+  route('/login', 'login.page.tsx'),
+  layout('auth.layout.tsx', [
+    index('index/page.tsx'),
+    route('/s/$slug', [
+      index('s/_slug_/index/page.tsx'),
+      route('/new', 's/_slug_/new.page.tsx'),
+      route('/$noteNumber', [
+        index('s/_slug_/_noteNumber_/index/page.tsx'),
+        route('/edit', 's/_slug_/_noteNumber_/edit.page.tsx'),
+      ]),
+    ]),
+  ]),
+])
+```
 
 ### Import Paths
 
@@ -345,7 +382,7 @@ void navigate({ to: "/s/$slug", params: { slug } })
 
 ### Organization
 
-**Route-specific components** → `src/routes/[route]/-components/`
+**Route-specific components** → `-components/` folder next to `page.tsx`/`layout.tsx`
 - Used only in that route
 - Co-located with route definition
 
@@ -356,11 +393,11 @@ void navigate({ to: "/s/$slug", params: { slug } })
 **Decision flow:**
 1. Used in multiple routes? → `src/components/`
 2. Special app-wide purpose (error boundaries, auth)? → `src/components/`
-3. Otherwise → `src/routes/[route]/-components/`
+3. Otherwise → `-components/` next to `page.tsx`
 
-**When to extract to `-components/`:**
-Route has 2+ distinct components → extract each to `-components/`
-Single component → keep in route file
+**When to use `-components/`:**
+Page has 2+ distinct components → create folder with `page.tsx` + `-components/`
+Single simple page → keep as `name.page.tsx` file
 
 ### Encapsulation
 

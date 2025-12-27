@@ -40,6 +40,7 @@
     "@tanstack/react-router-devtools": "^1.143.11",
     "@tanstack/router-cli": "^1.143.11",
     "@tanstack/router-plugin": "^1.143.11",
+    "@tanstack/virtual-file-routes": "^1.141.0",
     "@types/node": "^25.0.3",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",

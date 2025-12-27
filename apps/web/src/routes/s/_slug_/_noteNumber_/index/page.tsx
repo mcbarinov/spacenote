@@ -27,7 +27,7 @@ function resolveView(view: ViewMode | undefined, hasTemplate: boolean): ViewMode
   return hasTemplate ? "template" : "default"
 }
 
-export const Route = createFileRoute("/_auth/s/$slug/$noteNumber/")({
+export const Route = createFileRoute("/_auth.layout/s/$slug/$noteNumber/")({
   validateSearch: searchSchema,
   loader: async ({ context, params }) => {
     const noteNumber = Number(params.noteNumber)

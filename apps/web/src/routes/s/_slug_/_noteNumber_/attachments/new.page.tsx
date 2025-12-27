@@ -6,7 +6,7 @@ import { api } from "@spacenote/common/api"
 import { ErrorMessage, PageHeader } from "@spacenote/common/components"
 import { useSuspenseQuery } from "@tanstack/react-query"
 
-export const Route = createFileRoute("/_auth/s/$slug/$noteNumber/attachments/new")({
+export const Route = createFileRoute("/_auth.layout/s/$slug/$noteNumber/attachments/new")({
   loader: async ({ context, params }) => {
     const noteNumber = Number(params.noteNumber)
     await context.queryClient.ensureQueryData(api.queries.getNote(params.slug, noteNumber))

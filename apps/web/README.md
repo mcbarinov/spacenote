@@ -13,36 +13,43 @@ src/
 │   ├── ImageFieldInput.tsx
 │   ├── MarkdownDisplay.tsx
 │   ├── MarkdownEditor.tsx
-│   └── NoteForm.tsx
+│   ├── NoteForm.tsx
+│   └── ViewModeMenu.tsx
 └── routes/
-    ├── __root.tsx
-    ├── login.tsx
-    └── _auth/
-        ├── -components/
-        │   └── SpaceCard.tsx
-        ├── index.tsx
-        ├── route.tsx
-        └── s/$slug/
-            ├── index.tsx
-            ├── new.tsx
-            ├── -components/
-            │   ├── NotesListDefault.tsx
-            │   ├── NotesListJson.tsx
-            │   ├── NotesListTemplate.tsx
-            │   ├── ActiveQueryFilters.tsx
-            │   └── ViewModeMenu.tsx
-            ├── attachments/
-            └── $noteNumber/
-                ├── index.tsx
-                ├── edit.tsx
-                ├── -components/
-                │   ├── CommentForm.tsx
-                │   ├── CommentList.tsx
-                │   ├── NoteDetailsDefault.tsx
-                │   ├── NoteDetailsJson.tsx
-                │   ├── NoteDetailsTemplate.tsx
-                │   └── ViewModeMenu.tsx
-                └── attachments/
+    ├── routes.ts                 # Route tree definition
+    ├── root.layout.tsx
+    ├── auth.layout.tsx
+    ├── login.page.tsx
+    ├── index/
+    │   ├── page.tsx
+    │   └── -components/
+    │       └── SpaceCard.tsx
+    └── s/_slug_/
+        ├── index/
+        │   ├── page.tsx
+        │   └── -components/
+        │       ├── ActiveQueryFilters.tsx
+        │       ├── AdhocFilterDrawer.tsx
+        │       ├── NotesListDefault.tsx
+        │       ├── NotesListJson.tsx
+        │       └── NotesListTemplate.tsx
+        ├── new.page.tsx
+        ├── attachments/
+        │   ├── index.page.tsx
+        │   └── new.page.tsx
+        └── _noteNumber_/
+            ├── index/
+            │   ├── page.tsx
+            │   └── -components/
+            │       ├── CommentForm.tsx
+            │       ├── CommentList.tsx
+            │       ├── NoteDetailsDefault.tsx
+            │       ├── NoteDetailsJson.tsx
+            │       └── NoteDetailsTemplate.tsx
+            ├── edit.page.tsx
+            └── attachments/
+                ├── index.page.tsx
+                └── new.page.tsx
 ```
 
 ## Development

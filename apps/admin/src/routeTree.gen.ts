@@ -11,12 +11,14 @@
 import { Route as rootRouteImport } from './routes/root.layout'
 import { Route as loginDotpageRouteImport } from './routes/login.page'
 import { Route as authDotlayoutRouteImport } from './routes/auth.layout'
-import { Route as indexPageRouteImport } from './routes/index/page'
+import { Route as indexDotpageRouteImport } from './routes/index.page'
 import { Route as spacesIndexDotpageRouteImport } from './routes/spaces/index.page'
+import { Route as usersNewDotpageRouteImport } from './routes/users/new.page'
 import { Route as telegramTasksPageRouteImport } from './routes/telegram/tasks/page'
 import { Route as telegramMirrorsPageRouteImport } from './routes/telegram/mirrors/page'
 import { Route as spacesNewDotpageRouteImport } from './routes/spaces/new.page'
 import { Route as spacesImportDotpageRouteImport } from './routes/spaces/import.page'
+import { Route as usersIndexPageRouteImport } from './routes/users/index/page'
 import { Route as spacesSlugTemplatesPageRouteImport } from './routes/spaces/_slug_/templates/page'
 import { Route as spacesSlugSettingsPageRouteImport } from './routes/spaces/_slug_/settings/page'
 import { Route as spacesSlugMembersDotpageRouteImport } from './routes/spaces/_slug_/members.page'
@@ -37,7 +39,7 @@ const authDotlayoutRoute = authDotlayoutRouteImport.update({
   id: '/_auth.layout',
   getParentRoute: () => rootRouteImport,
 } as any)
-const indexPageRoute = indexPageRouteImport.update({
+const indexDotpageRoute = indexDotpageRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => authDotlayoutRoute,
@@ -45,6 +47,11 @@ const indexPageRoute = indexPageRouteImport.update({
 const spacesIndexDotpageRoute = spacesIndexDotpageRouteImport.update({
   id: '/spaces/',
   path: '/spaces/',
+  getParentRoute: () => authDotlayoutRoute,
+} as any)
+const usersNewDotpageRoute = usersNewDotpageRouteImport.update({
+  id: '/users/new',
+  path: '/users/new',
   getParentRoute: () => authDotlayoutRoute,
 } as any)
 const telegramTasksPageRoute = telegramTasksPageRouteImport.update({
@@ -65,6 +72,11 @@ const spacesNewDotpageRoute = spacesNewDotpageRouteImport.update({
 const spacesImportDotpageRoute = spacesImportDotpageRouteImport.update({
   id: '/spaces/import',
   path: '/spaces/import',
+  getParentRoute: () => authDotlayoutRoute,
+} as any)
+const usersIndexPageRoute = usersIndexPageRouteImport.update({
+  id: '/users/',
+  path: '/users/',
   getParentRoute: () => authDotlayoutRoute,
 } as any)
 const spacesSlugTemplatesPageRoute = spacesSlugTemplatesPageRouteImport.update({
@@ -127,11 +139,13 @@ const spacesSlugFieldsFieldNameEditDotpageRoute =
 
 export interface FileRoutesByFullPath {
   '/login': typeof loginDotpageRoute
-  '/': typeof indexPageRoute
+  '/': typeof indexDotpageRoute
+  '/users': typeof usersIndexPageRoute
   '/spaces/import': typeof spacesImportDotpageRoute
   '/spaces/new': typeof spacesNewDotpageRoute
   '/telegram/mirrors': typeof telegramMirrorsPageRoute
   '/telegram/tasks': typeof telegramTasksPageRoute
+  '/users/new': typeof usersNewDotpageRoute
   '/spaces': typeof spacesIndexDotpageRoute
   '/spaces/$slug/export': typeof spacesSlugExportDotpageRoute
   '/spaces/$slug/members': typeof spacesSlugMembersDotpageRoute
@@ -146,11 +160,13 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/login': typeof loginDotpageRoute
-  '/': typeof indexPageRoute
+  '/': typeof indexDotpageRoute
+  '/users': typeof usersIndexPageRoute
   '/spaces/import': typeof spacesImportDotpageRoute
   '/spaces/new': typeof spacesNewDotpageRoute
   '/telegram/mirrors': typeof telegramMirrorsPageRoute
   '/telegram/tasks': typeof telegramTasksPageRoute
+  '/users/new': typeof usersNewDotpageRoute
   '/spaces': typeof spacesIndexDotpageRoute
   '/spaces/$slug/export': typeof spacesSlugExportDotpageRoute
   '/spaces/$slug/members': typeof spacesSlugMembersDotpageRoute
@@ -167,11 +183,13 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_auth.layout': typeof authDotlayoutRouteWithChildren
   '/login': typeof loginDotpageRoute
-  '/_auth.layout/': typeof indexPageRoute
+  '/_auth.layout/': typeof indexDotpageRoute
+  '/_auth.layout/users/': typeof usersIndexPageRoute
   '/_auth.layout/spaces/import': typeof spacesImportDotpageRoute
   '/_auth.layout/spaces/new': typeof spacesNewDotpageRoute
   '/_auth.layout/telegram/mirrors': typeof telegramMirrorsPageRoute
   '/_auth.layout/telegram/tasks': typeof telegramTasksPageRoute
+  '/_auth.layout/users/new': typeof usersNewDotpageRoute
   '/_auth.layout/spaces/': typeof spacesIndexDotpageRoute
   '/_auth.layout/spaces/$slug/export': typeof spacesSlugExportDotpageRoute
   '/_auth.layout/spaces/$slug/members': typeof spacesSlugMembersDotpageRoute
@@ -189,10 +207,12 @@ export interface FileRouteTypes {
   fullPaths:
     | '/login'
     | '/'
+    | '/users'
     | '/spaces/import'
     | '/spaces/new'
     | '/telegram/mirrors'
     | '/telegram/tasks'
+    | '/users/new'
     | '/spaces'
     | '/spaces/$slug/export'
     | '/spaces/$slug/members'
@@ -208,10 +228,12 @@ export interface FileRouteTypes {
   to:
     | '/login'
     | '/'
+    | '/users'
     | '/spaces/import'
     | '/spaces/new'
     | '/telegram/mirrors'
     | '/telegram/tasks'
+    | '/users/new'
     | '/spaces'
     | '/spaces/$slug/export'
     | '/spaces/$slug/members'
@@ -228,10 +250,12 @@ export interface FileRouteTypes {
     | '/_auth.layout'
     | '/login'
     | '/_auth.layout/'
+    | '/_auth.layout/users/'
     | '/_auth.layout/spaces/import'
     | '/_auth.layout/spaces/new'
     | '/_auth.layout/telegram/mirrors'
     | '/_auth.layout/telegram/tasks'
+    | '/_auth.layout/users/new'
     | '/_auth.layout/spaces/'
     | '/_auth.layout/spaces/$slug/export'
     | '/_auth.layout/spaces/$slug/members'
@@ -270,7 +294,7 @@ declare module '@tanstack/react-router' {
       id: '/_auth.layout/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof indexPageRouteImport
+      preLoaderRoute: typeof indexDotpageRouteImport
       parentRoute: typeof authDotlayoutRoute
     }
     '/_auth.layout/spaces/': {
@@ -278,6 +302,13 @@ declare module '@tanstack/react-router' {
       path: '/spaces'
       fullPath: '/spaces'
       preLoaderRoute: typeof spacesIndexDotpageRouteImport
+      parentRoute: typeof authDotlayoutRoute
+    }
+    '/_auth.layout/users/new': {
+      id: '/_auth.layout/users/new'
+      path: '/users/new'
+      fullPath: '/users/new'
+      preLoaderRoute: typeof usersNewDotpageRouteImport
       parentRoute: typeof authDotlayoutRoute
     }
     '/_auth.layout/telegram/tasks': {
@@ -306,6 +337,13 @@ declare module '@tanstack/react-router' {
       path: '/spaces/import'
       fullPath: '/spaces/import'
       preLoaderRoute: typeof spacesImportDotpageRouteImport
+      parentRoute: typeof authDotlayoutRoute
+    }
+    '/_auth.layout/users/': {
+      id: '/_auth.layout/users/'
+      path: '/users'
+      fullPath: '/users'
+      preLoaderRoute: typeof usersIndexPageRouteImport
       parentRoute: typeof authDotlayoutRoute
     }
     '/_auth.layout/spaces/$slug/templates': {
@@ -382,11 +420,13 @@ declare module '@tanstack/react-router' {
 }
 
 interface authDotlayoutRouteChildren {
-  indexPageRoute: typeof indexPageRoute
+  indexDotpageRoute: typeof indexDotpageRoute
+  usersIndexPageRoute: typeof usersIndexPageRoute
   spacesImportDotpageRoute: typeof spacesImportDotpageRoute
   spacesNewDotpageRoute: typeof spacesNewDotpageRoute
   telegramMirrorsPageRoute: typeof telegramMirrorsPageRoute
   telegramTasksPageRoute: typeof telegramTasksPageRoute
+  usersNewDotpageRoute: typeof usersNewDotpageRoute
   spacesIndexDotpageRoute: typeof spacesIndexDotpageRoute
   spacesSlugExportDotpageRoute: typeof spacesSlugExportDotpageRoute
   spacesSlugMembersDotpageRoute: typeof spacesSlugMembersDotpageRoute
@@ -401,11 +441,13 @@ interface authDotlayoutRouteChildren {
 }
 
 const authDotlayoutRouteChildren: authDotlayoutRouteChildren = {
-  indexPageRoute: indexPageRoute,
+  indexDotpageRoute: indexDotpageRoute,
+  usersIndexPageRoute: usersIndexPageRoute,
   spacesImportDotpageRoute: spacesImportDotpageRoute,
   spacesNewDotpageRoute: spacesNewDotpageRoute,
   telegramMirrorsPageRoute: telegramMirrorsPageRoute,
   telegramTasksPageRoute: telegramTasksPageRoute,
+  usersNewDotpageRoute: usersNewDotpageRoute,
   spacesIndexDotpageRoute: spacesIndexDotpageRoute,
   spacesSlugExportDotpageRoute: spacesSlugExportDotpageRoute,
   spacesSlugMembersDotpageRoute: spacesSlugMembersDotpageRoute,

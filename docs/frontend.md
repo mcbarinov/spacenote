@@ -395,9 +395,22 @@ void navigate({ to: "/s/$slug", params: { slug } })
 2. Special app-wide purpose (error boundaries, auth)? → `src/components/`
 3. Otherwise → `-components/` next to `page.tsx`
 
-**When to use `-components/`:**
-Page has 2+ distinct components → create folder with `page.tsx` + `-components/`
-Single simple page → keep as `name.page.tsx` file
+**`-components/` rule:**
+- `-components/` must belong to exactly ONE page or layout
+- Never place `-components/` where it's ambiguous which page owns it
+
+**When to use folder structure:**
+- Page needs components → `name/page.tsx` + `name/-components/`
+- Simple page without components → `name.page.tsx`
+
+Example:
+```
+users/
+  index/              ← folder for index page
+    page.tsx
+    -components/      ← clearly belongs to index/page.tsx
+  new.page.tsx        ← simple page, no components
+```
 
 ### Encapsulation
 

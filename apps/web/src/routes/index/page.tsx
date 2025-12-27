@@ -14,7 +14,7 @@ function HomePage() {
 
   return (
     <>
-      <PageHeader title="Your Spaces" />
+      <PageHeader />
 
       {spaces.length === 0 ? (
         <Text c="dimmed">You don't have access to any spaces yet.</Text>

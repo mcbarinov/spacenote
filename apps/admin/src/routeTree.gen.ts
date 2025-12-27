@@ -8,249 +8,246 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from './routes/__root'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as AuthRouteRouteImport } from './routes/_auth/route'
-import { Route as AuthIndexRouteImport } from './routes/_auth/index'
-import { Route as AuthSpacesIndexRouteImport } from './routes/_auth/spaces/index'
-import { Route as AuthSpacesNewRouteImport } from './routes/_auth/spaces/new'
-import { Route as AuthSpacesImportRouteImport } from './routes/_auth/spaces/import'
-import { Route as AuthTelegramTasksRouteRouteImport } from './routes/_auth/telegram/tasks/route'
-import { Route as AuthTelegramMirrorsRouteRouteImport } from './routes/_auth/telegram/mirrors/route'
-import { Route as AuthSpacesSlugMembersRouteRouteImport } from './routes/_auth/spaces/$slug/members/route'
-import { Route as AuthSpacesSlugTemplatesIndexRouteImport } from './routes/_auth/spaces/$slug/templates/index'
-import { Route as AuthSpacesSlugSettingsIndexRouteImport } from './routes/_auth/spaces/$slug/settings/index'
-import { Route as AuthSpacesSlugFiltersIndexRouteImport } from './routes/_auth/spaces/$slug/filters/index'
-import { Route as AuthSpacesSlugFieldsIndexRouteImport } from './routes/_auth/spaces/$slug/fields/index'
-import { Route as AuthSpacesSlugExportIndexRouteImport } from './routes/_auth/spaces/$slug/export/index'
-import { Route as AuthSpacesSlugFiltersNewRouteImport } from './routes/_auth/spaces/$slug/filters/new'
-import { Route as AuthSpacesSlugFieldsNewRouteImport } from './routes/_auth/spaces/$slug/fields/new'
-import { Route as AuthSpacesSlugFiltersFilterNameEditRouteImport } from './routes/_auth/spaces/$slug/filters/$filterName/edit'
-import { Route as AuthSpacesSlugFieldsFieldNameEditRouteImport } from './routes/_auth/spaces/$slug/fields/$fieldName/edit'
+import { Route as rootRouteImport } from './routes/root.layout'
+import { Route as loginDotpageRouteImport } from './routes/login.page'
+import { Route as authDotlayoutRouteImport } from './routes/auth.layout'
+import { Route as indexPageRouteImport } from './routes/index/page'
+import { Route as spacesIndexDotpageRouteImport } from './routes/spaces/index.page'
+import { Route as telegramTasksPageRouteImport } from './routes/telegram/tasks/page'
+import { Route as telegramMirrorsPageRouteImport } from './routes/telegram/mirrors/page'
+import { Route as spacesNewDotpageRouteImport } from './routes/spaces/new.page'
+import { Route as spacesImportDotpageRouteImport } from './routes/spaces/import.page'
+import { Route as spacesSlugTemplatesPageRouteImport } from './routes/spaces/_slug_/templates/page'
+import { Route as spacesSlugSettingsPageRouteImport } from './routes/spaces/_slug_/settings/page'
+import { Route as spacesSlugMembersDotpageRouteImport } from './routes/spaces/_slug_/members.page'
+import { Route as spacesSlugExportDotpageRouteImport } from './routes/spaces/_slug_/export.page'
+import { Route as spacesSlugFiltersIndexDotpageRouteImport } from './routes/spaces/_slug_/filters/index.page'
+import { Route as spacesSlugFieldsIndexDotpageRouteImport } from './routes/spaces/_slug_/fields/index.page'
+import { Route as spacesSlugFiltersNewDotpageRouteImport } from './routes/spaces/_slug_/filters/new.page'
+import { Route as spacesSlugFieldsNewDotpageRouteImport } from './routes/spaces/_slug_/fields/new.page'
+import { Route as spacesSlugFiltersFilterNameEditDotpageRouteImport } from './routes/spaces/_slug_/filters/_filterName_/edit.page'
+import { Route as spacesSlugFieldsFieldNameEditDotpageRouteImport } from './routes/spaces/_slug_/fields/_fieldName_/edit.page'
 
-const LoginRoute = LoginRouteImport.update({
+const loginDotpageRoute = loginDotpageRouteImport.update({
   id: '/login',
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthRouteRoute = AuthRouteRouteImport.update({
-  id: '/_auth',
+const authDotlayoutRoute = authDotlayoutRouteImport.update({
+  id: '/_auth.layout',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthIndexRoute = AuthIndexRouteImport.update({
+const indexPageRoute = indexPageRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => AuthRouteRoute,
+  getParentRoute: () => authDotlayoutRoute,
 } as any)
-const AuthSpacesIndexRoute = AuthSpacesIndexRouteImport.update({
+const spacesIndexDotpageRoute = spacesIndexDotpageRouteImport.update({
   id: '/spaces/',
   path: '/spaces/',
-  getParentRoute: () => AuthRouteRoute,
+  getParentRoute: () => authDotlayoutRoute,
 } as any)
-const AuthSpacesNewRoute = AuthSpacesNewRouteImport.update({
-  id: '/spaces/new',
-  path: '/spaces/new',
-  getParentRoute: () => AuthRouteRoute,
-} as any)
-const AuthSpacesImportRoute = AuthSpacesImportRouteImport.update({
-  id: '/spaces/import',
-  path: '/spaces/import',
-  getParentRoute: () => AuthRouteRoute,
-} as any)
-const AuthTelegramTasksRouteRoute = AuthTelegramTasksRouteRouteImport.update({
+const telegramTasksPageRoute = telegramTasksPageRouteImport.update({
   id: '/telegram/tasks',
   path: '/telegram/tasks',
-  getParentRoute: () => AuthRouteRoute,
+  getParentRoute: () => authDotlayoutRoute,
 } as any)
-const AuthTelegramMirrorsRouteRoute =
-  AuthTelegramMirrorsRouteRouteImport.update({
-    id: '/telegram/mirrors',
-    path: '/telegram/mirrors',
-    getParentRoute: () => AuthRouteRoute,
-  } as any)
-const AuthSpacesSlugMembersRouteRoute =
-  AuthSpacesSlugMembersRouteRouteImport.update({
+const telegramMirrorsPageRoute = telegramMirrorsPageRouteImport.update({
+  id: '/telegram/mirrors',
+  path: '/telegram/mirrors',
+  getParentRoute: () => authDotlayoutRoute,
+} as any)
+const spacesNewDotpageRoute = spacesNewDotpageRouteImport.update({
+  id: '/spaces/new',
+  path: '/spaces/new',
+  getParentRoute: () => authDotlayoutRoute,
+} as any)
+const spacesImportDotpageRoute = spacesImportDotpageRouteImport.update({
+  id: '/spaces/import',
+  path: '/spaces/import',
+  getParentRoute: () => authDotlayoutRoute,
+} as any)
+const spacesSlugTemplatesPageRoute = spacesSlugTemplatesPageRouteImport.update({
+  id: '/spaces/$slug/templates',
+  path: '/spaces/$slug/templates',
+  getParentRoute: () => authDotlayoutRoute,
+} as any)
+const spacesSlugSettingsPageRoute = spacesSlugSettingsPageRouteImport.update({
+  id: '/spaces/$slug/settings',
+  path: '/spaces/$slug/settings',
+  getParentRoute: () => authDotlayoutRoute,
+} as any)
+const spacesSlugMembersDotpageRoute =
+  spacesSlugMembersDotpageRouteImport.update({
     id: '/spaces/$slug/members',
     path: '/spaces/$slug/members',
-    getParentRoute: () => AuthRouteRoute,
+    getParentRoute: () => authDotlayoutRoute,
   } as any)
-const AuthSpacesSlugTemplatesIndexRoute =
-  AuthSpacesSlugTemplatesIndexRouteImport.update({
-    id: '/spaces/$slug/templates/',
-    path: '/spaces/$slug/templates/',
-    getParentRoute: () => AuthRouteRoute,
-  } as any)
-const AuthSpacesSlugSettingsIndexRoute =
-  AuthSpacesSlugSettingsIndexRouteImport.update({
-    id: '/spaces/$slug/settings/',
-    path: '/spaces/$slug/settings/',
-    getParentRoute: () => AuthRouteRoute,
-  } as any)
-const AuthSpacesSlugFiltersIndexRoute =
-  AuthSpacesSlugFiltersIndexRouteImport.update({
+const spacesSlugExportDotpageRoute = spacesSlugExportDotpageRouteImport.update({
+  id: '/spaces/$slug/export',
+  path: '/spaces/$slug/export',
+  getParentRoute: () => authDotlayoutRoute,
+} as any)
+const spacesSlugFiltersIndexDotpageRoute =
+  spacesSlugFiltersIndexDotpageRouteImport.update({
     id: '/spaces/$slug/filters/',
     path: '/spaces/$slug/filters/',
-    getParentRoute: () => AuthRouteRoute,
+    getParentRoute: () => authDotlayoutRoute,
   } as any)
-const AuthSpacesSlugFieldsIndexRoute =
-  AuthSpacesSlugFieldsIndexRouteImport.update({
+const spacesSlugFieldsIndexDotpageRoute =
+  spacesSlugFieldsIndexDotpageRouteImport.update({
     id: '/spaces/$slug/fields/',
     path: '/spaces/$slug/fields/',
-    getParentRoute: () => AuthRouteRoute,
+    getParentRoute: () => authDotlayoutRoute,
   } as any)
-const AuthSpacesSlugExportIndexRoute =
-  AuthSpacesSlugExportIndexRouteImport.update({
-    id: '/spaces/$slug/export/',
-    path: '/spaces/$slug/export/',
-    getParentRoute: () => AuthRouteRoute,
-  } as any)
-const AuthSpacesSlugFiltersNewRoute =
-  AuthSpacesSlugFiltersNewRouteImport.update({
+const spacesSlugFiltersNewDotpageRoute =
+  spacesSlugFiltersNewDotpageRouteImport.update({
     id: '/spaces/$slug/filters/new',
     path: '/spaces/$slug/filters/new',
-    getParentRoute: () => AuthRouteRoute,
+    getParentRoute: () => authDotlayoutRoute,
   } as any)
-const AuthSpacesSlugFieldsNewRoute = AuthSpacesSlugFieldsNewRouteImport.update({
-  id: '/spaces/$slug/fields/new',
-  path: '/spaces/$slug/fields/new',
-  getParentRoute: () => AuthRouteRoute,
-} as any)
-const AuthSpacesSlugFiltersFilterNameEditRoute =
-  AuthSpacesSlugFiltersFilterNameEditRouteImport.update({
+const spacesSlugFieldsNewDotpageRoute =
+  spacesSlugFieldsNewDotpageRouteImport.update({
+    id: '/spaces/$slug/fields/new',
+    path: '/spaces/$slug/fields/new',
+    getParentRoute: () => authDotlayoutRoute,
+  } as any)
+const spacesSlugFiltersFilterNameEditDotpageRoute =
+  spacesSlugFiltersFilterNameEditDotpageRouteImport.update({
     id: '/spaces/$slug/filters/$filterName/edit',
     path: '/spaces/$slug/filters/$filterName/edit',
-    getParentRoute: () => AuthRouteRoute,
+    getParentRoute: () => authDotlayoutRoute,
   } as any)
-const AuthSpacesSlugFieldsFieldNameEditRoute =
-  AuthSpacesSlugFieldsFieldNameEditRouteImport.update({
+const spacesSlugFieldsFieldNameEditDotpageRoute =
+  spacesSlugFieldsFieldNameEditDotpageRouteImport.update({
     id: '/spaces/$slug/fields/$fieldName/edit',
     path: '/spaces/$slug/fields/$fieldName/edit',
-    getParentRoute: () => AuthRouteRoute,
+    getParentRoute: () => authDotlayoutRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
-  '/login': typeof LoginRoute
-  '/': typeof AuthIndexRoute
-  '/telegram/mirrors': typeof AuthTelegramMirrorsRouteRoute
-  '/telegram/tasks': typeof AuthTelegramTasksRouteRoute
-  '/spaces/import': typeof AuthSpacesImportRoute
-  '/spaces/new': typeof AuthSpacesNewRoute
-  '/spaces': typeof AuthSpacesIndexRoute
-  '/spaces/$slug/members': typeof AuthSpacesSlugMembersRouteRoute
-  '/spaces/$slug/fields/new': typeof AuthSpacesSlugFieldsNewRoute
-  '/spaces/$slug/filters/new': typeof AuthSpacesSlugFiltersNewRoute
-  '/spaces/$slug/export': typeof AuthSpacesSlugExportIndexRoute
-  '/spaces/$slug/fields': typeof AuthSpacesSlugFieldsIndexRoute
-  '/spaces/$slug/filters': typeof AuthSpacesSlugFiltersIndexRoute
-  '/spaces/$slug/settings': typeof AuthSpacesSlugSettingsIndexRoute
-  '/spaces/$slug/templates': typeof AuthSpacesSlugTemplatesIndexRoute
-  '/spaces/$slug/fields/$fieldName/edit': typeof AuthSpacesSlugFieldsFieldNameEditRoute
-  '/spaces/$slug/filters/$filterName/edit': typeof AuthSpacesSlugFiltersFilterNameEditRoute
+  '/login': typeof loginDotpageRoute
+  '/': typeof indexPageRoute
+  '/spaces/import': typeof spacesImportDotpageRoute
+  '/spaces/new': typeof spacesNewDotpageRoute
+  '/telegram/mirrors': typeof telegramMirrorsPageRoute
+  '/telegram/tasks': typeof telegramTasksPageRoute
+  '/spaces': typeof spacesIndexDotpageRoute
+  '/spaces/$slug/export': typeof spacesSlugExportDotpageRoute
+  '/spaces/$slug/members': typeof spacesSlugMembersDotpageRoute
+  '/spaces/$slug/settings': typeof spacesSlugSettingsPageRoute
+  '/spaces/$slug/templates': typeof spacesSlugTemplatesPageRoute
+  '/spaces/$slug/fields/new': typeof spacesSlugFieldsNewDotpageRoute
+  '/spaces/$slug/filters/new': typeof spacesSlugFiltersNewDotpageRoute
+  '/spaces/$slug/fields': typeof spacesSlugFieldsIndexDotpageRoute
+  '/spaces/$slug/filters': typeof spacesSlugFiltersIndexDotpageRoute
+  '/spaces/$slug/fields/$fieldName/edit': typeof spacesSlugFieldsFieldNameEditDotpageRoute
+  '/spaces/$slug/filters/$filterName/edit': typeof spacesSlugFiltersFilterNameEditDotpageRoute
 }
 export interface FileRoutesByTo {
-  '/login': typeof LoginRoute
-  '/': typeof AuthIndexRoute
-  '/telegram/mirrors': typeof AuthTelegramMirrorsRouteRoute
-  '/telegram/tasks': typeof AuthTelegramTasksRouteRoute
-  '/spaces/import': typeof AuthSpacesImportRoute
-  '/spaces/new': typeof AuthSpacesNewRoute
-  '/spaces': typeof AuthSpacesIndexRoute
-  '/spaces/$slug/members': typeof AuthSpacesSlugMembersRouteRoute
-  '/spaces/$slug/fields/new': typeof AuthSpacesSlugFieldsNewRoute
-  '/spaces/$slug/filters/new': typeof AuthSpacesSlugFiltersNewRoute
-  '/spaces/$slug/export': typeof AuthSpacesSlugExportIndexRoute
-  '/spaces/$slug/fields': typeof AuthSpacesSlugFieldsIndexRoute
-  '/spaces/$slug/filters': typeof AuthSpacesSlugFiltersIndexRoute
-  '/spaces/$slug/settings': typeof AuthSpacesSlugSettingsIndexRoute
-  '/spaces/$slug/templates': typeof AuthSpacesSlugTemplatesIndexRoute
-  '/spaces/$slug/fields/$fieldName/edit': typeof AuthSpacesSlugFieldsFieldNameEditRoute
-  '/spaces/$slug/filters/$filterName/edit': typeof AuthSpacesSlugFiltersFilterNameEditRoute
+  '/login': typeof loginDotpageRoute
+  '/': typeof indexPageRoute
+  '/spaces/import': typeof spacesImportDotpageRoute
+  '/spaces/new': typeof spacesNewDotpageRoute
+  '/telegram/mirrors': typeof telegramMirrorsPageRoute
+  '/telegram/tasks': typeof telegramTasksPageRoute
+  '/spaces': typeof spacesIndexDotpageRoute
+  '/spaces/$slug/export': typeof spacesSlugExportDotpageRoute
+  '/spaces/$slug/members': typeof spacesSlugMembersDotpageRoute
+  '/spaces/$slug/settings': typeof spacesSlugSettingsPageRoute
+  '/spaces/$slug/templates': typeof spacesSlugTemplatesPageRoute
+  '/spaces/$slug/fields/new': typeof spacesSlugFieldsNewDotpageRoute
+  '/spaces/$slug/filters/new': typeof spacesSlugFiltersNewDotpageRoute
+  '/spaces/$slug/fields': typeof spacesSlugFieldsIndexDotpageRoute
+  '/spaces/$slug/filters': typeof spacesSlugFiltersIndexDotpageRoute
+  '/spaces/$slug/fields/$fieldName/edit': typeof spacesSlugFieldsFieldNameEditDotpageRoute
+  '/spaces/$slug/filters/$filterName/edit': typeof spacesSlugFiltersFilterNameEditDotpageRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/_auth': typeof AuthRouteRouteWithChildren
-  '/login': typeof LoginRoute
-  '/_auth/': typeof AuthIndexRoute
-  '/_auth/telegram/mirrors': typeof AuthTelegramMirrorsRouteRoute
-  '/_auth/telegram/tasks': typeof AuthTelegramTasksRouteRoute
-  '/_auth/spaces/import': typeof AuthSpacesImportRoute
-  '/_auth/spaces/new': typeof AuthSpacesNewRoute
-  '/_auth/spaces/': typeof AuthSpacesIndexRoute
-  '/_auth/spaces/$slug/members': typeof AuthSpacesSlugMembersRouteRoute
-  '/_auth/spaces/$slug/fields/new': typeof AuthSpacesSlugFieldsNewRoute
-  '/_auth/spaces/$slug/filters/new': typeof AuthSpacesSlugFiltersNewRoute
-  '/_auth/spaces/$slug/export/': typeof AuthSpacesSlugExportIndexRoute
-  '/_auth/spaces/$slug/fields/': typeof AuthSpacesSlugFieldsIndexRoute
-  '/_auth/spaces/$slug/filters/': typeof AuthSpacesSlugFiltersIndexRoute
-  '/_auth/spaces/$slug/settings/': typeof AuthSpacesSlugSettingsIndexRoute
-  '/_auth/spaces/$slug/templates/': typeof AuthSpacesSlugTemplatesIndexRoute
-  '/_auth/spaces/$slug/fields/$fieldName/edit': typeof AuthSpacesSlugFieldsFieldNameEditRoute
-  '/_auth/spaces/$slug/filters/$filterName/edit': typeof AuthSpacesSlugFiltersFilterNameEditRoute
+  '/_auth.layout': typeof authDotlayoutRouteWithChildren
+  '/login': typeof loginDotpageRoute
+  '/_auth.layout/': typeof indexPageRoute
+  '/_auth.layout/spaces/import': typeof spacesImportDotpageRoute
+  '/_auth.layout/spaces/new': typeof spacesNewDotpageRoute
+  '/_auth.layout/telegram/mirrors': typeof telegramMirrorsPageRoute
+  '/_auth.layout/telegram/tasks': typeof telegramTasksPageRoute
+  '/_auth.layout/spaces/': typeof spacesIndexDotpageRoute
+  '/_auth.layout/spaces/$slug/export': typeof spacesSlugExportDotpageRoute
+  '/_auth.layout/spaces/$slug/members': typeof spacesSlugMembersDotpageRoute
+  '/_auth.layout/spaces/$slug/settings': typeof spacesSlugSettingsPageRoute
+  '/_auth.layout/spaces/$slug/templates': typeof spacesSlugTemplatesPageRoute
+  '/_auth.layout/spaces/$slug/fields/new': typeof spacesSlugFieldsNewDotpageRoute
+  '/_auth.layout/spaces/$slug/filters/new': typeof spacesSlugFiltersNewDotpageRoute
+  '/_auth.layout/spaces/$slug/fields/': typeof spacesSlugFieldsIndexDotpageRoute
+  '/_auth.layout/spaces/$slug/filters/': typeof spacesSlugFiltersIndexDotpageRoute
+  '/_auth.layout/spaces/$slug/fields/$fieldName/edit': typeof spacesSlugFieldsFieldNameEditDotpageRoute
+  '/_auth.layout/spaces/$slug/filters/$filterName/edit': typeof spacesSlugFiltersFilterNameEditDotpageRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/login'
     | '/'
-    | '/telegram/mirrors'
-    | '/telegram/tasks'
     | '/spaces/import'
     | '/spaces/new'
+    | '/telegram/mirrors'
+    | '/telegram/tasks'
     | '/spaces'
-    | '/spaces/$slug/members'
-    | '/spaces/$slug/fields/new'
-    | '/spaces/$slug/filters/new'
     | '/spaces/$slug/export'
-    | '/spaces/$slug/fields'
-    | '/spaces/$slug/filters'
+    | '/spaces/$slug/members'
     | '/spaces/$slug/settings'
     | '/spaces/$slug/templates'
+    | '/spaces/$slug/fields/new'
+    | '/spaces/$slug/filters/new'
+    | '/spaces/$slug/fields'
+    | '/spaces/$slug/filters'
     | '/spaces/$slug/fields/$fieldName/edit'
     | '/spaces/$slug/filters/$filterName/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
     | '/'
-    | '/telegram/mirrors'
-    | '/telegram/tasks'
     | '/spaces/import'
     | '/spaces/new'
+    | '/telegram/mirrors'
+    | '/telegram/tasks'
     | '/spaces'
-    | '/spaces/$slug/members'
-    | '/spaces/$slug/fields/new'
-    | '/spaces/$slug/filters/new'
     | '/spaces/$slug/export'
-    | '/spaces/$slug/fields'
-    | '/spaces/$slug/filters'
+    | '/spaces/$slug/members'
     | '/spaces/$slug/settings'
     | '/spaces/$slug/templates'
+    | '/spaces/$slug/fields/new'
+    | '/spaces/$slug/filters/new'
+    | '/spaces/$slug/fields'
+    | '/spaces/$slug/filters'
     | '/spaces/$slug/fields/$fieldName/edit'
     | '/spaces/$slug/filters/$filterName/edit'
   id:
     | '__root__'
-    | '/_auth'
+    | '/_auth.layout'
     | '/login'
-    | '/_auth/'
-    | '/_auth/telegram/mirrors'
-    | '/_auth/telegram/tasks'
-    | '/_auth/spaces/import'
-    | '/_auth/spaces/new'
-    | '/_auth/spaces/'
-    | '/_auth/spaces/$slug/members'
-    | '/_auth/spaces/$slug/fields/new'
-    | '/_auth/spaces/$slug/filters/new'
-    | '/_auth/spaces/$slug/export/'
-    | '/_auth/spaces/$slug/fields/'
-    | '/_auth/spaces/$slug/filters/'
-    | '/_auth/spaces/$slug/settings/'
-    | '/_auth/spaces/$slug/templates/'
-    | '/_auth/spaces/$slug/fields/$fieldName/edit'
-    | '/_auth/spaces/$slug/filters/$filterName/edit'
+    | '/_auth.layout/'
+    | '/_auth.layout/spaces/import'
+    | '/_auth.layout/spaces/new'
+    | '/_auth.layout/telegram/mirrors'
+    | '/_auth.layout/telegram/tasks'
+    | '/_auth.layout/spaces/'
+    | '/_auth.layout/spaces/$slug/export'
+    | '/_auth.layout/spaces/$slug/members'
+    | '/_auth.layout/spaces/$slug/settings'
+    | '/_auth.layout/spaces/$slug/templates'
+    | '/_auth.layout/spaces/$slug/fields/new'
+    | '/_auth.layout/spaces/$slug/filters/new'
+    | '/_auth.layout/spaces/$slug/fields/'
+    | '/_auth.layout/spaces/$slug/filters/'
+    | '/_auth.layout/spaces/$slug/fields/$fieldName/edit'
+    | '/_auth.layout/spaces/$slug/filters/$filterName/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  AuthRouteRoute: typeof AuthRouteRouteWithChildren
-  LoginRoute: typeof LoginRoute
+  authDotlayoutRoute: typeof authDotlayoutRouteWithChildren
+  loginDotpageRoute: typeof loginDotpageRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -259,178 +256,178 @@ declare module '@tanstack/react-router' {
       id: '/login'
       path: '/login'
       fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
+      preLoaderRoute: typeof loginDotpageRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_auth': {
-      id: '/_auth'
+    '/_auth.layout': {
+      id: '/_auth.layout'
       path: ''
       fullPath: ''
-      preLoaderRoute: typeof AuthRouteRouteImport
+      preLoaderRoute: typeof authDotlayoutRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_auth/': {
-      id: '/_auth/'
+    '/_auth.layout/': {
+      id: '/_auth.layout/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof AuthIndexRouteImport
-      parentRoute: typeof AuthRouteRoute
+      preLoaderRoute: typeof indexPageRouteImport
+      parentRoute: typeof authDotlayoutRoute
     }
-    '/_auth/spaces/': {
-      id: '/_auth/spaces/'
+    '/_auth.layout/spaces/': {
+      id: '/_auth.layout/spaces/'
       path: '/spaces'
       fullPath: '/spaces'
-      preLoaderRoute: typeof AuthSpacesIndexRouteImport
-      parentRoute: typeof AuthRouteRoute
+      preLoaderRoute: typeof spacesIndexDotpageRouteImport
+      parentRoute: typeof authDotlayoutRoute
     }
-    '/_auth/spaces/new': {
-      id: '/_auth/spaces/new'
-      path: '/spaces/new'
-      fullPath: '/spaces/new'
-      preLoaderRoute: typeof AuthSpacesNewRouteImport
-      parentRoute: typeof AuthRouteRoute
-    }
-    '/_auth/spaces/import': {
-      id: '/_auth/spaces/import'
-      path: '/spaces/import'
-      fullPath: '/spaces/import'
-      preLoaderRoute: typeof AuthSpacesImportRouteImport
-      parentRoute: typeof AuthRouteRoute
-    }
-    '/_auth/telegram/tasks': {
-      id: '/_auth/telegram/tasks'
+    '/_auth.layout/telegram/tasks': {
+      id: '/_auth.layout/telegram/tasks'
       path: '/telegram/tasks'
       fullPath: '/telegram/tasks'
-      preLoaderRoute: typeof AuthTelegramTasksRouteRouteImport
-      parentRoute: typeof AuthRouteRoute
+      preLoaderRoute: typeof telegramTasksPageRouteImport
+      parentRoute: typeof authDotlayoutRoute
     }
-    '/_auth/telegram/mirrors': {
-      id: '/_auth/telegram/mirrors'
+    '/_auth.layout/telegram/mirrors': {
+      id: '/_auth.layout/telegram/mirrors'
       path: '/telegram/mirrors'
       fullPath: '/telegram/mirrors'
-      preLoaderRoute: typeof AuthTelegramMirrorsRouteRouteImport
-      parentRoute: typeof AuthRouteRoute
+      preLoaderRoute: typeof telegramMirrorsPageRouteImport
+      parentRoute: typeof authDotlayoutRoute
     }
-    '/_auth/spaces/$slug/members': {
-      id: '/_auth/spaces/$slug/members'
-      path: '/spaces/$slug/members'
-      fullPath: '/spaces/$slug/members'
-      preLoaderRoute: typeof AuthSpacesSlugMembersRouteRouteImport
-      parentRoute: typeof AuthRouteRoute
+    '/_auth.layout/spaces/new': {
+      id: '/_auth.layout/spaces/new'
+      path: '/spaces/new'
+      fullPath: '/spaces/new'
+      preLoaderRoute: typeof spacesNewDotpageRouteImport
+      parentRoute: typeof authDotlayoutRoute
     }
-    '/_auth/spaces/$slug/templates/': {
-      id: '/_auth/spaces/$slug/templates/'
+    '/_auth.layout/spaces/import': {
+      id: '/_auth.layout/spaces/import'
+      path: '/spaces/import'
+      fullPath: '/spaces/import'
+      preLoaderRoute: typeof spacesImportDotpageRouteImport
+      parentRoute: typeof authDotlayoutRoute
+    }
+    '/_auth.layout/spaces/$slug/templates': {
+      id: '/_auth.layout/spaces/$slug/templates'
       path: '/spaces/$slug/templates'
       fullPath: '/spaces/$slug/templates'
-      preLoaderRoute: typeof AuthSpacesSlugTemplatesIndexRouteImport
-      parentRoute: typeof AuthRouteRoute
+      preLoaderRoute: typeof spacesSlugTemplatesPageRouteImport
+      parentRoute: typeof authDotlayoutRoute
     }
-    '/_auth/spaces/$slug/settings/': {
-      id: '/_auth/spaces/$slug/settings/'
+    '/_auth.layout/spaces/$slug/settings': {
+      id: '/_auth.layout/spaces/$slug/settings'
       path: '/spaces/$slug/settings'
       fullPath: '/spaces/$slug/settings'
-      preLoaderRoute: typeof AuthSpacesSlugSettingsIndexRouteImport
-      parentRoute: typeof AuthRouteRoute
+      preLoaderRoute: typeof spacesSlugSettingsPageRouteImport
+      parentRoute: typeof authDotlayoutRoute
     }
-    '/_auth/spaces/$slug/filters/': {
-      id: '/_auth/spaces/$slug/filters/'
-      path: '/spaces/$slug/filters'
-      fullPath: '/spaces/$slug/filters'
-      preLoaderRoute: typeof AuthSpacesSlugFiltersIndexRouteImport
-      parentRoute: typeof AuthRouteRoute
+    '/_auth.layout/spaces/$slug/members': {
+      id: '/_auth.layout/spaces/$slug/members'
+      path: '/spaces/$slug/members'
+      fullPath: '/spaces/$slug/members'
+      preLoaderRoute: typeof spacesSlugMembersDotpageRouteImport
+      parentRoute: typeof authDotlayoutRoute
     }
-    '/_auth/spaces/$slug/fields/': {
-      id: '/_auth/spaces/$slug/fields/'
-      path: '/spaces/$slug/fields'
-      fullPath: '/spaces/$slug/fields'
-      preLoaderRoute: typeof AuthSpacesSlugFieldsIndexRouteImport
-      parentRoute: typeof AuthRouteRoute
-    }
-    '/_auth/spaces/$slug/export/': {
-      id: '/_auth/spaces/$slug/export/'
+    '/_auth.layout/spaces/$slug/export': {
+      id: '/_auth.layout/spaces/$slug/export'
       path: '/spaces/$slug/export'
       fullPath: '/spaces/$slug/export'
-      preLoaderRoute: typeof AuthSpacesSlugExportIndexRouteImport
-      parentRoute: typeof AuthRouteRoute
+      preLoaderRoute: typeof spacesSlugExportDotpageRouteImport
+      parentRoute: typeof authDotlayoutRoute
     }
-    '/_auth/spaces/$slug/filters/new': {
-      id: '/_auth/spaces/$slug/filters/new'
+    '/_auth.layout/spaces/$slug/filters/': {
+      id: '/_auth.layout/spaces/$slug/filters/'
+      path: '/spaces/$slug/filters'
+      fullPath: '/spaces/$slug/filters'
+      preLoaderRoute: typeof spacesSlugFiltersIndexDotpageRouteImport
+      parentRoute: typeof authDotlayoutRoute
+    }
+    '/_auth.layout/spaces/$slug/fields/': {
+      id: '/_auth.layout/spaces/$slug/fields/'
+      path: '/spaces/$slug/fields'
+      fullPath: '/spaces/$slug/fields'
+      preLoaderRoute: typeof spacesSlugFieldsIndexDotpageRouteImport
+      parentRoute: typeof authDotlayoutRoute
+    }
+    '/_auth.layout/spaces/$slug/filters/new': {
+      id: '/_auth.layout/spaces/$slug/filters/new'
       path: '/spaces/$slug/filters/new'
       fullPath: '/spaces/$slug/filters/new'
-      preLoaderRoute: typeof AuthSpacesSlugFiltersNewRouteImport
-      parentRoute: typeof AuthRouteRoute
+      preLoaderRoute: typeof spacesSlugFiltersNewDotpageRouteImport
+      parentRoute: typeof authDotlayoutRoute
     }
-    '/_auth/spaces/$slug/fields/new': {
-      id: '/_auth/spaces/$slug/fields/new'
+    '/_auth.layout/spaces/$slug/fields/new': {
+      id: '/_auth.layout/spaces/$slug/fields/new'
       path: '/spaces/$slug/fields/new'
       fullPath: '/spaces/$slug/fields/new'
-      preLoaderRoute: typeof AuthSpacesSlugFieldsNewRouteImport
-      parentRoute: typeof AuthRouteRoute
+      preLoaderRoute: typeof spacesSlugFieldsNewDotpageRouteImport
+      parentRoute: typeof authDotlayoutRoute
     }
-    '/_auth/spaces/$slug/filters/$filterName/edit': {
-      id: '/_auth/spaces/$slug/filters/$filterName/edit'
+    '/_auth.layout/spaces/$slug/filters/$filterName/edit': {
+      id: '/_auth.layout/spaces/$slug/filters/$filterName/edit'
       path: '/spaces/$slug/filters/$filterName/edit'
       fullPath: '/spaces/$slug/filters/$filterName/edit'
-      preLoaderRoute: typeof AuthSpacesSlugFiltersFilterNameEditRouteImport
-      parentRoute: typeof AuthRouteRoute
+      preLoaderRoute: typeof spacesSlugFiltersFilterNameEditDotpageRouteImport
+      parentRoute: typeof authDotlayoutRoute
     }
-    '/_auth/spaces/$slug/fields/$fieldName/edit': {
-      id: '/_auth/spaces/$slug/fields/$fieldName/edit'
+    '/_auth.layout/spaces/$slug/fields/$fieldName/edit': {
+      id: '/_auth.layout/spaces/$slug/fields/$fieldName/edit'
       path: '/spaces/$slug/fields/$fieldName/edit'
       fullPath: '/spaces/$slug/fields/$fieldName/edit'
-      preLoaderRoute: typeof AuthSpacesSlugFieldsFieldNameEditRouteImport
-      parentRoute: typeof AuthRouteRoute
+      preLoaderRoute: typeof spacesSlugFieldsFieldNameEditDotpageRouteImport
+      parentRoute: typeof authDotlayoutRoute
     }
   }
 }
 
-interface AuthRouteRouteChildren {
-  AuthIndexRoute: typeof AuthIndexRoute
-  AuthTelegramMirrorsRouteRoute: typeof AuthTelegramMirrorsRouteRoute
-  AuthTelegramTasksRouteRoute: typeof AuthTelegramTasksRouteRoute
-  AuthSpacesImportRoute: typeof AuthSpacesImportRoute
-  AuthSpacesNewRoute: typeof AuthSpacesNewRoute
-  AuthSpacesIndexRoute: typeof AuthSpacesIndexRoute
-  AuthSpacesSlugMembersRouteRoute: typeof AuthSpacesSlugMembersRouteRoute
-  AuthSpacesSlugFieldsNewRoute: typeof AuthSpacesSlugFieldsNewRoute
-  AuthSpacesSlugFiltersNewRoute: typeof AuthSpacesSlugFiltersNewRoute
-  AuthSpacesSlugExportIndexRoute: typeof AuthSpacesSlugExportIndexRoute
-  AuthSpacesSlugFieldsIndexRoute: typeof AuthSpacesSlugFieldsIndexRoute
-  AuthSpacesSlugFiltersIndexRoute: typeof AuthSpacesSlugFiltersIndexRoute
-  AuthSpacesSlugSettingsIndexRoute: typeof AuthSpacesSlugSettingsIndexRoute
-  AuthSpacesSlugTemplatesIndexRoute: typeof AuthSpacesSlugTemplatesIndexRoute
-  AuthSpacesSlugFieldsFieldNameEditRoute: typeof AuthSpacesSlugFieldsFieldNameEditRoute
-  AuthSpacesSlugFiltersFilterNameEditRoute: typeof AuthSpacesSlugFiltersFilterNameEditRoute
+interface authDotlayoutRouteChildren {
+  indexPageRoute: typeof indexPageRoute
+  spacesImportDotpageRoute: typeof spacesImportDotpageRoute
+  spacesNewDotpageRoute: typeof spacesNewDotpageRoute
+  telegramMirrorsPageRoute: typeof telegramMirrorsPageRoute
+  telegramTasksPageRoute: typeof telegramTasksPageRoute
+  spacesIndexDotpageRoute: typeof spacesIndexDotpageRoute
+  spacesSlugExportDotpageRoute: typeof spacesSlugExportDotpageRoute
+  spacesSlugMembersDotpageRoute: typeof spacesSlugMembersDotpageRoute
+  spacesSlugSettingsPageRoute: typeof spacesSlugSettingsPageRoute
+  spacesSlugTemplatesPageRoute: typeof spacesSlugTemplatesPageRoute
+  spacesSlugFieldsNewDotpageRoute: typeof spacesSlugFieldsNewDotpageRoute
+  spacesSlugFiltersNewDotpageRoute: typeof spacesSlugFiltersNewDotpageRoute
+  spacesSlugFieldsIndexDotpageRoute: typeof spacesSlugFieldsIndexDotpageRoute
+  spacesSlugFiltersIndexDotpageRoute: typeof spacesSlugFiltersIndexDotpageRoute
+  spacesSlugFieldsFieldNameEditDotpageRoute: typeof spacesSlugFieldsFieldNameEditDotpageRoute
+  spacesSlugFiltersFilterNameEditDotpageRoute: typeof spacesSlugFiltersFilterNameEditDotpageRoute
 }
 
-const AuthRouteRouteChildren: AuthRouteRouteChildren = {
-  AuthIndexRoute: AuthIndexRoute,
-  AuthTelegramMirrorsRouteRoute: AuthTelegramMirrorsRouteRoute,
-  AuthTelegramTasksRouteRoute: AuthTelegramTasksRouteRoute,
-  AuthSpacesImportRoute: AuthSpacesImportRoute,
-  AuthSpacesNewRoute: AuthSpacesNewRoute,
-  AuthSpacesIndexRoute: AuthSpacesIndexRoute,
-  AuthSpacesSlugMembersRouteRoute: AuthSpacesSlugMembersRouteRoute,
-  AuthSpacesSlugFieldsNewRoute: AuthSpacesSlugFieldsNewRoute,
-  AuthSpacesSlugFiltersNewRoute: AuthSpacesSlugFiltersNewRoute,
-  AuthSpacesSlugExportIndexRoute: AuthSpacesSlugExportIndexRoute,
-  AuthSpacesSlugFieldsIndexRoute: AuthSpacesSlugFieldsIndexRoute,
-  AuthSpacesSlugFiltersIndexRoute: AuthSpacesSlugFiltersIndexRoute,
-  AuthSpacesSlugSettingsIndexRoute: AuthSpacesSlugSettingsIndexRoute,
-  AuthSpacesSlugTemplatesIndexRoute: AuthSpacesSlugTemplatesIndexRoute,
-  AuthSpacesSlugFieldsFieldNameEditRoute:
-    AuthSpacesSlugFieldsFieldNameEditRoute,
-  AuthSpacesSlugFiltersFilterNameEditRoute:
-    AuthSpacesSlugFiltersFilterNameEditRoute,
+const authDotlayoutRouteChildren: authDotlayoutRouteChildren = {
+  indexPageRoute: indexPageRoute,
+  spacesImportDotpageRoute: spacesImportDotpageRoute,
+  spacesNewDotpageRoute: spacesNewDotpageRoute,
+  telegramMirrorsPageRoute: telegramMirrorsPageRoute,
+  telegramTasksPageRoute: telegramTasksPageRoute,
+  spacesIndexDotpageRoute: spacesIndexDotpageRoute,
+  spacesSlugExportDotpageRoute: spacesSlugExportDotpageRoute,
+  spacesSlugMembersDotpageRoute: spacesSlugMembersDotpageRoute,
+  spacesSlugSettingsPageRoute: spacesSlugSettingsPageRoute,
+  spacesSlugTemplatesPageRoute: spacesSlugTemplatesPageRoute,
+  spacesSlugFieldsNewDotpageRoute: spacesSlugFieldsNewDotpageRoute,
+  spacesSlugFiltersNewDotpageRoute: spacesSlugFiltersNewDotpageRoute,
+  spacesSlugFieldsIndexDotpageRoute: spacesSlugFieldsIndexDotpageRoute,
+  spacesSlugFiltersIndexDotpageRoute: spacesSlugFiltersIndexDotpageRoute,
+  spacesSlugFieldsFieldNameEditDotpageRoute:
+    spacesSlugFieldsFieldNameEditDotpageRoute,
+  spacesSlugFiltersFilterNameEditDotpageRoute:
+    spacesSlugFiltersFilterNameEditDotpageRoute,
 }
 
-const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
-  AuthRouteRouteChildren,
+const authDotlayoutRouteWithChildren = authDotlayoutRoute._addFileChildren(
+  authDotlayoutRouteChildren,
 )
 
 const rootRouteChildren: RootRouteChildren = {
-  AuthRouteRoute: AuthRouteRouteWithChildren,
-  LoginRoute: LoginRoute,
+  authDotlayoutRoute: authDotlayoutRouteWithChildren,
+  loginDotpageRoute: loginDotpageRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

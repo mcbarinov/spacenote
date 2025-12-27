@@ -11,38 +11,32 @@ src/
 │   ├── SpaceMenu.tsx
 │   └── SpaceTabs.tsx
 └── routes/
-    ├── __root.tsx
-    ├── login.tsx
-    └── _auth/
-        ├── index.tsx
-        ├── route.tsx
-        ├── spaces/
-        │   ├── index.tsx
-        │   ├── new.tsx
-        │   ├── import.tsx
-        │   ├── -components/
-        │   │   └── SpacesTable.tsx
-        │   └── $slug/
-        │       ├── export/
-        │       ├── members/
-        │       ├── fields/
-        │       ├── filters/
-        │       ├── settings/
-        │       │   └── -components/
-        │       │       ├── DeleteSpace.tsx
-        │       │       ├── EditDescription.tsx
-        │       │       ├── EditHiddenFieldsOnCreate.tsx
-        │       │       ├── EditTelegram.tsx
-        │       │       └── EditTitle.tsx
-        │       └── templates/
-        ├── telegram/
-        │   ├── tasks/
-        │   └── mirrors/
-        └── users/
-            ├── index.tsx
-            ├── new.tsx
+    ├── routes.ts                  # Route tree definition
+    ├── root.layout.tsx
+    ├── auth.layout.tsx
+    ├── login.page.tsx
+    ├── index/
+    │   ├── page.tsx
+    │   └── -components/users/
+    ├── spaces/
+    │   ├── index.page.tsx
+    │   ├── new.page.tsx
+    │   ├── import.page.tsx
+    │   ├── -components/
+    │   └── _slug_/
+    │       ├── export.page.tsx
+    │       ├── members.page.tsx
+    │       ├── fields/
+    │       ├── filters/
+    │       ├── settings/
+    │       └── templates/
+    └── telegram/
+        ├── tasks/
+        │   ├── page.tsx
+        │   └── -components/
+        └── mirrors/
+            ├── page.tsx
             └── -components/
-                └── UsersTable.tsx
 ```
 
 ## Development

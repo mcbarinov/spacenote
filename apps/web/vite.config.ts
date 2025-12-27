@@ -6,7 +6,15 @@ import path from "path"
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [devtools(), tanstackRouter({ target: "react", autoCodeSplitting: true }), react()],
+  plugins: [
+    devtools(),
+    tanstackRouter({
+      target: "react",
+      autoCodeSplitting: true,
+      virtualRouteConfig: "./src/routes/routes.ts",
+    }),
+    react(),
+  ],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

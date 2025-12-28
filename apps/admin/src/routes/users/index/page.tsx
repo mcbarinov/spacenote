@@ -18,8 +18,8 @@ function UsersPage() {
   return (
     <Stack gap="md">
       <PageHeader
-        title="Users"
-        bottomActions={
+        breadcrumbs={[{ to: "/", label: "Admin Dashboard" }, { label: "Users" }]}
+        topActions={
           <Button component={Link} to="/users/new">
             Create User
           </Button>

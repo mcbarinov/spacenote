@@ -44,7 +44,7 @@ function TelegramTasksPage() {
 
   return (
     <Stack gap="md">
-      <PageHeader title="Telegram Tasks" />
+      <PageHeader breadcrumbs={[{ to: "/", label: "Admin Dashboard" }, { label: "Telegram Tasks" }]} />
 
       <Group>
         <Select

@@ -22,8 +22,7 @@ function TemplatesPage() {
   return (
     <Stack gap="md">
       <PageHeader
-        title="Templates"
-        breadcrumbs={[{ label: "Spaces", to: "/spaces" }, { label: `◈ ${space.slug}` }]}
+        breadcrumbs={[{ label: "Spaces", to: "/spaces" }, { label: `◈ ${space.slug}` }, { label: "Templates" }]}
         topActions={<SpaceTabs space={space} />}
       />
       <Paper withBorder p="md">

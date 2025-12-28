@@ -23,8 +23,7 @@ function SettingsPage() {
   return (
     <Stack gap="md">
       <PageHeader
-        title="Settings"
-        breadcrumbs={[{ label: "Spaces", to: "/spaces" }, { label: `◈ ${space.slug}` }]}
+        breadcrumbs={[{ label: "Spaces", to: "/spaces" }, { label: `◈ ${space.slug}` }, { label: "Settings" }]}
         topActions={<SpaceTabs space={space} />}
       />
       <EditTitle space={space} />

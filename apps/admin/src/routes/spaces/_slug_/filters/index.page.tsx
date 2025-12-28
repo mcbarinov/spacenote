@@ -17,13 +17,14 @@ function FiltersPage() {
   return (
     <Stack gap="md">
       <PageHeader
-        title="Filters"
-        breadcrumbs={[{ label: "Spaces", to: "/spaces" }, { label: `◈ ${space.slug}` }]}
-        topActions={<SpaceTabs space={space} />}
-        bottomActions={
-          <LinkButton to="/spaces/$slug/filters/new" params={{ slug }} variant="light">
-            Add Filter
-          </LinkButton>
+        breadcrumbs={[{ label: "Spaces", to: "/spaces" }, { label: `◈ ${space.slug}` }, { label: "Filters" }]}
+        topActions={
+          <>
+            <SpaceTabs space={space} />
+            <LinkButton to="/spaces/$slug/filters/new" params={{ slug }}>
+              Add Filter
+            </LinkButton>
+          </>
         }
       />
       <FiltersTable spaceSlug={slug} filters={space.filters} />

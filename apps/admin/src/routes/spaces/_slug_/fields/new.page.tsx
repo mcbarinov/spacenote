@@ -78,8 +78,12 @@ function AddFieldPage() {
   return (
     <Stack gap="md">
       <PageHeader
-        title="New Field"
-        breadcrumbs={[{ label: "Spaces", to: "/spaces" }, { label: `◈ ${space.slug}` }]}
+        breadcrumbs={[
+          { label: "Spaces", to: "/spaces" },
+          { label: `◈ ${space.slug}` },
+          { label: "Fields", to: "/spaces/$slug/fields", params: { slug } },
+          { label: "Add Field" },
+        ]}
         topActions={<SpaceTabs space={space} />}
       />
 

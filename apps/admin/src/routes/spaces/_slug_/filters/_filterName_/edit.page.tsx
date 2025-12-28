@@ -102,8 +102,12 @@ function EditFilterPage() {
   return (
     <Stack gap="md">
       <PageHeader
-        title={`Edit Filter: ${filterName}`}
-        breadcrumbs={[{ label: "Spaces", to: "/spaces" }, { label: `◈ ${space.slug}` }]}
+        breadcrumbs={[
+          { label: "Spaces", to: "/spaces" },
+          { label: `◈ ${space.slug}` },
+          { label: "Filters", to: "/spaces/$slug/filters", params: { slug } },
+          { label: `Edit: ${filterName}` },
+        ]}
         topActions={<SpaceTabs space={space} />}
       />
 

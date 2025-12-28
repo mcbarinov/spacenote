@@ -83,8 +83,12 @@ function AddFilterPage() {
   return (
     <Stack gap="md">
       <PageHeader
-        title="New Filter"
-        breadcrumbs={[{ label: "Spaces", to: "/spaces" }, { label: `◈ ${space.slug}` }]}
+        breadcrumbs={[
+          { label: "Spaces", to: "/spaces" },
+          { label: `◈ ${space.slug}` },
+          { label: "Filters", to: "/spaces/$slug/filters", params: { slug } },
+          { label: "Add Filter" },
+        ]}
         topActions={<SpaceTabs space={space} />}
       />
 

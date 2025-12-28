@@ -64,8 +64,12 @@ function EditFieldPage() {
   return (
     <Stack gap="md">
       <PageHeader
-        title="Edit Field"
-        breadcrumbs={[{ label: "Spaces", to: "/spaces" }, { label: `◈ ${space.slug}` }]}
+        breadcrumbs={[
+          { label: "Spaces", to: "/spaces" },
+          { label: `◈ ${space.slug}` },
+          { label: "Fields", to: "/spaces/$slug/fields", params: { slug } },
+          { label: "Edit Field" },
+        ]}
         topActions={<SpaceTabs space={space} />}
       />
 

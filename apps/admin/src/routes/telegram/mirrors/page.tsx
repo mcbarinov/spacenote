@@ -39,7 +39,7 @@ function TelegramMirrorsPage() {
 
   return (
     <Stack gap="md">
-      <PageHeader title="Telegram Mirrors" />
+      <PageHeader breadcrumbs={[{ to: "/", label: "Admin Dashboard" }, { label: "Telegram Mirrors" }]} />
 
       <Group>
         <Select

@@ -48,7 +48,9 @@ export function FieldsTable({ spaceSlug, fields }: FieldsTableProps) {
                 <Code>{field.default !== null ? JSON.stringify(field.default) : "-"}</Code>
               </Table.Td>
               <Table.Td>
-                <Code>{Object.keys(field.options).length > 0 ? JSON.stringify(field.options) : "-"}</Code>
+                <Code style={{ maxWidth: 400, wordBreak: "break-all", whiteSpace: "pre-wrap" }}>
+                  {Object.keys(field.options).length > 0 ? JSON.stringify(field.options) : "-"}
+                </Code>
               </Table.Td>
               <Table.Td>
                 <Group gap="xs" wrap="nowrap">

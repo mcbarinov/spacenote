@@ -3,12 +3,12 @@ import { api } from "@spacenote/common/api"
 import { PageHeader } from "@spacenote/common/components"
 import { SpaceTabs } from "@/components/SpaceTabs"
 import { createFileRoute } from "@tanstack/react-router"
-import { NoteDetailReactTemplate } from "./-components/NoteDetailReactTemplate"
-import { NoteDetailTemplate } from "./-components/NoteDetailTemplate"
-import { NoteListReactTemplate } from "./-components/NoteListReactTemplate"
-import { NoteListTemplate } from "./-components/NoteListTemplate"
-import { NoteTitleTemplate } from "./-components/NoteTitleTemplate"
-import { TelegramTemplate } from "./-components/TelegramTemplate"
+import { NoteDetailReactTemplate } from "./-local/NoteDetailReactTemplate"
+import { NoteDetailTemplate } from "./-local/NoteDetailTemplate"
+import { NoteListReactTemplate } from "./-local/NoteListReactTemplate"
+import { NoteListTemplate } from "./-local/NoteListTemplate"
+import { NoteTitleTemplate } from "./-local/NoteTitleTemplate"
+import { TelegramTemplate } from "./-local/TelegramTemplate"
 
 export const Route = createFileRoute("/_auth.layout/spaces/$slug/templates")({
   component: TemplatesPage,
@@ -22,8 +22,7 @@ function TemplatesPage() {
   return (
     <Stack gap="md">
       <PageHeader
-        title="Templates"
-        breadcrumbs={[{ label: "Spaces", to: "/spaces" }, { label: `◈ ${space.slug}` }]}
+        breadcrumbs={[{ label: "Spaces", to: "/spaces" }, { label: `◈ ${space.slug}` }, { label: "Templates" }]}
         topActions={<SpaceTabs space={space} />}
       />
       <Paper withBorder p="md">

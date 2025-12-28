@@ -382,22 +382,46 @@ void navigate({ to: "/s/$slug", params: { slug } })
 
 ### Organization
 
-**Route-specific components** → `-components/` folder next to `page.tsx`/`layout.tsx`
-- Used only in that route
-- Co-located with route definition
+**Route-specific code** — co-located in `-local/` or `-shared/` folders:
 
-**Reusable components** → `src/components/[category]/`
-- Used across multiple routes
+| Folder | Scope |
+|--------|-------|
+| `-local/` | Only for ONE page or layout |
+| `-shared/` | For siblings + all children in feature area |
+
+Names reflect **scope**, not content — can contain components, hooks, utils, types.
+
+**`-local/` rule:**
+- Must be inside a page folder (e.g., `index/-local/` for `index/page.tsx`)
+- Never place where ownership is ambiguous
+
+**`-shared/` rule:**
+- Available to pages at the same level AND in child folders
+- Use when multiple pages in a feature area need the same code
+
+**Reusable across routes** → `src/components/[category]/`
+- Used in unrelated parts of the app
 - Categories: `errors/`, `ui/`, `navigation/`
 
-**Decision flow:**
-1. Used in multiple routes? → `src/components/`
-2. Special app-wide purpose (error boundaries, auth)? → `src/components/`
-3. Otherwise → `-components/` next to `page.tsx`
+**When to use folder structure:**
+- Page needs local code → `name/page.tsx` + `name/-local/`
+- Simple page → `name.page.tsx`
 
-**When to use `-components/`:**
-Page has 2+ distinct components → create folder with `page.tsx` + `-components/`
-Single simple page → keep as `name.page.tsx` file
+Example:
+```
+fields/
+├── index/
+│   ├── page.tsx
+│   └── -local/              ← only for index/page.tsx
+│       └── FieldsTable.tsx
+├── new.page.tsx             ← imports from -shared/
+├── _fieldName_/
+│   └── edit.page.tsx        ← imports from ../-shared/
+└── -shared/                 ← for new.page, edit.page, children
+    ├── StringFieldConfig.tsx
+    ├── fieldFormUtils.ts
+    └── useFieldValidation.ts
+```
 
 ### Encapsulation
 

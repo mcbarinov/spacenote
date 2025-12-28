@@ -8,8 +8,8 @@ import { api } from "@spacenote/common/api"
 import { ErrorMessage, PageHeader } from "@spacenote/common/components"
 import { SpaceTabs } from "@/components/SpaceTabs"
 import type { FilterOperator } from "@spacenote/common/types"
-import { ConditionRow } from "./-components/ConditionRow"
-import { type FilterFormValues, filterSchema, generateConditionId, SYSTEM_FIELDS } from "./-components/filterFormUtils"
+import { ConditionRow } from "./-shared/ConditionRow"
+import { type FilterFormValues, filterSchema, generateConditionId, SYSTEM_FIELDS } from "./-shared/filterFormUtils"
 
 export const Route = createFileRoute("/_auth.layout/spaces/$slug/filters/new")({
   component: AddFilterPage,
@@ -83,8 +83,12 @@ function AddFilterPage() {
   return (
     <Stack gap="md">
       <PageHeader
-        title="New Filter"
-        breadcrumbs={[{ label: "Spaces", to: "/spaces" }, { label: `◈ ${space.slug}` }]}
+        breadcrumbs={[
+          { label: "Spaces", to: "/spaces" },
+          { label: `◈ ${space.slug}` },
+          { label: "Filters", to: "/spaces/$slug/filters", params: { slug } },
+          { label: "Add Filter" },
+        ]}
         topActions={<SpaceTabs space={space} />}
       />
 

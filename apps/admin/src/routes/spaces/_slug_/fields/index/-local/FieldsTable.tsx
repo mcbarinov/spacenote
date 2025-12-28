@@ -1,9 +1,9 @@
-import { ActionIcon, Badge, Code, Group, Paper, Table, Text } from "@mantine/core"
+import { ActionIcon, Code, Group, Paper, Table, Text } from "@mantine/core"
 import { notifications } from "@mantine/notifications"
 import { Link } from "@tanstack/react-router"
 import { IconPencil } from "@tabler/icons-react"
 import { api } from "@spacenote/common/api"
-import { DeleteButton } from "@spacenote/common/components"
+import { DeleteButton, TextBadge } from "@spacenote/common/components"
 import type { SpaceField } from "@spacenote/common/types"
 
 interface FieldsTableProps {
@@ -41,14 +41,16 @@ export function FieldsTable({ spaceSlug, fields }: FieldsTableProps) {
             <Table.Tr key={field.name}>
               <Table.Td>{field.name}</Table.Td>
               <Table.Td>
-                <Badge variant="light">{field.type}</Badge>
+                <TextBadge variant="light">{field.type}</TextBadge>
               </Table.Td>
               <Table.Td>{field.required ? "Yes" : "No"}</Table.Td>
               <Table.Td>
                 <Code>{field.default !== null ? JSON.stringify(field.default) : "-"}</Code>
               </Table.Td>
               <Table.Td>
-                <Code>{Object.keys(field.options).length > 0 ? JSON.stringify(field.options) : "-"}</Code>
+                <Code style={{ maxWidth: 400, wordBreak: "break-all", whiteSpace: "pre-wrap" }}>
+                  {Object.keys(field.options).length > 0 ? JSON.stringify(field.options) : "-"}
+                </Code>
               </Table.Td>
               <Table.Td>
                 <Group gap="xs" wrap="nowrap">

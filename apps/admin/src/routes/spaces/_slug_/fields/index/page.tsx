@@ -3,7 +3,7 @@ import { Stack } from "@mantine/core"
 import { api } from "@spacenote/common/api"
 import { LinkButton, PageHeader } from "@spacenote/common/components"
 import { SpaceTabs } from "@/components/SpaceTabs"
-import { FieldsTable } from "./-components/FieldsTable"
+import { FieldsTable } from "./-local/FieldsTable"
 
 export const Route = createFileRoute("/_auth.layout/spaces/$slug/fields/")({
   component: FieldsPage,
@@ -17,13 +17,14 @@ function FieldsPage() {
   return (
     <Stack gap="md">
       <PageHeader
-        title="Fields"
-        breadcrumbs={[{ label: "Spaces", to: "/spaces" }, { label: `◈ ${space.slug}` }]}
-        topActions={<SpaceTabs space={space} />}
-        bottomActions={
-          <LinkButton to="/spaces/$slug/fields/new" params={{ slug }} variant="light">
-            Add Field
-          </LinkButton>
+        breadcrumbs={[{ label: "Spaces", to: "/spaces" }, { label: `◈ ${space.slug}` }, { label: "Fields" }]}
+        topActions={
+          <>
+            <SpaceTabs space={space} />
+            <LinkButton to="/spaces/$slug/fields/new" params={{ slug }}>
+              Add Field
+            </LinkButton>
+          </>
         }
       />
       <FieldsTable spaceSlug={slug} fields={space.fields} />

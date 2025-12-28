@@ -42,8 +42,7 @@ function SpaceMembersPage() {
   return (
     <Stack gap="md">
       <PageHeader
-        title="Members"
-        breadcrumbs={[{ label: "Spaces", to: "/spaces" }, { label: `◈ ${space.slug}` }]}
+        breadcrumbs={[{ label: "Spaces", to: "/spaces" }, { label: `◈ ${space.slug}` }, { label: "Members" }]}
         topActions={<SpaceTabs space={space} />}
       />
 

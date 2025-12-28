@@ -5,7 +5,7 @@ import { z } from "zod"
 import { api } from "@spacenote/common/api"
 import { PageHeader } from "@spacenote/common/components"
 import { TELEGRAM_TASK_STATUSES, TELEGRAM_TASK_TYPES } from "@spacenote/common/types"
-import { TelegramTasksTable } from "./-components/TelegramTasksTable"
+import { TelegramTasksTable } from "./-local/TelegramTasksTable"
 
 const searchSchema = z.object({
   space_slug: z.string().optional(),
@@ -44,7 +44,7 @@ function TelegramTasksPage() {
 
   return (
     <Stack gap="md">
-      <PageHeader title="Telegram Tasks" />
+      <PageHeader breadcrumbs={[{ label: "Telegram Tasks" }]} />
 
       <Group>
         <Select

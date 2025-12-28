@@ -4,7 +4,7 @@ import { useSuspenseQuery } from "@tanstack/react-query"
 import { z } from "zod"
 import { api } from "@spacenote/common/api"
 import { PageHeader } from "@spacenote/common/components"
-import { TelegramMirrorsTable } from "./-components/TelegramMirrorsTable"
+import { TelegramMirrorsTable } from "./-local/TelegramMirrorsTable"
 
 const searchSchema = z.object({
   space_slug: z.string().optional(),
@@ -39,7 +39,7 @@ function TelegramMirrorsPage() {
 
   return (
     <Stack gap="md">
-      <PageHeader title="Telegram Mirrors" />
+      <PageHeader breadcrumbs={[{ label: "Telegram Mirrors" }]} />
 
       <Group>
         <Select

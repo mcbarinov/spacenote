@@ -6,12 +6,12 @@ import { api, NOTES_PAGE_LIMIT } from "@spacenote/common/api"
 import { LinkButton, PageHeader } from "@spacenote/common/components"
 import { z } from "zod"
 import { useState } from "react"
-import { NotesListDefault } from "./-components/NotesListDefault"
-import { NotesListJson } from "./-components/NotesListJson"
-import { NotesListTemplate } from "./-components/NotesListTemplate"
+import { NotesListDefault } from "./-local/NotesListDefault"
+import { NotesListJson } from "./-local/NotesListJson"
+import { NotesListTemplate } from "./-local/NotesListTemplate"
 import { ViewModeMenu } from "@/components/ViewModeMenu"
-import { ActiveQueryFilters } from "./-components/ActiveQueryFilters"
-import { AdhocFilterDrawer } from "./-components/AdhocFilterDrawer"
+import { ActiveQueryFilters } from "./-local/ActiveQueryFilters"
+import { AdhocFilterDrawer } from "./-local/AdhocFilterDrawer"
 
 const searchSchema = z.object({
   filter: z.string().optional(),

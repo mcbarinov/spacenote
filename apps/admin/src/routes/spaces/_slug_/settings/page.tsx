@@ -3,13 +3,13 @@ import { Stack } from "@mantine/core"
 import { api } from "@spacenote/common/api"
 import { PageHeader } from "@spacenote/common/components"
 import { SpaceTabs } from "@/components/SpaceTabs"
-import { DeleteSpace } from "./-components/DeleteSpace"
-import { EditDefaultFilter } from "./-components/EditDefaultFilter"
-import { EditDescription } from "./-components/EditDescription"
-import { EditEditableFieldsOnComment } from "./-components/EditEditableFieldsOnComment"
-import { EditHiddenFieldsOnCreate } from "./-components/EditHiddenFieldsOnCreate"
-import { EditTelegram } from "./-components/EditTelegram"
-import { EditTitle } from "./-components/EditTitle"
+import { DeleteSpace } from "./-local/DeleteSpace"
+import { EditDefaultFilter } from "./-local/EditDefaultFilter"
+import { EditDescription } from "./-local/EditDescription"
+import { EditEditableFieldsOnComment } from "./-local/EditEditableFieldsOnComment"
+import { EditHiddenFieldsOnCreate } from "./-local/EditHiddenFieldsOnCreate"
+import { EditTelegram } from "./-local/EditTelegram"
+import { EditTitle } from "./-local/EditTitle"
 
 export const Route = createFileRoute("/_auth.layout/spaces/$slug/settings")({
   component: SettingsPage,
@@ -23,8 +23,7 @@ function SettingsPage() {
   return (
     <Stack gap="md">
       <PageHeader
-        title="Settings"
-        breadcrumbs={[{ label: "Spaces", to: "/spaces" }, { label: `◈ ${space.slug}` }]}
+        breadcrumbs={[{ label: "Spaces", to: "/spaces" }, { label: `◈ ${space.slug}` }, { label: "Settings" }]}
         topActions={<SpaceTabs space={space} />}
       />
       <EditTitle space={space} />

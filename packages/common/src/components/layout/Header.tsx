@@ -1,8 +1,9 @@
-import { Badge, Divider, Group, Text, Menu, UnstyledButton } from "@mantine/core"
+import { Divider, Group, Text, Menu, UnstyledButton } from "@mantine/core"
 import { IconUser, IconChevronDown, IconLogout } from "@tabler/icons-react"
 import { Link, useNavigate } from "@tanstack/react-router"
 import { api } from "../../api"
 import { useAppConfig } from "../../app/AppContext"
+import { TextBadge } from "../ui/TextBadge"
 
 /** App header with logo and user menu */
 export function Header() {
@@ -20,7 +21,7 @@ export function Header() {
           <Text component={Link} to="/" size="xl" fw={700}>
             SpaceNote
           </Text>
-          {isAdmin && <Badge variant="light">Admin</Badge>}
+          {isAdmin && <TextBadge variant="light">Admin</TextBadge>}
         </Group>
 
         {/* Right: User dropdown menu */}

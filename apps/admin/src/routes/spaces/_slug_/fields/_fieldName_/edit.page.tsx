@@ -1,27 +1,21 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { useForm } from "@mantine/form"
 import { zod4Resolver } from "mantine-form-zod-resolver"
-import { Badge, Button, Checkbox, Group, Paper, Stack, Text } from "@mantine/core"
+import { Button, Checkbox, Group, Paper, Stack, Text } from "@mantine/core"
 import { notifications } from "@mantine/notifications"
 import { api } from "@spacenote/common/api"
-import { ErrorMessage, PageHeader } from "@spacenote/common/components"
+import { ErrorMessage, PageHeader, TextBadge } from "@spacenote/common/components"
 import { SpaceTabs } from "@/components/SpaceTabs"
 import type { UpdateFieldRequest } from "@spacenote/common/types"
-import { StringFieldConfig } from "../-components/StringFieldConfig"
-import { BooleanFieldConfig } from "../-components/BooleanFieldConfig"
-import { SelectFieldConfig } from "../-components/SelectFieldConfig"
-import { TagsFieldConfig } from "../-components/TagsFieldConfig"
-import { UserFieldConfig } from "../-components/UserFieldConfig"
-import { DatetimeFieldConfig } from "../-components/DatetimeFieldConfig"
-import { NumericFieldConfig } from "../-components/NumericFieldConfig"
-import { ImageFieldConfig } from "../-components/ImageFieldConfig"
-import {
-  addFieldSchema,
-  buildDefault,
-  buildOptions,
-  parseFieldToFormValues,
-  type FormValues,
-} from "../-components/fieldFormUtils"
+import { StringFieldConfig } from "../-shared/StringFieldConfig"
+import { BooleanFieldConfig } from "../-shared/BooleanFieldConfig"
+import { SelectFieldConfig } from "../-shared/SelectFieldConfig"
+import { TagsFieldConfig } from "../-shared/TagsFieldConfig"
+import { UserFieldConfig } from "../-shared/UserFieldConfig"
+import { DatetimeFieldConfig } from "../-shared/DatetimeFieldConfig"
+import { NumericFieldConfig } from "../-shared/NumericFieldConfig"
+import { ImageFieldConfig } from "../-shared/ImageFieldConfig"
+import { addFieldSchema, buildDefault, buildOptions, parseFieldToFormValues, type FormValues } from "../-shared/fieldFormUtils"
 
 export const Route = createFileRoute("/_auth.layout/spaces/$slug/fields/$fieldName/edit")({
   component: EditFieldPage,
@@ -64,8 +58,12 @@ function EditFieldPage() {
   return (
     <Stack gap="md">
       <PageHeader
-        title="Edit Field"
-        breadcrumbs={[{ label: "Spaces", to: "/spaces" }, { label: `◈ ${space.slug}` }]}
+        breadcrumbs={[
+          { label: "Spaces", to: "/spaces" },
+          { label: `◈ ${space.slug}` },
+          { label: "Fields", to: "/spaces/$slug/fields", params: { slug } },
+          { label: "Edit Field" },
+        ]}
         topActions={<SpaceTabs space={space} />}
       />
 
@@ -83,7 +81,7 @@ function EditFieldPage() {
               <Text size="sm" fw={500} mb={4}>
                 Type
               </Text>
-              <Badge variant="light">{field.type}</Badge>
+              <TextBadge variant="light">{field.type}</TextBadge>
             </div>
 
             <Checkbox label="Required" {...form.getInputProps("required", { type: "checkbox" })} />

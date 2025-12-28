@@ -26,8 +26,7 @@ function ExportPage() {
   return (
     <Stack gap="md">
       <PageHeader
-        title="Export"
-        breadcrumbs={[{ label: "Spaces", to: "/spaces" }, { label: `◈ ${space.slug}` }]}
+        breadcrumbs={[{ label: "Spaces", to: "/spaces" }, { label: `◈ ${space.slug}` }, { label: "Export" }]}
         topActions={<SpaceTabs space={space} />}
       />
       <Paper withBorder p="md">

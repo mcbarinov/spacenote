@@ -1,5 +1,5 @@
-import { Badge, Box, Group, Stack, Text } from "@mantine/core"
-import { MultilineText, RetryableImage, Username } from "@spacenote/common/components"
+import { Box, Group, Stack, Text } from "@mantine/core"
+import { MultilineText, RetryableImage, TextBadge, Username } from "@spacenote/common/components"
 import type { DatetimeFieldOptions, SpaceField, StringFieldOptions } from "@spacenote/common/types"
 import { formatDatetime } from "@spacenote/common/utils"
 import { MarkdownDisplay } from "./MarkdownDisplay"
@@ -46,10 +46,10 @@ function formatValue(field: SpaceField, value: FieldValue, noteContext?: NoteCon
       return <Text>{String(value)}</Text>
 
     case "boolean":
-      return <Badge color={value ? "green" : "gray"}>{value ? "Yes" : "No"}</Badge>
+      return <TextBadge color={value ? "green" : "gray"}>{value ? "Yes" : "No"}</TextBadge>
 
     case "select":
-      return <Badge>{String(value)}</Badge>
+      return <TextBadge>{String(value)}</TextBadge>
 
     case "tags":
       if (!Array.isArray(value) || value.length === 0) {
@@ -58,9 +58,9 @@ function formatValue(field: SpaceField, value: FieldValue, noteContext?: NoteCon
       return (
         <Group gap="xs">
           {value.map((tag) => (
-            <Badge key={tag} variant="light">
+            <TextBadge key={tag} variant="light">
               {tag}
-            </Badge>
+            </TextBadge>
           ))}
         </Group>
       )

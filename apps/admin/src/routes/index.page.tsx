@@ -10,7 +10,7 @@ export const Route = createFileRoute("/_auth.layout/")({
 function HomePage() {
   return (
     <Stack gap="xl">
-      <Title order={2}>Admin Dashboard</Title>
+      <Title order={2}>Dashboard</Title>
 
       <SimpleGrid cols={2}>
         <DashboardCard to="/spaces" icon={IconLayout2} title="Spaces" />

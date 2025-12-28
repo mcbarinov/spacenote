@@ -1,5 +1,6 @@
 import type { ReactNode } from "react"
 import { Breadcrumbs, Group, Stack, Title } from "@mantine/core"
+import { IconChevronRight, IconHome } from "@tabler/icons-react"
 import { CustomLink } from "../navigation/CustomLink"
 
 export interface BreadcrumbItem {
@@ -25,7 +26,10 @@ export function PageHeader({ title, breadcrumbs, topActions, bottomActions }: Pa
       {hasTopRow && (
         <Group justify={breadcrumbs?.length ? "space-between" : "flex-start"}>
           {breadcrumbs && (
-            <Breadcrumbs>
+            <Breadcrumbs separator={<IconChevronRight size={14} />}>
+              <CustomLink to="/" c="dimmed">
+                <IconHome size={16} />
+              </CustomLink>
               {breadcrumbs.map((item) =>
                 item.to ? (
                   <CustomLink key={item.label} to={item.to} params={item.params} underline="hover" c="blue">

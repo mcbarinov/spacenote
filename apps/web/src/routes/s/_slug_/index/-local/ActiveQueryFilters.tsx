@@ -1,6 +1,7 @@
-import { ActionIcon, Badge, Group } from "@mantine/core"
+import { ActionIcon, Group } from "@mantine/core"
 import { IconX } from "@tabler/icons-react"
 import { useNavigate } from "@tanstack/react-router"
+import { TextBadge } from "@spacenote/common/components"
 import { parseCondition, getFieldDisplayName, formatOperator } from "./filterUtils"
 
 interface ActiveQueryFiltersProps {
@@ -31,7 +32,7 @@ export function ActiveQueryFilters({ q, slug }: ActiveQueryFiltersProps) {
       {conditions.map((condition, index) => {
         const parsed = parseCondition(condition)
         return (
-          <Badge
+          <TextBadge
             key={condition}
             variant="light"
             color="gray"
@@ -48,7 +49,7 @@ export function ActiveQueryFilters({ q, slug }: ActiveQueryFiltersProps) {
             }
           >
             {getFieldDisplayName(parsed.field)} {formatOperator(parsed.operator)} {parsed.value}
-          </Badge>
+          </TextBadge>
         )
       })}
     </Group>

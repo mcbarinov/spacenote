@@ -15,7 +15,7 @@ function SpacesPage() {
   return (
     <Stack gap="md">
       <PageHeader
-        breadcrumbs={[{ to: "/", label: "Admin Dashboard" }, { label: "Spaces" }]}
+        breadcrumbs={[{ label: "Spaces" }]}
         topActions={
           <Button component={Link} to="/spaces/new">
             Create Space

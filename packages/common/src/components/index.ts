@@ -1,6 +1,7 @@
 export { ErrorBoundary } from "./errors/ErrorBoundary"
 export { ErrorMessage } from "./ui/ErrorMessage"
 export { DeleteButton } from "./ui/DeleteButton"
+export { TextBadge } from "./ui/TextBadge"
 export { Username } from "./ui/Username"
 export { SpaceSlug } from "./ui/SpaceSlug"
 export { MultilineText } from "./ui/MultilineText"

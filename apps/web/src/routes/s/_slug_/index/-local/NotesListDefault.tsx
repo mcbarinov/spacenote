@@ -1,6 +1,6 @@
-import { Badge, Group, Table } from "@mantine/core"
+import { Group, Table } from "@mantine/core"
 import { useNavigate } from "@tanstack/react-router"
-import { Username } from "@spacenote/common/components"
+import { TextBadge, Username } from "@spacenote/common/components"
 import type { Note, Space, SpaceField } from "@spacenote/common/types"
 import { formatDate } from "@spacenote/common/utils"
 
@@ -92,9 +92,9 @@ export function NotesListDefault({ notes, space, filter }: NotesListDefaultProps
     // Select field - display as badge
     if (fieldType === "select" && typeof value === "string") {
       return (
-        <Badge variant="light" style={{ textTransform: "none" }}>
+        <TextBadge variant="light" style={{ textTransform: "none" }}>
           {value}
-        </Badge>
+        </TextBadge>
       )
     }
 

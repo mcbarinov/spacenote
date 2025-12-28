@@ -307,6 +307,13 @@ class App:
 
     # --- Attachments ---
 
+    async def list_pending_attachments(
+        self, auth_token: AuthToken, limit: int = 50, offset: int = 0
+    ) -> PaginationResult[PendingAttachment]:
+        """List all pending attachments (admin only)."""
+        await self._core.services.access.ensure_admin(auth_token)
+        return await self._core.services.attachment.list_pending_attachments(limit, offset)
+
     async def upload_pending_attachment(
         self, auth_token: AuthToken, filename: str, content: bytes, mime_type: str
     ) -> PendingAttachment:
@@ -348,8 +355,8 @@ class App:
         return await self._core.services.attachment.list_note_attachments(space_slug, note_number)
 
     async def download_pending_attachment(self, auth_token: AuthToken, number: int) -> tuple[PendingAttachment, bytes]:
-        """Download pending attachment (owner only)."""
-        _, pending = await self._core.services.access.ensure_pending_attachment_owner(auth_token, number)
+        """Download pending attachment (owner or admin)."""
+        _, pending = await self._core.services.access.ensure_pending_attachment_owner_or_admin(auth_token, number)
         content = attachment_storage.read_pending_attachment_file(self._core.config.attachments_path, number)
         return pending, content
 
@@ -381,7 +388,7 @@ class App:
     ) -> bytes:
         """Convert attachment to WebP. space_slug=None means pending attachment."""
         if space_slug is None:
-            await self._core.services.access.ensure_pending_attachment_owner(auth_token, attachment_number)
+            await self._core.services.access.ensure_pending_attachment_owner_or_admin(auth_token, attachment_number)
         else:
             await self._core.services.access.ensure_space_reader(auth_token, space_slug)
         return await self._core.services.image.get_attachment_as_webp(space_slug, note_number, attachment_number, options)

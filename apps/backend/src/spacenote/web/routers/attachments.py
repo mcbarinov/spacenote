@@ -5,6 +5,7 @@ from fastapi.responses import Response
 
 from spacenote.core.modules.attachment.models import Attachment, PendingAttachment
 from spacenote.core.modules.image.processor import parse_webp_option
+from spacenote.core.pagination import PaginationResult
 from spacenote.errors import ValidationError
 from spacenote.web.deps import AppDep, AuthTokenDep
 from spacenote.web.openapi import ErrorResponse
@@ -31,6 +32,25 @@ async def upload_pending_attachment(file: UploadFile, app: AppDep, auth_token: A
         content=content,
         mime_type=file.content_type or "application/octet-stream",
     )
+
+
+@router.get(
+    "/attachments/pending",
+    summary="List pending attachments",
+    description="List all pending attachments with pagination. Admin only.",
+    operation_id="listPendingAttachments",
+    responses={
+        401: {"model": ErrorResponse, "description": "Not authenticated"},
+        403: {"model": ErrorResponse, "description": "Admin privileges required"},
+    },
+)
+async def list_pending_attachments(
+    app: AppDep,
+    auth_token: AuthTokenDep,
+    limit: Annotated[int, Query(ge=1, le=100, description="Maximum items to return")] = 50,
+    offset: Annotated[int, Query(ge=0, description="Number of items to skip")] = 0,
+) -> PaginationResult[PendingAttachment]:
+    return await app.list_pending_attachments(auth_token, limit, offset)
 
 
 @router.delete(
@@ -135,7 +155,7 @@ async def list_note_attachments(space_slug: str, note_number: int, app: AppDep, 
     "/attachments/pending/{number}",
     summary="Download pending attachment",
     description=(
-        "Download a pending attachment file. Only the owner can download. "
+        "Download a pending attachment file. Owner or admin can download. "
         "Use `?format=webp` to convert images to WebP. "
         "Optional `&option=max_width:800` to resize."
     ),
@@ -143,7 +163,7 @@ async def list_note_attachments(space_slug: str, note_number: int, app: AppDep, 
     responses={
         200: {"description": "File content", "content": {"application/octet-stream": {}}},
         401: {"model": ErrorResponse, "description": "Not authenticated"},
-        403: {"model": ErrorResponse, "description": "Not the owner of this attachment"},
+        403: {"model": ErrorResponse, "description": "Not the owner or admin"},
         404: {"model": ErrorResponse, "description": "Attachment not found"},
     },
 )

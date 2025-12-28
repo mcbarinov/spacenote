@@ -3,31 +3,31 @@ import { Stack } from "@mantine/core"
 import { api } from "@spacenote/common/api"
 import { LinkButton, PageHeader } from "@spacenote/common/components"
 import { SpaceTabs } from "@/components/SpaceTabs"
-import { FiltersTable } from "./-components/FiltersTable"
+import { FieldsTable } from "./-local/FieldsTable"
 
-export const Route = createFileRoute("/_auth.layout/spaces/$slug/filters/")({
-  component: FiltersPage,
+export const Route = createFileRoute("/_auth.layout/spaces/$slug/fields/")({
+  component: FieldsPage,
 })
 
-/** Space filters list with add filter button */
-function FiltersPage() {
+/** Space fields list with add field button */
+function FieldsPage() {
   const { slug } = Route.useParams()
   const space = api.cache.useSpace(slug)
 
   return (
     <Stack gap="md">
       <PageHeader
-        breadcrumbs={[{ label: "Spaces", to: "/spaces" }, { label: `◈ ${space.slug}` }, { label: "Filters" }]}
+        breadcrumbs={[{ label: "Spaces", to: "/spaces" }, { label: `◈ ${space.slug}` }, { label: "Fields" }]}
         topActions={
           <>
             <SpaceTabs space={space} />
-            <LinkButton to="/spaces/$slug/filters/new" params={{ slug }}>
-              Add Filter
+            <LinkButton to="/spaces/$slug/fields/new" params={{ slug }}>
+              Add Field
             </LinkButton>
           </>
         }
       />
-      <FiltersTable spaceSlug={slug} filters={space.filters} />
+      <FieldsTable spaceSlug={slug} fields={space.fields} />
     </Stack>
   )
 }

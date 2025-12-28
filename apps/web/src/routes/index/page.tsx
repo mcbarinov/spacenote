@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router"
 import { SimpleGrid, Text } from "@mantine/core"
 import { api } from "@spacenote/common/api"
 import { PageHeader } from "@spacenote/common/components"
-import SpaceCard from "./-components/SpaceCard"
+import SpaceCard from "./-local/SpaceCard"
 
 export const Route = createFileRoute("/_auth.layout/")({
   component: HomePage,

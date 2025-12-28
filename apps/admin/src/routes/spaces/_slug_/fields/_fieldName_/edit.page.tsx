@@ -7,21 +7,15 @@ import { api } from "@spacenote/common/api"
 import { ErrorMessage, PageHeader } from "@spacenote/common/components"
 import { SpaceTabs } from "@/components/SpaceTabs"
 import type { UpdateFieldRequest } from "@spacenote/common/types"
-import { StringFieldConfig } from "../-components/StringFieldConfig"
-import { BooleanFieldConfig } from "../-components/BooleanFieldConfig"
-import { SelectFieldConfig } from "../-components/SelectFieldConfig"
-import { TagsFieldConfig } from "../-components/TagsFieldConfig"
-import { UserFieldConfig } from "../-components/UserFieldConfig"
-import { DatetimeFieldConfig } from "../-components/DatetimeFieldConfig"
-import { NumericFieldConfig } from "../-components/NumericFieldConfig"
-import { ImageFieldConfig } from "../-components/ImageFieldConfig"
-import {
-  addFieldSchema,
-  buildDefault,
-  buildOptions,
-  parseFieldToFormValues,
-  type FormValues,
-} from "../-components/fieldFormUtils"
+import { StringFieldConfig } from "../-shared/StringFieldConfig"
+import { BooleanFieldConfig } from "../-shared/BooleanFieldConfig"
+import { SelectFieldConfig } from "../-shared/SelectFieldConfig"
+import { TagsFieldConfig } from "../-shared/TagsFieldConfig"
+import { UserFieldConfig } from "../-shared/UserFieldConfig"
+import { DatetimeFieldConfig } from "../-shared/DatetimeFieldConfig"
+import { NumericFieldConfig } from "../-shared/NumericFieldConfig"
+import { ImageFieldConfig } from "../-shared/ImageFieldConfig"
+import { addFieldSchema, buildDefault, buildOptions, parseFieldToFormValues, type FormValues } from "../-shared/fieldFormUtils"
 
 export const Route = createFileRoute("/_auth.layout/spaces/$slug/fields/$fieldName/edit")({
   component: EditFieldPage,

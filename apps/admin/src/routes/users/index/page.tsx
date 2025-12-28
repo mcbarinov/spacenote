@@ -4,7 +4,7 @@ import { notifications } from "@mantine/notifications"
 import { api } from "@spacenote/common/api"
 import { DeleteButton, PageHeader, Username } from "@spacenote/common/components"
 import { AppError } from "@spacenote/common/errors"
-import { SetPasswordButton } from "./-components/SetPasswordButton"
+import { SetPasswordButton } from "./-local/SetPasswordButton"
 
 export const Route = createFileRoute("/_auth.layout/users/")({
   component: UsersPage,

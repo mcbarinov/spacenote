@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router"
 import { Button, Stack } from "@mantine/core"
 import { api } from "@spacenote/common/api"
 import { PageHeader } from "@spacenote/common/components"
-import { SpacesTable } from "./-components/SpacesTable"
+import { SpacesTable } from "./-local/SpacesTable"
 
 export const Route = createFileRoute("/_auth.layout/spaces/")({
   component: SpacesPage,

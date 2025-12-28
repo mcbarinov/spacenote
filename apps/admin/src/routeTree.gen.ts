@@ -12,21 +12,21 @@ import { Route as rootRouteImport } from './routes/root.layout'
 import { Route as loginDotpageRouteImport } from './routes/login.page'
 import { Route as authDotlayoutRouteImport } from './routes/auth.layout'
 import { Route as indexDotpageRouteImport } from './routes/index.page'
-import { Route as spacesIndexDotpageRouteImport } from './routes/spaces/index.page'
 import { Route as usersNewDotpageRouteImport } from './routes/users/new.page'
 import { Route as telegramTasksPageRouteImport } from './routes/telegram/tasks/page'
 import { Route as telegramMirrorsPageRouteImport } from './routes/telegram/mirrors/page'
 import { Route as spacesNewDotpageRouteImport } from './routes/spaces/new.page'
 import { Route as spacesImportDotpageRouteImport } from './routes/spaces/import.page'
 import { Route as usersIndexPageRouteImport } from './routes/users/index/page'
+import { Route as spacesIndexPageRouteImport } from './routes/spaces/index/page'
 import { Route as spacesSlugTemplatesPageRouteImport } from './routes/spaces/_slug_/templates/page'
 import { Route as spacesSlugSettingsPageRouteImport } from './routes/spaces/_slug_/settings/page'
 import { Route as spacesSlugMembersDotpageRouteImport } from './routes/spaces/_slug_/members.page'
 import { Route as spacesSlugExportDotpageRouteImport } from './routes/spaces/_slug_/export.page'
-import { Route as spacesSlugFiltersIndexDotpageRouteImport } from './routes/spaces/_slug_/filters/index.page'
-import { Route as spacesSlugFieldsIndexDotpageRouteImport } from './routes/spaces/_slug_/fields/index.page'
 import { Route as spacesSlugFiltersNewDotpageRouteImport } from './routes/spaces/_slug_/filters/new.page'
 import { Route as spacesSlugFieldsNewDotpageRouteImport } from './routes/spaces/_slug_/fields/new.page'
+import { Route as spacesSlugFiltersIndexPageRouteImport } from './routes/spaces/_slug_/filters/index/page'
+import { Route as spacesSlugFieldsIndexPageRouteImport } from './routes/spaces/_slug_/fields/index/page'
 import { Route as spacesSlugFiltersFilterNameEditDotpageRouteImport } from './routes/spaces/_slug_/filters/_filterName_/edit.page'
 import { Route as spacesSlugFieldsFieldNameEditDotpageRouteImport } from './routes/spaces/_slug_/fields/_fieldName_/edit.page'
 
@@ -42,11 +42,6 @@ const authDotlayoutRoute = authDotlayoutRouteImport.update({
 const indexDotpageRoute = indexDotpageRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => authDotlayoutRoute,
-} as any)
-const spacesIndexDotpageRoute = spacesIndexDotpageRouteImport.update({
-  id: '/spaces/',
-  path: '/spaces/',
   getParentRoute: () => authDotlayoutRoute,
 } as any)
 const usersNewDotpageRoute = usersNewDotpageRouteImport.update({
@@ -79,6 +74,11 @@ const usersIndexPageRoute = usersIndexPageRouteImport.update({
   path: '/users/',
   getParentRoute: () => authDotlayoutRoute,
 } as any)
+const spacesIndexPageRoute = spacesIndexPageRouteImport.update({
+  id: '/spaces/',
+  path: '/spaces/',
+  getParentRoute: () => authDotlayoutRoute,
+} as any)
 const spacesSlugTemplatesPageRoute = spacesSlugTemplatesPageRouteImport.update({
   id: '/spaces/$slug/templates',
   path: '/spaces/$slug/templates',
@@ -100,18 +100,6 @@ const spacesSlugExportDotpageRoute = spacesSlugExportDotpageRouteImport.update({
   path: '/spaces/$slug/export',
   getParentRoute: () => authDotlayoutRoute,
 } as any)
-const spacesSlugFiltersIndexDotpageRoute =
-  spacesSlugFiltersIndexDotpageRouteImport.update({
-    id: '/spaces/$slug/filters/',
-    path: '/spaces/$slug/filters/',
-    getParentRoute: () => authDotlayoutRoute,
-  } as any)
-const spacesSlugFieldsIndexDotpageRoute =
-  spacesSlugFieldsIndexDotpageRouteImport.update({
-    id: '/spaces/$slug/fields/',
-    path: '/spaces/$slug/fields/',
-    getParentRoute: () => authDotlayoutRoute,
-  } as any)
 const spacesSlugFiltersNewDotpageRoute =
   spacesSlugFiltersNewDotpageRouteImport.update({
     id: '/spaces/$slug/filters/new',
@@ -122,6 +110,18 @@ const spacesSlugFieldsNewDotpageRoute =
   spacesSlugFieldsNewDotpageRouteImport.update({
     id: '/spaces/$slug/fields/new',
     path: '/spaces/$slug/fields/new',
+    getParentRoute: () => authDotlayoutRoute,
+  } as any)
+const spacesSlugFiltersIndexPageRoute =
+  spacesSlugFiltersIndexPageRouteImport.update({
+    id: '/spaces/$slug/filters/',
+    path: '/spaces/$slug/filters/',
+    getParentRoute: () => authDotlayoutRoute,
+  } as any)
+const spacesSlugFieldsIndexPageRoute =
+  spacesSlugFieldsIndexPageRouteImport.update({
+    id: '/spaces/$slug/fields/',
+    path: '/spaces/$slug/fields/',
     getParentRoute: () => authDotlayoutRoute,
   } as any)
 const spacesSlugFiltersFilterNameEditDotpageRoute =
@@ -140,42 +140,42 @@ const spacesSlugFieldsFieldNameEditDotpageRoute =
 export interface FileRoutesByFullPath {
   '/login': typeof loginDotpageRoute
   '/': typeof indexDotpageRoute
+  '/spaces': typeof spacesIndexPageRoute
   '/users': typeof usersIndexPageRoute
   '/spaces/import': typeof spacesImportDotpageRoute
   '/spaces/new': typeof spacesNewDotpageRoute
   '/telegram/mirrors': typeof telegramMirrorsPageRoute
   '/telegram/tasks': typeof telegramTasksPageRoute
   '/users/new': typeof usersNewDotpageRoute
-  '/spaces': typeof spacesIndexDotpageRoute
   '/spaces/$slug/export': typeof spacesSlugExportDotpageRoute
   '/spaces/$slug/members': typeof spacesSlugMembersDotpageRoute
   '/spaces/$slug/settings': typeof spacesSlugSettingsPageRoute
   '/spaces/$slug/templates': typeof spacesSlugTemplatesPageRoute
+  '/spaces/$slug/fields': typeof spacesSlugFieldsIndexPageRoute
+  '/spaces/$slug/filters': typeof spacesSlugFiltersIndexPageRoute
   '/spaces/$slug/fields/new': typeof spacesSlugFieldsNewDotpageRoute
   '/spaces/$slug/filters/new': typeof spacesSlugFiltersNewDotpageRoute
-  '/spaces/$slug/fields': typeof spacesSlugFieldsIndexDotpageRoute
-  '/spaces/$slug/filters': typeof spacesSlugFiltersIndexDotpageRoute
   '/spaces/$slug/fields/$fieldName/edit': typeof spacesSlugFieldsFieldNameEditDotpageRoute
   '/spaces/$slug/filters/$filterName/edit': typeof spacesSlugFiltersFilterNameEditDotpageRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof loginDotpageRoute
   '/': typeof indexDotpageRoute
+  '/spaces': typeof spacesIndexPageRoute
   '/users': typeof usersIndexPageRoute
   '/spaces/import': typeof spacesImportDotpageRoute
   '/spaces/new': typeof spacesNewDotpageRoute
   '/telegram/mirrors': typeof telegramMirrorsPageRoute
   '/telegram/tasks': typeof telegramTasksPageRoute
   '/users/new': typeof usersNewDotpageRoute
-  '/spaces': typeof spacesIndexDotpageRoute
   '/spaces/$slug/export': typeof spacesSlugExportDotpageRoute
   '/spaces/$slug/members': typeof spacesSlugMembersDotpageRoute
   '/spaces/$slug/settings': typeof spacesSlugSettingsPageRoute
   '/spaces/$slug/templates': typeof spacesSlugTemplatesPageRoute
+  '/spaces/$slug/fields': typeof spacesSlugFieldsIndexPageRoute
+  '/spaces/$slug/filters': typeof spacesSlugFiltersIndexPageRoute
   '/spaces/$slug/fields/new': typeof spacesSlugFieldsNewDotpageRoute
   '/spaces/$slug/filters/new': typeof spacesSlugFiltersNewDotpageRoute
-  '/spaces/$slug/fields': typeof spacesSlugFieldsIndexDotpageRoute
-  '/spaces/$slug/filters': typeof spacesSlugFiltersIndexDotpageRoute
   '/spaces/$slug/fields/$fieldName/edit': typeof spacesSlugFieldsFieldNameEditDotpageRoute
   '/spaces/$slug/filters/$filterName/edit': typeof spacesSlugFiltersFilterNameEditDotpageRoute
 }
@@ -184,21 +184,21 @@ export interface FileRoutesById {
   '/_auth.layout': typeof authDotlayoutRouteWithChildren
   '/login': typeof loginDotpageRoute
   '/_auth.layout/': typeof indexDotpageRoute
+  '/_auth.layout/spaces/': typeof spacesIndexPageRoute
   '/_auth.layout/users/': typeof usersIndexPageRoute
   '/_auth.layout/spaces/import': typeof spacesImportDotpageRoute
   '/_auth.layout/spaces/new': typeof spacesNewDotpageRoute
   '/_auth.layout/telegram/mirrors': typeof telegramMirrorsPageRoute
   '/_auth.layout/telegram/tasks': typeof telegramTasksPageRoute
   '/_auth.layout/users/new': typeof usersNewDotpageRoute
-  '/_auth.layout/spaces/': typeof spacesIndexDotpageRoute
   '/_auth.layout/spaces/$slug/export': typeof spacesSlugExportDotpageRoute
   '/_auth.layout/spaces/$slug/members': typeof spacesSlugMembersDotpageRoute
   '/_auth.layout/spaces/$slug/settings': typeof spacesSlugSettingsPageRoute
   '/_auth.layout/spaces/$slug/templates': typeof spacesSlugTemplatesPageRoute
+  '/_auth.layout/spaces/$slug/fields/': typeof spacesSlugFieldsIndexPageRoute
+  '/_auth.layout/spaces/$slug/filters/': typeof spacesSlugFiltersIndexPageRoute
   '/_auth.layout/spaces/$slug/fields/new': typeof spacesSlugFieldsNewDotpageRoute
   '/_auth.layout/spaces/$slug/filters/new': typeof spacesSlugFiltersNewDotpageRoute
-  '/_auth.layout/spaces/$slug/fields/': typeof spacesSlugFieldsIndexDotpageRoute
-  '/_auth.layout/spaces/$slug/filters/': typeof spacesSlugFiltersIndexDotpageRoute
   '/_auth.layout/spaces/$slug/fields/$fieldName/edit': typeof spacesSlugFieldsFieldNameEditDotpageRoute
   '/_auth.layout/spaces/$slug/filters/$filterName/edit': typeof spacesSlugFiltersFilterNameEditDotpageRoute
 }
@@ -207,42 +207,42 @@ export interface FileRouteTypes {
   fullPaths:
     | '/login'
     | '/'
+    | '/spaces'
     | '/users'
     | '/spaces/import'
     | '/spaces/new'
     | '/telegram/mirrors'
     | '/telegram/tasks'
     | '/users/new'
-    | '/spaces'
     | '/spaces/$slug/export'
     | '/spaces/$slug/members'
     | '/spaces/$slug/settings'
     | '/spaces/$slug/templates'
-    | '/spaces/$slug/fields/new'
-    | '/spaces/$slug/filters/new'
     | '/spaces/$slug/fields'
     | '/spaces/$slug/filters'
+    | '/spaces/$slug/fields/new'
+    | '/spaces/$slug/filters/new'
     | '/spaces/$slug/fields/$fieldName/edit'
     | '/spaces/$slug/filters/$filterName/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
     | '/'
+    | '/spaces'
     | '/users'
     | '/spaces/import'
     | '/spaces/new'
     | '/telegram/mirrors'
     | '/telegram/tasks'
     | '/users/new'
-    | '/spaces'
     | '/spaces/$slug/export'
     | '/spaces/$slug/members'
     | '/spaces/$slug/settings'
     | '/spaces/$slug/templates'
-    | '/spaces/$slug/fields/new'
-    | '/spaces/$slug/filters/new'
     | '/spaces/$slug/fields'
     | '/spaces/$slug/filters'
+    | '/spaces/$slug/fields/new'
+    | '/spaces/$slug/filters/new'
     | '/spaces/$slug/fields/$fieldName/edit'
     | '/spaces/$slug/filters/$filterName/edit'
   id:
@@ -250,21 +250,21 @@ export interface FileRouteTypes {
     | '/_auth.layout'
     | '/login'
     | '/_auth.layout/'
+    | '/_auth.layout/spaces/'
     | '/_auth.layout/users/'
     | '/_auth.layout/spaces/import'
     | '/_auth.layout/spaces/new'
     | '/_auth.layout/telegram/mirrors'
     | '/_auth.layout/telegram/tasks'
     | '/_auth.layout/users/new'
-    | '/_auth.layout/spaces/'
     | '/_auth.layout/spaces/$slug/export'
     | '/_auth.layout/spaces/$slug/members'
     | '/_auth.layout/spaces/$slug/settings'
     | '/_auth.layout/spaces/$slug/templates'
-    | '/_auth.layout/spaces/$slug/fields/new'
-    | '/_auth.layout/spaces/$slug/filters/new'
     | '/_auth.layout/spaces/$slug/fields/'
     | '/_auth.layout/spaces/$slug/filters/'
+    | '/_auth.layout/spaces/$slug/fields/new'
+    | '/_auth.layout/spaces/$slug/filters/new'
     | '/_auth.layout/spaces/$slug/fields/$fieldName/edit'
     | '/_auth.layout/spaces/$slug/filters/$filterName/edit'
   fileRoutesById: FileRoutesById
@@ -295,13 +295,6 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof indexDotpageRouteImport
-      parentRoute: typeof authDotlayoutRoute
-    }
-    '/_auth.layout/spaces/': {
-      id: '/_auth.layout/spaces/'
-      path: '/spaces'
-      fullPath: '/spaces'
-      preLoaderRoute: typeof spacesIndexDotpageRouteImport
       parentRoute: typeof authDotlayoutRoute
     }
     '/_auth.layout/users/new': {
@@ -346,6 +339,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof usersIndexPageRouteImport
       parentRoute: typeof authDotlayoutRoute
     }
+    '/_auth.layout/spaces/': {
+      id: '/_auth.layout/spaces/'
+      path: '/spaces'
+      fullPath: '/spaces'
+      preLoaderRoute: typeof spacesIndexPageRouteImport
+      parentRoute: typeof authDotlayoutRoute
+    }
     '/_auth.layout/spaces/$slug/templates': {
       id: '/_auth.layout/spaces/$slug/templates'
       path: '/spaces/$slug/templates'
@@ -374,20 +374,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof spacesSlugExportDotpageRouteImport
       parentRoute: typeof authDotlayoutRoute
     }
-    '/_auth.layout/spaces/$slug/filters/': {
-      id: '/_auth.layout/spaces/$slug/filters/'
-      path: '/spaces/$slug/filters'
-      fullPath: '/spaces/$slug/filters'
-      preLoaderRoute: typeof spacesSlugFiltersIndexDotpageRouteImport
-      parentRoute: typeof authDotlayoutRoute
-    }
-    '/_auth.layout/spaces/$slug/fields/': {
-      id: '/_auth.layout/spaces/$slug/fields/'
-      path: '/spaces/$slug/fields'
-      fullPath: '/spaces/$slug/fields'
-      preLoaderRoute: typeof spacesSlugFieldsIndexDotpageRouteImport
-      parentRoute: typeof authDotlayoutRoute
-    }
     '/_auth.layout/spaces/$slug/filters/new': {
       id: '/_auth.layout/spaces/$slug/filters/new'
       path: '/spaces/$slug/filters/new'
@@ -400,6 +386,20 @@ declare module '@tanstack/react-router' {
       path: '/spaces/$slug/fields/new'
       fullPath: '/spaces/$slug/fields/new'
       preLoaderRoute: typeof spacesSlugFieldsNewDotpageRouteImport
+      parentRoute: typeof authDotlayoutRoute
+    }
+    '/_auth.layout/spaces/$slug/filters/': {
+      id: '/_auth.layout/spaces/$slug/filters/'
+      path: '/spaces/$slug/filters'
+      fullPath: '/spaces/$slug/filters'
+      preLoaderRoute: typeof spacesSlugFiltersIndexPageRouteImport
+      parentRoute: typeof authDotlayoutRoute
+    }
+    '/_auth.layout/spaces/$slug/fields/': {
+      id: '/_auth.layout/spaces/$slug/fields/'
+      path: '/spaces/$slug/fields'
+      fullPath: '/spaces/$slug/fields'
+      preLoaderRoute: typeof spacesSlugFieldsIndexPageRouteImport
       parentRoute: typeof authDotlayoutRoute
     }
     '/_auth.layout/spaces/$slug/filters/$filterName/edit': {
@@ -421,42 +421,42 @@ declare module '@tanstack/react-router' {
 
 interface authDotlayoutRouteChildren {
   indexDotpageRoute: typeof indexDotpageRoute
+  spacesIndexPageRoute: typeof spacesIndexPageRoute
   usersIndexPageRoute: typeof usersIndexPageRoute
   spacesImportDotpageRoute: typeof spacesImportDotpageRoute
   spacesNewDotpageRoute: typeof spacesNewDotpageRoute
   telegramMirrorsPageRoute: typeof telegramMirrorsPageRoute
   telegramTasksPageRoute: typeof telegramTasksPageRoute
   usersNewDotpageRoute: typeof usersNewDotpageRoute
-  spacesIndexDotpageRoute: typeof spacesIndexDotpageRoute
   spacesSlugExportDotpageRoute: typeof spacesSlugExportDotpageRoute
   spacesSlugMembersDotpageRoute: typeof spacesSlugMembersDotpageRoute
   spacesSlugSettingsPageRoute: typeof spacesSlugSettingsPageRoute
   spacesSlugTemplatesPageRoute: typeof spacesSlugTemplatesPageRoute
+  spacesSlugFieldsIndexPageRoute: typeof spacesSlugFieldsIndexPageRoute
+  spacesSlugFiltersIndexPageRoute: typeof spacesSlugFiltersIndexPageRoute
   spacesSlugFieldsNewDotpageRoute: typeof spacesSlugFieldsNewDotpageRoute
   spacesSlugFiltersNewDotpageRoute: typeof spacesSlugFiltersNewDotpageRoute
-  spacesSlugFieldsIndexDotpageRoute: typeof spacesSlugFieldsIndexDotpageRoute
-  spacesSlugFiltersIndexDotpageRoute: typeof spacesSlugFiltersIndexDotpageRoute
   spacesSlugFieldsFieldNameEditDotpageRoute: typeof spacesSlugFieldsFieldNameEditDotpageRoute
   spacesSlugFiltersFilterNameEditDotpageRoute: typeof spacesSlugFiltersFilterNameEditDotpageRoute
 }
 
 const authDotlayoutRouteChildren: authDotlayoutRouteChildren = {
   indexDotpageRoute: indexDotpageRoute,
+  spacesIndexPageRoute: spacesIndexPageRoute,
   usersIndexPageRoute: usersIndexPageRoute,
   spacesImportDotpageRoute: spacesImportDotpageRoute,
   spacesNewDotpageRoute: spacesNewDotpageRoute,
   telegramMirrorsPageRoute: telegramMirrorsPageRoute,
   telegramTasksPageRoute: telegramTasksPageRoute,
   usersNewDotpageRoute: usersNewDotpageRoute,
-  spacesIndexDotpageRoute: spacesIndexDotpageRoute,
   spacesSlugExportDotpageRoute: spacesSlugExportDotpageRoute,
   spacesSlugMembersDotpageRoute: spacesSlugMembersDotpageRoute,
   spacesSlugSettingsPageRoute: spacesSlugSettingsPageRoute,
   spacesSlugTemplatesPageRoute: spacesSlugTemplatesPageRoute,
+  spacesSlugFieldsIndexPageRoute: spacesSlugFieldsIndexPageRoute,
+  spacesSlugFiltersIndexPageRoute: spacesSlugFiltersIndexPageRoute,
   spacesSlugFieldsNewDotpageRoute: spacesSlugFieldsNewDotpageRoute,
   spacesSlugFiltersNewDotpageRoute: spacesSlugFiltersNewDotpageRoute,
-  spacesSlugFieldsIndexDotpageRoute: spacesSlugFieldsIndexDotpageRoute,
-  spacesSlugFiltersIndexDotpageRoute: spacesSlugFiltersIndexDotpageRoute,
   spacesSlugFieldsFieldNameEditDotpageRoute:
     spacesSlugFieldsFieldNameEditDotpageRoute,
   spacesSlugFiltersFilterNameEditDotpageRoute:

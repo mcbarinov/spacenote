@@ -4,7 +4,7 @@ General rules for AI agents working on this project.
 
 ## Git Conventions
 
-Labels: `chore:`, `feat:`, `infra:`, `refactor:`
+Labels: `chore:`, `feat:`, `fix:`, `infra:`, `refactor:`
 
 - Branches: `<label>/<name>` (e.g., `feat/user-management`)
 - Commits: `<label>: <description>` (e.g., `feat: add user auth`)

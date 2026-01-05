@@ -1,5 +1,6 @@
-import { Paper, Table, Text } from "@mantine/core"
+import { ActionIcon, Group, Paper, Table, Text } from "@mantine/core"
 import { notifications } from "@mantine/notifications"
+import { IconDownload } from "@tabler/icons-react"
 import { api } from "@spacenote/common/api"
 import { DeleteButton, Username } from "@spacenote/common/components"
 import type { PendingAttachment } from "@spacenote/common/types"
@@ -47,20 +48,30 @@ export function PendingAttachmentsTable({ attachments }: PendingAttachmentsTable
               <Table.Td>{attachment.mime_type}</Table.Td>
               <Table.Td>{formatDate(attachment.created_at)}</Table.Td>
               <Table.Td>
-                <DeleteButton
-                  title="Delete Pending Attachment"
-                  message={`Are you sure you want to delete "${attachment.filename}"?`}
-                  onConfirm={() => {
-                    deleteMutation.mutate(attachment.number, {
-                      onSuccess: () => {
-                        notifications.show({
-                          message: "Pending attachment deleted",
-                          color: "green",
-                        })
-                      },
-                    })
-                  }}
-                />
+                <Group gap="xs">
+                  <ActionIcon
+                    component="a"
+                    href={`/api/v1/attachments/pending/${String(attachment.number)}`}
+                    target="_blank"
+                    variant="subtle"
+                  >
+                    <IconDownload size={18} />
+                  </ActionIcon>
+                  <DeleteButton
+                    title="Delete Pending Attachment"
+                    message={`Are you sure you want to delete "${attachment.filename}"?`}
+                    onConfirm={() => {
+                      deleteMutation.mutate(attachment.number, {
+                        onSuccess: () => {
+                          notifications.show({
+                            message: "Pending attachment deleted",
+                            color: "green",
+                          })
+                        },
+                      })
+                    }}
+                  />
+                </Group>
               </Table.Td>
             </Table.Tr>
           ))}

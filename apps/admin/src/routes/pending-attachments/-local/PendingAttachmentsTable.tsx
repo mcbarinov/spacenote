@@ -1,17 +1,21 @@
+import { useState } from "react"
 import { ActionIcon, Group, Paper, Table, Text } from "@mantine/core"
 import { notifications } from "@mantine/notifications"
-import { IconDownload } from "@tabler/icons-react"
+import { IconDownload, IconEye } from "@tabler/icons-react"
 import { api } from "@spacenote/common/api"
 import { DeleteButton, Username } from "@spacenote/common/components"
 import type { PendingAttachment } from "@spacenote/common/types"
 import { formatDate, formatFileSize } from "@spacenote/common/utils"
+import { PreviewModal } from "./PreviewModal"
+import { getPreviewType } from "./preview-utils"
 
 interface PendingAttachmentsTableProps {
   attachments: PendingAttachment[]
 }
 
-/** Table displaying pending attachments with delete action */
+/** Table displaying pending attachments with preview, download, and delete actions */
 export function PendingAttachmentsTable({ attachments }: PendingAttachmentsTableProps) {
+  const [previewAttachment, setPreviewAttachment] = useState<PendingAttachment | null>(null)
   const deleteMutation = api.mutations.useDeletePendingAttachment()
 
   if (attachments.length === 0) {
@@ -49,6 +53,16 @@ export function PendingAttachmentsTable({ attachments }: PendingAttachmentsTable
               <Table.Td>{formatDate(attachment.created_at)}</Table.Td>
               <Table.Td>
                 <Group gap="xs">
+                  {getPreviewType(attachment.mime_type) !== null && (
+                    <ActionIcon
+                      variant="subtle"
+                      onClick={() => {
+                        setPreviewAttachment(attachment)
+                      }}
+                    >
+                      <IconEye size={18} />
+                    </ActionIcon>
+                  )}
                   <ActionIcon
                     component="a"
                     href={`/api/v1/attachments/pending/${String(attachment.number)}`}
@@ -77,6 +91,12 @@ export function PendingAttachmentsTable({ attachments }: PendingAttachmentsTable
           ))}
         </Table.Tbody>
       </Table>
+      <PreviewModal
+        attachment={previewAttachment}
+        onClose={() => {
+          setPreviewAttachment(null)
+        }}
+      />
     </Paper>
   )
 }

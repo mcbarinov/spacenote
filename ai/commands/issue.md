@@ -26,7 +26,7 @@ Universal command for GitHub issue management. Reads ALL project documentation t
    - `ai/rules/backend.md` - backend coding rules
    - `ai/rules/frontend.md` - frontend coding rules
    - `docs/ideas.md` - planned features (avoid duplicates)
-   - `ai/rules/github-issues.md` - issue format
+   - `ai/rules/github-issues.md` - issue format and workflow
 3. Determine scope (backend/frontend/deploy)
 4. Analyze relevant code if needed
 5. Create issue via `gh issue create` with structure below
@@ -44,35 +44,7 @@ Universal command for GitHub issue management. Reads ALL project documentation t
 
 ## Issue Structure
 
-```markdown
-## Summary
-One paragraph: what problem we're solving and why.
-
-## Scope
-- [x] backend
-- [x] frontend
-- [ ] deploy
-
-## Context
-Related: #100, #101
-Files: apps/backend/src/.../module/
-
-## Plan: Backend
-1. Step 1 (file: apps/backend/.../file.py)
-2. Step 2
-3. Step 3
-
-## Plan: Frontend
-1. Step 1 (file: apps/web/.../Component.tsx)
-2. Step 2
-
-## Plan: Deploy
-<!-- If deploy scope is checked -->
-
-## Acceptance Criteria
-- [ ] Criterion 1
-- [ ] Criterion 2
-```
+See `ai/rules/github-issues.md` for the full issue template.
 
 ## Labels
 

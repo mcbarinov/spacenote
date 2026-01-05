@@ -23,11 +23,11 @@ GitHub Issues as the central place for all tasks:
 ```
 /issue          → Create draft
 /issue #123     → Refine plans
-[AI review]     → External AI reviews the plan
+[AI review]     → (Optional) External AI reviews the plan
 git checkout -b → Create branch
 /start-*        → Load agent context
 "Work on #123"  → Agent reads its plan
-/review-pr      → PR → Merge
+/review-pr      → PR → Merge (use "Closes #123" in PR body)
 ```
 
 ## Issue Structure
@@ -52,6 +52,7 @@ Files: apps/backend/src/.../
 2. Step
 
 ## Plan: Frontend
+<!-- Includes both apps/web/ and apps/admin/ -->
 1. Step (file: path/to/file.tsx)
 2. Step
 

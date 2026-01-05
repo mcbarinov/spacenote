@@ -14,6 +14,7 @@ This command initializes a new backend development session by reading the essent
 - `apps/backend/README.md` - Backend setup, structure, environment variables
 - `docs/backend.md` - Backend architecture (App Facade, Service Registry, DB schema)
 - `ai/rules/backend.md` - AI-specific coding rules for backend
+- `ai/rules/github-issues.md` - GitHub issues workflow
 - `docs/behavior.md` - Non-obvious behavioral scenarios
 
 ## Usage
@@ -32,8 +33,9 @@ This command initializes a new backend development session by reading the essent
 6. Read `apps/backend/README.md` for backend setup and structure
 7. Read `docs/backend.md` for backend architecture details
 8. Read `ai/rules/backend.md` for AI-specific coding rules
-9. Read `docs/behavior.md` for non-obvious behavioral scenarios
-10. Confirm readiness to begin work
+9. Read `ai/rules/github-issues.md` for GitHub issues workflow
+10. Read `docs/behavior.md` for non-obvious behavioral scenarios
+11. Confirm readiness to begin work
 
 ## Response
 

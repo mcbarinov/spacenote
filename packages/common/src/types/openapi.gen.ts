@@ -11,7 +11,11 @@ export type paths = {
       path?: never
       cookie?: never
     }
-    get?: never
+    /**
+     * List pending attachments
+     * @description List all pending attachments with pagination. Admin only.
+     */
+    get: operations["listPendingAttachments"]
     put?: never
     /**
      * Upload pending attachment
@@ -33,7 +37,7 @@ export type paths = {
     }
     /**
      * Download pending attachment
-     * @description Download a pending attachment file. Only the owner can download. Use `?format=webp` to convert images to WebP. Optional `&option=max_width:800` to resize.
+     * @description Download a pending attachment file. Owner or admin can download. Use `?format=webp` to convert images to WebP. Optional `&option=max_width:800` to resize.
      */
     get: operations["downloadPendingAttachment"]
     put?: never
@@ -1549,6 +1553,29 @@ export type components = {
        */
       offset: number
     }
+    /** PaginationResult[PendingAttachment] */
+    PaginationResult_PendingAttachment_: {
+      /**
+       * Items
+       * @description List of items in current page
+       */
+      items: components["schemas"]["PendingAttachment"][]
+      /**
+       * Total
+       * @description Total number of items across all pages
+       */
+      total: number
+      /**
+       * Limit
+       * @description Maximum items per page
+       */
+      limit: number
+      /**
+       * Offset
+       * @description Number of items skipped
+       */
+      offset: number
+    }
     /** PaginationResult[TelegramMirror] */
     PaginationResult_TelegramMirror_: {
       /**
@@ -1789,10 +1816,20 @@ export type components = {
        */
       filters: components["schemas"]["Filter"][]
       /**
+       * Default Filter
+       * @description Default filter name
+       */
+      default_filter: string
+      /**
        * Hidden Fields On Create
        * @description Fields hidden on note creation form
        */
       hidden_fields_on_create: string[]
+      /**
+       * Editable Fields On Comment
+       * @description Field names editable when adding a comment
+       */
+      editable_fields_on_comment: string[]
       /**
        * Templates
        * @description Liquid templates
@@ -1802,6 +1839,11 @@ export type components = {
       }
       /** @description Telegram integration settings */
       telegram: components["schemas"]["TelegramSettings"] | null
+      /**
+       * Timezone
+       * @description Space timezone in IANA format
+       */
+      timezone: string
       /**
        * Created At
        * Format: date-time
@@ -2178,6 +2220,58 @@ export type components = {
 }
 export type $defs = Record<string, never>
 export interface operations {
+  listPendingAttachments: {
+    parameters: {
+      query?: {
+        /** @description Maximum items to return */
+        limit?: number
+        /** @description Number of items to skip */
+        offset?: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["PaginationResult_PendingAttachment_"]
+        }
+      }
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Admin privileges required */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
   uploadPendingAttachment: {
     parameters: {
       query?: never
@@ -2253,7 +2347,7 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"]
         }
       }
-      /** @description Not the owner of this attachment */
+      /** @description Not the owner or admin */
       403: {
         headers: {
           [name: string]: unknown
@@ -3634,6 +3728,15 @@ export interface operations {
         }
         content: {
           "application/json": unknown
+        }
+      }
+      /** @description Image is still processing */
+      202: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
         }
       }
       /** @description Not authenticated */

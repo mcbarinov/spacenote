@@ -49,10 +49,7 @@ class MongoModel(OpenAPIModel):
     """Base model for MongoDB documents using ObjectId as primary key."""
 
     id: PyObjectId = Field(alias="_id", default_factory=PyObjectId, exclude=True)
-    model_config = ConfigDict(
-        populate_by_name=True,
-        arbitrary_types_allowed=True,
-    )
+    model_config = ConfigDict(populate_by_name=True, arbitrary_types_allowed=True)
 
     def to_mongo(self) -> dict[str, Any]:
         """Convert the model to a dictionary for MongoDB storage with _id field."""

@@ -34,6 +34,7 @@ export type CreateCommentRequest = components["schemas"]["CreateCommentRequest"]
 // Attachments
 export type Attachment = components["schemas"]["Attachment"]
 export type PendingAttachment = components["schemas"]["PendingAttachment"]
+export type PendingAttachmentsList = components["schemas"]["PaginationResult_PendingAttachment_"]
 export type AttachmentMeta = components["schemas"]["AttachmentMeta"]
 export type ImageMeta = components["schemas"]["ImageMeta"]
 

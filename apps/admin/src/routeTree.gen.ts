@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/root.layout'
 import { Route as loginDotpageRouteImport } from './routes/login.page'
 import { Route as authDotlayoutRouteImport } from './routes/auth.layout'
+import { Route as pendingAttachmentsPageRouteImport } from './routes/pending-attachments/page'
 import { Route as indexDotpageRouteImport } from './routes/index.page'
 import { Route as usersNewDotpageRouteImport } from './routes/users/new.page'
 import { Route as telegramTasksPageRouteImport } from './routes/telegram/tasks/page'
@@ -38,6 +39,11 @@ const loginDotpageRoute = loginDotpageRouteImport.update({
 const authDotlayoutRoute = authDotlayoutRouteImport.update({
   id: '/_auth.layout',
   getParentRoute: () => rootRouteImport,
+} as any)
+const pendingAttachmentsPageRoute = pendingAttachmentsPageRouteImport.update({
+  id: '/pending-attachments',
+  path: '/pending-attachments',
+  getParentRoute: () => authDotlayoutRoute,
 } as any)
 const indexDotpageRoute = indexDotpageRouteImport.update({
   id: '/',
@@ -140,6 +146,7 @@ const spacesSlugFieldsFieldNameEditDotpageRoute =
 export interface FileRoutesByFullPath {
   '/login': typeof loginDotpageRoute
   '/': typeof indexDotpageRoute
+  '/pending-attachments': typeof pendingAttachmentsPageRoute
   '/spaces': typeof spacesIndexPageRoute
   '/users': typeof usersIndexPageRoute
   '/spaces/import': typeof spacesImportDotpageRoute
@@ -161,6 +168,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/login': typeof loginDotpageRoute
   '/': typeof indexDotpageRoute
+  '/pending-attachments': typeof pendingAttachmentsPageRoute
   '/spaces': typeof spacesIndexPageRoute
   '/users': typeof usersIndexPageRoute
   '/spaces/import': typeof spacesImportDotpageRoute
@@ -184,6 +192,7 @@ export interface FileRoutesById {
   '/_auth.layout': typeof authDotlayoutRouteWithChildren
   '/login': typeof loginDotpageRoute
   '/_auth.layout/': typeof indexDotpageRoute
+  '/_auth.layout/pending-attachments': typeof pendingAttachmentsPageRoute
   '/_auth.layout/spaces/': typeof spacesIndexPageRoute
   '/_auth.layout/users/': typeof usersIndexPageRoute
   '/_auth.layout/spaces/import': typeof spacesImportDotpageRoute
@@ -207,6 +216,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/login'
     | '/'
+    | '/pending-attachments'
     | '/spaces'
     | '/users'
     | '/spaces/import'
@@ -228,6 +238,7 @@ export interface FileRouteTypes {
   to:
     | '/login'
     | '/'
+    | '/pending-attachments'
     | '/spaces'
     | '/users'
     | '/spaces/import'
@@ -250,6 +261,7 @@ export interface FileRouteTypes {
     | '/_auth.layout'
     | '/login'
     | '/_auth.layout/'
+    | '/_auth.layout/pending-attachments'
     | '/_auth.layout/spaces/'
     | '/_auth.layout/users/'
     | '/_auth.layout/spaces/import'
@@ -289,6 +301,13 @@ declare module '@tanstack/react-router' {
       fullPath: ''
       preLoaderRoute: typeof authDotlayoutRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_auth.layout/pending-attachments': {
+      id: '/_auth.layout/pending-attachments'
+      path: '/pending-attachments'
+      fullPath: '/pending-attachments'
+      preLoaderRoute: typeof pendingAttachmentsPageRouteImport
+      parentRoute: typeof authDotlayoutRoute
     }
     '/_auth.layout/': {
       id: '/_auth.layout/'
@@ -421,6 +440,7 @@ declare module '@tanstack/react-router' {
 
 interface authDotlayoutRouteChildren {
   indexDotpageRoute: typeof indexDotpageRoute
+  pendingAttachmentsPageRoute: typeof pendingAttachmentsPageRoute
   spacesIndexPageRoute: typeof spacesIndexPageRoute
   usersIndexPageRoute: typeof usersIndexPageRoute
   spacesImportDotpageRoute: typeof spacesImportDotpageRoute
@@ -442,6 +462,7 @@ interface authDotlayoutRouteChildren {
 
 const authDotlayoutRouteChildren: authDotlayoutRouteChildren = {
   indexDotpageRoute: indexDotpageRoute,
+  pendingAttachmentsPageRoute: pendingAttachmentsPageRoute,
   spacesIndexPageRoute: spacesIndexPageRoute,
   usersIndexPageRoute: usersIndexPageRoute,
   spacesImportDotpageRoute: spacesImportDotpageRoute,

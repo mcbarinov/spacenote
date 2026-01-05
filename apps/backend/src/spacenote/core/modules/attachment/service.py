@@ -9,6 +9,7 @@ from spacenote.core.modules.attachment import storage
 from spacenote.core.modules.attachment.metadata import extract_metadata
 from spacenote.core.modules.attachment.models import Attachment, PendingAttachment
 from spacenote.core.modules.counter.models import CounterType
+from spacenote.core.pagination import PaginationResult
 from spacenote.core.service import Service
 from spacenote.errors import NotFoundError
 
@@ -61,6 +62,13 @@ class AttachmentService(Service):
         if doc is None:
             raise NotFoundError(f"Pending attachment not found: {number}")
         return PendingAttachment.model_validate(doc)
+
+    async def list_pending_attachments(self, limit: int = 50, offset: int = 0) -> PaginationResult[PendingAttachment]:
+        """List all pending attachments with pagination."""
+        total = await self._pending_collection.count_documents({})
+        cursor = self._pending_collection.find({}).sort("created_at", -1).skip(offset).limit(limit)
+        items = await PendingAttachment.list_cursor(cursor)
+        return PaginationResult(items=items, total=total, limit=limit, offset=offset)
 
     async def delete_pending_attachment(self, number: int) -> None:
         """Delete pending attachment (DB record + file)."""

@@ -6,6 +6,7 @@ import type {
   ExportData,
   Note,
   NotesList,
+  PendingAttachmentsList,
   Space,
   TelegramMirrorsList,
   TelegramTasksList,
@@ -139,6 +140,19 @@ export function listTelegramMirrors(params?: { space_slug?: string | null; limit
       if (params?.limit) searchParams.limit = params.limit
       if (params?.offset) searchParams.offset = params.offset
       return httpClient.get("api/v1/telegram/mirrors", { searchParams }).json<TelegramMirrorsList>()
+    },
+  })
+}
+
+/** Fetches paginated pending attachments (admin only) */
+export function listPendingAttachments(params?: { limit?: number; offset?: number }) {
+  return queryOptions({
+    queryKey: ["pending-attachments", params],
+    queryFn: () => {
+      const searchParams: Record<string, number> = {}
+      if (params?.limit) searchParams.limit = params.limit
+      if (params?.offset) searchParams.offset = params.offset
+      return httpClient.get("api/v1/attachments/pending", { searchParams }).json<PendingAttachmentsList>()
     },
   })
 }

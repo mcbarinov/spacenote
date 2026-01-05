@@ -1,6 +1,6 @@
 import { Link, createFileRoute } from "@tanstack/react-router"
 import { Paper, SimpleGrid, Stack, Text, Title, UnstyledButton } from "@mantine/core"
-import { IconCopy, IconLayout2, IconSend, IconUsers } from "@tabler/icons-react"
+import { IconCopy, IconLayout2, IconPaperclip, IconSend, IconUsers } from "@tabler/icons-react"
 
 export const Route = createFileRoute("/_auth.layout/")({
   component: HomePage,
@@ -17,6 +17,7 @@ function HomePage() {
         <DashboardCard to="/users" icon={IconUsers} title="Users" />
         <DashboardCard to="/telegram/tasks" icon={IconSend} title="Telegram Tasks" />
         <DashboardCard to="/telegram/mirrors" icon={IconCopy} title="Telegram Mirrors" />
+        <DashboardCard to="/pending-attachments" icon={IconPaperclip} title="Pending Attachments" />
       </SimpleGrid>
     </Stack>
   )

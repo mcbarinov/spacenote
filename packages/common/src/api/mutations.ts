@@ -327,10 +327,14 @@ export function useUploadPendingAttachment() {
   })
 }
 
-/** Deletes a pending attachment */
+/** Deletes a pending attachment (admin list invalidation) */
 export function useDeletePendingAttachment() {
+  const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (number: number) => httpClient.delete(`api/v1/attachments/pending/${String(number)}`),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["pending-attachments"] })
+    },
   })
 }
 

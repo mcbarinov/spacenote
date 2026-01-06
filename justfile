@@ -1,4 +1,3 @@
-set dotenv-load
 set shell := ["bash", "-cu"]
 
 GHCR_USER := "mcbarinov"
@@ -35,7 +34,8 @@ backend-lint *args: backend-format
 # Run development server
 [group("backend")]
 backend-dev:
-    cd apps/backend && uv run python -m watchfiles "python -m spacenote.main" src
+    SPACENOTE_DOTENV_PATH={{justfile_directory()}}/.env \
+    uv run --directory apps/backend python -m watchfiles "python -m spacenote.main" src
 
 [group("backend")]
 backend-test:
@@ -119,7 +119,9 @@ agent-admin-dev:
 
 [group("agent")]
 agent-backend-dev:
-    cd apps/backend && SPACENOTE_PORT=3101 uv run python -m watchfiles "python -m spacenote.main" src
+    SPACENOTE_DOTENV_PATH={{justfile_directory()}}/.env \
+    SPACENOTE_PORT=${SPACENOTE_PORT_AGENT} \
+    uv run --directory apps/backend python -m watchfiles "python -m spacenote.main" src
 
 
 # === Docker Commands ===

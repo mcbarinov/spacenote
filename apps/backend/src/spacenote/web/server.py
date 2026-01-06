@@ -1,5 +1,7 @@
+import re
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
+from typing import Any
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -26,6 +28,27 @@ from spacenote.web.routers.templates import router as templates_router
 from spacenote.web.routers.users import router as users_router
 
 
+def _get_cors_config(origins: list[str]) -> dict[str, Any]:
+    """Convert origin list to CORSMiddleware config, supporting wildcards like http://localhost:*"""
+    regex_patterns = []
+    exact_origins = []
+
+    for origin in origins:
+        if "*" in origin:
+            pattern = re.escape(origin).replace(r"\*", r".*")
+            regex_patterns.append(pattern)
+        else:
+            exact_origins.append(origin)
+
+    if regex_patterns:
+        combined = "|".join(f"({p})" for p in regex_patterns)
+        if exact_origins:
+            exact_escaped = "|".join(re.escape(o) for o in exact_origins)
+            combined = f"{combined}|{exact_escaped}"
+        return {"allow_origin_regex": f"^({combined})$"}
+    return {"allow_origins": exact_origins}
+
+
 def create_fastapi_app(app_instance: App, config: Config) -> FastAPI:
     """Create and configure FastAPI application."""
 
@@ -43,9 +66,8 @@ def create_fastapi_app(app_instance: App, config: Config) -> FastAPI:
 
     # Configure middlewares
     app.add_middleware(MaxBodySizeMiddleware, max_body_size=config.max_upload_size)
-    app.add_middleware(
-        CORSMiddleware, allow_origins=config.cors_origins, allow_credentials=True, allow_methods=["*"], allow_headers=["*"]
-    )
+    cors_config = _get_cors_config(config.cors_origins)
+    app.add_middleware(CORSMiddleware, **cors_config, allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
 
     # Register error handlers
     app.add_exception_handler(UserError, user_error_handler)

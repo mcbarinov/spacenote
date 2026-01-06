@@ -229,3 +229,67 @@ docker-local-down:
 [group("docker")]
 docker-prune:
     docker builder prune -f
+
+
+# === Worktree Commands ===
+
+# Create a new worktree slot with pre-configured ports
+[group("worktree")]
+worktree-setup slot:
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    SLOT={{slot}}
+    WORKTREE_PATH="${WORKTREES_PATH:-$HOME/worktrees}/spacenote-w${SLOT}"
+
+    # Calculate ports (base + slot×10)
+    WEB_PORT=$((3000 + SLOT * 10))
+    WEB_PORT_AGENT=$((WEB_PORT + 1))
+    BACKEND_PORT=$((3100 + SLOT * 10))
+    BACKEND_PORT_AGENT=$((BACKEND_PORT + 1))
+    ADMIN_PORT=$((3200 + SLOT * 10))
+    ADMIN_PORT_AGENT=$((ADMIN_PORT + 1))
+    DATABASE="spacenote_w${SLOT}"
+
+    echo "Creating worktree slot ${SLOT} at ${WORKTREE_PATH}"
+    echo "Ports: web=${WEB_PORT}, backend=${BACKEND_PORT}, admin=${ADMIN_PORT}"
+    echo "Database: ${DATABASE}"
+    echo ""
+
+    # Create worktree
+    git worktree add "${WORKTREE_PATH}" main
+
+    # Generate .env
+    {
+        echo "# === Backend ==="
+        echo "SPACENOTE_DATABASE_URL=mongodb://localhost:27017/${DATABASE}"
+        echo "SPACENOTE_SITE_URL=http://localhost:${WEB_PORT}"
+        echo "SPACENOTE_HOST=0.0.0.0"
+        echo "SPACENOTE_PORT=${BACKEND_PORT}"
+        echo "SPACENOTE_PORT_AGENT=${BACKEND_PORT_AGENT}"
+        echo "SPACENOTE_DEBUG=true"
+        echo "SPACENOTE_CORS_ORIGINS='[\"http://localhost:*\"]'"
+        echo "SPACENOTE_ATTACHMENTS_PATH=${WORKTREE_PATH}/tmp/data/attachments"
+        echo "SPACENOTE_IMAGES_PATH=${WORKTREE_PATH}/tmp/data/images"
+        echo ""
+        echo "# === Frontend ==="
+        echo "VITE_WEB_PORT=${WEB_PORT}"
+        echo "VITE_WEB_PORT_AGENT=${WEB_PORT_AGENT}"
+        echo "VITE_ADMIN_PORT=${ADMIN_PORT}"
+        echo "VITE_ADMIN_PORT_AGENT=${ADMIN_PORT_AGENT}"
+        echo "VITE_API_URL=http://localhost:${BACKEND_PORT}"
+        echo "VITE_API_URL_AGENT=http://localhost:${BACKEND_PORT_AGENT}"
+        echo "VITE_BASE_PATH=/"
+    } > "${WORKTREE_PATH}/.env"
+
+    echo "Installing dependencies..."
+    cd "${WORKTREE_PATH}" && pnpm install
+    cd "${WORKTREE_PATH}/apps/backend" && uv sync
+
+    echo ""
+    echo "Worktree slot ${SLOT} ready at ${WORKTREE_PATH}"
+
+# List all worktrees
+[group("worktree")]
+worktree-list:
+    git worktree list

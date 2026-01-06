@@ -10,6 +10,17 @@ Create or refine GitHub issues through brainstorming.
 /issue #123      # Refine existing issue
 ```
 
+## Reading Documentation
+
+All modes require reading project documentation. Use **Read tool directly** (NOT Explore agent) for speed:
+
+- `docs/concepts.md` — domain model
+- `docs/fields.md` — field types
+- `docs/ideas.md` — existing ideas
+- `docs/behavior.md` — behavioral specs
+- `docs/workflow.md` — development process
+- `docs/space-examples.md` — usage examples
+
 ## Deep Mode (default)
 
 Full brainstorming session for new ideas.
@@ -98,6 +109,8 @@ Continue brainstorming on existing issue.
 5. Update issue after user confirms
 
 ## Labels
+
+Use these labels (do NOT query GitHub):
 
 **Scope:** `backend`, `frontend`, `deploy`
 

@@ -1,92 +1,127 @@
 # /issue
 
-Create or refine GitHub issues with detailed implementation plans.
+Create or refine GitHub issues through brainstorming.
 
 ## Usage
 
 ```
-/issue              # Create new issue
-/issue #123         # Refine existing issue
-/issue 123          # Same as above (# is optional)
+/issue           # Deep mode (brainstorm) - default
+/issue quick     # Quick mode (fast save)
+/issue #123      # Refine existing issue
 ```
 
-## Description
+## Reading Documentation
 
-Universal command for GitHub issue management. Reads ALL project documentation to create comprehensive plans for each agent type (backend, frontend, deploy).
+All modes require reading project documentation. Use **Read tool directly** (NOT Explore agent) for speed:
 
-## Actions
+- `docs/concepts.md` — domain model
+- `docs/fields.md` — field types
+- `docs/ideas.md` — existing ideas
+- `docs/behavior.md` — behavioral specs
+- `docs/workflow.md` — development process
+- `docs/space-examples.md` — usage examples
 
-### Without argument (create new issue)
+## Deep Mode (default)
 
-1. Ask user for idea/problem description
-2. Read project documentation:
-   - `docs/concepts.md` - domain model
-   - `docs/backend.md` - backend architecture
-   - `docs/frontend.md` - frontend architecture
-   - `ai/rules/backend.md` - backend coding rules
-   - `ai/rules/frontend.md` - frontend coding rules
-   - `docs/ideas.md` - planned features (avoid duplicates)
-   - `ai/rules/github-issues.md` - issue format and workflow
-3. Determine scope (backend/frontend/deploy)
-4. Analyze relevant code if needed
-5. Create issue via `gh issue create` with structure below
-6. Add labels: scope (`backend`/`frontend`/`deploy`) + `draft`
+Full brainstorming session for new ideas.
+
+### Flow
+
+1. Read all documentation from `docs/*`
+2. Ask user about the idea
+3. Brainstorm iteratively (no fixed limit):
+   - Clarify requirements and context
+   - Suggest approaches, discuss trade-offs
+   - Challenge assumptions, offer alternatives
+   - Continue until BOTH sides agree the issue is ready
+4. Capture decisions WITH reasons (why, not just what)
+5. Show draft to user for approval:
+   - Title: ...
+   - Body: ...
+   - Labels: ...
+6. Create issue after user confirms
 7. Return issue number and URL
 
-### With argument (refine existing issue)
+### Issue Format
 
-1. Read issue via `gh issue view {number}`
-2. Read all project documentation (same as above)
-3. Analyze codebase for relevant context
-4. Update issue body via `gh issue edit {number} --body "..."`
-5. Update labels: remove `draft`, add `ready`
-6. Return updated issue URL
+```markdown
+## Summary
+Brief description (1-2 sentences)
 
-## Issue Structure
+## Context
+Why is this needed? What problem are we solving?
 
-See `ai/rules/github-issues.md` for the full issue template.
+## Approach
+Key decisions:
+- Decision A (reason: ...)
+- Decision B (reason: ...)
+
+## Scope
+- [ ] What's included
+- [ ] What's included
+
+## Out of scope (optional)
+What we explicitly NOT doing
+
+## Open questions (optional)
+What's not decided yet
+```
+
+## Quick Mode
+
+Fast save without deep analysis.
+
+### Flow
+
+1. Read all documentation from `docs/*`
+2. Ask user for idea
+3. Show draft to user for approval:
+   - Title: ...
+   - Body: ...
+   - Labels: ...
+4. Create issue after user confirms
+5. Return issue number and URL
+
+### Issue Format
+
+```markdown
+Brief description of the idea.
+
+Context/reason (1-2 sentences, optional).
+```
+
+## Refine Mode
+
+Continue work on existing issue.
+
+### Flow
+
+1. Read all documentation from `docs/*`
+2. Read issue with comments: `gh issue view #123 --comments`
+3. Ask: "What would you like to do with this issue?"
+4. React to user's response and brainstorm iteratively:
+   - Clarify requirements and context
+   - Suggest approaches, discuss trade-offs
+   - Challenge assumptions, offer alternatives
+   - Continue until BOTH sides agree the issue is ready
+5. Show draft to user for approval:
+   - Title: ...
+   - Body: ...
+6. Update issue after user confirms
 
 ## Labels
 
-| Label | When to use |
-|-------|-------------|
-| `backend` | Issue involves backend work |
-| `frontend` | Issue involves frontend work |
-| `deploy` | Issue involves deploy work |
-| `draft` | Initial creation, needs refinement |
-| `ready` | Plan is complete, ready to implement |
+Use these labels (do NOT query GitHub):
 
-For multi-scope: apply multiple labels (`backend` + `frontend`).
+**Scope:** `backend`, `frontend`, `deploy`
 
-## Notes
+**Type:** `feat`, `chore`, `refactor`
 
-- Plans should be specific: include file paths, function names
-- Each plan step should be actionable
-- Acceptance criteria should be testable
-- If issue already has good plans, just review and improve
-- Don't duplicate features from `docs/ideas.md`
+## Title Format
 
-## Example
+- NO type prefix (feat:, fix:, chore:) — type is conveyed by labels
+- Start with action verb or noun
+- Concise but descriptive
 
-```
-> /issue
-User: "Add user avatars to profile page"
-
-[Reads docs, analyzes code...]
-
-Created issue #123: "Add user avatars"
-https://github.com/user/repo/issues/123
-
-Labels: backend, frontend, draft
-
-> /issue #123
-
-[Reads issue, analyzes code more deeply...]
-
-Updated issue #123 with detailed plans.
-Labels updated: ready (removed draft)
-
-Ready for external AI review or implementation.
-```
-
-ultrathink
+Good: "Add /start-ai command for AI rules development"
+Bad: "feat: /start-ai command for AI rules and prompts development"

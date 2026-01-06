@@ -13,7 +13,6 @@ This command initializes a new frontend development session by reading the essen
 - `justfile` - Available development commands
 - `docs/frontend.md` - Frontend architecture and patterns (React, TanStack, Mantine)
 - `ai/rules/frontend.md` - AI-specific coding rules for frontend
-- `ai/rules/github-issues.md` - GitHub issues workflow
 - `docs/behavior.md` - Non-obvious behavioral scenarios
 - `apps/admin/README.md` - Admin app structure and commands
 - `packages/common/README.md` - Shared package (@spacenote/common)
@@ -33,11 +32,10 @@ This command initializes a new frontend development session by reading the essen
 5. Read `justfile` to see available commands
 6. Read `docs/frontend.md` for frontend architecture and patterns
 7. Read `ai/rules/frontend.md` for AI-specific coding rules
-8. Read `ai/rules/github-issues.md` for GitHub issues workflow
-9. Read `docs/behavior.md` for non-obvious behavioral scenarios
-10. Read `apps/admin/README.md` for admin app structure
-11. Read `packages/common/README.md` for shared package usage
-12. Confirm readiness to begin work
+8. Read `docs/behavior.md` for non-obvious behavioral scenarios
+9. Read `apps/admin/README.md` for admin app structure
+10. Read `packages/common/README.md` for shared package usage
+11. Confirm readiness to begin work
 
 ## Response
 

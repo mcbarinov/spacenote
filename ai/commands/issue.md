@@ -92,21 +92,22 @@ Context/reason (1-2 sentences, optional).
 
 ## Refine Mode
 
-Continue brainstorming on existing issue.
+Continue work on existing issue.
 
 ### Flow
 
 1. Read all documentation from `docs/*`
 2. Read issue with comments: `gh issue view #123 --comments`
-3. Brainstorm iteratively (same as deep mode):
+3. Ask: "What would you like to do with this issue?"
+4. React to user's response and brainstorm iteratively:
    - Clarify requirements and context
    - Suggest approaches, discuss trade-offs
    - Challenge assumptions, offer alternatives
    - Continue until BOTH sides agree the issue is ready
-4. Show draft to user for approval:
+5. Show draft to user for approval:
    - Title: ...
    - Body: ...
-5. Update issue after user confirms
+6. Update issue after user confirms
 
 ## Labels
 

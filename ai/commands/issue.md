@@ -62,13 +62,14 @@ Fast save without deep analysis.
 
 ### Flow
 
-1. Ask user for idea
-2. Show draft to user for approval:
+1. Read all documentation from `docs/*`
+2. Ask user for idea
+3. Show draft to user for approval:
    - Title: ...
    - Body: ...
    - Labels: ...
-3. Create issue after user confirms
-4. Return issue number and URL
+4. Create issue after user confirms
+5. Return issue number and URL
 
 ### Issue Format
 

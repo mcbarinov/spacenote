@@ -115,3 +115,12 @@ Use these labels (do NOT query GitHub):
 **Scope:** `backend`, `frontend`, `deploy`
 
 **Type:** `feat`, `chore`, `refactor`
+
+## Title Format
+
+- NO type prefix (feat:, fix:, chore:) — type is conveyed by labels
+- Start with action verb or noun
+- Concise but descriptive
+
+Good: "Add /start-ai command for AI rules development"
+Bad: "feat: /start-ai command for AI rules and prompts development"

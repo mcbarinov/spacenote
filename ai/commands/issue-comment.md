@@ -13,6 +13,10 @@ Add a comment to a GitHub issue documenting a decision or learning.
 
 Logs important decisions, learnings, or changes to an issue as a comment. Agent formulates the comment based on recent conversation context.
 
+Comments will be read and considered when:
+- Working on the issue (`work on #123`)
+- Refining the issue (`/issue #123`)
+
 Use cases:
 - Requirements changed — document why
 - Tried approach X, didn't work — document why

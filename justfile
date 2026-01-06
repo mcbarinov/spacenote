@@ -1,5 +1,5 @@
-set dotenv-load
 set shell := ["bash", "-cu"]
+set dotenv-load
 
 GHCR_USER := "mcbarinov"
 
@@ -35,7 +35,8 @@ backend-lint *args: backend-format
 # Run development server
 [group("backend")]
 backend-dev:
-    cd apps/backend && uv run python -m watchfiles "python -m spacenote.main" src
+    SPACENOTE_DOTENV_PATH={{justfile_directory()}}/.env \
+    uv run --directory apps/backend python -m watchfiles "python -m spacenote.main" src
 
 [group("backend")]
 backend-test:
@@ -65,6 +66,9 @@ common-update:
 
 [group("admin")]
 admin-dev:
+    VITE_PORT=${VITE_ADMIN_PORT} \
+    VITE_API_URL=${VITE_API_URL} \
+    VITE_BASE_PATH=${VITE_BASE_PATH} \
     pnpm --filter @spacenote/admin run dev
 
 
@@ -86,6 +90,8 @@ admin-update:
 
 [group("web")]
 web-dev:
+    VITE_PORT=${VITE_WEB_PORT} \
+    VITE_API_URL=${VITE_API_URL} \
     pnpm --filter @spacenote/web run dev
 
 
@@ -111,15 +117,22 @@ web-routes:
 
 [group("agent")]
 agent-web-dev:
-    pnpm --filter @spacenote/web run agent-dev
+    VITE_PORT=${VITE_WEB_PORT_AGENT} \
+    VITE_API_URL=${VITE_API_URL_AGENT} \
+    pnpm --filter @spacenote/web run dev
 
 [group("agent")]
 agent-admin-dev:
-    pnpm --filter @spacenote/admin run agent-dev
+    VITE_PORT=${VITE_ADMIN_PORT_AGENT} \
+    VITE_API_URL=${VITE_API_URL_AGENT} \
+    VITE_BASE_PATH=${VITE_BASE_PATH} \
+    pnpm --filter @spacenote/admin run dev
 
 [group("agent")]
 agent-backend-dev:
-    cd apps/backend && SPACENOTE_PORT=3101 uv run python -m watchfiles "python -m spacenote.main" src
+    SPACENOTE_DOTENV_PATH={{justfile_directory()}}/.env \
+    SPACENOTE_PORT=${SPACENOTE_PORT_AGENT} \
+    uv run --directory apps/backend python -m watchfiles "python -m spacenote.main" src
 
 
 # === Docker Commands ===

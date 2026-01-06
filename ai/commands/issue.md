@@ -1,113 +1,103 @@
 # /issue
 
-Create or refine a GitHub issue.
+Create or refine GitHub issues through brainstorming.
 
 ## Usage
 
 ```
-/issue           # Create new issue
+/issue           # Deep mode (brainstorm) - default
+/issue quick     # Quick mode (fast save)
 /issue #123      # Refine existing issue
 ```
 
-## Description
+## Deep Mode (default)
 
-**Create mode**: Creates a new GitHub issue based on user's idea.
+Full brainstorming session for new ideas.
 
-**Refine mode**: Reads existing issue with all comments, proposes updated body that incorporates insights from comments.
+### Flow
 
-## Actions (Create)
+1. Read all documentation from `docs/*`
+2. Ask user about the idea
+3. Brainstorm iteratively (no fixed limit):
+   - Clarify requirements and context
+   - Suggest approaches, discuss trade-offs
+   - Challenge assumptions, offer alternatives
+   - Continue until BOTH sides agree the issue is ready
+4. Capture decisions WITH reasons (why, not just what)
+5. Show draft to user for approval:
+   - Title: ...
+   - Body: ...
+   - Labels: ...
+6. Create issue after user confirms
+7. Return issue number and URL
 
-1. Ask user for idea/problem description
-2. Read `docs/ideas.md` to avoid duplicates
-3. Determine labels (scope + type)
-4. Create issue via `gh issue create`
-5. Return issue number and URL
+### Issue Format
 
-## Actions (Refine)
-
-1. Read issue with comments: `gh issue view 123 --comments`
-2. Analyze current body and all comments
-3. Propose new body that:
-   - Keeps original intent
-   - Incorporates decisions/learnings from comments
-   - Adds considerations if discovered
-4. Show proposed body to user for approval
-5. Update via `gh issue edit 123 --body "..."`
-
-## Issue Format
-
-Can be brief or detailed, depending on complexity.
-
-**Brief** (quick idea):
 ```markdown
-Add user avatars to profile.
+## Summary
+Brief description (1-2 sentences)
 
-Currently the profile looks empty. Avatars will make it personal.
+## Context
+Why is this needed? What problem are we solving?
+
+## Approach
+Key decisions:
+- Decision A (reason: ...)
+- Decision B (reason: ...)
+
+## Scope
+- [ ] What's included
+- [ ] What's included
+
+## Out of scope (optional)
+What we explicitly NOT doing
+
+## Open questions (optional)
+What's not decided yet
 ```
 
-**Detailed** (thought through):
+## Quick Mode
+
+Fast save without deep analysis.
+
+### Flow
+
+1. Ask user for idea
+2. Show draft to user for approval:
+   - Title: ...
+   - Body: ...
+   - Labels: ...
+3. Create issue after user confirms
+4. Return issue number and URL
+
+### Issue Format
+
 ```markdown
-Add user avatars to profile.
+Brief description of the idea.
 
-Currently the profile looks empty. Avatars will make it personal
-and help recognize people in comments.
-
-Considerations:
-- Store in S3 or MongoDB?
-- Crop on upload or fixed aspect ratio?
-- Default avatar: initials or generic icon?
+Context/reason (1-2 sentences, optional).
 ```
 
-**Contains:**
-- What we want to do
-- Why / context
-- Key considerations, open questions (optional)
+## Refine Mode
 
-**Does NOT contain:**
-- Step-by-step implementation plans (AI builds its own)
-- File lists
-- Acceptance criteria checklists
+Continue brainstorming on existing issue.
+
+### Flow
+
+1. Read all documentation from `docs/*`
+2. Read issue with comments: `gh issue view #123 --comments`
+3. Brainstorm iteratively (same as deep mode):
+   - Clarify requirements and context
+   - Suggest approaches, discuss trade-offs
+   - Challenge assumptions, offer alternatives
+   - Continue until BOTH sides agree the issue is ready
+4. Show draft to user for approval:
+   - Title: ...
+   - Body: ...
+5. Update issue after user confirms
 
 ## Labels
 
 **Scope:** `backend`, `frontend`, `deploy`
 
 **Type:** `feat`, `chore`, `refactor`
-
-## Examples
-
-**Create:**
-```
-> /issue
-User: "Add user avatars to profile page"
-
-Created issue #123: "Add user avatars"
-https://github.com/user/repo/issues/123
-Labels: backend, frontend, feat
-```
-
-**Refine:**
-```
-> /issue #123
-
-Reading issue #123 with comments...
-
-Current body:
-  Add user avatars to profile.
-
-Comments summary:
-  - Decided: store in S3, not MongoDB
-  - Decided: use generic icon as default
-
-Proposed new body:
-
-  Add user avatars to profile.
-
-  Currently the profile looks empty. Avatars will make it personal.
-
-  Decisions:
-  - Store in S3 (files too large for MongoDB)
-  - Default avatar: generic icon
-
-Update issue? [y/n]
-```

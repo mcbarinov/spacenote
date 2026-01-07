@@ -71,7 +71,7 @@ function NoteAttachmentsPage() {
                 <Table.Td>
                   <ActionIcon
                     component="a"
-                    href={`/api/v1/spaces/${slug}/notes/${noteNumber}/attachments/${String(attachment.number)}`}
+                    href={`/api/v1/spaces/${slug}/notes/${noteNumber}/attachments/${attachment.number}`}
                     variant="subtle"
                   >
                     <IconDownload size={18} />

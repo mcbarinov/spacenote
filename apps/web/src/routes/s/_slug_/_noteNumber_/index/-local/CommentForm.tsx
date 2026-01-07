@@ -14,7 +14,7 @@ interface CommentFormProps {
 
 /** Converts form value to raw_fields string format for API */
 function valueToString(value: unknown): string | null {
-  if (value === "" || value === null || value === undefined) {
+  if (value === "" || value == null) {
     return null
   }
   if (typeof value === "boolean" || typeof value === "number") {

@@ -17,13 +17,13 @@ export function localDatetimeToUTC(localDatetime: string): string {
   const localDate = new Date(localDatetime)
 
   const year = localDate.getUTCFullYear()
-  const month = String(localDate.getUTCMonth() + 1).padStart(2, "0")
-  const day = String(localDate.getUTCDate()).padStart(2, "0")
-  const hours = String(localDate.getUTCHours()).padStart(2, "0")
-  const minutes = String(localDate.getUTCMinutes()).padStart(2, "0")
-  const seconds = String(localDate.getUTCSeconds()).padStart(2, "0")
+  const month = (localDate.getUTCMonth() + 1).toString().padStart(2, "0")
+  const day = localDate.getUTCDate().toString().padStart(2, "0")
+  const hours = localDate.getUTCHours().toString().padStart(2, "0")
+  const minutes = localDate.getUTCMinutes().toString().padStart(2, "0")
+  const seconds = localDate.getUTCSeconds().toString().padStart(2, "0")
 
-  return `${String(year)}-${month}-${day}T${hours}:${minutes}:${seconds}`
+  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`
 }
 
 /**
@@ -38,13 +38,13 @@ export function localDatetimeToUTC(localDatetime: string): string {
  */
 export function dateToUTC(date: Date): string {
   const year = date.getUTCFullYear()
-  const month = String(date.getUTCMonth() + 1).padStart(2, "0")
-  const day = String(date.getUTCDate()).padStart(2, "0")
-  const hours = String(date.getUTCHours()).padStart(2, "0")
-  const minutes = String(date.getUTCMinutes()).padStart(2, "0")
-  const seconds = String(date.getUTCSeconds()).padStart(2, "0")
+  const month = (date.getUTCMonth() + 1).toString().padStart(2, "0")
+  const day = date.getUTCDate().toString().padStart(2, "0")
+  const hours = date.getUTCHours().toString().padStart(2, "0")
+  const minutes = date.getUTCMinutes().toString().padStart(2, "0")
+  const seconds = date.getUTCSeconds().toString().padStart(2, "0")
 
-  return `${String(year)}-${month}-${day}T${hours}:${minutes}:${seconds}`
+  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`
 }
 
 /**
@@ -86,7 +86,7 @@ export function getUserTimezoneOffset(): string {
   const offsetMinutes = -new Date().getTimezoneOffset()
   const offsetHours = offsetMinutes / 60
   const sign = offsetHours >= 0 ? "+" : ""
-  return `UTC${sign}${String(offsetHours)}`
+  return `UTC${sign}${offsetHours}`
 }
 
 export type DatetimeKind = "utc" | "local" | "date"
@@ -144,7 +144,7 @@ export function computeExifDatetime(
  * @returns Formatted string for API
  */
 export function formatDatetimeForApi(date: Date, kind: DatetimeKind): string {
-  const pad = (n: number) => String(n).padStart(2, "0")
+  const pad = (n: number) => n.toString().padStart(2, "0")
 
   switch (kind) {
     case "utc":
@@ -158,14 +158,14 @@ export function formatDatetimeForApi(date: Date, kind: DatetimeKind): string {
       const hours = pad(date.getHours())
       const minutes = pad(date.getMinutes())
       const seconds = pad(date.getSeconds())
-      return `${String(year)}-${month}-${day} ${hours}:${minutes}:${seconds}`
+      return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
     }
     case "date": {
       // Date only, use local date
       const year = date.getFullYear()
       const month = pad(date.getMonth() + 1)
       const day = pad(date.getDate())
-      return `${String(year)}-${month}-${day}`
+      return `${year}-${month}-${day}`
     }
   }
 }

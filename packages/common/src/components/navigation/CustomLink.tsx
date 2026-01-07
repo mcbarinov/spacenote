@@ -7,14 +7,12 @@ interface MantineLinkProps extends Omit<AnchorProps, "href"> {
 }
 
 /** Mantine Anchor wrapper for TanStack Router */
-const MantineLinkComponent = (props: MantineLinkProps) => {
-  return <Anchor {...props} />
-}
+const MantineLinkComponent = (props: MantineLinkProps) => <Anchor {...props} />
 
 /** TanStack Router link with Mantine Anchor */
 const CreatedLinkComponent = createLink(MantineLinkComponent)
 
 /** Type-safe link component with Mantine styling */
-export const CustomLink: LinkComponent<typeof MantineLinkComponent> = (props) => {
-  return <CreatedLinkComponent preload="intent" underline="never" c="inherit" {...props} />
-}
+export const CustomLink: LinkComponent<typeof MantineLinkComponent> = (props) => (
+  <CreatedLinkComponent preload="intent" underline="never" c="inherit" {...props} />
+)

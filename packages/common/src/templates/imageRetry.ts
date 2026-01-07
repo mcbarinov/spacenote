@@ -34,7 +34,7 @@ export function initImageRetry(container: HTMLElement): () => void {
 
     const showImage = () => {
       if (!document.contains(img)) return
-      img.src = `${originalSrc}?_=${String(Date.now())}`
+      img.src = `${originalSrc}?_=${Date.now()}`
       img.classList.add("Image--loaded")
     }
 

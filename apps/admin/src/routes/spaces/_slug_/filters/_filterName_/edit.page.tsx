@@ -43,7 +43,7 @@ function EditFilterPage() {
       name: filter.name,
       defaultColumns: filter.default_columns.join(", "),
       conditions: filter.conditions.map((c, i) => ({
-        id: `condition-${String(i)}`,
+        id: `condition-${i}`,
         field: c.field,
         operator: c.operator,
         value: c.value,

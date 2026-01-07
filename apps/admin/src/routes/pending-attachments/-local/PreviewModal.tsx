@@ -82,7 +82,7 @@ function TextPreview({ attachment }: { attachment: PendingAttachment }) {
 
     fetch(url)
       .then((res) => {
-        if (!res.ok) throw new Error(`HTTP ${String(res.status)}`)
+        if (!res.ok) throw new Error(`HTTP ${res.status}`)
         return res.text()
       })
       .then((text) => {

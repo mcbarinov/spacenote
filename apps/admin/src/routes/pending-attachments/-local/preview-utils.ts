@@ -32,7 +32,7 @@ export function needsWebpConversion(mimeType: string): boolean {
 
 /** Builds the preview URL for an attachment */
 export function getPreviewUrl(attachmentNumber: number, mimeType: string): string {
-  const base = `/api/v1/attachments/pending/${String(attachmentNumber)}`
+  const base = `/api/v1/attachments/pending/${attachmentNumber}`
   if (needsWebpConversion(mimeType)) {
     return `${base}?format=webp`
   }

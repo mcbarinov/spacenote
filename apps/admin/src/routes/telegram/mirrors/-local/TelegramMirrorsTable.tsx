@@ -32,7 +32,7 @@ export function TelegramMirrorsTable({ mirrors }: TelegramMirrorsTableProps) {
         </Table.Thead>
         <Table.Tbody>
           {mirrors.map((mirror) => (
-            <Table.Tr key={`${mirror.space_slug}-${String(mirror.note_number)}`}>
+            <Table.Tr key={`${mirror.space_slug}-${mirror.note_number}`}>
               <Table.Td>
                 <SpaceSlug slug={mirror.space_slug} />
               </Table.Td>

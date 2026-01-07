@@ -23,14 +23,10 @@ export function registerFilters(engine: Liquid): void {
   })
 
   // JSON formatting
-  engine.registerFilter("json", (value: unknown) => {
-    return JSON.stringify(value, null, 2)
-  })
+  engine.registerFilter("json", (value: unknown) => JSON.stringify(value, null, 2))
 
   // Default value
-  engine.registerFilter("default", (value: unknown, defaultValue: string) => {
-    return value ?? defaultValue
-  })
+  engine.registerFilter("default", (value: unknown, defaultValue: string) => value ?? defaultValue)
 
   // Auto-link URLs in text
   engine.registerFilter("autolink", (value: string) => {

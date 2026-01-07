@@ -80,7 +80,7 @@ export function ImageFieldInput({ label, required, error, value, onChange, onMet
   }
 
   if (value !== null) {
-    const previewUrl = `/api/v1/attachments/pending/${String(value)}?format=webp&option=max_width:400`
+    const previewUrl = `/api/v1/attachments/pending/${value}?format=webp&option=max_width:400`
     return (
       <Stack gap="xs">
         <Text size="sm" fw={500}>

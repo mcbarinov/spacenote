@@ -26,7 +26,7 @@ function isFullWidth(field: SpaceField): boolean {
 
 /** Formats field value for display based on field type */
 function formatValue(field: SpaceField, value: FieldValue, noteContext?: NoteContext): React.ReactNode {
-  if (value === null || value === undefined) {
+  if (value == null) {
     return <Text c="dimmed">—</Text>
   }
 
@@ -77,7 +77,7 @@ function formatValue(field: SpaceField, value: FieldValue, noteContext?: NoteCon
       if (!noteContext) {
         return <Text c="dimmed">—</Text>
       }
-      const imageUrl = `/api/v1/spaces/${noteContext.slug}/notes/${String(noteContext.noteNumber)}/images/${field.name}`
+      const imageUrl = `/api/v1/spaces/${noteContext.slug}/notes/${noteContext.noteNumber}/images/${field.name}`
       return <RetryableImage src={imageUrl} maw={400} radius="sm" />
     }
 

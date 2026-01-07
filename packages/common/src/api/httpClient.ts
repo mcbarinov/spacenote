@@ -17,7 +17,7 @@ export function initHttpClient(clientApp: "admin" | "web") {
           if (!response.ok) {
             // Shape non-OK responses into AppError with best-effort message extraction
             const code = AppError.codeFromStatus(response.status)
-            let message = `HTTP ${String(response.status)} ${response.statusText}`
+            let message = `HTTP ${response.status} ${response.statusText}`
             try {
               const contentType = response.headers.get("content-type")
               if (contentType?.includes("application/json")) {

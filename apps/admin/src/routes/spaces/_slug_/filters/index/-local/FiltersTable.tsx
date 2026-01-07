@@ -43,8 +43,8 @@ export function FiltersTable({ spaceSlug, filters }: FiltersTableProps) {
                 <Code>{filter.default_columns.join(", ") || "-"}</Code>
               </Table.Td>
               <Table.Td>
-                {filter.conditions.map((c, i) => (
-                  <div key={`${c.field}-${c.operator}-${String(i)}`}>
+                {filter.conditions.map((c) => (
+                  <div key={`${c.field}-${c.operator}-${JSON.stringify(c.value)}`}>
                     <Code>
                       {c.field} {c.operator} {JSON.stringify(c.value)}
                     </Code>

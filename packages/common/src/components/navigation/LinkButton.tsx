@@ -7,14 +7,10 @@ interface LinkButtonProps extends Omit<ButtonProps, "component"> {
 }
 
 /** Mantine Button wrapper for TanStack Router */
-const MantineButtonLink = (props: LinkButtonProps) => {
-  return <Button component="a" {...props} />
-}
+const MantineButtonLink = (props: LinkButtonProps) => <Button component="a" {...props} />
 
 /** TanStack Router link with Mantine Button */
 const CreatedLinkButton = createLink(MantineButtonLink)
 
 /** Type-safe button link component */
-export const LinkButton: LinkComponent<typeof MantineButtonLink> = (props) => {
-  return <CreatedLinkButton preload="intent" {...props} />
-}
+export const LinkButton: LinkComponent<typeof MantineButtonLink> = (props) => <CreatedLinkButton preload="intent" {...props} />

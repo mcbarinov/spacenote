@@ -65,7 +65,7 @@ export function PendingAttachmentsTable({ attachments }: PendingAttachmentsTable
                   )}
                   <ActionIcon
                     component="a"
-                    href={`/api/v1/attachments/pending/${String(attachment.number)}`}
+                    href={`/api/v1/attachments/pending/${attachment.number}`}
                     target="_blank"
                     variant="subtle"
                   >

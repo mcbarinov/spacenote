@@ -66,7 +66,7 @@ export function listNotes(spaceSlug: string, filter?: string, q?: string, page =
 export function getNote(spaceSlug: string, noteNumber: number) {
   return queryOptions({
     queryKey: ["spaces", spaceSlug, "notes", noteNumber],
-    queryFn: () => httpClient.get(`api/v1/spaces/${spaceSlug}/notes/${String(noteNumber)}`).json<Note>(),
+    queryFn: () => httpClient.get(`api/v1/spaces/${spaceSlug}/notes/${noteNumber}`).json<Note>(),
   })
 }
 
@@ -76,7 +76,7 @@ export function listComments(spaceSlug: string, noteNumber: number, page = 1, li
     queryKey: ["spaces", spaceSlug, "notes", noteNumber, "comments", { page, limit }],
     queryFn: () =>
       httpClient
-        .get(`api/v1/spaces/${spaceSlug}/notes/${String(noteNumber)}/comments`, {
+        .get(`api/v1/spaces/${spaceSlug}/notes/${noteNumber}/comments`, {
           searchParams: { limit, offset: (page - 1) * limit },
         })
         .json<CommentsList>(),
@@ -95,7 +95,7 @@ export function listSpaceAttachments(spaceSlug: string) {
 export function listNoteAttachments(spaceSlug: string, noteNumber: number) {
   return queryOptions({
     queryKey: ["spaces", spaceSlug, "notes", noteNumber, "attachments"],
-    queryFn: () => httpClient.get(`api/v1/spaces/${spaceSlug}/notes/${String(noteNumber)}/attachments`).json<Attachment[]>(),
+    queryFn: () => httpClient.get(`api/v1/spaces/${spaceSlug}/notes/${noteNumber}/attachments`).json<Attachment[]>(),
   })
 }
 

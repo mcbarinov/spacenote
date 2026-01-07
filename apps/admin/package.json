@@ -13,32 +13,32 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@mantine/core": "^8.3.10",
-    "@mantine/dates": "^8.3.10",
-    "@mantine/form": "^8.3.10",
-    "@mantine/hooks": "^8.3.10",
-    "@mantine/modals": "^8.3.10",
-    "@mantine/notifications": "^8.3.10",
+    "@mantine/core": "^8.3.11",
+    "@mantine/dates": "^8.3.11",
+    "@mantine/form": "^8.3.11",
+    "@mantine/hooks": "^8.3.11",
+    "@mantine/modals": "^8.3.11",
+    "@mantine/notifications": "^8.3.11",
     "@spacenote/common": "workspace:*",
-    "@tabler/icons-react": "^3.36.0",
-    "@tanstack/react-query": "^5.90.13",
-    "@tanstack/react-router": "^1.144.0",
-    "@tanstack/virtual-file-routes": "^1.141.0",
+    "@tabler/icons-react": "^3.36.1",
+    "@tanstack/react-query": "^5.90.16",
+    "@tanstack/react-router": "^1.145.7",
+    "@tanstack/virtual-file-routes": "^1.145.4",
     "dayjs": "^1.11.19",
     "ky": "^1.14.2",
     "mantine-form-zod-resolver": "^1.3.0",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "react-live": "^4.1.8",
-    "zod": "^4.2.1"
+    "zod": "^4.3.5"
   },
   "devDependencies": {
     "@spacenote/common": "workspace:*",
-    "@tanstack/devtools-vite": "^0.4.0",
-    "@tanstack/react-devtools": "^0.9.0",
-    "@tanstack/react-query-devtools": "^5.91.1",
-    "@tanstack/react-router-devtools": "^1.144.0",
-    "@tanstack/router-plugin": "^1.144.0",
+    "@tanstack/devtools-vite": "^0.4.1",
+    "@tanstack/react-devtools": "^0.9.1",
+    "@tanstack/react-query-devtools": "^5.91.2",
+    "@tanstack/react-router-devtools": "^1.145.7",
+    "@tanstack/router-plugin": "^1.145.7",
     "@types/node": "^25.0.3",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
@@ -49,6 +49,6 @@
     "postcss-simple-vars": "^7.0.1",
     "prettier": "^3.7.4",
     "typescript": "~5.9.3",
-    "vite": "^7.3.0"
+    "vite": "^7.3.1"
   }
 }

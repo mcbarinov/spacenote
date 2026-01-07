@@ -51,7 +51,7 @@ export class AppError extends Error {
     }
     if (error instanceof HTTPError) {
       const code = AppError.codeFromStatus(error.response.status)
-      const defaultMessage = `HTTP ${String(error.response.status)} ${error.response.statusText}`
+      const defaultMessage = `HTTP ${error.response.status} ${error.response.statusText}`
       return new AppError(code, defaultMessage)
     }
     if (error instanceof TypeError && error.message.includes("fetch")) {

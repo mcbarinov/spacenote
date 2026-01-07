@@ -55,7 +55,7 @@ function NoteDetailPage() {
     <>
       <PageHeader
         title={note.title}
-        breadcrumbs={[{ label: `◈ ${space.slug}`, to: "/s/$slug", params: { slug } }, { label: `Note #${String(note.number)}` }]}
+        breadcrumbs={[{ label: `◈ ${space.slug}`, to: "/s/$slug", params: { slug } }, { label: `Note #${note.number}` }]}
         topActions={
           <Group gap="xs">
             <ViewModeMenu slug={slug} noteNumber={noteNumber} currentView={resolvedView} hasTemplate={hasTemplate} />

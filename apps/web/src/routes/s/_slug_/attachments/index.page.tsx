@@ -60,11 +60,7 @@ function AttachmentsPage() {
                 <Table.Td>{attachment.author}</Table.Td>
                 <Table.Td>{formatDate(attachment.created_at)}</Table.Td>
                 <Table.Td>
-                  <ActionIcon
-                    component="a"
-                    href={`/api/v1/spaces/${slug}/attachments/${String(attachment.number)}`}
-                    variant="subtle"
-                  >
+                  <ActionIcon component="a" href={`/api/v1/spaces/${slug}/attachments/${attachment.number}`} variant="subtle">
                     <IconDownload size={18} />
                   </ActionIcon>
                 </Table.Td>

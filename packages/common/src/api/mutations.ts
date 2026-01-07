@@ -262,7 +262,7 @@ export function useUpdateNote(spaceSlug: string, noteNumber: number) {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (data: UpdateNoteRequest) =>
-      httpClient.patch(`api/v1/spaces/${spaceSlug}/notes/${String(noteNumber)}`, { json: data }).json<Note>(),
+      httpClient.patch(`api/v1/spaces/${spaceSlug}/notes/${noteNumber}`, { json: data }).json<Note>(),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["spaces", spaceSlug, "notes"] })
     },
@@ -274,7 +274,7 @@ export function useCreateComment(spaceSlug: string, noteNumber: number) {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (data: CreateCommentRequest) =>
-      httpClient.post(`api/v1/spaces/${spaceSlug}/notes/${String(noteNumber)}/comments`, { json: data }).json<Comment>(),
+      httpClient.post(`api/v1/spaces/${spaceSlug}/notes/${noteNumber}/comments`, { json: data }).json<Comment>(),
     onSuccess: async () => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["spaces", spaceSlug, "notes", noteNumber, "comments"] }),
@@ -306,9 +306,7 @@ export function useUploadNoteAttachment(spaceSlug: string, noteNumber: number) {
     mutationFn: (file: File) => {
       const formData = new FormData()
       formData.append("file", file)
-      return httpClient
-        .post(`api/v1/spaces/${spaceSlug}/notes/${String(noteNumber)}/attachments`, { body: formData })
-        .json<Attachment>()
+      return httpClient.post(`api/v1/spaces/${spaceSlug}/notes/${noteNumber}/attachments`, { body: formData }).json<Attachment>()
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["spaces", spaceSlug, "notes", noteNumber, "attachments"] })
@@ -331,7 +329,7 @@ export function useUploadPendingAttachment() {
 export function useDeletePendingAttachment() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (number: number) => httpClient.delete(`api/v1/attachments/pending/${String(number)}`),
+    mutationFn: (number: number) => httpClient.delete(`api/v1/attachments/pending/${number}`),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["pending-attachments"] })
     },

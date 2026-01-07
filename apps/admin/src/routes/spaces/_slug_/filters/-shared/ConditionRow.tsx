@@ -19,20 +19,19 @@ interface ConditionRowProps {
 export function ConditionRow({ condition, index, allFields, spaceFields, spaceMembers, form, onRemove }: ConditionRowProps) {
   const selectedField = getFieldDefinition(condition.field, spaceFields)
   const operators = selectedField ? OPERATORS_BY_TYPE[selectedField.type] : []
-  const indexStr = String(index)
 
   const handleFieldChange = (value: string | null) => {
-    form.setFieldValue(`conditions.${indexStr}.field`, value ?? "")
-    form.setFieldValue(`conditions.${indexStr}.operator`, "")
-    form.setFieldValue(`conditions.${indexStr}.value`, "")
+    form.setFieldValue(`conditions.${index}.field`, value ?? "")
+    form.setFieldValue(`conditions.${index}.operator`, "")
+    form.setFieldValue(`conditions.${index}.value`, "")
   }
 
   const handleOperatorChange = (value: string | null) => {
-    form.setFieldValue(`conditions.${indexStr}.operator`, value ?? "")
+    form.setFieldValue(`conditions.${index}.operator`, value ?? "")
   }
 
   const handleValueChange = (v: unknown) => {
-    form.setFieldValue(`conditions.${indexStr}.value`, v)
+    form.setFieldValue(`conditions.${index}.value`, v)
   }
 
   return (

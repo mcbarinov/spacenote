@@ -50,7 +50,7 @@ export function TelegramTasksTable({ tasks }: TelegramTasksTableProps) {
           <Table.Tbody>
             {tasks.map((task) => (
               <Table.Tr
-                key={`${task.space_slug}-${String(task.number)}`}
+                key={`${task.space_slug}-${task.number}`}
                 style={{ cursor: "pointer" }}
                 onClick={() => {
                   setSelectedTask(task)
@@ -86,7 +86,7 @@ export function TelegramTasksTable({ tasks }: TelegramTasksTableProps) {
         onClose={() => {
           setSelectedTask(null)
         }}
-        title={selectedTask ? `Task ${selectedTask.space_slug}/${String(selectedTask.number)}` : ""}
+        title={selectedTask ? `Task ${selectedTask.space_slug}/${selectedTask.number}` : ""}
         size="lg"
       >
         <Code block>{JSON.stringify(selectedTask, null, 2)}</Code>

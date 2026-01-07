@@ -61,7 +61,7 @@ function createImageLoader(imageUrl: string, initialDelay: number, maxDelay: num
     abortController = new AbortController()
 
     try {
-      const url = state.cacheBuster > 0 ? `${imageUrl}?_=${String(state.cacheBuster)}` : imageUrl
+      const url = state.cacheBuster > 0 ? `${imageUrl}?_=${state.cacheBuster}` : imageUrl
       const response = await fetch(url, { method: "GET", signal: abortController.signal })
 
       if (response.ok) {
@@ -128,9 +128,10 @@ export function useImageWithRetry(imageUrl: string, options: UseImageWithRetryOp
 
   const state = useSyncExternalStore(loader.subscribe, loader.getState, loader.getState)
 
-  const src = useMemo(() => {
-    return state.cacheBuster > 0 ? `${imageUrl}?_=${String(state.cacheBuster)}` : imageUrl
-  }, [imageUrl, state.cacheBuster])
+  const src = useMemo(
+    () => (state.cacheBuster > 0 ? `${imageUrl}?_=${state.cacheBuster}` : imageUrl),
+    [imageUrl, state.cacheBuster]
+  )
 
   return {
     src,

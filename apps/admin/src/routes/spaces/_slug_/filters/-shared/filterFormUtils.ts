@@ -72,5 +72,5 @@ let conditionIdCounter = 0
 /** Generates a unique ID for a new condition */
 export function generateConditionId(): string {
   conditionIdCounter += 1
-  return `condition-${String(conditionIdCounter)}`
+  return `condition-${conditionIdCounter}`
 }

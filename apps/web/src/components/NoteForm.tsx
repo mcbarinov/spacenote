@@ -84,7 +84,7 @@ function getDefaultValue(field: SpaceField, currentUser: string): unknown {
 
 /** Converts form value to raw_fields string format for API */
 function valueToString(value: unknown, field: SpaceField): string | null {
-  if (value === "" || value === null || value === undefined) {
+  if (value === "" || value == null) {
     return null
   }
   if (typeof value === "boolean" || typeof value === "number") {

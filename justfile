@@ -286,6 +286,16 @@ worktree-setup slot:
     cd "${WORKTREE_PATH}" && pnpm install
     cd "${WORKTREE_PATH}/apps/backend" && uv sync
 
+    # Configure Claude Code
+    MAIN_WORKTREE="$(git rev-parse --show-toplevel)"
+    mkdir -p "${WORKTREE_PATH}/.claude"
+    ln -s ../ai/commands "${WORKTREE_PATH}/.claude/commands"
+    if [[ -f "${MAIN_WORKTREE}/.claude/settings.local.json" ]]; then
+        ln -s "${MAIN_WORKTREE}/.claude/settings.local.json" "${WORKTREE_PATH}/.claude/settings.local.json"
+    else
+        echo "Warning: ${MAIN_WORKTREE}/.claude/settings.local.json not found"
+    fi
+
     echo ""
     echo "Worktree slot ${SLOT} ready at ${WORKTREE_PATH}"
 

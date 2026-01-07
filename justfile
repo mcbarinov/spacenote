@@ -240,6 +240,7 @@ worktree-setup slot:
     set -euo pipefail
 
     SLOT={{slot}}
+    MAIN_WORKTREE="$(git rev-parse --show-toplevel)"
     WORKTREE_PATH="${WORKTREES_PATH:-$HOME/worktrees}/spacenote-w${SLOT}"
 
     # Calculate ports (base + slot×10)
@@ -251,13 +252,23 @@ worktree-setup slot:
     ADMIN_PORT_AGENT=$((ADMIN_PORT + 1))
     DATABASE="spacenote_w${SLOT}"
 
+    BRANCH_NAME="worktree-${SLOT}"
+
     echo "Creating worktree slot ${SLOT} at ${WORKTREE_PATH}"
+    echo "Branch: ${BRANCH_NAME}"
     echo "Ports: web=${WEB_PORT}, backend=${BACKEND_PORT}, admin=${ADMIN_PORT}"
     echo "Database: ${DATABASE}"
     echo ""
 
-    # Create worktree
-    git worktree add "${WORKTREE_PATH}" main
+    # Check that branch doesn't exist
+    if git show-ref --verify --quiet "refs/heads/${BRANCH_NAME}"; then
+        echo "Error: Branch ${BRANCH_NAME} already exists"
+        exit 1
+    fi
+
+    # Create branch and worktree
+    git branch "${BRANCH_NAME}" main
+    git worktree add "${WORKTREE_PATH}" "${BRANCH_NAME}"
 
     # Generate .env
     {
@@ -287,7 +298,6 @@ worktree-setup slot:
     cd "${WORKTREE_PATH}/apps/backend" && uv sync
 
     # Configure Claude Code
-    MAIN_WORKTREE="$(git rev-parse --show-toplevel)"
     mkdir -p "${WORKTREE_PATH}/.claude"
     ln -s ../ai/commands "${WORKTREE_PATH}/.claude/commands"
     if [[ -f "${MAIN_WORKTREE}/.claude/settings.local.json" ]]; then

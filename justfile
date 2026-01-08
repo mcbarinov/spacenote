@@ -4,7 +4,15 @@ set dotenv-load
 GHCR_USER := "mcbarinov"
 
 # Lint all projects
-lint: common-lint admin-lint web-lint backend-lint
+lint:
+    @echo "=== common ==="
+    @just common-lint
+    @echo "=== admin ==="
+    @just admin-lint
+    @echo "=== web ==="
+    @just web-lint
+    @echo "=== backend ==="
+    @just backend-lint
 
 outdated: backend-outdated common-outdated admin-outdated web-outdated
 
@@ -24,12 +32,12 @@ backend-outdated:
 
 [group("backend")]
 backend-format:
-    cd apps/backend && uv run ruff check --select I --fix src && uv run ruff format src
+    @cd apps/backend && uv run ruff check --quiet --select I --fix src && uv run ruff format --quiet src
 
 # Lint & typecheck
 [group("backend")]
 backend-lint *args: backend-format
-    cd apps/backend && uv run ruff check {{args}} src tests
+    cd apps/backend && uv run ruff check --quiet {{args}} src tests
     cd apps/backend && uv run mypy src
 
 # Run development server
@@ -49,9 +57,9 @@ common-generate:
 
 [group("common")]
 common-lint:
-    pnpm --filter @spacenote/common run format
-    pnpm --filter @spacenote/common run lint
-    pnpm --filter @spacenote/common run typecheck
+    pnpm --silent --filter @spacenote/common run format
+    pnpm --silent --filter @spacenote/common run lint
+    pnpm --silent --filter @spacenote/common run typecheck
 
 
 [group("common")]
@@ -75,9 +83,9 @@ admin-dev:
 
 [group("admin")]
 admin-lint:
-    pnpm --filter @spacenote/admin run format
-    pnpm --filter @spacenote/admin run lint
-    pnpm --filter @spacenote/admin run typecheck
+    pnpm --silent --filter @spacenote/admin run format
+    pnpm --silent --filter @spacenote/admin run lint
+    pnpm --silent --filter @spacenote/admin run typecheck
 
 
 [group("admin")]
@@ -103,9 +111,9 @@ web-dev:
 
 [group("web")]
 web-lint:
-    pnpm --filter @spacenote/web run format
-    pnpm --filter @spacenote/web run lint
-    pnpm --filter @spacenote/web run typecheck
+    pnpm --silent --filter @spacenote/web run format
+    pnpm --silent --filter @spacenote/web run lint
+    pnpm --silent --filter @spacenote/web run typecheck
 
 
 [group("web")]

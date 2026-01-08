@@ -18,7 +18,7 @@
   },
   "scripts": {
     "generate": "openapi-typescript http://localhost:3100/openapi.json -o src/types/openapi.gen.ts --export-type",
-    "format": "prettier --write .",
+    "format": "prettier --write . | grep -v '(unchanged)' || true",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist node_modules"

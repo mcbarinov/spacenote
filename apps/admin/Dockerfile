@@ -29,16 +29,12 @@ COPY apps/admin ./apps/admin
 
 # Build args
 ARG GIT_COMMIT_HASH=unknown
-ARG GIT_COMMIT_DATE=unknown
-ARG BUILD_TIME=unknown
 ARG VITE_BASE_PATH=/
 
 WORKDIR /app/apps/admin
 
 # Build (skip tsc type checking - done locally before push)
 RUN VITE_GIT_COMMIT_HASH=${GIT_COMMIT_HASH} \
-    VITE_GIT_COMMIT_DATE=${GIT_COMMIT_DATE} \
-    VITE_BUILD_TIME=${BUILD_TIME} \
     VITE_BASE_PATH=${VITE_BASE_PATH} \
     pnpm vite build
 

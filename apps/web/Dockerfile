@@ -29,16 +29,11 @@ COPY apps/web ./apps/web
 
 # Build args
 ARG GIT_COMMIT_HASH=unknown
-ARG GIT_COMMIT_DATE=unknown
-ARG BUILD_TIME=unknown
 
 WORKDIR /app/apps/web
 
 # Build (skip tsc type checking - done locally before push)
-RUN VITE_GIT_COMMIT_HASH=${GIT_COMMIT_HASH} \
-    VITE_GIT_COMMIT_DATE=${GIT_COMMIT_DATE} \
-    VITE_BUILD_TIME=${BUILD_TIME} \
-    pnpm vite build
+RUN VITE_GIT_COMMIT_HASH=${GIT_COMMIT_HASH} pnpm vite build
 
 # Production stage
 FROM node:24-alpine AS runner

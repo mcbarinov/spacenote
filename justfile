@@ -226,6 +226,26 @@ docker-local-down:
 docker-prune:
     docker builder prune -f
 
+# Restart Colima with proper resources and setup buildx
+[group("docker")]
+colima-restart:
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    echo "Stopping Colima..."
+    colima stop 2>/dev/null || true
+
+    echo "Starting Colima with 8 CPUs, 16GB RAM..."
+    colima start --cpu 8 --memory 16 --disk 100
+
+    echo "Setting up Docker buildx..."
+    docker buildx rm builder 2>/dev/null || true
+    docker buildx create --name builder --driver docker-container --use
+    docker buildx inspect --bootstrap
+
+    echo ""
+    echo "Colima ready! Run 'just docker-push' to build and push images."
+
 
 # === Worktree Commands ===
 

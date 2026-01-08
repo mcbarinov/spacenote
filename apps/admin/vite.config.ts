@@ -14,7 +14,7 @@ function requireEnv(name: string): string {
 }
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   base: requireEnv("VITE_BASE_PATH"),
   plugins: [
     devtools({ eventBusConfig: { port: 42070 } }),
@@ -30,13 +30,16 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  server: {
-    port: Number(requireEnv("VITE_PORT")),
-    proxy: {
-      "/api": {
-        target: requireEnv("VITE_API_URL"),
-        changeOrigin: true,
-      },
-    },
-  },
-})
+  server:
+    command === "serve"
+      ? {
+          port: Number(requireEnv("VITE_PORT")),
+          proxy: {
+            "/api": {
+              target: requireEnv("VITE_API_URL"),
+              changeOrigin: true,
+            },
+          },
+        }
+      : undefined,
+}))

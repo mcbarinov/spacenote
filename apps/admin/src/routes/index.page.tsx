@@ -2,7 +2,7 @@ import { Link, createFileRoute } from "@tanstack/react-router"
 import { Paper, SimpleGrid, Stack, Text, Title, UnstyledButton } from "@mantine/core"
 import { IconCopy, IconLayout2, IconPaperclip, IconSend, IconUsers } from "@tabler/icons-react"
 
-export const Route = createFileRoute("/_auth.layout/")({
+export const Route = createFileRoute("/_auth/")({
   component: HomePage,
 })
 

@@ -3,7 +3,7 @@ import { api } from "@spacenote/common/api"
 import { PageHeader } from "@spacenote/common/components"
 import { NoteForm } from "@/components/NoteForm"
 
-export const Route = createFileRoute("/_auth.layout/s/$slug/new")({
+export const Route = createFileRoute("/_auth/s/$slug/new")({
   component: NewNotePage,
 })
 

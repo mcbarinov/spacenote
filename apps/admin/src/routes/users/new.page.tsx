@@ -8,7 +8,7 @@ import { api } from "@spacenote/common/api"
 import { ErrorMessage, PageHeader } from "@spacenote/common/components"
 import type { CreateUserRequest } from "@spacenote/common/types"
 
-export const Route = createFileRoute("/_auth.layout/users/new")({
+export const Route = createFileRoute("/_auth/users/new")({
   component: CreateUserPage,
 })
 

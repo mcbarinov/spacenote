@@ -17,7 +17,7 @@ import { NumericFieldConfig } from "../-shared/NumericFieldConfig"
 import { ImageFieldConfig } from "../-shared/ImageFieldConfig"
 import { addFieldSchema, buildDefault, buildOptions, parseFieldToFormValues, type FormValues } from "../-shared/fieldFormUtils"
 
-export const Route = createFileRoute("/_auth.layout/spaces/$slug/fields/$fieldName/edit")({
+export const Route = createFileRoute("/_auth/spaces/$slug/fields/$fieldName/edit")({
   component: EditFieldPage,
 })
 

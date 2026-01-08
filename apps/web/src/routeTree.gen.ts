@@ -27,7 +27,7 @@ const loginDotpageRoute = loginDotpageRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const authDotlayoutRoute = authDotlayoutRouteImport.update({
-  id: '/_auth.layout',
+  id: '/_auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const indexPageRoute = indexPageRouteImport.update({
@@ -108,17 +108,17 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/_auth.layout': typeof authDotlayoutRouteWithChildren
+  '/_auth': typeof authDotlayoutRouteWithChildren
   '/login': typeof loginDotpageRoute
-  '/_auth.layout/': typeof indexPageRoute
-  '/_auth.layout/s/$slug/': typeof sSlugIndexPageRoute
-  '/_auth.layout/s/$slug/new': typeof sSlugNewDotpageRoute
-  '/_auth.layout/s/$slug/$noteNumber/': typeof sSlug_noteNumberIndexPageRoute
-  '/_auth.layout/s/$slug/$noteNumber/edit': typeof sSlug_noteNumberEditDotpageRoute
-  '/_auth.layout/s/$slug/attachments/new': typeof sSlugAttachmentsNewDotpageRoute
-  '/_auth.layout/s/$slug/attachments/': typeof sSlugAttachmentsIndexDotpageRoute
-  '/_auth.layout/s/$slug/$noteNumber/attachments/new': typeof sSlug_noteNumberAttachmentsNewDotpageRoute
-  '/_auth.layout/s/$slug/$noteNumber/attachments/': typeof sSlug_noteNumberAttachmentsIndexDotpageRoute
+  '/_auth/': typeof indexPageRoute
+  '/_auth/s/$slug/': typeof sSlugIndexPageRoute
+  '/_auth/s/$slug/new': typeof sSlugNewDotpageRoute
+  '/_auth/s/$slug/$noteNumber/': typeof sSlug_noteNumberIndexPageRoute
+  '/_auth/s/$slug/$noteNumber/edit': typeof sSlug_noteNumberEditDotpageRoute
+  '/_auth/s/$slug/attachments/new': typeof sSlugAttachmentsNewDotpageRoute
+  '/_auth/s/$slug/attachments/': typeof sSlugAttachmentsIndexDotpageRoute
+  '/_auth/s/$slug/$noteNumber/attachments/new': typeof sSlug_noteNumberAttachmentsNewDotpageRoute
+  '/_auth/s/$slug/$noteNumber/attachments/': typeof sSlug_noteNumberAttachmentsIndexDotpageRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -147,17 +147,17 @@ export interface FileRouteTypes {
     | '/s/$slug/$noteNumber/attachments'
   id:
     | '__root__'
-    | '/_auth.layout'
+    | '/_auth'
     | '/login'
-    | '/_auth.layout/'
-    | '/_auth.layout/s/$slug/'
-    | '/_auth.layout/s/$slug/new'
-    | '/_auth.layout/s/$slug/$noteNumber/'
-    | '/_auth.layout/s/$slug/$noteNumber/edit'
-    | '/_auth.layout/s/$slug/attachments/new'
-    | '/_auth.layout/s/$slug/attachments/'
-    | '/_auth.layout/s/$slug/$noteNumber/attachments/new'
-    | '/_auth.layout/s/$slug/$noteNumber/attachments/'
+    | '/_auth/'
+    | '/_auth/s/$slug/'
+    | '/_auth/s/$slug/new'
+    | '/_auth/s/$slug/$noteNumber/'
+    | '/_auth/s/$slug/$noteNumber/edit'
+    | '/_auth/s/$slug/attachments/new'
+    | '/_auth/s/$slug/attachments/'
+    | '/_auth/s/$slug/$noteNumber/attachments/new'
+    | '/_auth/s/$slug/$noteNumber/attachments/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -174,71 +174,71 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof loginDotpageRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_auth.layout': {
-      id: '/_auth.layout'
+    '/_auth': {
+      id: '/_auth'
       path: ''
       fullPath: ''
       preLoaderRoute: typeof authDotlayoutRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_auth.layout/': {
-      id: '/_auth.layout/'
+    '/_auth/': {
+      id: '/_auth/'
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof indexPageRouteImport
       parentRoute: typeof authDotlayoutRoute
     }
-    '/_auth.layout/s/$slug/new': {
-      id: '/_auth.layout/s/$slug/new'
+    '/_auth/s/$slug/new': {
+      id: '/_auth/s/$slug/new'
       path: '/s/$slug/new'
       fullPath: '/s/$slug/new'
       preLoaderRoute: typeof sSlugNewDotpageRouteImport
       parentRoute: typeof authDotlayoutRoute
     }
-    '/_auth.layout/s/$slug/': {
-      id: '/_auth.layout/s/$slug/'
+    '/_auth/s/$slug/': {
+      id: '/_auth/s/$slug/'
       path: '/s/$slug'
       fullPath: '/s/$slug'
       preLoaderRoute: typeof sSlugIndexPageRouteImport
       parentRoute: typeof authDotlayoutRoute
     }
-    '/_auth.layout/s/$slug/attachments/': {
-      id: '/_auth.layout/s/$slug/attachments/'
+    '/_auth/s/$slug/attachments/': {
+      id: '/_auth/s/$slug/attachments/'
       path: '/s/$slug/attachments'
       fullPath: '/s/$slug/attachments'
       preLoaderRoute: typeof sSlugAttachmentsIndexDotpageRouteImport
       parentRoute: typeof authDotlayoutRoute
     }
-    '/_auth.layout/s/$slug/attachments/new': {
-      id: '/_auth.layout/s/$slug/attachments/new'
+    '/_auth/s/$slug/attachments/new': {
+      id: '/_auth/s/$slug/attachments/new'
       path: '/s/$slug/attachments/new'
       fullPath: '/s/$slug/attachments/new'
       preLoaderRoute: typeof sSlugAttachmentsNewDotpageRouteImport
       parentRoute: typeof authDotlayoutRoute
     }
-    '/_auth.layout/s/$slug/$noteNumber/edit': {
-      id: '/_auth.layout/s/$slug/$noteNumber/edit'
+    '/_auth/s/$slug/$noteNumber/edit': {
+      id: '/_auth/s/$slug/$noteNumber/edit'
       path: '/s/$slug/$noteNumber/edit'
       fullPath: '/s/$slug/$noteNumber/edit'
       preLoaderRoute: typeof sSlug_noteNumberEditDotpageRouteImport
       parentRoute: typeof authDotlayoutRoute
     }
-    '/_auth.layout/s/$slug/$noteNumber/': {
-      id: '/_auth.layout/s/$slug/$noteNumber/'
+    '/_auth/s/$slug/$noteNumber/': {
+      id: '/_auth/s/$slug/$noteNumber/'
       path: '/s/$slug/$noteNumber'
       fullPath: '/s/$slug/$noteNumber'
       preLoaderRoute: typeof sSlug_noteNumberIndexPageRouteImport
       parentRoute: typeof authDotlayoutRoute
     }
-    '/_auth.layout/s/$slug/$noteNumber/attachments/': {
-      id: '/_auth.layout/s/$slug/$noteNumber/attachments/'
+    '/_auth/s/$slug/$noteNumber/attachments/': {
+      id: '/_auth/s/$slug/$noteNumber/attachments/'
       path: '/s/$slug/$noteNumber/attachments'
       fullPath: '/s/$slug/$noteNumber/attachments'
       preLoaderRoute: typeof sSlug_noteNumberAttachmentsIndexDotpageRouteImport
       parentRoute: typeof authDotlayoutRoute
     }
-    '/_auth.layout/s/$slug/$noteNumber/attachments/new': {
-      id: '/_auth.layout/s/$slug/$noteNumber/attachments/new'
+    '/_auth/s/$slug/$noteNumber/attachments/new': {
+      id: '/_auth/s/$slug/$noteNumber/attachments/new'
       path: '/s/$slug/$noteNumber/attachments/new'
       fullPath: '/s/$slug/$noteNumber/attachments/new'
       preLoaderRoute: typeof sSlug_noteNumberAttachmentsNewDotpageRouteImport

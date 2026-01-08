@@ -87,6 +87,10 @@ admin-outdated:
 admin-update:
     pnpm --filter @spacenote/admin update
 
+[group("admin")]
+admin-routes:
+    pnpm --filter @spacenote/admin run routes
+
 
 [group("web")]
 web-dev:

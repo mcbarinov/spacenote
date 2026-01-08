@@ -17,7 +17,7 @@ import {
   SYSTEM_FIELDS,
 } from "../-shared/filterFormUtils"
 
-export const Route = createFileRoute("/_auth.layout/spaces/$slug/filters/$filterName/edit")({
+export const Route = createFileRoute("/_auth/spaces/$slug/filters/$filterName/edit")({
   component: EditFilterPage,
 })
 

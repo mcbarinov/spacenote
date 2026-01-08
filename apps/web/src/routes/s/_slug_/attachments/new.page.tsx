@@ -5,7 +5,7 @@ import { notifications } from "@mantine/notifications"
 import { api } from "@spacenote/common/api"
 import { ErrorMessage, PageHeader } from "@spacenote/common/components"
 
-export const Route = createFileRoute("/_auth.layout/s/$slug/attachments/new")({
+export const Route = createFileRoute("/_auth/s/$slug/attachments/new")({
   component: UploadAttachmentPage,
 })
 

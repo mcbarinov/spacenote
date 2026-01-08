@@ -3,7 +3,7 @@ import { api } from "@spacenote/common/api"
 import { AppError } from "@spacenote/common/errors"
 import { AuthLayout, LoadingScreen, ErrorScreen } from "@spacenote/common/components"
 
-export const Route = createFileRoute("/_auth.layout")({
+export const Route = createFileRoute("/_auth")({
   // Validates auth and redirects to login if unauthorized
   beforeLoad: async ({ context, location }) => {
     try {

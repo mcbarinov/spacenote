@@ -10,7 +10,7 @@ import { NoteListTemplate } from "./-local/NoteListTemplate"
 import { NoteTitleTemplate } from "./-local/NoteTitleTemplate"
 import { TelegramTemplate } from "./-local/TelegramTemplate"
 
-export const Route = createFileRoute("/_auth.layout/spaces/$slug/templates")({
+export const Route = createFileRoute("/_auth/spaces/$slug/templates")({
   component: TemplatesPage,
 })
 

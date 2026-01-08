@@ -5,7 +5,7 @@ import { LinkButton, PageHeader } from "@spacenote/common/components"
 import { SpaceTabs } from "@/components/SpaceTabs"
 import { FiltersTable } from "./-local/FiltersTable"
 
-export const Route = createFileRoute("/_auth.layout/spaces/$slug/filters/")({
+export const Route = createFileRoute("/_auth/spaces/$slug/filters/")({
   component: FiltersPage,
 })
 

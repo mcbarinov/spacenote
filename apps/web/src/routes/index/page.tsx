@@ -4,7 +4,7 @@ import { api } from "@spacenote/common/api"
 import { PageHeader } from "@spacenote/common/components"
 import SpaceCard from "./-local/SpaceCard"
 
-export const Route = createFileRoute("/_auth.layout/")({
+export const Route = createFileRoute("/_auth/")({
   component: HomePage,
 })
 

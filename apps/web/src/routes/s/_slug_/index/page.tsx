@@ -36,7 +36,7 @@ function getListTemplate(templates: Record<string, string>, filterName: string):
   return templates[`web:note:list:${filterName}`] ?? templates["web:note:list:all"]
 }
 
-export const Route = createFileRoute("/_auth.layout/s/$slug/")({
+export const Route = createFileRoute("/_auth/s/$slug/")({
   validateSearch: searchSchema,
   loaderDeps: ({ search }) => ({ filter: search.filter, q: search.q, page: search.page }),
   loader: async ({ context, params, deps }) => {

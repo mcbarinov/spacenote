@@ -8,7 +8,7 @@ import { api } from "@spacenote/common/api"
 import { ErrorMessage, PageHeader } from "@spacenote/common/components"
 import type { CreateSpaceRequest } from "@spacenote/common/types"
 
-export const Route = createFileRoute("/_auth.layout/spaces/new")({
+export const Route = createFileRoute("/_auth/spaces/new")({
   component: CreateSpacePage,
 })
 

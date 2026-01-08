@@ -6,7 +6,7 @@ import { DeleteButton, PageHeader, Username } from "@spacenote/common/components
 import { AppError } from "@spacenote/common/errors"
 import { SetPasswordButton } from "./-local/SetPasswordButton"
 
-export const Route = createFileRoute("/_auth.layout/users/")({
+export const Route = createFileRoute("/_auth/users/")({
   component: UsersPage,
 })
 

@@ -7,7 +7,7 @@ import { LinkButton, PageHeader } from "@spacenote/common/components"
 import { formatDate, formatFileSize } from "@spacenote/common/utils"
 import { MetaCell } from "@/components/MetaCell"
 
-export const Route = createFileRoute("/_auth.layout/s/$slug/attachments/")({
+export const Route = createFileRoute("/_auth/s/$slug/attachments/")({
   loader: async ({ context, params }) => {
     await context.queryClient.ensureQueryData(api.queries.listSpaceAttachments(params.slug))
   },

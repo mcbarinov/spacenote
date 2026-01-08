@@ -11,7 +11,7 @@ import type { FilterOperator } from "@spacenote/common/types"
 import { ConditionRow } from "./-shared/ConditionRow"
 import { type FilterFormValues, filterSchema, generateConditionId, SYSTEM_FIELDS } from "./-shared/filterFormUtils"
 
-export const Route = createFileRoute("/_auth.layout/spaces/$slug/filters/new")({
+export const Route = createFileRoute("/_auth/spaces/$slug/filters/new")({
   component: AddFilterPage,
 })
 

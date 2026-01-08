@@ -6,7 +6,7 @@ import { api } from "@spacenote/common/api"
 import { ErrorMessage, PageHeader } from "@spacenote/common/components"
 import { SpaceTabs } from "@/components/SpaceTabs"
 
-export const Route = createFileRoute("/_auth.layout/spaces/$slug/members")({
+export const Route = createFileRoute("/_auth/spaces/$slug/members")({
   component: SpaceMembersPage,
 })
 

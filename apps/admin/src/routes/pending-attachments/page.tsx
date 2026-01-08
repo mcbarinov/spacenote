@@ -5,7 +5,7 @@ import { api } from "@spacenote/common/api"
 import { PageHeader } from "@spacenote/common/components"
 import { PendingAttachmentsTable } from "./-local/PendingAttachmentsTable"
 
-export const Route = createFileRoute("/_auth.layout/pending-attachments")({
+export const Route = createFileRoute("/_auth/pending-attachments")({
   loader: async ({ context }) => {
     await context.queryClient.ensureQueryData(api.queries.listPendingAttachments())
   },

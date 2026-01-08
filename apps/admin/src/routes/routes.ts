@@ -2,7 +2,7 @@ import { rootRoute, route, index, layout } from "@tanstack/virtual-file-routes"
 
 export const routes = rootRoute("root.layout.tsx", [
   route("/login", "login.page.tsx"),
-  layout("auth.layout.tsx", [
+  layout("auth", "auth.layout.tsx", [
     index("index.page.tsx"),
     route("/users", [index("users/index/page.tsx"), route("/new", "users/new.page.tsx")]),
     route("/spaces", [

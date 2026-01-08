@@ -4,7 +4,7 @@ import { api } from "@spacenote/common/api"
 import { PageHeader } from "@spacenote/common/components"
 import { NoteForm } from "@/components/NoteForm"
 
-export const Route = createFileRoute("/_auth.layout/s/$slug/$noteNumber/edit")({
+export const Route = createFileRoute("/_auth/s/$slug/$noteNumber/edit")({
   loader: async ({ context, params }) => {
     await context.queryClient.ensureQueryData(api.queries.getNote(params.slug, Number(params.noteNumber)))
   },

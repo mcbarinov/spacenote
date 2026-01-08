@@ -66,6 +66,7 @@ common-update:
 
 [group("admin")]
 admin-dev:
+    VITE_GIT_COMMIT_HASH=$(git rev-parse HEAD) \
     VITE_PORT=${VITE_ADMIN_PORT} \
     VITE_API_URL=${VITE_API_URL} \
     VITE_BASE_PATH=${VITE_BASE_PATH} \
@@ -94,6 +95,7 @@ admin-routes:
 
 [group("web")]
 web-dev:
+    VITE_GIT_COMMIT_HASH=$(git rev-parse HEAD) \
     VITE_PORT=${VITE_WEB_PORT} \
     VITE_API_URL=${VITE_API_URL} \
     pnpm --filter @spacenote/web run dev
@@ -121,12 +123,14 @@ web-routes:
 
 [group("agent")]
 agent-web-dev:
+    VITE_GIT_COMMIT_HASH=$(git rev-parse HEAD) \
     VITE_PORT=${VITE_WEB_PORT_AGENT} \
     VITE_API_URL=${VITE_API_URL_AGENT} \
     pnpm --filter @spacenote/web run dev
 
 [group("agent")]
 agent-admin-dev:
+    VITE_GIT_COMMIT_HASH=$(git rev-parse HEAD) \
     VITE_PORT=${VITE_ADMIN_PORT_AGENT} \
     VITE_API_URL=${VITE_API_URL_AGENT} \
     VITE_BASE_PATH=${VITE_BASE_PATH} \
@@ -150,9 +154,7 @@ docker-build:
 [group("docker")]
 docker-build-backend:
     docker buildx build \
-        --build-arg GIT_COMMIT_HASH=$(git rev-parse --short HEAD) \
-        --build-arg GIT_COMMIT_DATE=$(git log -1 --format=%cI) \
-        --build-arg BUILD_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ") \
+        --build-arg GIT_COMMIT_HASH=$(git rev-parse HEAD) \
         -f apps/backend/Dockerfile \
         -t ghcr.io/{{GHCR_USER}}/spacenote-backend:latest \
         --load apps/backend
@@ -161,9 +163,7 @@ docker-build-backend:
 [group("docker")]
 docker-build-web:
     docker buildx build \
-        --build-arg GIT_COMMIT_HASH=$(git rev-parse --short HEAD) \
-        --build-arg GIT_COMMIT_DATE=$(git log -1 --format=%cI) \
-        --build-arg BUILD_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ") \
+        --build-arg GIT_COMMIT_HASH=$(git rev-parse HEAD) \
         -f apps/web/Dockerfile \
         -t ghcr.io/{{GHCR_USER}}/spacenote-web:latest \
         --load .
@@ -172,9 +172,7 @@ docker-build-web:
 [group("docker")]
 docker-build-admin:
     docker buildx build \
-        --build-arg GIT_COMMIT_HASH=$(git rev-parse --short HEAD) \
-        --build-arg GIT_COMMIT_DATE=$(git log -1 --format=%cI) \
-        --build-arg BUILD_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ") \
+        --build-arg GIT_COMMIT_HASH=$(git rev-parse HEAD) \
         --build-arg VITE_BASE_PATH=/admin/ \
         -f apps/admin/Dockerfile \
         -t ghcr.io/{{GHCR_USER}}/spacenote-admin:latest \
@@ -189,9 +187,7 @@ docker-push:
 [group("docker")]
 docker-push-backend:
     docker buildx build --platform linux/amd64 \
-        --build-arg GIT_COMMIT_HASH=$(git rev-parse --short HEAD) \
-        --build-arg GIT_COMMIT_DATE=$(git log -1 --format=%cI) \
-        --build-arg BUILD_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ") \
+        --build-arg GIT_COMMIT_HASH=$(git rev-parse HEAD) \
         -f apps/backend/Dockerfile \
         -t ghcr.io/{{GHCR_USER}}/spacenote-backend:latest \
         --push apps/backend
@@ -200,9 +196,7 @@ docker-push-backend:
 [group("docker")]
 docker-push-web:
     docker buildx build --platform linux/amd64 \
-        --build-arg GIT_COMMIT_HASH=$(git rev-parse --short HEAD) \
-        --build-arg GIT_COMMIT_DATE=$(git log -1 --format=%cI) \
-        --build-arg BUILD_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ") \
+        --build-arg GIT_COMMIT_HASH=$(git rev-parse HEAD) \
         -f apps/web/Dockerfile \
         -t ghcr.io/{{GHCR_USER}}/spacenote-web:latest \
         --push .
@@ -211,9 +205,7 @@ docker-push-web:
 [group("docker")]
 docker-push-admin:
     docker buildx build --platform linux/amd64 \
-        --build-arg GIT_COMMIT_HASH=$(git rev-parse --short HEAD) \
-        --build-arg GIT_COMMIT_DATE=$(git log -1 --format=%cI) \
-        --build-arg BUILD_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ") \
+        --build-arg GIT_COMMIT_HASH=$(git rev-parse HEAD) \
         --build-arg VITE_BASE_PATH=/admin/ \
         -f apps/admin/Dockerfile \
         -t ghcr.io/{{GHCR_USER}}/spacenote-admin:latest \

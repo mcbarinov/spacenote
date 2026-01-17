@@ -1,5 +1,5 @@
 from functools import cached_property
-from typing import Any
+from typing import Any, cast
 
 from pymongo import ReturnDocument
 from pymongo.asynchronous.collection import AsyncCollection
@@ -22,11 +22,15 @@ class CounterService(Service):
 
     async def get_next_sequence(self, space_slug: str, counter_type: CounterType, note_number: int | None = None) -> int:
         """Atomically increment and return the next sequence number."""
-        result = await self._collection.find_one_and_update(
-            {"space_slug": space_slug, "counter_type": counter_type, "note_number": note_number},
-            {"$inc": {"seq": 1}},
-            upsert=True,
-            return_document=ReturnDocument.AFTER,
+        # cast: upsert=True guarantees a document is returned, but pymongo types don't reflect this
+        result = cast(
+            dict[str, Any],
+            await self._collection.find_one_and_update(
+                {"space_slug": space_slug, "counter_type": counter_type, "note_number": note_number},
+                {"$inc": {"seq": 1}},
+                upsert=True,
+                return_document=ReturnDocument.AFTER,
+            ),
         )
         return int(result["seq"])
 

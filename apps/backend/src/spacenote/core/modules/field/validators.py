@@ -501,7 +501,7 @@ class DateTimeValidator(FieldValidator):
                         minutes = int(parts[1]) if len(parts) > 1 else 0
                         local_tz = timezone(timedelta(hours=sign * hours, minutes=sign * minutes))
                         parsed = parsed.replace(tzinfo=local_tz).astimezone(UTC)
-                    except (ValueError, IndexError):
+                    except ValueError, IndexError:
                         pass
                 return parsed
             case "local":

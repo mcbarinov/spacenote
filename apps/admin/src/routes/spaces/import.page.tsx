@@ -17,7 +17,7 @@ function ImportSpacePage() {
   const [jsonInput, setJsonInput] = useState("")
   const [parseError, setParseError] = useState<string | null>(null)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.SyntheticEvent) => {
     e.preventDefault()
     setParseError(null)
 

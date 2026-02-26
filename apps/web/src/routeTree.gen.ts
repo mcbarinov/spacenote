@@ -83,16 +83,16 @@ const sSlug_noteNumberAttachmentsNewDotpageRoute =
   } as any)
 
 export interface FileRoutesByFullPath {
-  '/login': typeof loginDotpageRoute
   '/': typeof indexPageRoute
-  '/s/$slug': typeof sSlugIndexPageRoute
+  '/login': typeof loginDotpageRoute
+  '/s/$slug/': typeof sSlugIndexPageRoute
   '/s/$slug/new': typeof sSlugNewDotpageRoute
-  '/s/$slug/$noteNumber': typeof sSlug_noteNumberIndexPageRoute
+  '/s/$slug/$noteNumber/': typeof sSlug_noteNumberIndexPageRoute
   '/s/$slug/$noteNumber/edit': typeof sSlug_noteNumberEditDotpageRoute
   '/s/$slug/attachments/new': typeof sSlugAttachmentsNewDotpageRoute
-  '/s/$slug/attachments': typeof sSlugAttachmentsIndexDotpageRoute
+  '/s/$slug/attachments/': typeof sSlugAttachmentsIndexDotpageRoute
   '/s/$slug/$noteNumber/attachments/new': typeof sSlug_noteNumberAttachmentsNewDotpageRoute
-  '/s/$slug/$noteNumber/attachments': typeof sSlug_noteNumberAttachmentsIndexDotpageRoute
+  '/s/$slug/$noteNumber/attachments/': typeof sSlug_noteNumberAttachmentsIndexDotpageRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof loginDotpageRoute
@@ -123,16 +123,16 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | '/login'
     | '/'
-    | '/s/$slug'
+    | '/login'
+    | '/s/$slug/'
     | '/s/$slug/new'
-    | '/s/$slug/$noteNumber'
+    | '/s/$slug/$noteNumber/'
     | '/s/$slug/$noteNumber/edit'
     | '/s/$slug/attachments/new'
-    | '/s/$slug/attachments'
+    | '/s/$slug/attachments/'
     | '/s/$slug/$noteNumber/attachments/new'
-    | '/s/$slug/$noteNumber/attachments'
+    | '/s/$slug/$noteNumber/attachments/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
@@ -177,7 +177,7 @@ declare module '@tanstack/react-router' {
     '/_auth': {
       id: '/_auth'
       path: ''
-      fullPath: ''
+      fullPath: '/'
       preLoaderRoute: typeof authDotlayoutRouteImport
       parentRoute: typeof rootRouteImport
     }
@@ -198,14 +198,14 @@ declare module '@tanstack/react-router' {
     '/_auth/s/$slug/': {
       id: '/_auth/s/$slug/'
       path: '/s/$slug'
-      fullPath: '/s/$slug'
+      fullPath: '/s/$slug/'
       preLoaderRoute: typeof sSlugIndexPageRouteImport
       parentRoute: typeof authDotlayoutRoute
     }
     '/_auth/s/$slug/attachments/': {
       id: '/_auth/s/$slug/attachments/'
       path: '/s/$slug/attachments'
-      fullPath: '/s/$slug/attachments'
+      fullPath: '/s/$slug/attachments/'
       preLoaderRoute: typeof sSlugAttachmentsIndexDotpageRouteImport
       parentRoute: typeof authDotlayoutRoute
     }
@@ -226,14 +226,14 @@ declare module '@tanstack/react-router' {
     '/_auth/s/$slug/$noteNumber/': {
       id: '/_auth/s/$slug/$noteNumber/'
       path: '/s/$slug/$noteNumber'
-      fullPath: '/s/$slug/$noteNumber'
+      fullPath: '/s/$slug/$noteNumber/'
       preLoaderRoute: typeof sSlug_noteNumberIndexPageRouteImport
       parentRoute: typeof authDotlayoutRoute
     }
     '/_auth/s/$slug/$noteNumber/attachments/': {
       id: '/_auth/s/$slug/$noteNumber/attachments/'
       path: '/s/$slug/$noteNumber/attachments'
-      fullPath: '/s/$slug/$noteNumber/attachments'
+      fullPath: '/s/$slug/$noteNumber/attachments/'
       preLoaderRoute: typeof sSlug_noteNumberAttachmentsIndexDotpageRouteImport
       parentRoute: typeof authDotlayoutRoute
     }

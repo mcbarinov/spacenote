@@ -50,7 +50,7 @@ def extract_exif(file_path: Path) -> dict[str, str]:
                     str_value = _convert_value_to_string(value)
                     if str_value is not None:
                         result[tag_name] = str_value
-            except (KeyError, AttributeError):
+            except KeyError, AttributeError:
                 pass
 
             # Extract Interoperability tags
@@ -64,7 +64,7 @@ def extract_exif(file_path: Path) -> dict[str, str]:
                     str_value = _convert_value_to_string(value)
                     if str_value is not None:
                         result[tag_name] = str_value
-            except (KeyError, AttributeError):
+            except KeyError, AttributeError:
                 pass
 
             return result
@@ -134,7 +134,7 @@ def get_exif_datetime_components(exif: dict[str, str]) -> tuple[str | None, str 
     try:
         # EXIF format: "YYYY:MM:DD HH:MM:SS" → ISO: "YYYY-MM-DDTHH:MM:SS"
         iso_datetime = date_str.replace(":", "-", 2).replace(" ", "T")
-    except (ValueError, IndexError):
+    except ValueError, IndexError:
         return None, None
 
     offset_str = exif.get("OffsetTimeOriginal")

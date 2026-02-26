@@ -25,7 +25,7 @@ function UploadNoteAttachmentPage() {
   const [file, setFile] = useState<File | null>(null)
 
   /** Uploads file and navigates to attachments list on success */
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.SyntheticEvent) => {
     e.preventDefault()
     if (!file) return
 

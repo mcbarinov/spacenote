@@ -144,11 +144,11 @@ const spacesSlugFieldsFieldNameEditDotpageRoute =
   } as any)
 
 export interface FileRoutesByFullPath {
-  '/login': typeof loginDotpageRoute
   '/': typeof indexDotpageRoute
+  '/login': typeof loginDotpageRoute
   '/pending-attachments': typeof pendingAttachmentsPageRoute
-  '/spaces': typeof spacesIndexPageRoute
-  '/users': typeof usersIndexPageRoute
+  '/spaces/': typeof spacesIndexPageRoute
+  '/users/': typeof usersIndexPageRoute
   '/spaces/import': typeof spacesImportDotpageRoute
   '/spaces/new': typeof spacesNewDotpageRoute
   '/telegram/mirrors': typeof telegramMirrorsPageRoute
@@ -158,8 +158,8 @@ export interface FileRoutesByFullPath {
   '/spaces/$slug/members': typeof spacesSlugMembersDotpageRoute
   '/spaces/$slug/settings': typeof spacesSlugSettingsPageRoute
   '/spaces/$slug/templates': typeof spacesSlugTemplatesPageRoute
-  '/spaces/$slug/fields': typeof spacesSlugFieldsIndexPageRoute
-  '/spaces/$slug/filters': typeof spacesSlugFiltersIndexPageRoute
+  '/spaces/$slug/fields/': typeof spacesSlugFieldsIndexPageRoute
+  '/spaces/$slug/filters/': typeof spacesSlugFiltersIndexPageRoute
   '/spaces/$slug/fields/new': typeof spacesSlugFieldsNewDotpageRoute
   '/spaces/$slug/filters/new': typeof spacesSlugFiltersNewDotpageRoute
   '/spaces/$slug/fields/$fieldName/edit': typeof spacesSlugFieldsFieldNameEditDotpageRoute
@@ -214,11 +214,11 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | '/login'
     | '/'
+    | '/login'
     | '/pending-attachments'
-    | '/spaces'
-    | '/users'
+    | '/spaces/'
+    | '/users/'
     | '/spaces/import'
     | '/spaces/new'
     | '/telegram/mirrors'
@@ -228,8 +228,8 @@ export interface FileRouteTypes {
     | '/spaces/$slug/members'
     | '/spaces/$slug/settings'
     | '/spaces/$slug/templates'
-    | '/spaces/$slug/fields'
-    | '/spaces/$slug/filters'
+    | '/spaces/$slug/fields/'
+    | '/spaces/$slug/filters/'
     | '/spaces/$slug/fields/new'
     | '/spaces/$slug/filters/new'
     | '/spaces/$slug/fields/$fieldName/edit'
@@ -298,7 +298,7 @@ declare module '@tanstack/react-router' {
     '/_auth': {
       id: '/_auth'
       path: ''
-      fullPath: ''
+      fullPath: '/'
       preLoaderRoute: typeof authDotlayoutRouteImport
       parentRoute: typeof rootRouteImport
     }
@@ -354,14 +354,14 @@ declare module '@tanstack/react-router' {
     '/_auth/users/': {
       id: '/_auth/users/'
       path: '/users'
-      fullPath: '/users'
+      fullPath: '/users/'
       preLoaderRoute: typeof usersIndexPageRouteImport
       parentRoute: typeof authDotlayoutRoute
     }
     '/_auth/spaces/': {
       id: '/_auth/spaces/'
       path: '/spaces'
-      fullPath: '/spaces'
+      fullPath: '/spaces/'
       preLoaderRoute: typeof spacesIndexPageRouteImport
       parentRoute: typeof authDotlayoutRoute
     }
@@ -410,14 +410,14 @@ declare module '@tanstack/react-router' {
     '/_auth/spaces/$slug/filters/': {
       id: '/_auth/spaces/$slug/filters/'
       path: '/spaces/$slug/filters'
-      fullPath: '/spaces/$slug/filters'
+      fullPath: '/spaces/$slug/filters/'
       preLoaderRoute: typeof spacesSlugFiltersIndexPageRouteImport
       parentRoute: typeof authDotlayoutRoute
     }
     '/_auth/spaces/$slug/fields/': {
       id: '/_auth/spaces/$slug/fields/'
       path: '/spaces/$slug/fields'
-      fullPath: '/spaces/$slug/fields'
+      fullPath: '/spaces/$slug/fields/'
       preLoaderRoute: typeof spacesSlugFieldsIndexPageRouteImport
       parentRoute: typeof authDotlayoutRoute
     }

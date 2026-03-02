@@ -1,6 +1,22 @@
+import asyncio
 import logging
 
 import structlog
+
+
+class _ShutdownNoiseFilter(logging.Filter):
+    """Suppress expected CancelledError/KeyboardInterrupt tracebacks on Ctrl+C shutdown."""
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        if record.levelno >= logging.ERROR and record.exc_info:
+            exc_type = record.exc_info[0]
+            if exc_type is not None and issubclass(exc_type, (KeyboardInterrupt, asyncio.CancelledError)):
+                return False
+        if record.levelno >= logging.ERROR:
+            msg = record.getMessage()
+            if "CancelledError" in msg or "KeyboardInterrupt" in msg:
+                return False
+        return True
 
 
 def setup_logging(debug: bool) -> None:
@@ -10,6 +26,8 @@ def setup_logging(debug: bool) -> None:
         level=log_level,
         format="%(message)s",
     )
+
+    logging.getLogger("uvicorn.error").addFilter(_ShutdownNoiseFilter())
 
     logging.getLogger("pymongo").setLevel(logging.WARNING)
     logging.getLogger("pymongo.topology").setLevel(logging.WARNING)

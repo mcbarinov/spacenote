@@ -43,14 +43,35 @@ class SpaceService(Service):
         """List spaces where user is a member."""
         return [space for space in self._spaces.values() if username in space.members]
 
-    async def create_space(self, slug: str, title: str, description: str, members: list[str]) -> Space:
-        """Create new space."""
+    async def create_space(
+        self, slug: str, title: str, description: str, members: list[str], source_space: str | None = None
+    ) -> Space:
+        """Create new space, optionally copying configuration from a source space."""
         if self.has_space(slug):
             raise ValidationError(f"Space '{slug}' already exists")
 
         self._validate_members(members)
 
-        space = Space(slug=slug, title=title, description=description, members=members, filters=[create_default_all_filter()])
+        if source_space is not None:
+            if not self.has_space(source_space):
+                raise ValidationError(f"Source space '{source_space}' not found")
+            source = self.get_space(source_space)
+            space = Space(
+                slug=slug,
+                title=title,
+                description=description,
+                members=members,
+                fields=source.fields,
+                filters=source.filters,
+                default_filter=source.default_filter,
+                hidden_fields_on_create=source.hidden_fields_on_create,
+                editable_fields_on_comment=source.editable_fields_on_comment,
+                templates=source.templates,
+                timezone=source.timezone,
+            )
+        else:
+            space = Space(slug=slug, title=title, description=description, members=members, filters=[create_default_all_filter()])
+
         await self._collection.insert_one(space.to_mongo())
         return await self.update_space_cache(slug)
 

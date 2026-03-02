@@ -107,10 +107,12 @@ class App:
             return self._core.services.space.list_all_spaces()
         return self._core.services.space.list_user_spaces(user.username)
 
-    async def create_space(self, auth_token: AuthToken, slug: str, title: str, description: str, members: list[str]) -> Space:
+    async def create_space(
+        self, auth_token: AuthToken, slug: str, title: str, description: str, members: list[str], source_space: str | None = None
+    ) -> Space:
         """Create new space (admin only)."""
         await self._core.services.access.ensure_admin(auth_token)
-        return await self._core.services.space.create_space(slug, title, description, members)
+        return await self._core.services.space.create_space(slug, title, description, members, source_space)
 
     async def update_space_title(self, auth_token: AuthToken, slug: str, title: str) -> Space:
         """Update space title (admin only)."""

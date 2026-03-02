@@ -1176,6 +1176,11 @@ export type components = {
        * @description List of member usernames
        */
       members?: string[]
+      /**
+       * Source Space
+       * @description Slug of space to copy configuration from
+       */
+      source_space?: string | null
     }
     /**
      * CreateUserRequest

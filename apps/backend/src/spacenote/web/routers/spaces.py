@@ -16,6 +16,7 @@ class CreateSpaceRequest(BaseModel):
     title: str = Field(..., min_length=1, max_length=100, description="Space title")
     description: str = Field(default="", max_length=1000, description="Space description")
     members: list[str] = Field(default_factory=list, description="List of member usernames")
+    source_space: str | None = Field(default=None, description="Source space slug to copy configuration from")
 
 
 class UpdateTitleRequest(BaseModel):
@@ -90,7 +91,9 @@ async def list_spaces(app: AppDep, auth_token: AuthTokenDep) -> list[Space]:
 )
 async def create_space(create_data: CreateSpaceRequest, app: AppDep, auth_token: AuthTokenDep) -> Space:
     """Create new space (admin only)."""
-    return await app.create_space(auth_token, create_data.slug, create_data.title, create_data.description, create_data.members)
+    return await app.create_space(
+        auth_token, create_data.slug, create_data.title, create_data.description, create_data.members, create_data.source_space
+    )
 
 
 @router.patch(

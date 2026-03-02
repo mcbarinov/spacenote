@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
 import { useForm } from "@mantine/form"
 import { zod4Resolver } from "mantine-form-zod-resolver"
 import { z } from "zod"
-import { Button, Group, MultiSelect, Paper, Stack, TextInput, Textarea } from "@mantine/core"
+import { Button, Group, MultiSelect, Paper, Select, Stack, TextInput, Textarea } from "@mantine/core"
 import { notifications } from "@mantine/notifications"
 import { api } from "@spacenote/common/api"
 import { ErrorMessage, PageHeader } from "@spacenote/common/components"
@@ -19,6 +19,7 @@ const createSpaceSchema = z.object({
     .regex(/^[a-z0-9-]+$/, { message: "Slug must contain only lowercase letters, numbers, and hyphens" }),
   title: z.string().min(1, { message: "Title is required" }).max(100, { message: "Title must be at most 100 characters" }),
   description: z.string().max(1000, { message: "Description must be at most 1000 characters" }).optional(),
+  source_space: z.string().optional(),
   members: z.array(z.string()),
 })
 
@@ -26,6 +27,7 @@ const createSpaceSchema = z.object({
 function CreateSpacePage() {
   const navigate = useNavigate()
   const users = api.cache.useUsers()
+  const spaces = api.cache.useSpaces()
   const createSpaceMutation = api.mutations.useCreateSpace()
 
   const form = useForm({
@@ -33,13 +35,15 @@ function CreateSpacePage() {
       slug: "",
       title: "",
       description: "",
+      source_space: "",
       members: [],
     },
     validate: zod4Resolver(createSpaceSchema),
   })
 
-  const handleSubmit = form.onSubmit((values: CreateSpaceRequest) => {
-    createSpaceMutation.mutate(values, {
+  const handleSubmit = form.onSubmit((values) => {
+    const data: CreateSpaceRequest = { ...values, source_space: values.source_space || null }
+    createSpaceMutation.mutate(data, {
       onSuccess: () => {
         notifications.show({
           message: "Space created successfully",
@@ -52,6 +56,7 @@ function CreateSpacePage() {
 
   // Admins manage system, not content - they cannot be space members
   const userOptions = users.filter((user) => user.username !== "admin").map((user) => user.username)
+  const spaceOptions = spaces.map((space) => ({ value: space.slug, label: `${space.title} (${space.slug})` }))
 
   return (
     <Stack gap="md">
@@ -76,6 +81,15 @@ function CreateSpacePage() {
               minRows={3}
               maxRows={6}
               {...form.getInputProps("description")}
+            />
+            <Select
+              label="Source Space"
+              description="Copy fields, filters, templates, and timezone from an existing space"
+              placeholder="None"
+              data={spaceOptions}
+              clearable
+              searchable
+              {...form.getInputProps("source_space")}
             />
             <MultiSelect
               label="Members"

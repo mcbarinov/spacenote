@@ -2,32 +2,12 @@
 
 Rules for AI agents working on the frontend codebase.
 
+General TypeScript rules: see `~/.claude/shared-rules/typescript.md`
+
 ## 1. Comments & Documentation
 
-### 1.1 General Principles
+### 1.1 Non-Obvious Parameters
 
-1. **Comment all functions and classes** — Even short one-line comments. Creates consistency and prevents missing documentation.
-
-2. **WHY > WHAT** — "Why" comments explaining business logic are mandatory for non-obvious decisions. "What" comments only for complex logic where code isn't self-explanatory.
-
-3. **Keep comments short** — One line preferred. Multi-line only when necessary.
-
-### 1.2 Functions & Utilities
-
-**All functions get JSDoc:**
-```typescript
-/** Formats date to locale string */
-export function formatDate(date: string | Date): string {
-  return new Date(date).toLocaleString()
-}
-
-/** Type-safe string coercion for form values */
-function asString(value: unknown): string {
-  return typeof value === "string" ? value : ""
-}
-```
-
-**Document non-obvious parameters with @param:**
 ```typescript
 /**
  * Uploads file as pending attachment.
@@ -36,11 +16,9 @@ function asString(value: unknown): string {
 export function uploadAttachment(file: File): Promise<PendingAttachment>
 ```
 
-**Exception — inner functions with obvious names:**
 Inner functions inside components (handlers like `handleSave`, `handleChange`, `handleSubmit`) don't need JSDoc if the name is self-explanatory.
 
-
-### 1.3 React Components
+### 1.2 React Components
 
 **JSDoc above component:**
 ```typescript
@@ -60,7 +38,7 @@ interface ImageFieldInputProps {
 }
 ```
 
-### 1.4 API Layer
+### 1.3 API Layer
 
 **All hooks get JSDoc:**
 ```typescript
@@ -97,7 +75,7 @@ onSuccess: () => {
 }
 ```
 
-### 1.5 Routes
+### 1.4 Routes
 
 **Complex loaders/beforeLoad — explain logic:**
 ```typescript
@@ -129,52 +107,6 @@ loader: async ({ context, params }) => {
   )
 }
 ```
-
-### 1.6 Block Comments
-
-**Group related operations in long code:**
-```typescript
-function processNote(note: Note) {
-  // --- Validate fields ---
-  validateRequiredFields(note)
-  validateFieldTypes(note)
-
-  // --- Transform data ---
-  const normalized = normalizeFields(note)
-  const enriched = addComputedFields(normalized)
-
-  // --- Save ---
-  return saveNote(enriched)
-}
-```
-
-### 1.7 WHY Comments
-
-**Always explain non-obvious decisions:**
-```typescript
-// Only optional fields or fields with defaults can be hidden on create form
-const hiddenFieldOptions = space.fields
-  .filter((f) => !f.required || f.default !== null)
-  .map((f) => f.name)
-
-// Using POST instead of DELETE because proxy doesn't forward DELETE body
-await httpClient.post("api/v1/bulk-delete", { json: { ids } })
-
-// Delay to allow animation to complete before unmounting
-await new Promise((r) => setTimeout(r, 300))
-```
-
-### Summary
-
-| Area | Rule |
-|------|------|
-| Functions | Comment ALL, except inner handlers with obvious names |
-| Props | In interface, only non-obvious |
-| Route loaders | Only complex ones |
-| API side effects | Only complex ones |
-| WHY comments | Always for non-obvious logic |
-| WHAT comments | Only for complex logic |
-| Block headers | For grouping in long code |
 
 ## 2. Code Simplification
 

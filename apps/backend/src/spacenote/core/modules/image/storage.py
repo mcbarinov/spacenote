@@ -29,6 +29,17 @@ def ensure_images_dir(images_path: str) -> None:
     Path(images_path).mkdir(parents=True, exist_ok=True)
 
 
+def rename_space_dir(images_path: str, old_slug: str, new_slug: str) -> None:
+    """Rename space images directory."""
+    base = Path(images_path).resolve()
+    old_path = base / old_slug
+    new_path = base / new_slug
+    if not old_path.resolve().is_relative_to(base) or not new_path.resolve().is_relative_to(base):
+        raise ValueError("Invalid image path")
+    if old_path.exists():
+        old_path.rename(new_path)
+
+
 def delete_space_dir(images_path: str, space_slug: str) -> None:
     """Delete entire space images directory."""
     base = Path(images_path).resolve()

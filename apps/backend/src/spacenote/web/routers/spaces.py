@@ -2,6 +2,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel, Field
 
 from spacenote.core.modules.space.models import Space
+from spacenote.utils import SLUG_RE
 from spacenote.web.deps import AppDep, AuthTokenDep
 from spacenote.web.openapi import ErrorResponse
 
@@ -45,6 +46,12 @@ class UpdateEditableFieldsOnCommentRequest(BaseModel):
     """Space editable fields on comment update request."""
 
     editable_fields_on_comment: list[str] = Field(..., description="Field names that can be edited when adding a comment")
+
+
+class RenameSlugRequest(BaseModel):
+    """Space slug rename request."""
+
+    new_slug: str = Field(..., pattern=SLUG_RE.pattern, description="New URL-friendly unique identifier for the space")
 
 
 class UpdateDefaultFilterRequest(BaseModel):
@@ -200,6 +207,24 @@ async def update_space_default_filter(
 ) -> Space:
     """Update default filter (admin only)."""
     return await app.update_default_filter(auth_token, slug, update_data.default_filter)
+
+
+@router.patch(
+    "/spaces/{slug}/slug",
+    summary="Rename space slug",
+    description="Rename space slug, updating all references. Only accessible by admin users.",
+    operation_id="renameSpaceSlug",
+    responses={
+        200: {"description": "Space slug renamed successfully"},
+        400: {"model": ErrorResponse, "description": "Invalid request or slug already exists"},
+        401: {"model": ErrorResponse, "description": "Not authenticated"},
+        403: {"model": ErrorResponse, "description": "Admin privileges required"},
+        404: {"model": ErrorResponse, "description": "Space not found"},
+    },
+)
+async def rename_space_slug(slug: str, update_data: RenameSlugRequest, app: AppDep, auth_token: AuthTokenDep) -> Space:
+    """Rename space slug (admin only)."""
+    return await app.rename_space_slug(auth_token, slug, update_data.new_slug)
 
 
 @router.delete(

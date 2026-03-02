@@ -58,6 +58,7 @@ export type UpdateHiddenFieldsOnCreateRequest = components["schemas"]["UpdateHid
 export type UpdateEditableFieldsOnCommentRequest = components["schemas"]["UpdateEditableFieldsOnCommentRequest"]
 export type UpdateMembersRequest = components["schemas"]["UpdateMembersRequest"]
 export type UpdateFieldRequest = components["schemas"]["UpdateFieldRequest"]
+export type RenameSlugRequest = components["schemas"]["RenameSlugRequest"]
 
 // Note update requests
 export type UpdateNoteRequest = components["schemas"]["UpdateNoteRequest"]

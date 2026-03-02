@@ -23,6 +23,7 @@ import type {
   UpdateMembersRequest,
   UpdateNoteRequest,
   UpdateTelegramRequest,
+  RenameSlugRequest,
   UpdateTitleRequest,
   User,
 } from "../types"
@@ -102,6 +103,17 @@ export function useImportSpace() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (data: ExportData) => httpClient.post("api/v1/spaces/import", { json: data }).json<Space>(),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["spaces"] })
+    },
+  })
+}
+
+/** Renames a space slug */
+export function useRenameSpaceSlug(slug: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (data: RenameSlugRequest) => httpClient.patch(`api/v1/spaces/${slug}/slug`, { json: data }).json<Space>(),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["spaces"] })
     },

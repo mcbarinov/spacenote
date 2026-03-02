@@ -78,6 +78,17 @@ def move_pending_to_attachment(
     return dst
 
 
+def rename_space_dir(attachments_path: str, old_slug: str, new_slug: str) -> None:
+    """Rename space attachments directory."""
+    base = Path(attachments_path).resolve()
+    old_path = base / old_slug
+    new_path = base / new_slug
+    if not old_path.resolve().is_relative_to(base) or not new_path.resolve().is_relative_to(base):
+        raise ValueError("Invalid attachment path")
+    if old_path.exists():
+        old_path.rename(new_path)
+
+
 def delete_space_dir(attachments_path: str, space_slug: str) -> None:
     """Delete entire space attachments directory."""
     base = Path(attachments_path).resolve()

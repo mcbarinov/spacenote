@@ -142,6 +142,11 @@ class App:
         await self._core.services.access.ensure_admin(auth_token)
         return await self._core.services.space.update_default_filter(slug, default_filter)
 
+    async def rename_space_slug(self, auth_token: AuthToken, slug: str, new_slug: str) -> Space:
+        """Rename space slug (admin only)."""
+        await self._core.services.access.ensure_admin(auth_token)
+        return await self._core.services.space.rename_slug(slug, new_slug)
+
     async def delete_space(self, auth_token: AuthToken, slug: str) -> None:
         """Delete space (admin only)."""
         await self._core.services.access.ensure_admin(auth_token)

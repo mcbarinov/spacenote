@@ -5,7 +5,9 @@ import structlog
 from pymongo.asynchronous.collection import AsyncCollection
 
 from spacenote.core.db import Collection
+from spacenote.core.modules.attachment import storage as attachment_storage
 from spacenote.core.modules.filter.models import ALL_FILTER_NAME, create_default_all_filter
+from spacenote.core.modules.image import storage as image_storage
 from spacenote.core.modules.space.models import Space
 from spacenote.core.service import Service
 from spacenote.errors import NotFoundError, ValidationError
@@ -117,6 +119,31 @@ class SpaceService(Service):
             raise ValidationError(f"Filter '{default_filter}' not found in space")
 
         return await self.update_space_document(slug, {"$set": {"default_filter": default_filter}})
+
+    async def rename_slug(self, old_slug: str, new_slug: str) -> Space:
+        """Rename space slug, updating all references across collections and file system."""
+        self.get_space(old_slug)
+        if self.has_space(new_slug):
+            raise ValidationError(f"Space '{new_slug}' already exists")
+
+        collections = [
+            Collection.NOTES,
+            Collection.COMMENTS,
+            Collection.COUNTERS,
+            Collection.ATTACHMENTS,
+            Collection.TELEGRAM_TASKS,
+            Collection.TELEGRAM_MIRRORS,
+        ]
+        for col_name in collections:
+            await self.database.get_collection(col_name).update_many({"space_slug": old_slug}, {"$set": {"space_slug": new_slug}})
+
+        await self._collection.update_one({"slug": old_slug}, {"$set": {"slug": new_slug}})
+
+        attachment_storage.rename_space_dir(self.core.config.attachments_path, old_slug, new_slug)
+        image_storage.rename_space_dir(self.core.config.images_path, old_slug, new_slug)
+
+        del self._spaces[old_slug]
+        return await self.update_space_cache(new_slug)
 
     async def update_space_document(
         self, slug: str, update: dict[str, Any], array_filters: list[dict[str, Any]] | None = None

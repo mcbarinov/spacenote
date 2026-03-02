@@ -612,6 +612,26 @@ export type paths = {
     patch: operations["updateSpaceDefaultFilter"]
     trace?: never
   }
+  "/api/v1/spaces/{slug}/slug": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    /**
+     * Rename space slug
+     * @description Rename space slug, updating all references. Only accessible by admin users.
+     */
+    patch: operations["renameSpaceSlug"]
+    trace?: never
+  }
   "/api/v1/spaces/{slug}": {
     parameters: {
       query?: never
@@ -971,26 +991,17 @@ export type components = {
     }
     /** Body_uploadNoteAttachment */
     Body_uploadNoteAttachment: {
-      /**
-       * File
-       * Format: binary
-       */
+      /** File */
       file: string
     }
     /** Body_uploadPendingAttachment */
     Body_uploadPendingAttachment: {
-      /**
-       * File
-       * Format: binary
-       */
+      /** File */
       file: string
     }
     /** Body_uploadSpaceAttachment */
     Body_uploadSpaceAttachment: {
-      /**
-       * File
-       * Format: binary
-       */
+      /** File */
       file: string
     }
     /**
@@ -1666,6 +1677,17 @@ export type components = {
       created_at: string
     }
     /**
+     * RenameSlugRequest
+     * @description Space slug rename request.
+     */
+    RenameSlugRequest: {
+      /**
+       * New Slug
+       * @description New URL-friendly unique identifier for the space
+       */
+      new_slug: string
+    }
+    /**
      * SelectFieldOptions
      * @description Options for SELECT field type.
      */
@@ -2210,6 +2232,10 @@ export type components = {
       msg: string
       /** Error Type */
       type: string
+      /** Input */
+      input?: unknown
+      /** Context */
+      ctx?: Record<string, never>
     }
   }
   responses: never
@@ -4593,6 +4619,77 @@ export interface operations {
         }
       }
       /** @description Invalid request or filter not found */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Admin privileges required */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Space not found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  renameSpaceSlug: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        slug: string
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["RenameSlugRequest"]
+      }
+    }
+    responses: {
+      /** @description Space slug renamed successfully */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["Space"]
+        }
+      }
+      /** @description Invalid request or slug already exists */
       400: {
         headers: {
           [name: string]: unknown

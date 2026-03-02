@@ -55,6 +55,12 @@ class RenameSlugRequest(BaseModel):
     new_slug: str = Field(..., pattern=SLUG_RE.pattern, description="New URL-friendly unique identifier for the space")
 
 
+class UpdateCanTransferToRequest(BaseModel):
+    """Space can_transfer_to update request."""
+
+    can_transfer_to: list[str] = Field(..., description="Space slugs where notes can be transferred to")
+
+
 class UpdateDefaultFilterRequest(BaseModel):
     """Space default filter update request."""
 
@@ -210,6 +216,26 @@ async def update_space_default_filter(
 ) -> Space:
     """Update default filter (admin only)."""
     return await app.update_default_filter(auth_token, slug, update_data.default_filter)
+
+
+@router.patch(
+    "/spaces/{slug}/can-transfer-to",
+    summary="Update can_transfer_to",
+    description="Update which spaces notes can be transferred to. Only accessible by admin users.",
+    operation_id="updateSpaceCanTransferTo",
+    responses={
+        200: {"description": "can_transfer_to updated successfully"},
+        400: {"model": ErrorResponse, "description": "Invalid request or incompatible schema"},
+        401: {"model": ErrorResponse, "description": "Not authenticated"},
+        403: {"model": ErrorResponse, "description": "Admin privileges required"},
+        404: {"model": ErrorResponse, "description": "Space not found"},
+    },
+)
+async def update_space_can_transfer_to(
+    slug: str, update_data: UpdateCanTransferToRequest, app: AppDep, auth_token: AuthTokenDep
+) -> Space:
+    """Update can_transfer_to (admin only)."""
+    return await app.update_can_transfer_to(auth_token, slug, update_data.can_transfer_to)
 
 
 @router.patch(

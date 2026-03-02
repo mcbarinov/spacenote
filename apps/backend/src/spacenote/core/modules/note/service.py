@@ -7,10 +7,11 @@ from pymongo.asynchronous.collection import AsyncCollection
 from spacenote.core.db import Collection
 from spacenote.core.modules.counter.models import CounterType
 from spacenote.core.modules.field.models import FieldType, FieldValueType
+from spacenote.core.modules.field.validators import validate_transfer_schema_compatibility
 from spacenote.core.modules.note.models import Note
 from spacenote.core.pagination import PaginationResult
 from spacenote.core.service import Service
-from spacenote.errors import NotFoundError
+from spacenote.errors import NotFoundError, ValidationError
 from spacenote.utils import now
 
 logger = structlog.get_logger(__name__)
@@ -156,6 +157,53 @@ class NoteService(Service):
 
         await self._collection.insert_many([n.to_mongo() for n in notes])
         return len(notes)
+
+    async def transfer_note(self, source_slug: str, note_number: int, target_slug: str) -> Note:
+        """Transfer a note from one space to another."""
+        # Validate transfer is allowed
+        source_space = self.core.services.space.get_space(source_slug)
+        if target_slug not in source_space.can_transfer_to:
+            raise ValidationError(f"Transfer to '{target_slug}' is not allowed from '{source_slug}'")
+        target_space = self.core.services.space.get_space(target_slug)
+        validate_transfer_schema_compatibility(source_space, target_space)
+
+        # Create new note in target space (copy metadata + fields)
+        source_note = await self.get_note(source_slug, note_number)
+        new_number = await self.core.services.counter.get_next_sequence(target_slug, CounterType.NOTE)
+        new_note = Note(
+            space_slug=target_slug,
+            number=new_number,
+            author=source_note.author,
+            created_at=source_note.created_at,
+            edited_at=source_note.edited_at,
+            commented_at=source_note.commented_at,
+            activity_at=source_note.activity_at,
+            fields=dict(source_note.fields),
+        )
+
+        # Copy attachments, images (with field remapping), and comments
+        att_map = await self.core.services.attachment.transfer_note_attachments(source_slug, note_number, target_slug, new_number)
+        self.core.services.image.transfer_note_images(
+            source_slug, note_number, target_slug, new_number, att_map, note_fields=new_note.fields
+        )
+        await self.core.services.comment.transfer_note_comments(source_slug, note_number, target_slug, new_number)
+
+        # Insert new note
+        await self._collection.insert_one(new_note.to_mongo())
+
+        # Update Telegram mirrors
+        await self.core.services.telegram.notify_mirror_delete(source_slug, note_number)
+        self._set_title(new_note)
+        await self.core.services.telegram.notify_mirror_create(new_note)
+
+        # Delete source note and related data
+        await self.core.services.comment.delete_comments_by_note(source_slug, note_number)
+        await self.core.services.attachment.delete_attachments_by_note(source_slug, note_number)
+        self.core.services.image.delete_images_by_note(source_slug, note_number)
+        await self._collection.delete_one({"space_slug": source_slug, "number": note_number})
+        await self.core.services.counter.delete_counters_by_note(source_slug, note_number)
+        logger.info("note_transferred", source=f"{source_slug}#{note_number}", target=f"{target_slug}#{new_number}")
+        return new_note
 
     def _set_title(self, note: Note) -> None:
         """Compute and set note title from template."""

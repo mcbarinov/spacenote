@@ -56,12 +56,15 @@ export type UpdateDescriptionRequest = components["schemas"]["UpdateDescriptionR
 export type UpdateDefaultFilterRequest = components["schemas"]["UpdateDefaultFilterRequest"]
 export type UpdateHiddenFieldsOnCreateRequest = components["schemas"]["UpdateHiddenFieldsOnCreateRequest"]
 export type UpdateEditableFieldsOnCommentRequest = components["schemas"]["UpdateEditableFieldsOnCommentRequest"]
+export type UpdateCanTransferToRequest = components["schemas"]["UpdateCanTransferToRequest"]
 export type UpdateMembersRequest = components["schemas"]["UpdateMembersRequest"]
 export type UpdateFieldRequest = components["schemas"]["UpdateFieldRequest"]
 export type RenameSlugRequest = components["schemas"]["RenameSlugRequest"]
 
 // Note update requests
 export type UpdateNoteRequest = components["schemas"]["UpdateNoteRequest"]
+export type TransferNoteRequest = components["schemas"]["TransferNoteRequest"]
+export type TransferNoteResponse = components["schemas"]["TransferNoteResponse"]
 
 // Export
 export type ExportData = components["schemas"]["ExportData"]

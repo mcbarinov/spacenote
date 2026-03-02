@@ -15,8 +15,11 @@ import type {
   SetTemplateRequest,
   Space,
   SpaceField,
+  TransferNoteRequest,
+  TransferNoteResponse,
   UpdateDefaultFilterRequest,
   UpdateDescriptionRequest,
+  UpdateCanTransferToRequest,
   UpdateEditableFieldsOnCommentRequest,
   UpdateFieldRequest,
   UpdateHiddenFieldsOnCreateRequest,
@@ -161,6 +164,18 @@ export function useUpdateSpaceHiddenFieldsOnCreate(slug: string) {
   return useMutation({
     mutationFn: (data: UpdateHiddenFieldsOnCreateRequest) =>
       httpClient.patch(`api/v1/spaces/${slug}/hidden-fields-on-create`, { json: data }).json<Space>(),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["spaces"] })
+    },
+  })
+}
+
+/** Updates which spaces notes can be transferred to */
+export function useUpdateSpaceCanTransferTo(slug: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (data: UpdateCanTransferToRequest) =>
+      httpClient.patch(`api/v1/spaces/${slug}/can-transfer-to`, { json: data }).json<Space>(),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["spaces"] })
     },
@@ -379,6 +394,20 @@ export function useUpdateSpaceDefaultFilter(slug: string) {
       httpClient.patch(`api/v1/spaces/${slug}/default-filter`, { json: data }).json<Space>(),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["spaces"] })
+    },
+  })
+}
+
+/** Transfers a note to another space */
+export function useTransferNote(spaceSlug: string, noteNumber: number) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (data: TransferNoteRequest) =>
+      httpClient.post(`api/v1/spaces/${spaceSlug}/notes/${noteNumber}/transfer`, { json: data }).json<TransferNoteResponse>(),
+    // Fire-and-forget: navigate away before re-render
+    onSuccess: () => {
+      queryClient.removeQueries({ queryKey: ["spaces", spaceSlug, "notes", noteNumber] })
+      void queryClient.invalidateQueries({ queryKey: ["spaces", spaceSlug, "notes"] })
     },
   })
 }

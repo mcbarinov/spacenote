@@ -1,9 +1,12 @@
 """Field validators for definition validation and value parsing."""
 
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import UTC, date, datetime, timedelta, timezone, tzinfo
 from decimal import Decimal, InvalidOperation
+from typing import TYPE_CHECKING
 from zoneinfo import ZoneInfo
 
 from spacenote.core.modules.attachment.models import PendingAttachment
@@ -18,8 +21,10 @@ from spacenote.core.modules.field.models import (
     SpecialValue,
     StringFieldOptions,
 )
-from spacenote.core.modules.space.models import Space
 from spacenote.errors import ValidationError
+
+if TYPE_CHECKING:
+    from spacenote.core.modules.space.models import Space
 
 
 @dataclass
@@ -615,3 +620,77 @@ VALIDATORS: dict[FieldType, type[FieldValidator]] = {
     FieldType.USER: UserValidator,
     FieldType.IMAGE: ImageValidator,
 }
+
+
+def validate_transfer_schema_compatibility(source: Space, target: Space) -> None:
+    """Validate field schema compatibility between source and target spaces for note transfer.
+
+    Rule 1: Every source field must exist in target with compatible schema (no data loss).
+    Rule 2: Every required target field not in source must have a default (note stays valid).
+    """
+    target_fields = {f.name: f for f in target.fields}
+    source_field_names = {f.name for f in source.fields}
+    prefix = f"Cannot transfer to '{target.slug}'"
+
+    # Rule 1: every source field must exist in target with compatible schema
+    for src_field in source.fields:
+        tgt_field = target_fields.get(src_field.name)
+        if tgt_field is None:
+            raise ValidationError(f"{prefix}: field '{src_field.name}' does not exist in target")
+
+        name = src_field.name
+        if src_field.type != tgt_field.type:
+            raise ValidationError(
+                f"{prefix}: field '{name}' is {src_field.type} in '{source.slug}' but {tgt_field.type} in '{target.slug}'"
+            )
+
+        # STRING kind must match (line/text/markdown/json/toml/yaml)
+        if (
+            src_field.type == FieldType.STRING
+            and isinstance(src_field.options, StringFieldOptions)
+            and isinstance(tgt_field.options, StringFieldOptions)
+            and src_field.options.kind != tgt_field.options.kind
+        ):
+            raise ValidationError(
+                f"{prefix}: field '{name}' is string/{src_field.options.kind}"
+                f" in '{source.slug}' but string/{tgt_field.options.kind} in '{target.slug}'"
+            )
+
+        # SELECT values: source must be subset of target
+        if (
+            src_field.type == FieldType.SELECT
+            and isinstance(src_field.options, SelectFieldOptions)
+            and isinstance(tgt_field.options, SelectFieldOptions)
+        ):
+            missing = set(src_field.options.values) - set(tgt_field.options.values)
+            if missing:
+                raise ValidationError(f"{prefix}: field '{name}' has SELECT values {missing} not present in target")
+
+        # NUMERIC kind must match (int/float/decimal)
+        if (
+            src_field.type == FieldType.NUMERIC
+            and isinstance(src_field.options, NumericFieldOptions)
+            and isinstance(tgt_field.options, NumericFieldOptions)
+            and src_field.options.kind != tgt_field.options.kind
+        ):
+            raise ValidationError(
+                f"{prefix}: field '{name}' is numeric/{src_field.options.kind}"
+                f" in '{source.slug}' but numeric/{tgt_field.options.kind} in '{target.slug}'"
+            )
+
+        # DATETIME kind must match (utc/local/date)
+        if (
+            src_field.type == FieldType.DATETIME
+            and isinstance(src_field.options, DatetimeFieldOptions)
+            and isinstance(tgt_field.options, DatetimeFieldOptions)
+            and src_field.options.kind != tgt_field.options.kind
+        ):
+            raise ValidationError(
+                f"{prefix}: field '{name}' is datetime/{src_field.options.kind}"
+                f" in '{source.slug}' but datetime/{tgt_field.options.kind} in '{target.slug}'"
+            )
+
+    # Rule 2: required target fields not in source must have a default
+    for tgt_field in target.fields:
+        if tgt_field.name not in source_field_names and tgt_field.required and tgt_field.default is None:
+            raise ValidationError(f"{prefix}: required field '{tgt_field.name}' has no default and does not exist in source")

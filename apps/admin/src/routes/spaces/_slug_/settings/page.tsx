@@ -9,6 +9,7 @@ import { EditDefaultFilter } from "./-local/EditDefaultFilter"
 import { EditDescription } from "./-local/EditDescription"
 import { EditEditableFieldsOnComment } from "./-local/EditEditableFieldsOnComment"
 import { EditHiddenFieldsOnCreate } from "./-local/EditHiddenFieldsOnCreate"
+import { EditCanTransferTo } from "./-local/EditCanTransferTo"
 import { EditTelegram } from "./-local/EditTelegram"
 import { EditTitle } from "./-local/EditTitle"
 
@@ -32,6 +33,7 @@ function SettingsPage() {
       <EditDefaultFilter space={space} />
       <EditHiddenFieldsOnCreate space={space} />
       <EditEditableFieldsOnComment space={space} />
+      <EditCanTransferTo space={space} />
       <EditTelegram space={space} />
       <EditSlug space={space} />
       <DeleteSpace space={space} />

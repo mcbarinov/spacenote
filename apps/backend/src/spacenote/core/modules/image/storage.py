@@ -24,6 +24,16 @@ def read_image(images_path: str, space_slug: str, note_number: int, attachment_n
     return get_image_path(images_path, space_slug, note_number, attachment_number).read_bytes()
 
 
+def copy_image(images_path: str, src_slug: str, src_note: int, src_att: int, dst_slug: str, dst_note: int, dst_att: int) -> None:
+    """Copy image file from one location to another."""
+    src = get_image_path(images_path, src_slug, src_note, src_att)
+    if not src.exists():
+        return
+    dst = get_image_path(images_path, dst_slug, dst_note, dst_att)
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(src, dst)
+
+
 def ensure_images_dir(images_path: str) -> None:
     """Ensure images directory exists."""
     Path(images_path).mkdir(parents=True, exist_ok=True)
@@ -38,6 +48,14 @@ def rename_space_dir(images_path: str, old_slug: str, new_slug: str) -> None:
         raise ValueError("Invalid image path")
     if old_path.exists():
         old_path.rename(new_path)
+
+
+def delete_note_dir(images_path: str, space_slug: str, note_number: int) -> None:
+    """Delete all images for a note."""
+    base = Path(images_path).resolve()
+    note_dir = base / space_slug / str(note_number)
+    if note_dir.exists() and note_dir.resolve().is_relative_to(base):
+        shutil.rmtree(note_dir)
 
 
 def delete_space_dir(images_path: str, space_slug: str) -> None:

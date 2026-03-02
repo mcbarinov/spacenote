@@ -25,3 +25,8 @@ async def edit_photo(bot: telegram.Bot, chat_id: str, message_id: int, photo_pat
     with photo_path.open("rb") as photo_file:
         media = InputMediaPhoto(media=photo_file, caption=caption, parse_mode="HTML")
         return await bot.edit_message_media(chat_id=chat_id, message_id=message_id, media=media)
+
+
+async def delete_message(bot: telegram.Bot, chat_id: str, message_id: int) -> bool:
+    """Delete message, return True on success."""
+    return await bot.delete_message(chat_id=chat_id, message_id=message_id)

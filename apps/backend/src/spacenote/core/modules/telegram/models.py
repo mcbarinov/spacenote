@@ -29,6 +29,7 @@ class TelegramTaskType(StrEnum):
     ACTIVITY_COMMENT_CREATED = "activity_comment_created"
     MIRROR_CREATE = "mirror_create"
     MIRROR_UPDATE = "mirror_update"
+    MIRROR_DELETE = "mirror_delete"
 
 
 class TelegramTaskStatus(StrEnum):

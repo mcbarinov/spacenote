@@ -78,6 +78,18 @@ def move_pending_to_attachment(
     return dst
 
 
+def copy_attachment_file(
+    attachments_path: str, src_slug: str, src_note: int, src_num: int, dst_slug: str, dst_note: int, dst_num: int
+) -> None:
+    """Copy attachment file from one location to another."""
+    src = get_attachment_file_path(attachments_path, src_slug, src_note, src_num)
+    if not src.exists():
+        return
+    dst = get_attachment_file_path(attachments_path, dst_slug, dst_note, dst_num)
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(src, dst)
+
+
 def rename_space_dir(attachments_path: str, old_slug: str, new_slug: str) -> None:
     """Rename space attachments directory."""
     base = Path(attachments_path).resolve()

@@ -201,6 +201,26 @@ class TelegramService(Service):
         """Create task for note mirror update."""
         await self._enqueue_mirror_task(TelegramTaskType.MIRROR_UPDATE, note)
 
+    async def notify_mirror_delete(self, space_slug: str, note_number: int) -> None:
+        """Delete mirror message for a note. Enqueues MIRROR_DELETE task and removes mirror record."""
+        doc = await self._mirrors_collection.find_one({"space_slug": space_slug, "note_number": note_number})
+        if not doc:
+            return
+
+        mirror = TelegramMirror.model_validate(doc)
+        number = await self.core.services.counter.get_next_sequence(space_slug, CounterType.TELEGRAM_TASK)
+        task = TelegramTask(
+            number=number,
+            task_type=TelegramTaskType.MIRROR_DELETE,
+            channel_id=mirror.channel_id,
+            space_slug=space_slug,
+            note_number=note_number,
+            payload={"message_id": mirror.message_id},
+        )
+        await self._tasks_collection.insert_one(task.to_mongo())
+        await self._mirrors_collection.delete_one({"space_slug": space_slug, "note_number": note_number})
+        logger.debug("telegram_mirror_delete_enqueued", space_slug=space_slug, note_number=note_number)
+
     async def _enqueue_mirror_task(self, task_type: TelegramTaskType, note: Note) -> None:
         """Create and enqueue mirror task if mirror channel configured."""
         space = self.core.services.space.get_space(note.space_slug)
@@ -248,7 +268,9 @@ class TelegramService(Service):
 
     async def _process_task(self, task: TelegramTask) -> None:
         """Process single task: dispatch to activity or mirror handler."""
-        if task.task_type in (TelegramTaskType.MIRROR_CREATE, TelegramTaskType.MIRROR_UPDATE):
+        if task.task_type == TelegramTaskType.MIRROR_DELETE:
+            await self._process_mirror_delete_task(task)
+        elif task.task_type in (TelegramTaskType.MIRROR_CREATE, TelegramTaskType.MIRROR_UPDATE):
             await self._process_mirror_task(task)
         else:
             await self._process_activity_task(task)
@@ -400,6 +422,29 @@ class TelegramService(Service):
         # No existing mirror, determine format from current template
         message_format = MessageFormat.PHOTO if photo_path else MessageFormat.TEXT
         return await self._mirror_create(task, text, message_format, photo_path)
+
+    async def _process_mirror_delete_task(self, task: TelegramTask) -> None:
+        """Process mirror delete task: delete Telegram message."""
+        message_id = task.payload["message_id"]
+        request_log = {"method": "deleteMessage", "chat_id": task.channel_id, "message_id": message_id}
+
+        try:
+            await telegram_bot.delete_message(self.bot, task.channel_id, message_id)
+            await self._update_task(task, {"$set": {"status": "completed", "request_log": request_log}})
+            logger.debug("telegram_mirror_deleted", space_slug=task.space_slug, note_number=task.note_number)
+        except RetryAfter as e:
+            retry_seconds = e.retry_after if isinstance(e.retry_after, int) else e.retry_after.total_seconds()
+            logger.warning("telegram_rate_limit", retry_after=retry_seconds)
+            await asyncio.sleep(retry_seconds)
+        except TelegramError as e:
+            if "message to delete not found" in str(e).lower():
+                await self._update_task(task, {"$set": {"status": "completed", "request_log": request_log}})
+                logger.debug("telegram_mirror_already_deleted", space_slug=task.space_slug, note_number=task.note_number)
+            else:
+                await self._handle_error(task, e)
+        except Exception as e:
+            logger.exception("telegram_task_unhandled_error", task_type=task.task_type, error=str(e))
+            await self._mark_failed(task, f"Unhandled error: {e}")
 
     async def _handle_error(self, task: TelegramTask, error: Exception) -> None:
         """Handle task error with retry logic."""

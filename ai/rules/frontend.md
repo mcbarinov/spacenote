@@ -2,8 +2,6 @@
 
 Rules for AI agents working on the frontend codebase.
 
-General TypeScript rules: see `~/.claude/shared-rules/typescript.md`
-
 ## 1. Comments & Documentation
 
 ### 1.1 Non-Obvious Parameters

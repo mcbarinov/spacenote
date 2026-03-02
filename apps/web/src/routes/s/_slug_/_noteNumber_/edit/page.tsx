@@ -3,6 +3,7 @@ import { useSuspenseQuery } from "@tanstack/react-query"
 import { api } from "@spacenote/common/api"
 import { PageHeader } from "@spacenote/common/components"
 import { NoteForm } from "@/components/NoteForm"
+import { TransferNoteButton } from "./-local/TransferNoteButton"
 
 export const Route = createFileRoute("/_auth/s/$slug/$noteNumber/edit")({
   loader: async ({ context, params }) => {
@@ -25,6 +26,7 @@ function EditNotePage() {
           { label: `Note #${note.number}`, to: "/s/$slug/$noteNumber", params: { slug, noteNumber } },
           { label: "Edit" },
         ]}
+        topActions={<TransferNoteButton space={space} noteNumber={Number(noteNumber)} />}
       />
       <NoteForm space={space} mode="edit" note={note} />
     </>

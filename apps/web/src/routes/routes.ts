@@ -10,7 +10,7 @@ export const routes = rootRoute("root.layout.tsx", [
       route("/attachments", [index("s/_slug_/attachments/index.page.tsx"), route("/new", "s/_slug_/attachments/new.page.tsx")]),
       route("/$noteNumber", [
         index("s/_slug_/_noteNumber_/index/page.tsx"),
-        route("/edit", "s/_slug_/_noteNumber_/edit.page.tsx"),
+        route("/edit", "s/_slug_/_noteNumber_/edit/page.tsx"),
         route("/attachments", [
           index("s/_slug_/_noteNumber_/attachments/index.page.tsx"),
           route("/new", "s/_slug_/_noteNumber_/attachments/new.page.tsx"),

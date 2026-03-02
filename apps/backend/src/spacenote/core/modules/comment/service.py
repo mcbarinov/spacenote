@@ -133,6 +133,31 @@ class CommentService(Service):
         await self.core.services.note.update_activity(space_slug, note_number)
         logger.debug("comment_deleted", space_slug=space_slug, note_number=note_number, number=number)
 
+    async def transfer_note_comments(self, source_slug: str, source_note: int, target_slug: str, target_note: int) -> None:
+        """Copy comments to target note, preserving numbering and threading. Does not delete source data."""
+        # Preserve original numbers so parent_number threading references remain valid
+        cursor = self._collection.find({"space_slug": source_slug, "note_number": source_note}).sort("number", 1)
+        source_comments = await Comment.list_cursor(cursor)
+        if not source_comments:
+            return
+
+        new_comments = [
+            Comment(
+                space_slug=target_slug,
+                note_number=target_note,
+                number=c.number,
+                author=c.author,
+                content=c.content,
+                created_at=c.created_at,
+                edited_at=c.edited_at,
+                parent_number=c.parent_number,
+            )
+            for c in source_comments
+        ]
+        await self.import_comments(new_comments)
+        max_num = max(c.number for c in new_comments)
+        await self.core.services.counter.set_sequence(target_slug, CounterType.COMMENT, max_num, target_note)
+
     async def delete_comments_by_note(self, space_slug: str, note_number: int) -> int:
         """Delete all comments for a note."""
         result = await self._collection.delete_many({"space_slug": space_slug, "note_number": note_number})

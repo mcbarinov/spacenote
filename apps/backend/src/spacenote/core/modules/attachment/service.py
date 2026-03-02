@@ -1,3 +1,4 @@
+import shutil
 from functools import cached_property
 from typing import Any
 
@@ -156,6 +157,48 @@ class AttachmentService(Service):
 
         await self._attachments_collection.insert_many([a.to_mongo() for a in attachments])
         return len(attachments)
+
+    async def transfer_note_attachments(
+        self, source_slug: str, source_note: int, target_slug: str, target_note: int
+    ) -> dict[int, int]:
+        """Copy attachments to target note. Does not delete source data. Returns old->new number mapping."""
+        source_attachments = await self.list_note_attachments(source_slug, source_note)
+        att_map: dict[int, int] = {}
+        new_attachments: list[Attachment] = []
+
+        for src_att in source_attachments:
+            new_number = await self.core.services.counter.get_next_sequence(target_slug, CounterType.ATTACHMENT, target_note)
+            att_map[src_att.number] = new_number
+
+            storage.copy_attachment_file(
+                self.core.config.attachments_path, source_slug, source_note, src_att.number, target_slug, target_note, new_number
+            )
+
+            new_attachments.append(
+                Attachment(
+                    space_slug=target_slug,
+                    note_number=target_note,
+                    number=new_number,
+                    author=src_att.author,
+                    filename=src_att.filename,
+                    size=src_att.size,
+                    mime_type=src_att.mime_type,
+                    meta=src_att.meta,
+                    created_at=src_att.created_at,
+                )
+            )
+
+        if new_attachments:
+            await self.import_attachments(new_attachments)
+        return att_map
+
+    async def delete_attachments_by_note(self, space_slug: str, note_number: int) -> int:
+        """Delete all attachments for a note (DB records + files)."""
+        result = await self._attachments_collection.delete_many({"space_slug": space_slug, "note_number": note_number})
+        note_dir = storage.get_attachment_dir(self.core.config.attachments_path, space_slug, note_number)
+        if note_dir.exists():
+            shutil.rmtree(note_dir)
+        return result.deleted_count
 
     async def delete_attachments_by_space(self, space_slug: str) -> int:
         """Delete all attachments in a space (DB records + files)."""

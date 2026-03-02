@@ -144,6 +144,11 @@ class App:
         await self._core.services.access.ensure_admin(auth_token)
         return await self._core.services.space.update_default_filter(slug, default_filter)
 
+    async def update_can_transfer_to(self, auth_token: AuthToken, slug: str, slugs: list[str]) -> Space:
+        """Update spaces where notes can be transferred to (admin only)."""
+        await self._core.services.access.ensure_admin(auth_token)
+        return await self._core.services.space.update_can_transfer_to(slug, slugs)
+
     async def rename_space_slug(self, auth_token: AuthToken, slug: str, new_slug: str) -> Space:
         """Rename space slug (admin only)."""
         await self._core.services.access.ensure_admin(auth_token)
@@ -270,6 +275,11 @@ class App:
         user = await self._core.services.access.ensure_space_member(auth_token, space_slug)
         note, _ = await self._core.services.note.update_note_fields(space_slug, number, raw_fields, user.username)
         return note
+
+    async def transfer_note(self, auth_token: AuthToken, space_slug: str, number: int, target_space: str) -> Note:
+        """Transfer note to another space (source space members only)."""
+        await self._core.services.access.ensure_space_member(auth_token, space_slug)
+        return await self._core.services.note.transfer_note(space_slug, number, target_space)
 
     # --- Comments ---
 

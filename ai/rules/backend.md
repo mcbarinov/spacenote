@@ -2,8 +2,6 @@
 
 Rules for AI agents working on the backend codebase.
 
-General Python rules: see `~/.claude/shared-rules/python.md`
-
 ## Python
 
 - **Document TYPE_CHECKING usage** — When using `from __future__ import annotations` with `if TYPE_CHECKING:` blocks, always add a comment explaining why it's needed (circular imports, performance, optional dependency, etc.).

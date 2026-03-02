@@ -16,7 +16,7 @@ import { Route as sSlugNewDotpageRouteImport } from './routes/s/_slug_/new.page'
 import { Route as sSlugIndexPageRouteImport } from './routes/s/_slug_/index/page'
 import { Route as sSlugAttachmentsIndexDotpageRouteImport } from './routes/s/_slug_/attachments/index.page'
 import { Route as sSlugAttachmentsNewDotpageRouteImport } from './routes/s/_slug_/attachments/new.page'
-import { Route as sSlug_noteNumberEditDotpageRouteImport } from './routes/s/_slug_/_noteNumber_/edit.page'
+import { Route as sSlug_noteNumberEditPageRouteImport } from './routes/s/_slug_/_noteNumber_/edit/page'
 import { Route as sSlug_noteNumberIndexPageRouteImport } from './routes/s/_slug_/_noteNumber_/index/page'
 import { Route as sSlug_noteNumberAttachmentsIndexDotpageRouteImport } from './routes/s/_slug_/_noteNumber_/attachments/index.page'
 import { Route as sSlug_noteNumberAttachmentsNewDotpageRouteImport } from './routes/s/_slug_/_noteNumber_/attachments/new.page'
@@ -57,8 +57,8 @@ const sSlugAttachmentsNewDotpageRoute =
     path: '/s/$slug/attachments/new',
     getParentRoute: () => authDotlayoutRoute,
   } as any)
-const sSlug_noteNumberEditDotpageRoute =
-  sSlug_noteNumberEditDotpageRouteImport.update({
+const sSlug_noteNumberEditPageRoute =
+  sSlug_noteNumberEditPageRouteImport.update({
     id: '/s/$slug/$noteNumber/edit',
     path: '/s/$slug/$noteNumber/edit',
     getParentRoute: () => authDotlayoutRoute,
@@ -88,7 +88,7 @@ export interface FileRoutesByFullPath {
   '/s/$slug/': typeof sSlugIndexPageRoute
   '/s/$slug/new': typeof sSlugNewDotpageRoute
   '/s/$slug/$noteNumber/': typeof sSlug_noteNumberIndexPageRoute
-  '/s/$slug/$noteNumber/edit': typeof sSlug_noteNumberEditDotpageRoute
+  '/s/$slug/$noteNumber/edit': typeof sSlug_noteNumberEditPageRoute
   '/s/$slug/attachments/new': typeof sSlugAttachmentsNewDotpageRoute
   '/s/$slug/attachments/': typeof sSlugAttachmentsIndexDotpageRoute
   '/s/$slug/$noteNumber/attachments/new': typeof sSlug_noteNumberAttachmentsNewDotpageRoute
@@ -100,7 +100,7 @@ export interface FileRoutesByTo {
   '/s/$slug': typeof sSlugIndexPageRoute
   '/s/$slug/new': typeof sSlugNewDotpageRoute
   '/s/$slug/$noteNumber': typeof sSlug_noteNumberIndexPageRoute
-  '/s/$slug/$noteNumber/edit': typeof sSlug_noteNumberEditDotpageRoute
+  '/s/$slug/$noteNumber/edit': typeof sSlug_noteNumberEditPageRoute
   '/s/$slug/attachments/new': typeof sSlugAttachmentsNewDotpageRoute
   '/s/$slug/attachments': typeof sSlugAttachmentsIndexDotpageRoute
   '/s/$slug/$noteNumber/attachments/new': typeof sSlug_noteNumberAttachmentsNewDotpageRoute
@@ -114,7 +114,7 @@ export interface FileRoutesById {
   '/_auth/s/$slug/': typeof sSlugIndexPageRoute
   '/_auth/s/$slug/new': typeof sSlugNewDotpageRoute
   '/_auth/s/$slug/$noteNumber/': typeof sSlug_noteNumberIndexPageRoute
-  '/_auth/s/$slug/$noteNumber/edit': typeof sSlug_noteNumberEditDotpageRoute
+  '/_auth/s/$slug/$noteNumber/edit': typeof sSlug_noteNumberEditPageRoute
   '/_auth/s/$slug/attachments/new': typeof sSlugAttachmentsNewDotpageRoute
   '/_auth/s/$slug/attachments/': typeof sSlugAttachmentsIndexDotpageRoute
   '/_auth/s/$slug/$noteNumber/attachments/new': typeof sSlug_noteNumberAttachmentsNewDotpageRoute
@@ -220,7 +220,7 @@ declare module '@tanstack/react-router' {
       id: '/_auth/s/$slug/$noteNumber/edit'
       path: '/s/$slug/$noteNumber/edit'
       fullPath: '/s/$slug/$noteNumber/edit'
-      preLoaderRoute: typeof sSlug_noteNumberEditDotpageRouteImport
+      preLoaderRoute: typeof sSlug_noteNumberEditPageRouteImport
       parentRoute: typeof authDotlayoutRoute
     }
     '/_auth/s/$slug/$noteNumber/': {
@@ -252,7 +252,7 @@ interface authDotlayoutRouteChildren {
   sSlugIndexPageRoute: typeof sSlugIndexPageRoute
   sSlugNewDotpageRoute: typeof sSlugNewDotpageRoute
   sSlug_noteNumberIndexPageRoute: typeof sSlug_noteNumberIndexPageRoute
-  sSlug_noteNumberEditDotpageRoute: typeof sSlug_noteNumberEditDotpageRoute
+  sSlug_noteNumberEditPageRoute: typeof sSlug_noteNumberEditPageRoute
   sSlugAttachmentsNewDotpageRoute: typeof sSlugAttachmentsNewDotpageRoute
   sSlugAttachmentsIndexDotpageRoute: typeof sSlugAttachmentsIndexDotpageRoute
   sSlug_noteNumberAttachmentsNewDotpageRoute: typeof sSlug_noteNumberAttachmentsNewDotpageRoute
@@ -264,7 +264,7 @@ const authDotlayoutRouteChildren: authDotlayoutRouteChildren = {
   sSlugIndexPageRoute: sSlugIndexPageRoute,
   sSlugNewDotpageRoute: sSlugNewDotpageRoute,
   sSlug_noteNumberIndexPageRoute: sSlug_noteNumberIndexPageRoute,
-  sSlug_noteNumberEditDotpageRoute: sSlug_noteNumberEditDotpageRoute,
+  sSlug_noteNumberEditPageRoute: sSlug_noteNumberEditPageRoute,
   sSlugAttachmentsNewDotpageRoute: sSlugAttachmentsNewDotpageRoute,
   sSlugAttachmentsIndexDotpageRoute: sSlugAttachmentsIndexDotpageRoute,
   sSlug_noteNumberAttachmentsNewDotpageRoute:

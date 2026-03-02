@@ -428,6 +428,26 @@ export type paths = {
     patch: operations["updateNote"]
     trace?: never
   }
+  "/api/v1/spaces/{space_slug}/notes/{number}/transfer": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Transfer note to another space
+     * @description Transfer a note to another space. Source space must allow transfer to target space.
+     */
+    post: operations["transferNote"]
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   "/api/v1/profile": {
     parameters: {
       query?: never
@@ -610,6 +630,26 @@ export type paths = {
      * @description Update the default filter for a space. Only accessible by admin users.
      */
     patch: operations["updateSpaceDefaultFilter"]
+    trace?: never
+  }
+  "/api/v1/spaces/{slug}/can-transfer-to": {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    /**
+     * Update can_transfer_to
+     * @description Update which spaces notes can be transferred to. Only accessible by admin users.
+     */
+    patch: operations["updateSpaceCanTransferTo"]
     trace?: never
   }
   "/api/v1/spaces/{slug}/slug": {
@@ -1178,7 +1218,7 @@ export type components = {
       members?: string[]
       /**
        * Source Space
-       * @description Slug of space to copy configuration from
+       * @description Source space slug to copy configuration from
        */
       source_space?: string | null
     }
@@ -1793,6 +1833,11 @@ export type components = {
       templates: {
         [key: string]: string
       }
+      /**
+       * Can Transfer To
+       * @description Space slugs where notes can be transferred to
+       */
+      can_transfer_to: string[]
       telegram: components["schemas"]["TelegramSettings"] | null
       /**
        * Timezone
@@ -2093,6 +2138,45 @@ export type components = {
       | "activity_comment_created"
       | "mirror_create"
       | "mirror_update"
+      | "mirror_delete"
+    /**
+     * TransferNoteRequest
+     * @description Request to transfer a note to another space.
+     */
+    TransferNoteRequest: {
+      /**
+       * Target Space
+       * @description Target space slug
+       */
+      target_space: string
+    }
+    /**
+     * TransferNoteResponse
+     * @description Response after transferring a note.
+     */
+    TransferNoteResponse: {
+      /**
+       * Space Slug
+       * @description Target space slug
+       */
+      space_slug: string
+      /**
+       * Number
+       * @description New note number in target space
+       */
+      number: number
+    }
+    /**
+     * UpdateCanTransferToRequest
+     * @description Space can_transfer_to update request.
+     */
+    UpdateCanTransferToRequest: {
+      /**
+       * Can Transfer To
+       * @description Space slugs where notes can be transferred to
+       */
+      can_transfer_to: string[]
+    }
     /**
      * UpdateCommentRequest
      * @description Request to update comment content.
@@ -4077,6 +4161,78 @@ export interface operations {
       }
     }
   }
+  transferNote: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        space_slug: string
+        number: number
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["TransferNoteRequest"]
+      }
+    }
+    responses: {
+      /** @description Note transferred successfully */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["TransferNoteResponse"]
+        }
+      }
+      /** @description Transfer not allowed or schema incompatible */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Not a member of source space */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Space or note not found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
   getCurrentUserProfile: {
     parameters: {
       query?: never
@@ -4624,6 +4780,77 @@ export interface operations {
         }
       }
       /** @description Invalid request or filter not found */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Not authenticated */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Admin privileges required */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Space not found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"]
+        }
+      }
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"]
+        }
+      }
+    }
+  }
+  updateSpaceCanTransferTo: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        slug: string
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateCanTransferToRequest"]
+      }
+    }
+    responses: {
+      /** @description can_transfer_to updated successfully */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          "application/json": components["schemas"]["Space"]
+        }
+      }
+      /** @description Invalid request or incompatible schema */
       400: {
         headers: {
           [name: string]: unknown

@@ -1,0 +1,1 @@
+/Users/m/.claude/shared-rules/python.md

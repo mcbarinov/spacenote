@@ -32,6 +32,7 @@ class Space(MongoModel):
         default_factory=list, description="Field names that can be edited when adding a comment"
     )
     templates: dict[str, str] = Field(default_factory=dict, description="Liquid templates keyed by template identifier")
+    can_transfer_to: list[str] = Field(default_factory=list, description="Space slugs where notes can be transferred to")
     telegram: TelegramSettings | None = None
     timezone: str = Field("UTC", description="Space timezone in IANA format (e.g., Atlantic/Reykjavik)")
     created_at: datetime = Field(default_factory=now, description="Timestamp when the space was created")

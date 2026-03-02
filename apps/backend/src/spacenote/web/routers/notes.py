@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field
 
 from spacenote.core.modules.note.models import Note
 from spacenote.core.pagination import PaginationResult
+from spacenote.core.schema import OpenAPIModel
 from spacenote.web.deps import AppDep, AuthTokenDep
 from spacenote.web.openapi import ErrorResponse
 
@@ -27,6 +28,19 @@ class UpdateNoteRequest(BaseModel):
         ...,
         description="Field values to update as raw strings. Only provided fields will be updated.",
     )
+
+
+class TransferNoteRequest(BaseModel):
+    """Request to transfer a note to another space."""
+
+    target_space: str = Field(..., description="Target space slug")
+
+
+class TransferNoteResponse(OpenAPIModel):
+    """Response after transferring a note."""
+
+    space_slug: str = Field(..., description="Target space slug")
+    number: int = Field(..., description="New note number in target space")
 
 
 @router.get(
@@ -104,3 +118,23 @@ async def create_note(space_slug: str, request: CreateNoteRequest, app: AppDep, 
 )
 async def update_note(space_slug: str, number: int, request: UpdateNoteRequest, app: AppDep, auth_token: AuthTokenDep) -> Note:
     return await app.update_note(auth_token, space_slug, number, request.raw_fields)
+
+
+@router.post(
+    "/spaces/{space_slug}/notes/{number}/transfer",
+    summary="Transfer note to another space",
+    description="Transfer a note to another space. Source space must allow transfer to target space.",
+    operation_id="transferNote",
+    responses={
+        200: {"description": "Note transferred successfully"},
+        400: {"model": ErrorResponse, "description": "Transfer not allowed or schema incompatible"},
+        401: {"model": ErrorResponse, "description": "Not authenticated"},
+        403: {"model": ErrorResponse, "description": "Not a member of source space"},
+        404: {"model": ErrorResponse, "description": "Space or note not found"},
+    },
+)
+async def transfer_note(
+    space_slug: str, number: int, request: TransferNoteRequest, app: AppDep, auth_token: AuthTokenDep
+) -> TransferNoteResponse:
+    note = await app.transfer_note(auth_token, space_slug, number, request.target_space)
+    return TransferNoteResponse(space_slug=note.space_slug, number=note.number)

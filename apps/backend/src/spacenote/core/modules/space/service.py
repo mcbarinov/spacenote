@@ -6,6 +6,7 @@ from pymongo.asynchronous.collection import AsyncCollection
 
 from spacenote.core.db import Collection
 from spacenote.core.modules.attachment import storage as attachment_storage
+from spacenote.core.modules.field.validators import validate_transfer_schema_compatibility
 from spacenote.core.modules.filter.models import ALL_FILTER_NAME, create_default_all_filter
 from spacenote.core.modules.image import storage as image_storage
 from spacenote.core.modules.space.models import Space
@@ -67,6 +68,7 @@ class SpaceService(Service):
                 hidden_fields_on_create=source.hidden_fields_on_create,
                 editable_fields_on_comment=source.editable_fields_on_comment,
                 templates=source.templates,
+                can_transfer_to=source.can_transfer_to,
                 timezone=source.timezone,
             )
         else:
@@ -140,6 +142,19 @@ class SpaceService(Service):
             raise ValidationError(f"Filter '{default_filter}' not found in space")
 
         return await self.update_space_document(slug, {"$set": {"default_filter": default_filter}})
+
+    async def update_can_transfer_to(self, slug: str, slugs: list[str]) -> Space:
+        """Update the list of spaces where notes can be transferred to."""
+        source = self.get_space(slug)
+
+        for target_slug in slugs:
+            if target_slug == slug:
+                raise ValidationError(f"Cannot transfer to self ('{slug}')")
+            if not self.has_space(target_slug):
+                raise ValidationError(f"Space '{target_slug}' not found")
+            validate_transfer_schema_compatibility(source, self.get_space(target_slug))
+
+        return await self.update_space_document(slug, {"$set": {"can_transfer_to": slugs}})
 
     async def rename_slug(self, old_slug: str, new_slug: str) -> Space:
         """Rename space slug, updating all references across collections and file system."""

@@ -5,7 +5,7 @@ from typing import Any
 import structlog
 
 from spacenote.core.modules.attachment import storage as attachment_storage
-from spacenote.core.modules.field.models import FieldType, ImageFieldOptions
+from spacenote.core.modules.field.models import FieldType, FieldValueType, ImageFieldOptions
 from spacenote.core.modules.image import storage as image_storage
 from spacenote.core.modules.image.processor import WebpOptions, create_webp_image, init_pil
 from spacenote.core.service import Service
@@ -121,6 +121,36 @@ class ImageService(Service):
             except NotFoundError:
                 raise NotFoundError("Image not found") from None
         return path
+
+    def transfer_note_images(
+        self,
+        source_slug: str,
+        source_note: int,
+        target_slug: str,
+        target_note: int,
+        attachment_map: dict[int, int],  # old_number -> new_number
+        *,
+        note_fields: dict[str, FieldValueType],
+    ) -> None:
+        """Copy images and remap IMAGE field references in note_fields (mutated in-place).
+
+        Does not delete source data.
+        """
+        for old_num, new_num in attachment_map.items():
+            image_storage.copy_image(
+                self.core.config.images_path, source_slug, source_note, old_num, target_slug, target_note, new_num
+            )
+
+        space = self.core.services.space.get_space(target_slug)
+        image_field_names = {f.name for f in space.fields if f.type == FieldType.IMAGE}
+        for name in image_field_names:
+            cur = note_fields.get(name)
+            if isinstance(cur, int) and cur in attachment_map:
+                note_fields[name] = attachment_map[cur]
+
+    def delete_images_by_note(self, space_slug: str, note_number: int) -> None:
+        """Delete all images for a note."""
+        image_storage.delete_note_dir(self.core.config.images_path, space_slug, note_number)
 
     def delete_images_by_space(self, space_slug: str) -> None:
         """Delete all images for a space."""

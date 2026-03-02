@@ -1,7 +1,7 @@
 import { Component, type ReactNode } from "react"
 import { Alert, Container } from "@mantine/core"
 import { IconAlertCircle } from "@tabler/icons-react"
-import { AppError } from "../../errors/AppError"
+import { AppError, isExpectedError } from "../../errors/AppError"
 
 /** Props for ErrorBoundary component */
 interface Props {
@@ -20,9 +20,10 @@ export class ErrorBoundary extends Component<Props, { error: Error | null }> {
     return { error }
   }
 
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+  componentDidCatch(error: Error) {
+    if (isExpectedError(error)) return
     // eslint-disable-next-line no-console
-    console.error("Error caught by boundary:", error, errorInfo)
+    console.error("Error caught by boundary:", error)
   }
 
   componentDidUpdate(prevProps: Readonly<Props>) {

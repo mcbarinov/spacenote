@@ -13,6 +13,7 @@ import { TanStackDevtools } from "@tanstack/react-devtools"
 import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools"
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools"
 import { initHttpClient, queryClient } from "../api"
+import { isExpectedError } from "../errors/AppError"
 import { createAppRouter } from "./createAppRouter"
 import { AppProvider } from "./AppContext"
 
@@ -28,7 +29,14 @@ export function runApp(config: AppConfig, routeTree: AnyRoute) {
   const rootElement = document.getElementById("root")
   if (!rootElement) throw new Error("Root element not found")
 
-  createRoot(rootElement).render(
+  createRoot(rootElement, {
+    // Don't log expected errors handled by ErrorBoundary
+    onCaughtError: (error) => {
+      if (isExpectedError(error)) return
+      // eslint-disable-next-line no-console
+      console.error(error)
+    },
+  }).render(
     <StrictMode>
       <AppProvider config={config}>
         <MantineProvider defaultColorScheme="light">

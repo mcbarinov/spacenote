@@ -85,4 +85,15 @@ export const errorTitleByCode: Record<ErrorCode, string> = {
   unknown: "Error",
 }
 
-// Prefer AppError.title instance getter instead of getErrorTitle()
+const EXPECTED_ERROR_CODES: ReadonlySet<ErrorCode> = new Set<ErrorCode>([
+  "bad_request",
+  "unauthorized",
+  "forbidden",
+  "not_found",
+  "validation",
+])
+
+/** Returns true for errors that are expected and handled (not worth logging) */
+export function isExpectedError(error: unknown): boolean {
+  return error instanceof AppError && EXPECTED_ERROR_CODES.has(error.code)
+}

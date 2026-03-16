@@ -13,6 +13,8 @@ export type NumericFieldOptions = components["schemas"]["NumericFieldOptions"]
 export type SelectFieldOptions = components["schemas"]["SelectFieldOptions"]
 export type ImageFieldOptions = components["schemas"]["ImageFieldOptions"]
 export type DatetimeFieldOptions = components["schemas"]["DatetimeFieldOptions"]
+export type RecurrenceFieldOptions = components["schemas"]["RecurrenceFieldOptions"]
+export type RecurrenceValue = components["schemas"]["RecurrenceValue"]
 
 // Field option kinds
 export type StringKind = StringFieldOptions["kind"]

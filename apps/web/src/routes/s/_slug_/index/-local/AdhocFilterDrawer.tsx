@@ -27,6 +27,7 @@ const FIELD_TYPE_OPERATORS: Record<FieldType, string[]> = {
   tags: ["eq", "ne", "in", "nin", "all"],
   user: ["eq", "ne"],
   image: [],
+  recurrence: [],
 }
 
 /** Display labels for operators */

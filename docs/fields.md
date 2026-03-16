@@ -310,3 +310,120 @@ Image auto-converts to WebP with optional resize.
 ```json
 { "name": "avatar", "type": "image", "options": {} }
 ```
+
+### 2.9 recurrence
+
+Compound field type for repeating schedules with completion tracking. Unlike other field types that store a single value, recurrence stores three pieces of data as a `RecurrenceValue` model.
+
+Value: `RecurrenceValue` — `{ interval, last_completed, next_due }` or `null`
+
+#### 2.9.1 Options
+
+No options. Use `"options": {}`.
+
+#### 2.9.2 Stored Value
+
+```json
+{
+  "interval": "2w",
+  "last_completed": "2026-03-16T14:30:00Z",
+  "next_due": "2026-03-30T14:30:00Z"
+}
+```
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `interval` | `str` | Compact interval string (always present) |
+| `last_completed` | `datetime` (UTC) or `null` | When last marked as done |
+| `next_due` | `datetime` (UTC) | When next occurrence is due (always present, recomputed on every change) |
+
+In MongoDB, `last_completed` and `next_due` are stored as native `Date()` objects.
+
+#### 2.9.3 Interval Format
+
+Compact string: `{count}{unit}`
+
+| Unit | Meaning | Example |
+|------|---------|---------|
+| `h` | Hours | `8h` — every 8 hours |
+| `d` | Days | `3d` — every 3 days |
+| `w` | Weeks | `2w` — every 2 weeks |
+| `m` | Months | `3m` — every 3 months |
+| `y` | Years | `1y` — every year |
+
+Regex: `^\d+[hdwmy]$`. Count must be > 0.
+
+#### 2.9.4 Input Formats (raw_fields)
+
+Three input formats, all sent as a string in `raw_fields`:
+
+| Input | Action | Result |
+|-------|--------|--------|
+| Interval (e.g. `"2w"`) | Set/change interval | Create: `last_completed=null`. Update: preserves `last_completed` |
+| `$done` | Mark completed | Sets `last_completed` to now (UTC), preserves interval |
+| `$reset` | Reset completion | Sets `last_completed` to null, preserves interval |
+
+`$done` and `$reset` are only valid on update — they require an existing recurrence value on the note. Using them on create raises a validation error.
+
+#### 2.9.5 next_due Computation
+
+`next_due` is denormalized — always recomputed by the validator, never set by the user.
+
+| Action | next_due |
+|--------|----------|
+| Create with interval | `now + interval` |
+| Change interval | `(last_completed or now) + new_interval` |
+| `$done` | `now + interval` |
+| `$reset` | `now + interval` |
+
+This enables direct MongoDB filtering and sorting (not yet supported via app-level filters):
+- Overdue notes: `{"fields.schedule.next_due": {"$lt": now}}`
+- Sort by urgency: `{"fields.schedule.next_due": 1}`
+
+#### 2.9.6 Special Values
+
+| Value | Context | Description |
+|-------|---------|-------------|
+| `$done` | Update only | Mark recurrence as completed. Sets `last_completed` to current UTC time |
+| `$reset` | Update only | Clear completion. Sets `last_completed` to null |
+
+#### 2.9.7 Defaults
+
+Recurrence fields cannot have a default value. The field value is either set explicitly (with an interval) or left as `null`.
+
+#### 2.9.8 Examples
+
+Field definition:
+```json
+{ "name": "schedule", "type": "recurrence", "options": {} }
+```
+
+Create note with weekly recurrence:
+```
+POST /notes  raw_fields: {"schedule": "1w"}
+→ {"interval": "1w", "last_completed": null, "next_due": "2026-03-23T...Z"}
+```
+
+Change interval to 2 weeks:
+```
+PATCH /notes/2  raw_fields: {"schedule": "2w"}
+→ {"interval": "2w", "last_completed": <preserved>, "next_due": <recomputed>}
+```
+
+Mark as done:
+```
+PATCH /notes/2  raw_fields: {"schedule": "$done"}
+→ {"interval": "1w", "last_completed": "2026-03-16T...Z", "next_due": "2026-03-23T...Z"}
+```
+
+Reset completion:
+```
+PATCH /notes/2  raw_fields: {"schedule": "$reset"}
+→ {"interval": "1w", "last_completed": null, "next_due": "2026-03-23T...Z"}
+```
+
+Note without recurrence (field left empty):
+```
+POST /notes  raw_fields: {}
+→ schedule: null
+```

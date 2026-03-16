@@ -18,6 +18,7 @@ export const OPERATORS_BY_TYPE: Record<FieldType, string[]> = {
   tags: ["eq", "ne", "in", "nin", "all"],
   user: ["eq", "ne"],
   image: [],
+  recurrence: [],
 }
 
 const conditionSchema = z.object({

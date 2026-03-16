@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import calendar
+import re
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import UTC, date, datetime, timedelta, timezone, tzinfo
 from decimal import Decimal, InvalidOperation
 from typing import TYPE_CHECKING
@@ -16,6 +18,8 @@ from spacenote.core.modules.field.models import (
     FieldValueType,
     ImageFieldOptions,
     NumericFieldOptions,
+    RecurrenceFieldOptions,
+    RecurrenceValue,
     SelectFieldOptions,
     SpaceField,
     SpecialValue,
@@ -37,6 +41,8 @@ class ParseContext:
     raw_fields: dict[str, str] | None = None
     # Pending attachments loaded for parsing, used by DATETIME fields with $exif.created_at defaults
     pending_attachments: list[PendingAttachment] | None = None
+    # Current note field values, used by RECURRENCE fields for $done/$reset (preserving interval on update)
+    current_fields: dict[str, FieldValueType] | None = field(default=None)
 
 
 class FieldValidator(ABC):
@@ -610,6 +616,131 @@ class ImageValidator(FieldValidator):
             raise ValidationError(f"Invalid image reference for field '{field.name}': {raw}") from e
 
 
+class RecurrenceValidator(FieldValidator):
+    """Validator for recurrence fields (interval + completion tracking).
+
+    Input formats:
+    - Interval pattern (e.g. "2w", "3d", "1m") — set/change interval
+    - "$done" — mark as completed (sets last_completed to now)
+    - "$reset" — reset completion (clears last_completed)
+
+    $done and $reset require current_fields in ParseContext (update only, not create).
+    """
+
+    _INTERVAL_PATTERN = re.compile(r"^([1-9]\d*)([hdwmy])$")
+
+    @classmethod
+    def _validate_field(cls, field: SpaceField, _space: Space) -> SpaceField:
+        if not isinstance(field.options, RecurrenceFieldOptions):
+            raise ValidationError("RECURRENCE field options must be RecurrenceFieldOptions")
+        if field.default is not None:
+            raise ValidationError("RECURRENCE field cannot have a default value")
+        return field
+
+    @classmethod
+    def _parse_value(cls, field: SpaceField, _space: Space, raw: str | None, ctx: ParseContext) -> FieldValueType:
+        if raw is None:
+            if field.required:
+                raise ValidationError(f"Required field '{field.name}' has no value")
+            return None
+
+        if raw == "" and not field.required:
+            return None
+
+        if raw == SpecialValue.DONE:
+            return cls._handle_done(field, ctx)
+
+        if raw == SpecialValue.RESET:
+            return cls._handle_reset(field, ctx)
+
+        return cls._handle_interval(field, raw, ctx)
+
+    @classmethod
+    def _handle_interval(cls, field: SpaceField, raw: str, ctx: ParseContext) -> RecurrenceValue:
+        """Handle interval input: set or change the recurrence interval."""
+        cls._validate_interval(field.name, raw)
+        now = datetime.now(UTC)
+
+        # On update: preserve last_completed from current value
+        last_completed = None
+        if ctx.current_fields is not None:
+            current = ctx.current_fields.get(field.name)
+            if isinstance(current, RecurrenceValue):
+                last_completed = current.last_completed
+
+        base = last_completed or now
+        next_due = cls._add_interval(base, raw)
+
+        return RecurrenceValue(interval=raw, last_completed=last_completed, next_due=next_due)
+
+    @classmethod
+    def _handle_done(cls, field: SpaceField, ctx: ParseContext) -> RecurrenceValue:
+        """Handle $done: mark recurrence as completed."""
+        current = cls._get_current_value(field, ctx)
+        now = datetime.now(UTC)
+        next_due = cls._add_interval(now, current.interval)
+        return RecurrenceValue(interval=current.interval, last_completed=now, next_due=next_due)
+
+    @classmethod
+    def _handle_reset(cls, field: SpaceField, ctx: ParseContext) -> RecurrenceValue:
+        """Handle $reset: clear last_completed, recompute next_due from now."""
+        current = cls._get_current_value(field, ctx)
+        now = datetime.now(UTC)
+        next_due = cls._add_interval(now, current.interval)
+        return RecurrenceValue(interval=current.interval, last_completed=None, next_due=next_due)
+
+    @classmethod
+    def _get_current_value(cls, field: SpaceField, ctx: ParseContext) -> RecurrenceValue:
+        """Get current RecurrenceValue from context. Required for $done/$reset."""
+        if ctx.current_fields is None:
+            raise ValidationError(f"'{field.name}': $done/$reset can only be used when updating an existing note")
+        current = ctx.current_fields.get(field.name)
+        if not isinstance(current, RecurrenceValue):
+            raise ValidationError(f"'{field.name}': $done/$reset requires an existing recurrence value")
+        return current
+
+    @classmethod
+    def _validate_interval(cls, field_name: str, interval: str) -> None:
+        """Validate interval format: {count}{unit} where unit is h/d/w/m/y, count >= 1."""
+        if not cls._INTERVAL_PATTERN.match(interval):
+            raise ValidationError(
+                f"Invalid recurrence interval for field '{field_name}': '{interval}'. "
+                "Expected format: {count}{unit} (e.g. '2w', '3d', '1m'). Units: h, d, w, m, y"
+            )
+
+    @classmethod
+    def _add_interval(cls, base: datetime, interval: str) -> datetime:
+        """Add interval to a base datetime."""
+        match = cls._INTERVAL_PATTERN.match(interval)
+        if not match:
+            raise ValidationError(f"Invalid interval: {interval}")
+        count = int(match.group(1))
+        unit = match.group(2)
+        match unit:
+            case "h":
+                return base + timedelta(hours=count)
+            case "d":
+                return base + timedelta(days=count)
+            case "w":
+                return base + timedelta(weeks=count)
+            case "m":
+                return cls._add_months(base, count)
+            case "y":
+                return cls._add_months(base, count * 12)
+            case _:
+                raise ValidationError(f"Unknown interval unit: {unit}")
+
+    @staticmethod
+    def _add_months(dt: datetime, months: int) -> datetime:
+        """Add months to a datetime, clamping day to last day of target month."""
+        month = dt.month - 1 + months
+        year = dt.year + month // 12
+        month = month % 12 + 1
+        max_day = calendar.monthrange(year, month)[1]
+        day = min(dt.day, max_day)
+        return dt.replace(year=year, month=month, day=day)
+
+
 VALIDATORS: dict[FieldType, type[FieldValidator]] = {
     FieldType.STRING: StringValidator,
     FieldType.BOOLEAN: BooleanValidator,
@@ -619,6 +750,7 @@ VALIDATORS: dict[FieldType, type[FieldValidator]] = {
     FieldType.DATETIME: DateTimeValidator,
     FieldType.USER: UserValidator,
     FieldType.IMAGE: ImageValidator,
+    FieldType.RECURRENCE: RecurrenceValidator,
 }
 
 

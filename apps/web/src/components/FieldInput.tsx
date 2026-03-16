@@ -4,12 +4,20 @@ import type {
   AttachmentMeta,
   DatetimeFieldOptions,
   NumericFieldOptions,
+  RecurrenceValue,
   SelectFieldOptions,
   SpaceField,
   StringFieldOptions,
 } from "@spacenote/common/types"
 import { MarkdownEditor } from "./MarkdownEditor"
 import { ImageFieldInput } from "./ImageFieldInput"
+import { RecurrenceFieldInput } from "./RecurrenceFieldInput"
+
+interface NoteContext {
+  slug: string
+  noteNumber: number
+  noteFields: Record<string, unknown>
+}
 
 interface FieldInputProps {
   field: SpaceField
@@ -19,6 +27,8 @@ interface FieldInputProps {
   spaceMembers?: string[]
   /** Called with image metadata after upload (for EXIF extraction) */
   onImageMetadata?: (meta: AttachmentMeta | null) => void
+  /** Note context for fields that need it (recurrence actions) */
+  noteContext?: NoteContext
 }
 
 /** Type-safe string coercion for form values */
@@ -45,7 +55,7 @@ function asStringArray(value: unknown): string[] {
 }
 
 /** Renders appropriate input control based on field type */
-export function FieldInput({ field, value, onChange, error, spaceMembers, onImageMetadata }: FieldInputProps) {
+export function FieldInput({ field, value, onChange, error, spaceMembers, onImageMetadata, noteContext }: FieldInputProps) {
   const commonProps = {
     label: field.name,
     required: field.required,
@@ -198,6 +208,34 @@ export function FieldInput({ field, value, onChange, error, spaceMembers, onImag
           value={pendingNumber}
           onChange={onChange}
           onMetadata={onImageMetadata}
+        />
+      )
+    }
+
+    case "recurrence": {
+      const recurrenceNoteContext = noteContext
+        ? (() => {
+            const cv = noteContext.noteFields[field.name]
+            return cv != null && typeof cv === "object" && "interval" in cv
+              ? {
+                  slug: noteContext.slug,
+                  noteNumber: noteContext.noteNumber,
+                  fieldName: field.name,
+                  currentValue: cv as RecurrenceValue,
+                }
+              : undefined
+          })()
+        : undefined
+      return (
+        <RecurrenceFieldInput
+          label={field.name}
+          required={field.required}
+          error={error}
+          value={asString(value)}
+          onChange={(v) => {
+            onChange(v)
+          }}
+          noteContext={recurrenceNoteContext}
         />
       )
     }

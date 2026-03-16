@@ -5,6 +5,8 @@ from spacenote.core.modules.field.models import FieldType as FieldType
 from spacenote.core.modules.field.models import FieldValueType as FieldValueType
 from spacenote.core.modules.field.models import ImageFieldOptions as ImageFieldOptions
 from spacenote.core.modules.field.models import NumericFieldOptions as NumericFieldOptions
+from spacenote.core.modules.field.models import RecurrenceFieldOptions as RecurrenceFieldOptions
+from spacenote.core.modules.field.models import RecurrenceValue as RecurrenceValue
 from spacenote.core.modules.field.models import SelectFieldOptions as SelectFieldOptions
 from spacenote.core.modules.field.models import SpaceField as SpaceField
 from spacenote.core.modules.field.models import SpecialValue as SpecialValue

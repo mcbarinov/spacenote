@@ -12,7 +12,7 @@ import {
   parseDatetimeFromApi,
   type DatetimeKind,
 } from "@spacenote/common/utils"
-import type { AttachmentMeta, DatetimeFieldOptions, Note, Space, SpaceField } from "@spacenote/common/types"
+import type { AttachmentMeta, DatetimeFieldOptions, Note, RecurrenceValue, Space, SpaceField } from "@spacenote/common/types"
 import { FieldInput } from "./FieldInput"
 
 interface ExifBinding {
@@ -122,6 +122,9 @@ function buildInitialValues(
       if (field.type === "datetime" && typeof value === "string" && value) {
         const opts = field.options as DatetimeFieldOptions
         initialValues[field.name] = parseDatetimeFromApi(value, opts.kind)
+      } else if (field.type === "recurrence" && value != null && typeof value === "object" && "interval" in value) {
+        // Extract interval string from RecurrenceValue for the form input
+        initialValues[field.name] = (value as RecurrenceValue).interval
       } else {
         initialValues[field.name] = value
       }
@@ -228,6 +231,7 @@ export function NoteForm({ space, mode, note }: NoteFormProps) {
               spaceMembers={space.members}
               {...form.getInputProps(field.name)}
               onImageMetadata={field.type === "image" ? createImageMetadataHandler(field.name) : undefined}
+              noteContext={mode === "edit" ? { slug, noteNumber: note.number, noteFields: note.fields } : undefined}
             />
           ))}
           {mutation.error && <ErrorMessage error={mutation.error} />}

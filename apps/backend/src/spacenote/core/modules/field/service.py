@@ -91,13 +91,29 @@ class FieldService(Service):
         self,
         space_slug: str,
         raw_fields: dict[str, str],
+        current_fields: dict[str, FieldValueType] | None = None,
         current_user: str | None = None,
         partial: bool = False,
     ) -> dict[str, FieldValueType]:
-        """Parse raw string field values to typed values."""
+        """Parse raw string field values to typed values.
+
+        Args:
+            space_slug: Space containing the field schema.
+            raw_fields: User-provided string values from API request, keyed by field name.
+            current_fields: Note's field values before this update. Needed by recurrence
+                validator to preserve interval on $done/$reset. None on create.
+            current_user: Username for $me substitution in USER fields.
+            partial: If True, only parse fields present in raw_fields (update mode).
+                If False, parse all space fields, applying defaults for missing ones (create mode).
+        """
         space = self.core.services.space.get_space(space_slug)
         pending_attachments = await self._load_pending_attachments(space, raw_fields)
-        ctx = ParseContext(current_user=current_user, raw_fields=raw_fields, pending_attachments=pending_attachments)
+        ctx = ParseContext(
+            current_user=current_user,
+            raw_fields=raw_fields,
+            pending_attachments=pending_attachments,
+            current_fields=current_fields,
+        )
         parsed: dict[str, FieldValueType] = {}
 
         # Check for unknown fields first

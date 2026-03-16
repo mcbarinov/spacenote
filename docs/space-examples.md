@@ -8,6 +8,10 @@ Space configuration examples.
 
 Simple task tracker for a small team.
 
+**Two types of tasks**:
+- **One-off** — go through statuses (new → in_progress → completed/cancelled) and get closed
+- **Recurring** — stay open (new/in_progress), never "completed". The `repeat` field tracks the cycle: `repeat.last_completed` records when the latest iteration was done, `repeat.next_due` shows when the next one is due
+
 ### Space Definition
 
 ```json
@@ -25,7 +29,8 @@ Simple task tracker for a small team.
     { "name": "priority", "type": "select", "required": true, "default": "medium",
       "options": { "values": ["low", "medium", "high"] }
     },
-    { "name": "tags", "type": "tags", "options": {} }
+    { "name": "tags", "type": "tags", "options": {} },
+    { "name": "repeat", "type": "recurrence", "options": {} }
   ]
 }
 ```
@@ -43,7 +48,8 @@ Simple task tracker for a small team.
       "assignee": "bob",
       "status": "in_progress",
       "priority": "high",
-      "tags": ["bug", "auth"]
+      "tags": ["bug", "auth"],
+      "repeat": null
     }
   },
   {
@@ -55,19 +61,25 @@ Simple task tracker for a small team.
       "assignee": "alice",
       "status": "new",
       "priority": "low",
-      "tags": ["docs"]
+      "tags": ["docs"],
+      "repeat": null
     }
   },
   {
     "number": 3,
     "author": "bob",
     "fields": {
-      "title": "Weekly sync meeting",
-      "body": "Discuss project roadmap",
+      "title": "Clean the well",
+      "body": "Weekly maintenance task",
       "assignee": "alice",
-      "status": "completed",
+      "status": "new",
       "priority": "medium",
-      "tags": null
+      "tags": null,
+      "repeat": {
+        "interval": "1w",
+        "last_completed": "2026-03-10T10:00:00Z",
+        "next_due": "2026-03-17T10:00:00Z"
+      }
     }
   }
 ]

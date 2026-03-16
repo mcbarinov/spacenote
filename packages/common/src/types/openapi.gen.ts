@@ -1319,7 +1319,7 @@ export type components = {
      * @description Available field types for space schemas.
      * @enum {string}
      */
-    FieldType: "string" | "boolean" | "select" | "tags" | "user" | "datetime" | "numeric" | "image"
+    FieldType: "string" | "boolean" | "select" | "tags" | "user" | "datetime" | "numeric" | "image" | "recurrence"
     /**
      * Filter
      * @description Filter definition for a space.
@@ -1362,7 +1362,7 @@ export type components = {
        * Value
        * @description Value to compare against
        */
-      value: string | boolean | string[] | number | null
+      value: string | boolean | string[] | number | components["schemas"]["RecurrenceValue"] | null
     }
     /**
      * FilterOperator
@@ -1487,7 +1487,7 @@ export type components = {
        * @description Values for space-defined fields
        */
       fields: {
-        [key: string]: string | boolean | string[] | number | null
+        [key: string]: string | boolean | string[] | number | components["schemas"]["RecurrenceValue"] | null
       }
       /**
        * Title
@@ -1538,7 +1538,7 @@ export type components = {
        * @description Field values
        */
       fields: {
-        [key: string]: string | boolean | string[] | number | null
+        [key: string]: string | boolean | string[] | number | components["schemas"]["RecurrenceValue"] | null
       }
     }
     /**
@@ -1720,6 +1720,33 @@ export type components = {
        * @description Upload timestamp
        */
       created_at: string
+    }
+    /**
+     * RecurrenceFieldOptions
+     * @description Options for RECURRENCE field type.
+     */
+    RecurrenceFieldOptions: Record<string, never>
+    /**
+     * RecurrenceValue
+     * @description Compound value for RECURRENCE field type.
+     */
+    RecurrenceValue: {
+      /**
+       * Interval
+       * @description Interval string, e.g. '2w', '3d', '1m'
+       */
+      interval: string
+      /**
+       * Last Completed
+       * @description When last marked as done (UTC)
+       */
+      last_completed: string | null
+      /**
+       * Next Due
+       * Format: date-time
+       * @description When next occurrence is due (UTC, recomputed on every change)
+       */
+      next_due: string
     }
     /**
      * RenameSlugRequest
@@ -1954,11 +1981,12 @@ export type components = {
         | components["schemas"]["UserFieldOptions"]
         | components["schemas"]["DatetimeFieldOptions"]
         | components["schemas"]["ImageFieldOptions"]
+        | components["schemas"]["RecurrenceFieldOptions"]
       /**
        * Default
        * @description Default value for this field
        */
-      default: string | boolean | string[] | number | null
+      default: string | boolean | string[] | number | components["schemas"]["RecurrenceValue"] | null
     }
     /**
      * StringFieldOptions
@@ -2242,7 +2270,7 @@ export type components = {
        * Default
        * @description Default value for this field
        */
-      default?: string | boolean | string[] | number | null
+      default?: string | boolean | string[] | number | components["schemas"]["RecurrenceValue"] | null
     }
     /**
      * UpdateHiddenFieldsOnCreateRequest

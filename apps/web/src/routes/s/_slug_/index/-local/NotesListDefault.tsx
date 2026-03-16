@@ -2,7 +2,7 @@ import { Group, Table } from "@mantine/core"
 import { useNavigate } from "@tanstack/react-router"
 import { TextBadge, Username } from "@spacenote/common/components"
 import type { Note, Space, SpaceField } from "@spacenote/common/types"
-import { formatDate } from "@spacenote/common/utils"
+import { formatDate, getRecurrenceStatus, RECURRENCE_STATUS_CONFIG } from "@spacenote/common/utils"
 
 interface NotesListDefaultProps {
   notes: Note[]
@@ -98,9 +98,21 @@ export function NotesListDefault({ notes, space, filter }: NotesListDefaultProps
       )
     }
 
+    // Recurrence field - display status badge
+    if (fieldType === "recurrence" && typeof value === "object" && "interval" in value) {
+      const status = getRecurrenceStatus(value)
+      const config = RECURRENCE_STATUS_CONFIG[status]
+      return (
+        <TextBadge color={config.color} variant="light">
+          {config.label}
+        </TextBadge>
+      )
+    }
+
     // Other fields
     if (Array.isArray(value)) return value.join(", ")
     if (typeof value === "boolean") return value ? "Yes" : "No"
+    if (typeof value === "object") return ""
     return String(value)
   }
 

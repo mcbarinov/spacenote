@@ -19,6 +19,20 @@ class _ShutdownNoiseFilter(logging.Filter):
         return True
 
 
+class _AsgiExceptionFilter(logging.Filter):
+    """Suppress uvicorn's duplicate 'Exception in ASGI application' tracebacks.
+
+    These are already logged with full context by our general_exception_handler via structlog.
+    """
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        if record.exc_info and record.levelno >= logging.ERROR:
+            msg = record.getMessage()
+            if "Exception in ASGI application" in msg:
+                return False
+        return True
+
+
 def setup_logging(debug: bool) -> None:
     log_level = logging.DEBUG if debug else logging.INFO
 
@@ -27,14 +41,11 @@ def setup_logging(debug: bool) -> None:
         format="%(message)s",
     )
 
-    logging.getLogger("uvicorn.error").addFilter(_ShutdownNoiseFilter())
+    uvicorn_error = logging.getLogger("uvicorn.error")
+    uvicorn_error.addFilter(_ShutdownNoiseFilter())
+    uvicorn_error.addFilter(_AsgiExceptionFilter())
 
     logging.getLogger("pymongo").setLevel(logging.WARNING)
-    logging.getLogger("pymongo.topology").setLevel(logging.WARNING)
-    logging.getLogger("pymongo.connection").setLevel(logging.WARNING)
-    logging.getLogger("pymongo.pool").setLevel(logging.WARNING)
-    logging.getLogger("pymongo.server").setLevel(logging.WARNING)
-    logging.getLogger("pymongo.command").setLevel(logging.WARNING)
     logging.getLogger("multipart").setLevel(logging.WARNING)
     logging.getLogger("python_multipart").setLevel(logging.WARNING)
     logging.getLogger("telegram").setLevel(logging.WARNING)

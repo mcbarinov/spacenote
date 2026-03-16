@@ -1,8 +1,9 @@
 import { Box, Group, Stack, Text } from "@mantine/core"
 import { MultilineText, RetryableImage, TextBadge, Username } from "@spacenote/common/components"
-import type { DatetimeFieldOptions, SpaceField, StringFieldOptions } from "@spacenote/common/types"
+import type { DatetimeFieldOptions, RecurrenceValue, SpaceField, StringFieldOptions } from "@spacenote/common/types"
 import { formatDatetime } from "@spacenote/common/utils"
 import { MarkdownDisplay } from "./MarkdownDisplay"
+import { RecurrenceFieldView } from "./RecurrenceFieldView"
 
 type FieldValue = string | boolean | string[] | number | null | undefined
 
@@ -13,7 +14,7 @@ interface NoteContext {
 
 interface FieldViewProps {
   field: SpaceField
-  value: FieldValue
+  value: FieldValue | RecurrenceValue
   noteContext?: NoteContext
 }
 
@@ -88,6 +89,24 @@ function formatValue(field: SpaceField, value: FieldValue, noteContext?: NoteCon
 
 /** Displays field value in read-only mode with appropriate formatting */
 export function FieldView({ field, value, noteContext }: FieldViewProps) {
+  // Recurrence is handled separately because it's a compound object type
+  if (field.type === "recurrence") {
+    const recurrenceContent =
+      value != null && typeof value === "object" && "interval" in value ? (
+        <RecurrenceFieldView value={value} />
+      ) : (
+        <Text c="dimmed">—</Text>
+      )
+    return (
+      <Group>
+        <Text fw={500} c="dimmed" size="sm" w={120}>
+          {field.name}
+        </Text>
+        {recurrenceContent}
+      </Group>
+    )
+  }
+
   const fullWidth = isFullWidth(field)
 
   if (fullWidth) {
@@ -96,7 +115,7 @@ export function FieldView({ field, value, noteContext }: FieldViewProps) {
         <Text fw={500} c="dimmed" size="sm">
           {field.name}
         </Text>
-        <Box>{formatValue(field, value, noteContext)}</Box>
+        <Box>{formatValue(field, value as FieldValue, noteContext)}</Box>
       </Stack>
     )
   }
@@ -106,7 +125,7 @@ export function FieldView({ field, value, noteContext }: FieldViewProps) {
       <Text fw={500} c="dimmed" size="sm" w={120}>
         {field.name}
       </Text>
-      {formatValue(field, value, noteContext)}
+      {formatValue(field, value as FieldValue, noteContext)}
     </Group>
   )
 }

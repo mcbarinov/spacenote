@@ -21,7 +21,7 @@ export const Route = createFileRoute("/_auth/spaces/$slug/fields/new")({
   component: AddFieldPage,
 })
 
-const FIELD_TYPES: FieldType[] = ["string", "boolean", "select", "tags", "user", "datetime", "numeric", "image"]
+const FIELD_TYPES: FieldType[] = ["string", "boolean", "select", "tags", "user", "datetime", "numeric", "image", "recurrence"]
 
 /** Form to add a new field to a space */
 function AddFieldPage() {

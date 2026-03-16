@@ -11,7 +11,16 @@ from pydantic import Field, model_validator
 
 from spacenote.core.schema import OpenAPIModel
 
-FieldValueType = str | bool | list[str] | int | float | Decimal | datetime | date | None
+
+class RecurrenceValue(OpenAPIModel):
+    """Compound value for RECURRENCE field type."""
+
+    interval: str = Field(..., pattern=r"^[1-9]\d*[hdwmy]$", description="Interval string, e.g. '2w', '3d', '1m'")
+    last_completed: datetime | None = Field(None, description="When last marked as done (UTC)")
+    next_due: datetime = Field(..., description="When next occurrence is due (UTC, recomputed on every change)")
+
+
+FieldValueType = str | bool | list[str] | int | float | Decimal | datetime | date | RecurrenceValue | None
 
 
 class FieldType(StrEnum):
@@ -25,6 +34,7 @@ class FieldType(StrEnum):
     DATETIME = "datetime"
     NUMERIC = "numeric"
     IMAGE = "image"
+    RECURRENCE = "recurrence"
 
 
 class SpecialValue(StrEnum):
@@ -32,6 +42,8 @@ class SpecialValue(StrEnum):
 
     ME = "$me"
     NOW = "$now"
+    DONE = "$done"
+    RESET = "$reset"
 
 
 class StringFieldOptions(OpenAPIModel):
@@ -121,6 +133,10 @@ class ImageFieldOptions(OpenAPIModel):
         return self
 
 
+class RecurrenceFieldOptions(OpenAPIModel):
+    """Options for RECURRENCE field type."""
+
+
 FieldOptionsType = (
     StringFieldOptions
     | NumericFieldOptions
@@ -130,6 +146,7 @@ FieldOptionsType = (
     | UserFieldOptions
     | DatetimeFieldOptions
     | ImageFieldOptions
+    | RecurrenceFieldOptions
 )
 
 FIELD_TYPE_OPTIONS: dict[FieldType, type[FieldOptionsType]] = {
@@ -141,6 +158,7 @@ FIELD_TYPE_OPTIONS: dict[FieldType, type[FieldOptionsType]] = {
     FieldType.USER: UserFieldOptions,
     FieldType.DATETIME: DatetimeFieldOptions,
     FieldType.IMAGE: ImageFieldOptions,
+    FieldType.RECURRENCE: RecurrenceFieldOptions,
 }
 
 

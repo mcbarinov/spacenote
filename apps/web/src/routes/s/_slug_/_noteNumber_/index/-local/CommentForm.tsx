@@ -40,6 +40,8 @@ function buildFieldValues(fields: SpaceField[], noteFields: Record<string, unkno
     // Convert UTC datetime strings to local Date for DateTimePicker
     if (field.type === "datetime" && typeof value === "string" && value) {
       values[field.name] = utcToLocalDate(value)
+    } else if (field.type === "recurrence" && value != null && typeof value === "object" && "interval" in value) {
+      values[field.name] = (value as { interval: string }).interval
     } else {
       values[field.name] = value ?? ""
     }
@@ -134,7 +136,13 @@ export function CommentForm({ space, note }: CommentFormProps) {
           <Collapse in={fieldsOpen}>
             <Stack gap="sm" mb="sm">
               {editableFields.map((field) => (
-                <FieldInput key={field.name} field={field} spaceMembers={space.members} {...form.getInputProps(field.name)} />
+                <FieldInput
+                  key={field.name}
+                  field={field}
+                  spaceMembers={space.members}
+                  {...form.getInputProps(field.name)}
+                  noteContext={{ slug: space.slug, noteNumber: note.number, noteFields: note.fields }}
+                />
               ))}
             </Stack>
           </Collapse>

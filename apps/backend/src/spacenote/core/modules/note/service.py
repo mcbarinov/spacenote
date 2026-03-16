@@ -2,6 +2,7 @@ from functools import cached_property
 from typing import Any
 
 import structlog
+from pydantic import BaseModel
 from pymongo.asynchronous.collection import AsyncCollection
 
 from spacenote.core.db import Collection
@@ -113,12 +114,14 @@ class NoteService(Service):
         """Update specific note fields. Returns (updated_note, changes)."""
         logger.debug("update_note_request", space_slug=space_slug, number=number, raw_fields=raw_fields)
         old_note = await self.get_note(space_slug, number)
-        parsed_fields = await self.core.services.field.parse_raw_fields(space_slug, raw_fields, current_user, partial=True)
+        parsed_fields = await self.core.services.field.parse_raw_fields(
+            space_slug, raw_fields, current_fields=old_note.fields, current_user=current_user, partial=True
+        )
 
         timestamp = now()
         update_doc: dict[str, Any] = {"edited_at": timestamp, "activity_at": timestamp}
         for field_name, field_value in parsed_fields.items():
-            update_doc[f"fields.{field_name}"] = field_value
+            update_doc[f"fields.{field_name}"] = field_value.model_dump() if isinstance(field_value, BaseModel) else field_value
 
         await self._collection.update_one({"space_slug": space_slug, "number": number}, {"$set": update_doc})
 

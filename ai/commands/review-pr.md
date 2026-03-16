@@ -25,12 +25,7 @@ This command reviews the diff between current branch and main, checking for:
    - Run `git diff main...HEAD` to see all changes
    - Run `git diff --name-only main...HEAD` to get list of changed files
 
-2. Read relevant documentation based on what changed:
-   - Backend changes (`apps/backend/`) → `docs/backend.md`, `apps/backend/README.md`
-   - Frontend changes (`apps/web/`, `apps/admin/`, `packages/`) → `docs/frontend.md`
-   - Always read: `CLAUDE.md`, `ai/rules/project.md`, `docs/concepts.md`, `docs/ideas.md`
-
-3. Review each changed file thoroughly:
+2. Review each changed file thoroughly:
    - Understand the context by reading surrounding code if needed
    - Check against documented architecture patterns
    - Look for the issues listed above

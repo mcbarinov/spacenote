@@ -17,26 +17,12 @@ This command reviews all documentation for:
 
 ## Actions
 
-1. Read all documentation files:
-   - `docs/concepts.md` - domain model
-   - `docs/backend.md` - backend architecture
-   - `docs/frontend.md` - frontend architecture
-   - `docs/ideas.md` - future improvement ideas
-   - `CLAUDE.md` - AI guidelines
-   - `ai/rules/project.md` - project rules
-   - `ai/rules/backend.md` - backend AI rules
-   - `ai/rules/frontend.md` - frontend AI rules
-   - `apps/backend/README.md` - backend structure
-   - `apps/admin/README.md` - admin app
-   - `apps/web/README.md` - web app (if exists)
-   - `packages/common/README.md` - shared package
-
-2. Cross-reference with code:
+1. Cross-reference with code:
    - Verify file paths mentioned in docs exist
    - Check that described APIs/patterns match implementation
    - Confirm examples are runnable
 
-3. Review interactively:
+2. Review interactively:
    - Report findings as you discover them
    - Group by document
    - Prioritize: inaccuracies first, then verbosity, then structure

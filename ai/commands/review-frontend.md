@@ -13,21 +13,12 @@ This command performs a comprehensive review of the frontend codebase, looking f
 
 ## Actions
 
-1. Read frontend documentation:
-   - `docs/concepts.md` - domain model
-   - `docs/frontend.md` - architecture decisions
-   - `apps/admin/README.md` - admin app structure
-   - `apps/web/README.md` - web app structure
-   - `packages/common/README.md` - shared package
-   - `ai/rules/frontend.md` - AI-specific coding rules for frontend
-   - `docs/ideas.md` - planned improvements (avoid suggesting already planned)
-
-2. Read all frontend source code:
+1. Read all frontend source code:
    - `packages/common/` - shared code
    - `apps/admin/` - admin panel
    - `apps/web/` - user app
 
-3. Review the code interactively:
+2. Review the code interactively:
    - Discuss findings as you discover them
    - Ask clarifying questions when context is needed
    - Group related issues together

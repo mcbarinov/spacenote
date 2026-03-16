@@ -13,16 +13,9 @@ This command performs a comprehensive review of the backend codebase, looking fo
 
 ## Actions
 
-1. Read backend documentation:
-   - `docs/concepts.md` - domain model
-   - `docs/backend.md` - architecture decisions
-   - `apps/backend/README.md` - project structure
-   - `ai/rules/backend.md` - AI-specific coding rules for backend
-   - `docs/ideas.md` - planned improvements (avoid suggesting already planned)
+1. Read all backend source code in `apps/backend/src/spacenote/` (exclude tests)
 
-2. Read all backend source code in `apps/backend/src/spacenote/` (exclude tests)
-
-3. Review the code interactively:
+2. Review the code interactively:
    - Discuss findings as you discover them
    - Ask clarifying questions when context is needed
    - Group related issues together

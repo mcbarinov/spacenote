@@ -15,17 +15,11 @@ This command performs analysis of data organization and domain concepts:
 
 ## Actions
 
-1. Read documentation:
-   - `docs/concepts.md` - current domain model
-   - `docs/backend.md` - database schema
-   - `docs/space-examples.md` - use case examples
-   - `docs/ideas.md` - planned future improvements
-
-2. Read data models in code:
+1. Read data models in code:
    - `apps/backend/src/spacenote/core/modules/*/models.py` - all models
    - `apps/backend/src/spacenote/core/modules/field/` - field types system
 
-3. Analyze interactively - discuss findings as you go:
+2. Analyze interactively - discuss findings as you go:
 
    **Data Organization:**
    - Are collections properly separated?

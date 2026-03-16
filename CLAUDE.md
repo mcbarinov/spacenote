@@ -1,23 +1,36 @@
 # AI Agent Start Guide
 
-## Mandatory Rules
-Read and follow ALL rules from these files:
-- `ai/rules/general.md` — language, critical thinking, conciseness
-- `ai/rules/python.md` — Python coding guidelines
-- `ai/rules/typescript.md` — TypeScript coding guidelines
-- `ai/rules/project.md` — git conventions, dev server ports, linting
-- `ai/rules/backend.md` — backend-specific rules (FastAPI, MongoDB)
-- `ai/rules/frontend.md` — frontend-specific rules (React, components)
+## Preflight
 
-## Project Reading
-Read for project understanding:
-- `README.md` — project overview and structure
+Before your first response, read ALL files listed below. Do not answer until all are read.
+
+### Project
+- `README.md` — monorepo overview
+- `justfile` — available dev commands
+
+### Domain & Design
+- `docs/concepts.md` — domain model (Space, Note, Fields, Users, Comments)
+- `docs/fields.md` — field types, options, VALUE_MAPS
+- `docs/space-examples.md` — real-world space configurations
+- `docs/behavior.md` — non-obvious behavioral scenarios
+- `docs/ideas.md` — future improvements (avoid duplicating)
+
+### Architecture
+- `docs/backend.md` — backend architecture, DB schema
+- `docs/frontend.md` — frontend architecture, patterns
+- `apps/backend/README.md` — backend setup, env vars
+- `apps/web/README.md` — web app structure
+- `apps/admin/README.md` — admin app structure
+- `packages/common/README.md` — shared frontend package
+
+### Rules
+- `ai/rules/general.md` — language, critical thinking
+- `ai/rules/project.md` — git conventions, dev ports, linting
+- `ai/rules/python.md` — Python guidelines
+- `ai/rules/typescript.md` — TypeScript guidelines
+- `ai/rules/backend.md` — backend-specific rules
+- `ai/rules/frontend.md` — frontend-specific rules
 
 ## Project Status
 
 **PROTOTYPE MODE** — Breaking changes are acceptable and expected.
-
-## Preflight
-Before your first response:
-1. Read all files listed above.
-2. Do not answer until all are read.

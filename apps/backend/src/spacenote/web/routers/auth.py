@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, Response
+from fastapi import APIRouter, Response
 from pydantic import BaseModel, Field
 
 from spacenote.web.deps import AppDep, AuthTokenDep
@@ -30,15 +30,12 @@ class LoginResponse(BaseModel):
         401: {"model": ErrorResponse, "description": "Invalid credentials"},
     },
 )
-async def login(login_data: LoginRequest, request: Request, app: AppDep, response: Response) -> LoginResponse:
+async def login(login_data: LoginRequest, app: AppDep, response: Response) -> LoginResponse:
     """Authenticate user and create session."""
     token = await app.login(login_data.username, login_data.password)
 
-    # Set cookie for browser-based clients (name based on client app)
-    client_app = request.headers.get("X-Client-App")
-    cookie_name = "token_admin" if client_app == "admin" else "token_web"
     response.set_cookie(
-        key=cookie_name,
+        key="token",
         value=token,
         httponly=True,
         samesite="lax",
@@ -60,8 +57,6 @@ async def login(login_data: LoginRequest, request: Request, app: AppDep, respons
         401: {"model": ErrorResponse, "description": "Not authenticated"},
     },
 )
-async def logout(request: Request, app: AppDep, auth_token: AuthTokenDep, response: Response) -> None:
+async def logout(app: AppDep, auth_token: AuthTokenDep, response: Response) -> None:
     await app.logout(auth_token)
-    client_app = request.headers.get("X-Client-App")
-    cookie_name = "token_admin" if client_app == "admin" else "token_web"
-    response.delete_cookie(cookie_name)
+    response.delete_cookie("token")

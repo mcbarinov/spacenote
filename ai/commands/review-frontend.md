@@ -14,9 +14,7 @@ This command performs a comprehensive review of the frontend codebase, looking f
 ## Actions
 
 1. Read all frontend source code:
-   - `packages/common/` - shared code
-   - `apps/admin/` - admin panel
-   - `apps/web/` - user app
+   - `apps/frontend/` - frontend application
 
 2. Review the code interactively:
    - Discuss findings as you discover them

@@ -14,11 +14,10 @@ Labels: `chore:`, `feat:`, `fix:`, `infra:`, `refactor:`
 
 Development servers have separate ports for human and agent use:
 
-| App   | Human Port | Agent Port | Human Command    | Agent Command        |
-|-------|------------|------------|------------------|----------------------|
-| web   | 3000       | 3001       | just web-dev     | just agent-web-dev   |
-| admin | 3200       | 3201       | just admin-dev   | just agent-admin-dev |
-| api   | 3100       | 3101       | just backend-dev | just agent-backend-dev |
+| App      | Human Port | Agent Port | Human Command        | Agent Command            |
+|----------|------------|------------|----------------------|--------------------------|
+| frontend | 3000       | 3001       | just frontend-dev    | just agent-frontend-dev  |
+| backend  | 3100       | 3101       | just backend-dev     | just agent-backend-dev   |
 
 Rules:
 - Never start/stop/restart servers on human ports (3000, 3100, 3200)

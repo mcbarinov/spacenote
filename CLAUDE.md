@@ -19,9 +19,7 @@ Before your first response, read ALL files listed below. Do not answer until all
 - `docs/backend.md` — backend architecture, DB schema
 - `docs/frontend.md` — frontend architecture, patterns
 - `apps/backend/README.md` — backend setup, env vars
-- `apps/web/README.md` — web app structure
-- `apps/admin/README.md` — admin app structure
-- `packages/common/README.md` — shared frontend package
+- `apps/frontend/README.md` — frontend app structure
 
 ### Rules
 - `ai/rules/general.md` — language, critical thinking

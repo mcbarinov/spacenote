@@ -1,6 +1,6 @@
 # Spacenote Monorepo
 
-Spacenote is a flexible note-taking system with customizable spaces, AI-assisted workflows, and Telegram integrations. This repository hosts all core projects: the Python backend, user-facing web app, admin app, shared packages, and deployment assets.
+Spacenote is a flexible note-taking system with customizable spaces, AI-assisted workflows, and Telegram integrations. This repository hosts all core projects: the Python backend, React frontend, and deployment assets.
 
 ## Monorepo Structure
 
@@ -8,10 +8,7 @@ Spacenote is a flexible note-taking system with customizable spaces, AI-assisted
 spacenote/
 ├── apps/                    # Applications
 │   ├── backend/            # Python FastAPI backend
-│   ├── web/                # React frontend for users
-│   └── admin/              # React frontend for admins
-├── packages/               # Shared packages
-│   └── common/             # @spacenote/common - shared frontend code
+│   └── frontend/           # React frontend (user + admin)
 ├── ai/                      # AI agent resources
 │   ├── commands/           # Claude Code slash commands
 │   └── rules/              # AI coding guidelines
@@ -27,24 +24,11 @@ spacenote/
 - **Purpose**: REST API backend with OpenAPI documentation
 - **Key features**: User authentication, spaces, notes, comments, attachments, LLM integration, Telegram bot
 
-### web
+### frontend
 - **Technology**: React 19, TypeScript, Vite, TanStack Query
-- **Purpose**: User-facing web application
-- **Key features**: Note management, markdown editor, filtering, exports
-
-### admin
-- **Technology**: React 19, TypeScript, Vite, TanStack Query
-- **Purpose**: Admin panel for system management
-- **Key features**: User management, space administration, Telegram integration
-
-## Packages
-
-### @spacenote/common
-Shared frontend code for all React applications:
-- **Types**: Auto-generated from backend OpenAPI specification + custom types
-- **API layer**: Queries, mutations, cache hooks
-- **Components**: Reusable UI components, error boundaries
-- **Utilities**: Formatters, helpers, error handling
+- **Purpose**: Unified frontend for users and admins
+- **Key features**: Note management, markdown editor, filtering, exports, user management, space administration, Telegram integration
+- **Admin routes**: Under `/admin/*`, guarded by username check
 
 ## Documentation
 
@@ -56,7 +40,7 @@ Shared frontend code for all React applications:
 | `docs/frontend.md` | Frontend architecture (routing, data layer) |
 | `docs/space-examples.md` | Space configuration examples |
 | `docs/behavior.md` | Non-obvious behavioral scenarios (B001, B002, ...) |
-| `docs/workflow.md` | Development workflow (issues, branches, worktrees) |
+| `docs/workflow.md` | Development workflow (issues, branches) |
 
 ## AI Agents
 
@@ -89,7 +73,6 @@ ln -s ../ai/commands .claude/commands
 **Monorepo:**
 - pnpm workspaces (package management)
 - just (task automation)
-- TypeScript project references (incremental builds)
 
 ## Getting Started
 

@@ -1,0 +1,89 @@
+import { createFileRoute, Link } from "@tanstack/react-router"
+import { ActionIcon, Divider, Group, Title } from "@mantine/core"
+import { IconPaperclip } from "@tabler/icons-react"
+import { useSuspenseQuery } from "@tanstack/react-query"
+import { z } from "zod"
+import { api } from "@/api"
+import { COMMENTS_PAGE_LIMIT } from "@/api/queries"
+import { LinkButton } from "@/components/LinkButton"
+import { PageHeader } from "@/components/PageHeader"
+import { ViewModeMenu } from "@/components/ViewModeMenu"
+import { CommentForm } from "./-local/CommentForm"
+import { CommentList } from "./-local/CommentList"
+import { NoteDetailsDefault } from "./-local/NoteDetailsDefault"
+import { NoteDetailsJson } from "./-local/NoteDetailsJson"
+import { NoteDetailsTemplate } from "./-local/NoteDetailsTemplate"
+
+const searchSchema = z.object({
+  view: z.enum(["default", "template", "json"]).optional(),
+})
+
+type ViewMode = "default" | "template" | "json"
+
+/** Resolves which view mode to display */
+function resolveView(view: ViewMode | undefined, hasTemplate: boolean): ViewMode {
+  if (view === "json") return "json"
+  if (view === "template" && hasTemplate) return "template"
+  if (view === "default") return "default"
+  return hasTemplate ? "template" : "default"
+}
+
+export const Route = createFileRoute("/_auth/s/$slug/$noteNumber/")({
+  validateSearch: searchSchema,
+  loader: async ({ context, params }) => {
+    const noteNumber = Number(params.noteNumber)
+    await Promise.all([
+      context.queryClient.ensureQueryData(api.queries.getNote(params.slug, noteNumber)),
+      context.queryClient.ensureQueryData(api.queries.listComments(params.slug, noteNumber, 1, COMMENTS_PAGE_LIMIT)),
+    ])
+  },
+  component: NoteDetailPage,
+})
+
+/** Note detail page with fields and comments */
+function NoteDetailPage() {
+  const { slug, noteNumber } = Route.useParams()
+  const { view } = Route.useSearch()
+  const noteNum = Number(noteNumber)
+  const space = api.cache.useSpace(slug)
+  const { data: note } = useSuspenseQuery(api.queries.getNote(slug, noteNum))
+
+  const template = space.templates["web:note:detail"]
+  const hasTemplate = Boolean(template)
+  const resolvedView = resolveView(view, hasTemplate)
+
+  return (
+    <>
+      <PageHeader
+        title={note.title}
+        breadcrumbs={[{ label: `◈ ${space.slug}`, to: "/s/$slug", params: { slug } }, { label: `Note #${note.number}` }]}
+        topActions={
+          <Group gap="xs">
+            <ViewModeMenu slug={slug} noteNumber={noteNumber} currentView={resolvedView} hasTemplate={hasTemplate} />
+            <Link to="/s/$slug/$noteNumber/attachments" params={{ slug, noteNumber }}>
+              <ActionIcon variant="subtle" title="Attachments">
+                <IconPaperclip size={18} />
+              </ActionIcon>
+            </Link>
+            <LinkButton to="/s/$slug/$noteNumber/edit" params={{ slug, noteNumber }}>
+              Edit
+            </LinkButton>
+          </Group>
+        }
+      />
+
+      {resolvedView === "json" && <NoteDetailsJson note={note} />}
+      {resolvedView === "template" && template && <NoteDetailsTemplate note={note} space={space} template={template} />}
+      {resolvedView === "default" && <NoteDetailsDefault note={note} space={space} />}
+
+      <Divider my="lg" />
+
+      <Title order={2} mb="md">
+        Comments
+      </Title>
+      <CommentForm space={space} note={note} />
+      <Divider my="lg" />
+      <CommentList spaceSlug={slug} noteNumber={noteNum} />
+    </>
+  )
+}

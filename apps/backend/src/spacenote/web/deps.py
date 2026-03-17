@@ -28,11 +28,8 @@ async def get_auth_token(
         if await app.is_auth_token_valid(auth_token):
             return auth_token
 
-    # Fallback to cookie - check only the one matching client app
-    client_app = request.headers.get("X-Client-App")
-    cookie_name = "token_admin" if client_app == "admin" else "token_web"
-
-    token = request.cookies.get(cookie_name)
+    # Fallback to cookie
+    token = request.cookies.get("token")
     if token:
         auth_token = AuthToken(token)
         if await app.is_auth_token_valid(auth_token):

@@ -9,20 +9,15 @@ services:
     command: >
       -c "echo '
       :80 {
-        redir /admin /admin/
         reverse_proxy /api/* backend:8000
-        handle_path /admin/* {
-          reverse_proxy admin:4173
-        }
-        reverse_proxy web:4173
+        reverse_proxy frontend:4173
       }
       ' | caddy run --config /dev/stdin --adapter caddyfile"
     networks:
       - spacenote-local
     depends_on:
       - backend
-      - web
-      - admin
+      - frontend
 
   mongodb:
     image: ${MONGODB_IMAGE:-mongodb/mongodb-community-server:8.0.12-ubi9}
@@ -70,24 +65,11 @@ services:
     networks:
       - spacenote-local
 
-  web:
+  frontend:
     build:
-      context: ..
-      dockerfile: apps/web/Dockerfile
-    container_name: spacenote-web-local
-    restart: unless-stopped
-    depends_on:
-      - backend
-    networks:
-      - spacenote-local
-
-  admin:
-    build:
-      context: ..
-      dockerfile: apps/admin/Dockerfile
-      args:
-        VITE_BASE_PATH: /admin/
-    container_name: spacenote-admin-local
+      context: ../apps/frontend
+      dockerfile: Dockerfile
+    container_name: spacenote-frontend-local
     restart: unless-stopped
     depends_on:
       - backend

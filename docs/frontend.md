@@ -15,16 +15,9 @@
 
 ## Project Structure
 
-### Monorepo Structure
+### App Structure
 
-```
-apps/
-├── admin/              # Admin panel
-└── web/                # User-facing app
-
-packages/
-└── common/             # @spacenote/common - types, API layer, components, utilities
-```
+Single frontend application at `apps/frontend/` serving both user and admin routes. Admin pages live under `/admin/*` with a layout guard checking `currentUser.username === "admin"`.
 
 ### Routes Organization (Virtual File Routes)
 
@@ -87,10 +80,10 @@ export const routes = rootRoute('root.layout.tsx', [
 
 ### Import Paths
 
-**Apps (`apps/web`, `apps/admin`):** Use `@/` alias for deep imports (2+ levels up).
+Use `@/` alias for deep imports (2+ levels up).
 
 ```typescript
-// ✅ In apps - use @/ for deep imports
+// ✅ Use @/ for deep imports
 import { FieldInput } from "@/components/FieldInput"
 
 // ✅ Relative for 1 level up or same directory
@@ -101,46 +94,28 @@ import { Foo } from "./Foo"
 import { FieldInput } from "../../../../components/FieldInput"
 ```
 
-**Packages (`@spacenote/common`):** Always use relative imports. Packages are standalone - `@/` aliases break when consumed by apps with different tsconfig paths.
-
 
 ---
 
 ## Setup
-
-### App Bootstrap
-
-Both apps use `@spacenote/common/app` for initialization:
-
-```typescript
-// main.tsx
-import { runApp } from "@spacenote/common/app"
-import { routeTree } from "./routeTree.gen"
-
-runApp({ isAdmin: true }, routeTree)  // or { isAdmin: false } for web
-```
-
-`runApp(config, routeTree)` initializes HTTP client, creates router, and renders React app with all providers (Mantine, Query, Router).
 
 ### Type Generation from OpenAPI
 
 Types auto-generated from backend OpenAPI spec via `openapi-typescript`:
 
 ```bash
-pnpm --filter @spacenote/common generate
-# or
-just common-generate
+pnpm --filter @spacenote/frontend generate
 ```
 
 ```
-packages/common/src/types/
+apps/frontend/src/types/
 ├── openapi.gen.ts   # Auto-generated from OpenAPI
 └── index.ts         # Re-exports + custom types
 ```
 
 Usage:
 ```typescript
-import type { LoginRequest, User } from "@spacenote/common/types"
+import type { LoginRequest, User } from "@/types"
 ```
 
 
@@ -151,7 +126,7 @@ import type { LoginRequest, User } from "@spacenote/common/types"
 ### API Structure
 
 ```
-packages/common/src/api/
+apps/frontend/src/api/
 ├── queries.ts      # Query definitions (queryOptions)
 ├── mutations.ts    # Mutation hooks (useMutation)
 ├── cache.ts        # Cache read hooks (useSuspenseQuery wrappers)
@@ -161,7 +136,7 @@ packages/common/src/api/
 
 Access via unified `api` object:
 ```typescript
-import { api } from "@spacenote/common/api"
+import { api } from "@/api"
 
 api.queries.listSpaces()      // Query options
 api.mutations.useCreateNote() // Mutation hook
@@ -348,18 +323,18 @@ export const Route = createFileRoute("/_auth")({
 
 ### Navigation
 
-Use type-safe navigation components from `@spacenote/common/components`.
+Use type-safe navigation components.
 
 **Text links → CustomLink:**
 ```tsx
-import { CustomLink } from "@spacenote/common/components"
+import { CustomLink } from "@/components/navigation/CustomLink"
 
 <CustomLink to="/s/$slug" params={{ slug }}>View space</CustomLink>
 ```
 
 **Button links → LinkButton:**
 ```tsx
-import { LinkButton } from "@spacenote/common/components"
+import { LinkButton } from "@/components/navigation/LinkButton"
 
 <LinkButton to="/s/$slug/new" params={{ slug }}>New Note</LinkButton>
 ```
@@ -631,7 +606,7 @@ web:note:list:my-tasks → /s/mf-tasks?filter=my-tasks
 
 ### Styling Approach
 
-Templates render HTML that should visually match Mantine components. We achieve this through CSS classes in `packages/common/src/styles/templates.css`.
+Templates render HTML that should visually match Mantine components. We achieve this through CSS classes in `apps/frontend/src/styles/templates.css`.
 
 **Principle:** Write HTML as if using Mantine components.
 
@@ -729,5 +704,5 @@ p-sm, p-md, p-lg
 
 ### Files
 
-- `packages/common/src/styles/templates.css` — CSS classes
-- `packages/common/src/templates/` — LiquidJS renderer
+- `apps/frontend/src/styles/templates.css` — CSS classes
+- `apps/frontend/src/templates/` — LiquidJS renderer

@@ -5,18 +5,14 @@ GHCR_USER := "mcbarinov"
 
 # Lint all projects
 lint:
-    @echo "=== common ==="
-    @just common-lint
-    @echo "=== admin ==="
-    @just admin-lint
-    @echo "=== web ==="
-    @just web-lint
+    @echo "=== frontend ==="
+    @just frontend-lint
     @echo "=== backend ==="
     @just backend-lint
 
-outdated: backend-outdated common-outdated admin-outdated web-outdated
+outdated: backend-outdated frontend-outdated
 
-upgrade: common-update admin-update web-update
+upgrade: frontend-update
 
 [group("backend")]
 backend-clean:
@@ -51,98 +47,39 @@ backend-test:
     cd apps/backend && uv run pytest tests
 
 
-[group("common")]
-common-generate:
-    pnpm --filter @spacenote/common generate
-
-[group("common")]
-common-lint:
-    pnpm --silent --filter @spacenote/common run format
-    pnpm --silent --filter @spacenote/common run lint
-    pnpm --silent --filter @spacenote/common run typecheck
-
-
-[group("common")]
-common-outdated:
-    pnpm --filter @spacenote/common outdated || true
-
-
-[group("common")]
-common-update:
-    pnpm --filter @spacenote/common update
-
-
-[group("admin")]
-admin-dev:
+[group("frontend")]
+frontend-dev:
+    cd apps/frontend && \
     VITE_GIT_COMMIT_HASH=$(git rev-parse HEAD) \
-    VITE_PORT=${VITE_ADMIN_PORT} \
+    VITE_PORT=${VITE_FRONTEND_PORT} \
     VITE_API_URL=${VITE_API_URL} \
-    VITE_BASE_PATH=${VITE_BASE_PATH} \
-    pnpm --filter @spacenote/admin run dev
+    pnpm run dev
 
+[group("frontend")]
+frontend-lint:
+    cd apps/frontend && pnpm run format
+    cd apps/frontend && pnpm run lint
+    cd apps/frontend && pnpm run typecheck
 
-[group("admin")]
-admin-lint:
-    pnpm --silent --filter @spacenote/admin run format
-    pnpm --silent --filter @spacenote/admin run lint
-    pnpm --silent --filter @spacenote/admin run typecheck
+[group("frontend")]
+frontend-outdated:
+    cd apps/frontend && pnpm outdated || true
 
+[group("frontend")]
+frontend-update:
+    cd apps/frontend && pnpm update
 
-[group("admin")]
-admin-outdated:
-    pnpm --filter @spacenote/admin outdated || true
-
-[group("admin")]
-admin-update:
-    pnpm --filter @spacenote/admin update
-
-[group("admin")]
-admin-routes:
-    pnpm --filter @spacenote/admin run routes
-
-
-[group("web")]
-web-dev:
-    VITE_GIT_COMMIT_HASH=$(git rev-parse HEAD) \
-    VITE_PORT=${VITE_WEB_PORT} \
-    VITE_API_URL=${VITE_API_URL} \
-    pnpm --filter @spacenote/web run dev
-
-
-[group("web")]
-web-lint:
-    pnpm --silent --filter @spacenote/web run format
-    pnpm --silent --filter @spacenote/web run lint
-    pnpm --silent --filter @spacenote/web run typecheck
-
-
-[group("web")]
-web-outdated:
-    pnpm --filter @spacenote/web outdated || true
-
-[group("web")]
-web-update:
-    pnpm --filter @spacenote/web update
-
-[group("web")]
-web-routes:
-    pnpm --filter @spacenote/web run routes
-
+[group("frontend")]
+frontend-routes:
+    cd apps/frontend && pnpm run routes
 
 [group("agent")]
-agent-web-dev:
+agent-frontend-dev:
+    cd apps/frontend && \
     VITE_GIT_COMMIT_HASH=$(git rev-parse HEAD) \
-    VITE_PORT=${VITE_WEB_PORT_AGENT} \
+    VITE_PORT=${VITE_FRONTEND_PORT_AGENT} \
     VITE_API_URL=${VITE_API_URL_AGENT} \
-    pnpm --filter @spacenote/web run dev
-
-[group("agent")]
-agent-admin-dev:
-    VITE_GIT_COMMIT_HASH=$(git rev-parse HEAD) \
-    VITE_PORT=${VITE_ADMIN_PORT_AGENT} \
-    VITE_API_URL=${VITE_API_URL_AGENT} \
-    VITE_BASE_PATH=${VITE_BASE_PATH} \
-    pnpm --filter @spacenote/admin run dev
+    pnpm run dev
 
 [group("agent")]
 agent-backend-dev:
@@ -156,7 +93,7 @@ agent-backend-dev:
 # Build all images locally (native arch)
 [group("docker")]
 docker-build:
-    just docker-build-backend & just docker-build-web & just docker-build-admin & wait
+    just docker-build-backend & just docker-build-frontend & wait
 
 # Build backend image locally
 [group("docker")]
@@ -167,29 +104,18 @@ docker-build-backend:
         -t ghcr.io/{{GHCR_USER}}/spacenote-backend:latest \
         --load apps/backend
 
-# Build web image locally
+# Build frontend image locally
 [group("docker")]
-docker-build-web:
+docker-build-frontend:
     docker buildx build \
         --build-arg GIT_COMMIT_HASH=$(git rev-parse HEAD) \
-        -f apps/web/Dockerfile \
-        -t ghcr.io/{{GHCR_USER}}/spacenote-web:latest \
-        --load .
-
-# Build admin image locally
-[group("docker")]
-docker-build-admin:
-    docker buildx build \
-        --build-arg GIT_COMMIT_HASH=$(git rev-parse HEAD) \
-        --build-arg VITE_BASE_PATH=/admin/ \
-        -f apps/admin/Dockerfile \
-        -t ghcr.io/{{GHCR_USER}}/spacenote-admin:latest \
-        --load .
+        -t ghcr.io/{{GHCR_USER}}/spacenote-frontend:latest \
+        --load apps/frontend
 
 # Build and push all images to GHCR (linux/amd64)
 [group("docker")]
 docker-push:
-    just docker-push-backend & just docker-push-web & just docker-push-admin & wait
+    just docker-push-backend & just docker-push-frontend & wait
 
 # Build and push backend image to GHCR
 [group("docker")]
@@ -200,24 +126,13 @@ docker-push-backend:
         -t ghcr.io/{{GHCR_USER}}/spacenote-backend:latest \
         --push apps/backend
 
-# Build and push web image to GHCR
+# Build and push frontend image to GHCR
 [group("docker")]
-docker-push-web:
+docker-push-frontend:
     docker buildx build --platform linux/amd64 \
         --build-arg GIT_COMMIT_HASH=$(git rev-parse HEAD) \
-        -f apps/web/Dockerfile \
-        -t ghcr.io/{{GHCR_USER}}/spacenote-web:latest \
-        --push .
-
-# Build and push admin image to GHCR
-[group("docker")]
-docker-push-admin:
-    docker buildx build --platform linux/amd64 \
-        --build-arg GIT_COMMIT_HASH=$(git rev-parse HEAD) \
-        --build-arg VITE_BASE_PATH=/admin/ \
-        -f apps/admin/Dockerfile \
-        -t ghcr.io/{{GHCR_USER}}/spacenote-admin:latest \
-        --push .
+        -t ghcr.io/{{GHCR_USER}}/spacenote-frontend:latest \
+        --push apps/frontend
 
 # Start local Docker Compose stack
 [group("docker")]
@@ -253,87 +168,3 @@ colima-restart:
 
     echo ""
     echo "Colima ready! Run 'just docker-push' to build and push images."
-
-
-# === Worktree Commands ===
-
-# Create a new worktree slot with pre-configured ports
-[group("worktree")]
-worktree-setup slot:
-    #!/usr/bin/env bash
-    set -euo pipefail
-
-    SLOT={{slot}}
-    MAIN_WORKTREE="$(git rev-parse --show-toplevel)"
-    WORKTREE_PATH="${WORKTREES_PATH:-$HOME/worktrees}/spacenote-w${SLOT}"
-
-    # Calculate ports (base + slot×10)
-    WEB_PORT=$((3000 + SLOT * 10))
-    WEB_PORT_AGENT=$((WEB_PORT + 1))
-    BACKEND_PORT=$((3100 + SLOT * 10))
-    BACKEND_PORT_AGENT=$((BACKEND_PORT + 1))
-    ADMIN_PORT=$((3200 + SLOT * 10))
-    ADMIN_PORT_AGENT=$((ADMIN_PORT + 1))
-    DATABASE="spacenote_w${SLOT}"
-
-    BRANCH_NAME="worktree-${SLOT}"
-
-    echo "Creating worktree slot ${SLOT} at ${WORKTREE_PATH}"
-    echo "Branch: ${BRANCH_NAME}"
-    echo "Ports: web=${WEB_PORT}, backend=${BACKEND_PORT}, admin=${ADMIN_PORT}"
-    echo "Database: ${DATABASE}"
-    echo ""
-
-    # Check that branch doesn't exist
-    if git show-ref --verify --quiet "refs/heads/${BRANCH_NAME}"; then
-        echo "Error: Branch ${BRANCH_NAME} already exists"
-        exit 1
-    fi
-
-    # Create branch and worktree
-    git branch "${BRANCH_NAME}" main
-    git worktree add "${WORKTREE_PATH}" "${BRANCH_NAME}"
-
-    # Generate .env
-    {
-        echo "# === Backend ==="
-        echo "SPACENOTE_DATABASE_URL=mongodb://localhost:27017/${DATABASE}"
-        echo "SPACENOTE_SITE_URL=http://localhost:${WEB_PORT}"
-        echo "SPACENOTE_HOST=0.0.0.0"
-        echo "SPACENOTE_PORT=${BACKEND_PORT}"
-        echo "SPACENOTE_PORT_AGENT=${BACKEND_PORT_AGENT}"
-        echo "SPACENOTE_DEBUG=true"
-        echo "SPACENOTE_CORS_ORIGINS='[\"http://localhost:*\"]'"
-        echo "SPACENOTE_ATTACHMENTS_PATH=${WORKTREE_PATH}/tmp/data/attachments"
-        echo "SPACENOTE_IMAGES_PATH=${WORKTREE_PATH}/tmp/data/images"
-        echo ""
-        echo "# === Frontend ==="
-        echo "VITE_WEB_PORT=${WEB_PORT}"
-        echo "VITE_WEB_PORT_AGENT=${WEB_PORT_AGENT}"
-        echo "VITE_ADMIN_PORT=${ADMIN_PORT}"
-        echo "VITE_ADMIN_PORT_AGENT=${ADMIN_PORT_AGENT}"
-        echo "VITE_API_URL=http://localhost:${BACKEND_PORT}"
-        echo "VITE_API_URL_AGENT=http://localhost:${BACKEND_PORT_AGENT}"
-        echo "VITE_BASE_PATH=/"
-    } > "${WORKTREE_PATH}/.env"
-
-    echo "Installing dependencies..."
-    cd "${WORKTREE_PATH}" && pnpm install
-    cd "${WORKTREE_PATH}/apps/backend" && uv sync
-
-    # Configure Claude Code
-    mkdir -p "${WORKTREE_PATH}/.claude"
-    ln -s ../ai/commands "${WORKTREE_PATH}/.claude/commands"
-    if [[ -f "${MAIN_WORKTREE}/.claude/settings.local.json" ]]; then
-        ln -s "${MAIN_WORKTREE}/.claude/settings.local.json" "${WORKTREE_PATH}/.claude/settings.local.json"
-    else
-        echo "Warning: ${MAIN_WORKTREE}/.claude/settings.local.json not found"
-    fi
-
-    echo ""
-    echo "Worktree slot ${SLOT} ready at ${WORKTREE_PATH}"
-
-# List all worktrees
-[group("worktree")]
-worktree-list:
-    git worktree list

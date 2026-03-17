@@ -1,0 +1,12 @@
+import * as queries from "./queries"
+import * as mutations from "./mutations"
+import * as cache from "./cache"
+
+/** Unified API object with queries, mutations, and cache hooks */
+export const api = {
+  queries,
+  mutations,
+  cache,
+}
+
+export { queryClient } from "./queryClient"

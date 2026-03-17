@@ -26,22 +26,13 @@ services:
       }
 
       ${DOMAIN} {
-        redir /admin /admin/
         reverse_proxy /api/* backend:8000 {
           transport http {
             read_timeout 10m
             write_timeout 10m
           }
         }
-        handle_path /admin/* {
-          reverse_proxy admin:4173 {
-            transport http {
-              read_timeout 10m
-              write_timeout 10m
-            }
-          }
-        }
-        reverse_proxy web:4173 {
+        reverse_proxy frontend:4173 {
           transport http {
             read_timeout 10m
             write_timeout 10m
@@ -54,9 +45,7 @@ services:
     depends_on:
       backend:
         condition: service_healthy
-      web:
-        condition: service_healthy
-      admin:
+      frontend:
         condition: service_healthy
     logging: *default-logging
 
@@ -114,26 +103,9 @@ services:
       retries: 3
     logging: *default-logging
 
-  web:
-    image: ${WEB_IMAGE:-ghcr.io/mcbarinov/spacenote-web:latest}
-    container_name: spacenote-web
-    restart: unless-stopped
-    depends_on:
-      - backend
-    networks:
-      - spacenote-network
-    healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://localhost:4173"]
-      start_period: 2s
-      interval: 5s
-      timeout: 5s
-      retries: 3
-    logging: *default-logging
-
-  admin:
-    image: ${ADMIN_IMAGE:-ghcr.io/mcbarinov/spacenote-admin:latest}
-    # Note: For production builds, use: docker build --build-arg VITE_BASE_PATH=/admin/ ...
-    container_name: spacenote-admin
+  frontend:
+    image: ${FRONTEND_IMAGE:-ghcr.io/mcbarinov/spacenote-frontend:latest}
+    container_name: spacenote-frontend
     restart: unless-stopped
     depends_on:
       - backend

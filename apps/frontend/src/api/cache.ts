@@ -1,7 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { AppError } from "@/errors/AppError"
 import type { Space, User } from "@/types"
-import { currentUser, listSpaces, listUsers } from "./queries"
+import { currentUser, listAllSpaces, listSpaces, listUsers } from "./queries"
 
 /** Hook to get the current authenticated user from the query cache */
 export function useCurrentUser(): User {
@@ -23,6 +23,12 @@ export function useUser(username: string): User {
     throw new AppError("not_found", "User not found")
   }
   return user
+}
+
+/** Hook to get all spaces regardless of membership (admin only) */
+export function useAllSpaces(): Space[] {
+  const { data } = useSuspenseQuery(listAllSpaces())
+  return data
 }
 
 /** Hook to get the list of all spaces from the query cache */

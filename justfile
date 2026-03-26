@@ -70,6 +70,10 @@ frontend-update:
     cd apps/frontend && pnpm update
 
 [group("frontend")]
+frontend-openapi:
+    cd apps/frontend && pnpm run openapi
+
+[group("frontend")]
 frontend-routes:
     cd apps/frontend && pnpm run routes
 

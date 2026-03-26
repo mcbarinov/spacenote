@@ -1,12 +1,32 @@
 import { createFileRoute, Outlet, redirect, useLocation, useNavigate } from "@tanstack/react-router"
-import { Box, Container, Flex } from "@mantine/core"
+import { Alert, Box, Center, Container, Flex, Loader } from "@mantine/core"
+import { IconAlertCircle } from "@tabler/icons-react"
 import { api } from "@/api"
 import { AppError } from "@/errors/AppError"
-import { ErrorBoundary } from "@/components/ErrorBoundary"
-import { ErrorScreen } from "@/components/ErrorScreen"
-import { LoadingScreen } from "@/components/LoadingScreen"
-import { Header } from "@/components/Header"
-import { Footer } from "@/components/Footer"
+import { ErrorBoundary } from "./-local/ErrorBoundary"
+import { Header } from "./-local/Header"
+import { Footer } from "./-local/Footer"
+
+/** Full-screen error display */
+function ErrorScreen({ error }: { error: Error }) {
+  const appError = AppError.fromUnknown(error)
+  return (
+    <Center h="100vh" p="md">
+      <Alert icon={<IconAlertCircle />} title={appError.title} color="red" maw={800}>
+        {appError.message}
+      </Alert>
+    </Center>
+  )
+}
+
+/** Full-screen loading indicator */
+function LoadingScreen() {
+  return (
+    <Center h="100vh">
+      <Loader />
+    </Center>
+  )
+}
 
 export const Route = createFileRoute("/_auth")({
   // Validates auth and redirects to login if unauthorized

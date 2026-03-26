@@ -13,6 +13,7 @@ class CreateUserRequest(BaseModel):
 
     username: str = Field(..., min_length=1, description="Username for the new user")
     password: str = Field(..., min_length=1, description="Password for the new user")
+    is_admin: bool = Field(default=False, description="Whether user has admin privileges")
 
 
 @router.get(
@@ -45,7 +46,7 @@ async def list_users(app: AppDep, auth_token: AuthTokenDep) -> list[UserView]:
 )
 async def create_user(create_data: CreateUserRequest, app: AppDep, auth_token: AuthTokenDep) -> UserView:
     """Create new user (admin only)."""
-    return await app.create_user(auth_token, create_data.username, create_data.password)
+    return await app.create_user(auth_token, create_data.username, create_data.password, is_admin=create_data.is_admin)
 
 
 @router.delete(
@@ -65,6 +66,29 @@ async def create_user(create_data: CreateUserRequest, app: AppDep, auth_token: A
 async def delete_user(username: str, app: AppDep, auth_token: AuthTokenDep) -> None:
     """Delete user (admin only)."""
     await app.delete_user(auth_token, username)
+
+
+class SetAdminRequest(BaseModel):
+    """Set admin status request."""
+
+    is_admin: bool = Field(..., description="Whether user has admin privileges")
+
+
+@router.put(
+    "/users/{username}/admin",
+    summary="Set user admin status",
+    description="Set admin status for a user. Only accessible by admin users.",
+    operation_id="setUserAdmin",
+    responses={
+        200: {"description": "Admin status updated"},
+        401: {"model": ErrorResponse, "description": "Not authenticated"},
+        403: {"model": ErrorResponse, "description": "Admin privileges required"},
+        404: {"model": ErrorResponse, "description": "User not found"},
+    },
+)
+async def set_admin(username: str, request: SetAdminRequest, app: AppDep, auth_token: AuthTokenDep) -> UserView:
+    """Set user admin status (admin only)."""
+    return await app.set_admin(auth_token, username, request.is_admin)
 
 
 class SetPasswordRequest(BaseModel):

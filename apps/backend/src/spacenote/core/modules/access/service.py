@@ -1,6 +1,7 @@
 from spacenote.core.modules.attachment.models import PendingAttachment
 from spacenote.core.modules.comment.models import Comment
 from spacenote.core.modules.session.models import AuthToken
+from spacenote.core.modules.space.models import Permission
 from spacenote.core.modules.user.models import User
 from spacenote.core.service import Service
 from spacenote.errors import AccessDeniedError
@@ -16,33 +17,35 @@ class AccessService(Service):
     async def ensure_admin(self, auth_token: AuthToken) -> User:
         """Verify user has admin privileges."""
         user = await self.core.services.session.get_authenticated_user(auth_token)
-        if user.username != "admin":
+        if not user.is_admin:
             raise AccessDeniedError("Admin privileges required")
         return user
 
-    async def ensure_space_member(self, auth_token: AuthToken, space_slug: str) -> User:
-        """Verify user is a member of the specified space."""
+    async def ensure_space_admin(self, auth_token: AuthToken, space_slug: str) -> User:
+        """Verify user has 'all' permission on space."""
         user = await self.core.services.session.get_authenticated_user(auth_token)
         space = self.core.services.space.get_space(space_slug)
-        if user.username not in space.members:
-            raise AccessDeniedError("Not a member of this space")
+        member = space.get_member(user.username)
+        if not member or Permission.ALL not in member.permissions:
+            raise AccessDeniedError("Space management permission required")
         return user
 
-    async def ensure_space_reader(self, auth_token: AuthToken, space_slug: str) -> User:
-        """Verify user can read space content (admin or member)."""
+    async def ensure_space_permission(self, auth_token: AuthToken, space_slug: str, permission: Permission | None = None) -> User:
+        """Verify user is a space member, optionally with a specific permission."""
         user = await self.core.services.session.get_authenticated_user(auth_token)
         space = self.core.services.space.get_space(space_slug)
-        if user.username == "admin":
-            return user
-        if user.username not in space.members:
+        member = space.get_member(user.username)
+        if not member:
             raise AccessDeniedError("Not a member of this space")
+        if permission and Permission.ALL not in member.permissions and permission not in member.permissions:
+            raise AccessDeniedError(f"Permission '{permission}' required")
         return user
 
     async def ensure_comment_author(
         self, auth_token: AuthToken, space_slug: str, note_number: int, comment_number: int
     ) -> tuple[User, Comment]:
         """Verify user is space member AND comment author."""
-        user = await self.ensure_space_member(auth_token, space_slug)
+        user = await self.ensure_space_permission(auth_token, space_slug)
         comment = await self.core.services.comment.get_comment(space_slug, note_number, comment_number)
         if comment.author != user.username:
             raise AccessDeniedError("Only the author can modify this comment")
@@ -62,6 +65,6 @@ class AccessService(Service):
         """Verify user is admin or owns the pending attachment."""
         user = await self.ensure_authenticated(auth_token)
         pending = await self.core.services.attachment.get_pending_attachment(number)
-        if user.username not in {"admin", pending.author}:
+        if not user.is_admin and user.username != pending.author:
             raise AccessDeniedError("Only the owner or admin can delete this attachment")
         return user, pending

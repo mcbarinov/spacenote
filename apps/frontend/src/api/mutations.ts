@@ -82,6 +82,18 @@ export function useDeleteUser() {
   })
 }
 
+/** Sets admin status for a user (admin only) */
+export function useSetUserAdmin() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ username, is_admin }: { username: string; is_admin: boolean }) =>
+      httpClient.put(`api/v1/users/${username}/admin`, { json: { is_admin } }).json<User>(),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["users"] })
+    },
+  })
+}
+
 /** Sets password for a user (admin only) */
 export function useSetUserPassword() {
   return useMutation({
@@ -108,6 +120,34 @@ export function useImportSpace() {
     mutationFn: (data: ExportData) => httpClient.post("api/v1/spaces/import", { json: data }).json<Space>(),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["spaces"] })
+    },
+  })
+}
+
+/** System admin joins a space with 'all' permission */
+export function useAdminJoinSpace() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (slug: string) => httpClient.post(`api/v1/spaces/${slug}/admin-access`).json<Space>(),
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["admin", "spaces"] }),
+        queryClient.invalidateQueries({ queryKey: ["spaces"] }),
+      ])
+    },
+  })
+}
+
+/** System admin leaves a space */
+export function useAdminLeaveSpace() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (slug: string) => httpClient.delete(`api/v1/spaces/${slug}/admin-access`).json<Space>(),
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["admin", "spaces"] }),
+        queryClient.invalidateQueries({ queryKey: ["spaces"] }),
+      ])
     },
   })
 }

@@ -2,6 +2,11 @@
 
 General rules for AI agents working on this project.
 
+## Package Managers
+
+- **Backend**: `uv` (never use `pip`)
+- **Frontend**: `pnpm` (never use `npm` or `yarn`)
+
 ## Git Conventions
 
 Labels: `chore:`, `feat:`, `fix:`, `infra:`, `refactor:`
@@ -20,7 +25,7 @@ Development servers have separate ports for human and agent use:
 | backend  | 3100       | 3101       | just backend-dev     | just agent-backend-dev   |
 
 Rules:
-- Never start/stop/restart servers on human ports (3000, 3100, 3200)
+- Never start/stop/restart servers on human ports (3000, 3100)
 - Always use `agent-*` commands when running dev servers
 - Human servers are managed by the user
 
@@ -31,7 +36,5 @@ Run after making changes:
 | Area | Command |
 |------|---------|
 | Backend | `just backend-lint` |
-| Frontend (web) | `just web-lint` |
-| Frontend (admin) | `just admin-lint` |
-| Common package | `just common-lint` |
+| Frontend | `just frontend-lint` |
 | All | `just lint` |

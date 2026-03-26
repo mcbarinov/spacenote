@@ -117,7 +117,7 @@ class ExportService(Service):
         # Create missing users
         usernames = self._collect_usernames(data)
         for username in usernames:
-            if not self.core.services.user.has_user(username) and username != "admin":
+            if not self.core.services.user.has_user(username):
                 password = secrets.token_urlsafe(16)
                 await self.core.services.user.create_user(username, password)
                 logger.info("import_user_created", username=username)
@@ -216,7 +216,7 @@ class ExportService(Service):
 
     def _collect_usernames(self, data: ExportData) -> set[str]:
         """Collect all usernames from export data."""
-        usernames = set(data.space.members)
+        usernames = {m.username for m in data.space.members}
         if data.notes:
             usernames.update(n.author for n in data.notes)
         if data.comments:

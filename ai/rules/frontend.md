@@ -145,10 +145,44 @@ Submit buttons in Stack forms — right-align with Group:
 
 ## 4. File Organization
 
-### 4.1 Keep Related Code Together
+### 4.1 Component Placement
+
+| Where | When |
+|-------|------|
+| `src/components/` | Used across **unrelated** parts of the app |
+| `-shared/` | Used only within **one route branch** (e.g., all of `/spaces/*`) |
+| `-local/` | Used by **one** page or layout |
+
+If a component is only used within one route branch, put it in that branch's `-shared/`, not in `components/`. `components/` is the global scope.
+
+### 4.2 Route File Structure
+
+Default to flat files for routes. Only promote to a directory when the page needs `-local/` or `-shared/` sub-components.
+
+```
+# ✅ Standalone page — flat file
+admin/temp-space-access.page.tsx
+
+# ✅ Page with local components — directory
+admin/users/index/page.tsx
+admin/users/index/-local/SetPasswordButton.tsx
+
+# ❌ Wrong — directory without -local/-shared
+admin/spaces/index/page.tsx    # should be admin/spaces.page.tsx
+```
+
+### 4.3 Keep Related Code Together
 
 Don't split into separate files unnecessarily. Keep component and its helper functions in one file if helpers are only used by that component.
 
-**Create a folder only when:**
-- Component has multiple subcomponents
-- Utilities are reused elsewhere
+### 4.4 Directory Modules
+
+When a component has private sub-components too large to inline, convert to a directory:
+
+```
+ComponentName/
+  index.tsx             ← public, the main component
+  SubComponent.tsx      ← private, only used by index.tsx
+```
+
+External imports stay unchanged (`@/components/ComponentName` resolves via `index.tsx`). Applies to `components/`, `-local/`, and `-shared/` equally.

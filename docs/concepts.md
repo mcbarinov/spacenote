@@ -12,7 +12,11 @@ A container that groups related notes. Each space represents a project or domain
 
 - Unique slug identifier (e.g., `task-tracker`, `food-journal`)
 - Custom field schema defining note structure
-- List of members who can access the space
+- Members with per-member permissions (`all`, `create_note`, `create_comment`)
+  - Membership alone = read-only access
+  - `create_note` = can create/edit notes and upload attachments
+  - `create_comment` = can create/edit comments
+  - `all` = full access including space management
 - Timezone (IANA format, default: `UTC`) — used for `$now` in `local`/`date` datetime fields
 - Up to 100 spaces per deployment
 
@@ -40,9 +44,10 @@ See `docs/fields.md` for detailed field types, options, and VALUE_MAPS reference
 System user account:
 
 - Identified by username
-- Single administrator: user with `username="admin"`
-- All other users are regular users who can be members of spaces
-- Administrator cannot be a member of spaces
+- Any user can be marked as admin via `is_admin` flag
+- Admin manages system-level operations (users, telegram tasks, pending attachments, import)
+- `is_admin` gives no special access to spaces — space access is only through membership
+- Default `admin` user is created on first startup with password `admin`
 
 **Intentionally simple**: No self-registration, password recovery, or display names. For small teams where the admin creates all accounts manually.
 

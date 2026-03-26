@@ -212,7 +212,7 @@ export function NoteForm({ space, mode, note }: NoteFormProps) {
             <FieldInput
               key={field.name}
               field={field}
-              spaceMembers={space.members}
+              spaceMembers={space.members.map((m) => m.username)}
               {...form.getInputProps(field.name)}
               onImageMetadata={field.type === "image" ? createImageMetadataHandler(field.name) : undefined}
               noteContext={mode === "edit" ? { slug, noteNumber: note.number, noteFields: note.fields } : undefined}

@@ -43,14 +43,14 @@ class UserService(Service):
         """Get read-only view of user cache for formatting purposes."""
         return MappingProxyType(self._users)
 
-    async def create_user(self, username: str, password: str) -> User:
+    async def create_user(self, username: str, password: str, *, is_admin: bool = False) -> User:
         """Create user with hashed password."""
         if self.has_user(username):
             raise ValidationError(f"User '{username}' already exists")
 
         validate_username(username)
         validate_password(password)
-        user = User(username=username, password_hash=hash_password(password))
+        user = User(username=username, password_hash=hash_password(password), is_admin=is_admin)
         await self._collection.insert_one(user.to_mongo())
         return await self.update_user_cache(username)
 
@@ -78,16 +78,20 @@ class UserService(Service):
         await self._collection.update_one({"username": username}, {"$set": {"password_hash": hash_password(new_password)}})
         await self.update_user_cache(username)
 
+    async def set_admin(self, username: str, is_admin: bool) -> User:
+        """Set user admin status."""
+        self.get_user(username)
+        await self._collection.update_one({"username": username}, {"$set": {"is_admin": is_admin}})
+        return await self.update_user_cache(username)
+
     async def delete_user(self, username: str) -> None:
         """Delete a user from the system."""
-        if not self.has_user(username):
-            raise NotFoundError(f"User '{username}' not found")
-
-        if username == "admin":
+        user = self.get_user(username)
+        if user.is_admin:
             raise ValidationError("Cannot delete admin user")
 
         for space in self.core.services.space.list_all_spaces():
-            if username in space.members:
+            if space.has_member(username):
                 raise ValidationError(f"Cannot delete user '{username}': member of space '{space.slug}'")
 
         await self._collection.delete_one({"username": username})
@@ -96,7 +100,7 @@ class UserService(Service):
     async def ensure_admin_user_exists(self) -> None:
         """Create default admin user if not exists."""
         if not self.has_user("admin"):
-            await self.create_user("admin", "admin")
+            await self.create_user("admin", "admin", is_admin=True)
             logger.warning(
                 "admin_created_with_default_password", message="Default admin password is 'admin'. Change it immediately."
             )

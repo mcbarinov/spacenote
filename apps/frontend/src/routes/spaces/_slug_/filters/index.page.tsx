@@ -1,0 +1,111 @@
+import { createFileRoute, Link } from "@tanstack/react-router"
+import { ActionIcon, Code, Group, Paper, Stack, Table, Text } from "@mantine/core"
+import { notifications } from "@mantine/notifications"
+import { IconPencil } from "@tabler/icons-react"
+import { api } from "@/api"
+import { DeleteButton } from "@/components/DeleteButton"
+import { LinkButton } from "@/components/LinkButton"
+import { PageHeader } from "@/components/PageHeader"
+import { SpaceTabs } from "@/routes/spaces/-shared/SpaceTabs"
+import type { Filter } from "@/types"
+
+export const Route = createFileRoute("/_auth/_spaces/spaces/$slug/filters/")({
+  component: FiltersPage,
+})
+
+/** Table displaying space filters with delete action */
+function FiltersTable({ spaceSlug, filters }: { spaceSlug: string; filters: Filter[] }) {
+  const deleteFilterMutation = api.mutations.useDeleteFilter(spaceSlug)
+
+  if (filters.length === 0) {
+    return (
+      <Paper withBorder p="md">
+        <Text c="dimmed">No filters defined yet</Text>
+      </Paper>
+    )
+  }
+
+  return (
+    <Paper withBorder>
+      <Table>
+        <Table.Thead>
+          <Table.Tr>
+            <Table.Th>Name</Table.Th>
+            <Table.Th>Default Columns</Table.Th>
+            <Table.Th>Conditions</Table.Th>
+            <Table.Th>Sort</Table.Th>
+            <Table.Th>Actions</Table.Th>
+          </Table.Tr>
+        </Table.Thead>
+        <Table.Tbody>
+          {filters.map((filter) => (
+            <Table.Tr key={filter.name}>
+              <Table.Td>{filter.name}</Table.Td>
+              <Table.Td>
+                <Code>{filter.default_columns.join(", ") || "-"}</Code>
+              </Table.Td>
+              <Table.Td>
+                {filter.conditions.map((c) => (
+                  <div key={`${c.field}-${c.operator}-${JSON.stringify(c.value)}`}>
+                    <Code>
+                      {c.field} {c.operator} {JSON.stringify(c.value)}
+                    </Code>
+                  </div>
+                ))}
+              </Table.Td>
+              <Table.Td style={{ whiteSpace: "nowrap" }}>
+                <Code>{filter.sort.join(", ")}</Code>
+              </Table.Td>
+              <Table.Td>
+                <Group gap="xs" wrap="nowrap">
+                  <Link to="/spaces/$slug/filters/$filterName/edit" params={{ slug: spaceSlug, filterName: filter.name }}>
+                    <ActionIcon variant="subtle">
+                      <IconPencil size={16} />
+                    </ActionIcon>
+                  </Link>
+                  <DeleteButton
+                    title="Delete Filter"
+                    message={`Are you sure you want to delete filter "${filter.name}"?`}
+                    onConfirm={() => {
+                      deleteFilterMutation.mutate(filter.name, {
+                        onSuccess: () => {
+                          notifications.show({
+                            message: "Filter deleted successfully",
+                            color: "green",
+                          })
+                        },
+                      })
+                    }}
+                  />
+                </Group>
+              </Table.Td>
+            </Table.Tr>
+          ))}
+        </Table.Tbody>
+      </Table>
+    </Paper>
+  )
+}
+
+/** Space filters list with add filter button */
+function FiltersPage() {
+  const { slug } = Route.useParams()
+  const space = api.cache.useSpace(slug)
+
+  return (
+    <Stack gap="md">
+      <PageHeader
+        breadcrumbs={[{ label: "Spaces", to: "/" }, { label: `◈ ${space.slug}` }, { label: "Filters" }]}
+        topActions={
+          <>
+            <SpaceTabs space={space} />
+            <LinkButton to="/spaces/$slug/filters/new" params={{ slug }}>
+              Add Filter
+            </LinkButton>
+          </>
+        }
+      />
+      <FiltersTable spaceSlug={slug} filters={space.filters} />
+    </Stack>
+  )
+}

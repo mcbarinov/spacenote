@@ -21,32 +21,32 @@ class UpdateFieldRequest(BaseModel):
 @router.post(
     "/spaces/{space_slug}/fields",
     summary="Add field to space",
-    description="Add a new field definition to an existing space. Only accessible by admin users.",
+    description="Add a new field definition to an existing space. Requires 'all' permission in the space.",
     operation_id="addField",
     responses={
         200: {"description": "Returns validated field"},
         400: {"model": ErrorResponse, "description": "Invalid field data or field name already exists"},
         401: {"model": ErrorResponse, "description": "Not authenticated"},
-        403: {"model": ErrorResponse, "description": "Admin privileges required"},
+        403: {"model": ErrorResponse, "description": "Space management permission required"},
         404: {"model": ErrorResponse, "description": "Space not found"},
     },
 )
 async def add_field(space_slug: str, field: SpaceField, app: AppDep, auth_token: AuthTokenDep) -> SpaceField:
-    """Add field to space (admin only). Returns validated field."""
+    """Add field to space (space admin only). Returns validated field."""
     return await app.add_field(auth_token, space_slug, field)
 
 
 @router.put(
     "/spaces/{space_slug}/fields/{field_name}",
     summary="Update field in space",
-    description="Update a field's properties in a space. Only accessible by admin users. "
+    description="Update a field's properties in a space. Requires 'all' permission in the space. "
     "Only required, options, and default can be changed. Type and name cannot be modified.",
     operation_id="updateField",
     responses={
         200: {"description": "Returns updated field"},
         400: {"model": ErrorResponse, "description": "Invalid field data"},
         401: {"model": ErrorResponse, "description": "Not authenticated"},
-        403: {"model": ErrorResponse, "description": "Admin privileges required"},
+        403: {"model": ErrorResponse, "description": "Space management permission required"},
         404: {"model": ErrorResponse, "description": "Space or field not found"},
     },
 )
@@ -57,7 +57,7 @@ async def update_field(
     app: AppDep,
     auth_token: AuthTokenDep,
 ) -> SpaceField:
-    """Update field in space (admin only). Returns validated field."""
+    """Update field in space (space admin only). Returns validated field."""
     return await app.update_field(
         auth_token,
         space_slug,
@@ -71,16 +71,16 @@ async def update_field(
 @router.delete(
     "/spaces/{space_slug}/fields/{field_name}",
     summary="Remove field from space",
-    description="Remove a field definition from a space. Only accessible by admin users.",
+    description="Remove a field definition from a space. Requires 'all' permission in the space.",
     operation_id="removeField",
     status_code=204,
     responses={
         204: {"description": "Field removed successfully"},
         401: {"model": ErrorResponse, "description": "Not authenticated"},
-        403: {"model": ErrorResponse, "description": "Admin privileges required"},
+        403: {"model": ErrorResponse, "description": "Space management permission required"},
         404: {"model": ErrorResponse, "description": "Space or field not found"},
     },
 )
 async def remove_field(space_slug: str, field_name: str, app: AppDep, auth_token: AuthTokenDep) -> None:
-    """Remove field from space (admin only)."""
+    """Remove field from space (space admin only)."""
     await app.remove_field(auth_token, space_slug, field_name)

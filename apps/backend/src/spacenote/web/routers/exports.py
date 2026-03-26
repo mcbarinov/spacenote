@@ -16,7 +16,7 @@ router = APIRouter(tags=["export"])
     responses={
         200: {"description": "Space export data"},
         401: {"model": ErrorResponse, "description": "Not authenticated"},
-        403: {"model": ErrorResponse, "description": "Not an admin"},
+        403: {"model": ErrorResponse, "description": "Space management permission required"},
         404: {"model": ErrorResponse, "description": "Space not found"},
     },
 )
@@ -39,7 +39,7 @@ async def export_space(
         201: {"description": "Space created"},
         400: {"model": ErrorResponse, "description": "Validation error (e.g., space already exists)"},
         401: {"model": ErrorResponse, "description": "Not authenticated"},
-        403: {"model": ErrorResponse, "description": "Not an admin"},
+        403: {"model": ErrorResponse, "description": "System admin privileges required"},
     },
 )
 async def import_space(

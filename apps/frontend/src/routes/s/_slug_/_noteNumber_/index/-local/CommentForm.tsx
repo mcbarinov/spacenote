@@ -133,7 +133,7 @@ export function CommentForm({ space, note }: CommentFormProps) {
                 <FieldInput
                   key={field.name}
                   field={field}
-                  spaceMembers={space.members}
+                  spaceMembers={space.members.map((m) => m.username)}
                   {...form.getInputProps(field.name)}
                   noteContext={{ slug: space.slug, noteNumber: note.number, noteFields: note.fields }}
                 />

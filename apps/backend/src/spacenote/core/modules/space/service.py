@@ -9,7 +9,7 @@ from spacenote.core.modules.attachment import storage as attachment_storage
 from spacenote.core.modules.field.validators import validate_transfer_schema_compatibility
 from spacenote.core.modules.filter.models import ALL_FILTER_NAME, create_default_all_filter
 from spacenote.core.modules.image import storage as image_storage
-from spacenote.core.modules.space.models import Space
+from spacenote.core.modules.space.models import Member, Permission, Space
 from spacenote.core.service import Service
 from spacenote.errors import NotFoundError, ValidationError
 
@@ -42,10 +42,10 @@ class SpaceService(Service):
 
     def list_user_spaces(self, username: str) -> list[Space]:
         """List spaces where user is a member."""
-        return [space for space in self._spaces.values() if username in space.members]
+        return [space for space in self._spaces.values() if space.has_member(username)]
 
     async def create_space(
-        self, slug: str, title: str, description: str, members: list[str], source_space: str | None = None
+        self, slug: str, title: str, description: str, members: list[Member], source_space: str | None = None
     ) -> Space:
         """Create new space, optionally copying configuration from a source space."""
         if self.has_space(slug):
@@ -101,11 +101,36 @@ class SpaceService(Service):
         self.get_space(slug)
         return await self.update_space_document(slug, {"$set": {"description": description}})
 
-    async def update_members(self, slug: str, members: list[str]) -> Space:
+    async def update_members(self, slug: str, members: list[Member]) -> Space:
         """Update space members."""
         self.get_space(slug)
         self._validate_members(members)
-        return await self.update_space_document(slug, {"$set": {"members": members}})
+        return await self.update_space_document(slug, {"$set": {"members": [m.model_dump() for m in members]}})
+
+    async def add_member(self, slug: str, username: str, permissions: list[Permission]) -> Space:
+        """Add a member to space or update permissions if already a member."""
+        space = self.get_space(slug)
+        if not self.core.services.user.has_user(username):
+            raise ValidationError(f"User '{username}' not found")
+
+        members = list(space.members)
+        existing = next((m for m in members if m.username == username), None)
+        if existing:
+            for perm in permissions:
+                if perm not in existing.permissions:
+                    existing.permissions.append(perm)
+        else:
+            members.append(Member(username=username, permissions=permissions))
+
+        return await self.update_space_document(slug, {"$set": {"members": [m.model_dump() for m in members]}})
+
+    async def remove_member(self, slug: str, username: str) -> Space:
+        """Remove a member from space."""
+        space = self.get_space(slug)
+        members = [m for m in space.members if m.username != username]
+        if len(members) == len(space.members):
+            raise ValidationError(f"User '{username}' is not a member of space '{slug}'")
+        return await self.update_space_document(slug, {"$set": {"members": [m.model_dump() for m in members]}})
 
     async def update_hidden_fields_on_create(self, slug: str, field_names: list[str]) -> Space:
         """Update hidden fields on create list."""
@@ -210,13 +235,11 @@ class SpaceService(Service):
         await self._collection.delete_one({"slug": slug})
         del self._spaces[slug]
 
-    def _validate_members(self, members: list[str]) -> None:
+    def _validate_members(self, members: list[Member]) -> None:
         """Validate that all members exist in user cache."""
-        for username in members:
-            if not self.core.services.user.has_user(username):
-                raise ValidationError(f"User '{username}' not found")
-            if username == "admin":
-                raise ValidationError("Admin user cannot be a member of spaces")
+        for member in members:
+            if not self.core.services.user.has_user(member.username):
+                raise ValidationError(f"User '{member.username}' not found")
 
     async def update_all_spaces_cache(self) -> None:
         """Reload all spaces cache from database."""

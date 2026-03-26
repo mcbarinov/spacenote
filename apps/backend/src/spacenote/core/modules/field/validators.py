@@ -553,7 +553,7 @@ class UserValidator(FieldValidator):
             if field.default == SpecialValue.ME:
                 return field
 
-            if field.default not in space.members:
+            if not space.has_member(field.default):
                 raise ValidationError(f"Default user '{field.default}' is not a member of this space")
 
         return field
@@ -565,7 +565,7 @@ class UserValidator(FieldValidator):
                 if field.default == SpecialValue.ME:
                     if not ctx.current_user:
                         raise ValidationError(f"Cannot use '{SpecialValue.ME}' without a logged-in user context")
-                    if ctx.current_user not in space.members:
+                    if not space.has_member(ctx.current_user):
                         raise ValidationError("Current user is not a member of this space")
                     return ctx.current_user
                 return field.default
@@ -579,11 +579,11 @@ class UserValidator(FieldValidator):
         if raw == SpecialValue.ME:
             if not ctx.current_user:
                 raise ValidationError(f"Cannot use '{SpecialValue.ME}' without a logged-in user context")
-            if ctx.current_user not in space.members:
+            if not space.has_member(ctx.current_user):
                 raise ValidationError("Current user is not a member of this space")
             return ctx.current_user
 
-        if raw not in space.members:
+        if not space.has_member(raw):
             raise ValidationError(f"User '{raw}' is not a member of this space")
 
         return raw

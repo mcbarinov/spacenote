@@ -88,14 +88,14 @@ async def get_note(space_slug: str, number: int, app: AppDep, auth_token: AuthTo
 @router.post(
     "/spaces/{space_slug}/notes",
     summary="Create new note",
-    description="Create a new note in a space with the provided field values. Only space members can create notes.",
+    description="Create a new note in a space with the provided field values. Requires 'create_note' permission.",
     operation_id="createNote",
     status_code=201,
     responses={
         201: {"description": "Note created successfully"},
         400: {"model": ErrorResponse, "description": "Invalid field data or validation failed"},
         401: {"model": ErrorResponse, "description": "Not authenticated"},
-        403: {"model": ErrorResponse, "description": "Not a member of this space"},
+        403: {"model": ErrorResponse, "description": "Requires 'create_note' permission"},
         404: {"model": ErrorResponse, "description": "Space not found"},
     },
 )
@@ -106,13 +106,13 @@ async def create_note(space_slug: str, request: CreateNoteRequest, app: AppDep, 
 @router.patch(
     "/spaces/{space_slug}/notes/{number}",
     summary="Update note fields",
-    description="Partially update note fields. Only provided fields will be updated. Members only.",
+    description="Partially update note fields. Only provided fields will be updated. Requires 'create_note' permission.",
     operation_id="updateNote",
     responses={
         200: {"description": "Note updated successfully"},
         400: {"model": ErrorResponse, "description": "Invalid field data or validation failed"},
         401: {"model": ErrorResponse, "description": "Not authenticated"},
-        403: {"model": ErrorResponse, "description": "Not a member of this space"},
+        403: {"model": ErrorResponse, "description": "Requires 'create_note' permission"},
         404: {"model": ErrorResponse, "description": "Space or note not found"},
     },
 )
@@ -129,7 +129,7 @@ async def update_note(space_slug: str, number: int, request: UpdateNoteRequest, 
         200: {"description": "Note transferred successfully"},
         400: {"model": ErrorResponse, "description": "Transfer not allowed or schema incompatible"},
         401: {"model": ErrorResponse, "description": "Not authenticated"},
-        403: {"model": ErrorResponse, "description": "Not a member of source space"},
+        403: {"model": ErrorResponse, "description": "Requires 'create_note' permission"},
         404: {"model": ErrorResponse, "description": "Space or note not found"},
     },
 )

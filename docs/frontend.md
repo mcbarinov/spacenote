@@ -25,12 +25,14 @@ We use **virtual file routes** instead of file-based routing. The `$` character 
 
 #### Naming Conventions
 
-| Type | Simple | With `-components/` |
-|------|--------|---------------------|
+| Type | Simple | With `-local/` or `-shared/` |
+|------|--------|------------------------------|
 | Layout | `name.layout.tsx` | `name/layout.tsx` |
 | Page | `name.page.tsx` | `name/page.tsx` |
 | Index | `index.page.tsx` | `index/page.tsx` |
 | Param folder | `_param_/` | — |
+
+**Default to flat files.** Only promote to a directory (`name/page.tsx`) when the page needs `-local/` or `-shared/` sub-components. A standalone page must be `name.page.tsx`, not `name/index/page.tsx`.
 
 #### Structure Example
 
@@ -104,7 +106,7 @@ import { FieldInput } from "../../../../components/FieldInput"
 Types auto-generated from backend OpenAPI spec via `openapi-typescript`:
 
 ```bash
-pnpm --filter @spacenote/frontend generate
+pnpm --filter @spacenote/frontend openapi
 ```
 
 ```
@@ -327,14 +329,14 @@ Use type-safe navigation components.
 
 **Text links → CustomLink:**
 ```tsx
-import { CustomLink } from "@/components/navigation/CustomLink"
+import { CustomLink } from "@/components/CustomLink"
 
 <CustomLink to="/s/$slug" params={{ slug }}>View space</CustomLink>
 ```
 
 **Button links → LinkButton:**
 ```tsx
-import { LinkButton } from "@/components/navigation/LinkButton"
+import { LinkButton } from "@/components/LinkButton"
 
 <LinkButton to="/s/$slug/new" params={{ slug }}>New Note</LinkButton>
 ```
@@ -357,14 +359,17 @@ void navigate({ to: "/s/$slug", params: { slug } })
 
 ### Organization
 
-**Route-specific code** — co-located in `-local/` or `-shared/` folders:
+#### Placement Rules
 
-| Folder | Scope |
-|--------|-------|
-| `-local/` | Only for ONE page or layout |
-| `-shared/` | For siblings + all children in feature area |
+| Where | When |
+|-------|------|
+| `src/components/` | Used across **unrelated** parts of the app |
+| `-shared/` | Used only within **one route branch** (e.g., all of `/spaces/*`) |
+| `-local/` | Used by **one** page or layout |
 
-Names reflect **scope**, not content — can contain components, hooks, utils, types.
+Key principle: **`src/components/` is the global scope.** If a component is only used within one route branch, put it in that branch's `-shared/`, not in `components/`.
+
+Names reflect **scope**, not content — `-local/` and `-shared/` can contain components, hooks, utils, types.
 
 **`-local/` rule:**
 - Must be inside a page folder (e.g., `index/-local/` for `index/page.tsx`)
@@ -374,15 +379,25 @@ Names reflect **scope**, not content — can contain components, hooks, utils, t
 - Available to pages at the same level AND in child folders
 - Use when multiple pages in a feature area need the same code
 
-**Reusable across routes** → `src/components/[category]/`
-- Used in unrelated parts of the app
-- Categories: `errors/`, `ui/`, `navigation/`
-
 **When to use folder structure:**
 - Page needs local code → `name/page.tsx` + `name/-local/`
 - Simple page → `name.page.tsx`
 
-Example:
+#### Directory Modules for Complex Components
+
+When a component has private sub-components too large to inline, convert to a directory with `index.tsx` + private files. External imports stay unchanged (`@/components/Foo` resolves to `@/components/Foo/index.tsx`).
+
+```
+components/FieldInput/
+  index.tsx                 ← public, the main component
+  ImageFieldInput.tsx       ← private sub-component
+  MarkdownEditor.tsx        ← private sub-component
+```
+
+This pattern applies equally to `components/`, `-local/`, and `-shared/`.
+
+#### Example
+
 ```
 fields/
 ├── index/

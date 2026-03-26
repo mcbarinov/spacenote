@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { useForm } from "@mantine/form"
 import { zod4Resolver } from "mantine-form-zod-resolver"
 import { z } from "zod"
-import { Button, Group, Paper, PasswordInput, Stack, TextInput } from "@mantine/core"
+import { Button, Checkbox, Group, Paper, PasswordInput, Stack, TextInput } from "@mantine/core"
 import { notifications } from "@mantine/notifications"
 import { api } from "@/api"
 import { ErrorMessage } from "@/components/ErrorMessage"
@@ -16,6 +16,7 @@ export const Route = createFileRoute("/_auth/_admin/admin/users/new")({
 const createUserSchema = z.object({
   username: z.string().min(1, { message: "Username is required" }),
   password: z.string().min(1, { message: "Password is required" }),
+  is_admin: z.boolean(),
 })
 
 /** Form to create a new user */
@@ -24,7 +25,7 @@ function CreateUserPage() {
   const createUserMutation = api.mutations.useCreateUser()
 
   const form = useForm({
-    initialValues: { username: "", password: "" },
+    initialValues: { username: "", password: "", is_admin: false },
     validate: zod4Resolver(createUserSchema),
   })
 
@@ -46,6 +47,7 @@ function CreateUserPage() {
           <Stack gap="md">
             <TextInput label="Username" autoFocus {...form.getInputProps("username")} />
             <PasswordInput label="Password" {...form.getInputProps("password")} />
+            <Checkbox label="Admin" {...form.getInputProps("is_admin", { type: "checkbox" })} />
             {createUserMutation.error && <ErrorMessage error={createUserMutation.error} />}
             <Group justify="flex-end">
               <Button type="submit" loading={createUserMutation.isPending}>

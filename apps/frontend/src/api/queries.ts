@@ -48,6 +48,14 @@ export function listSpaces() {
   })
 }
 
+/** Fetches all spaces regardless of membership (admin only) */
+export function listAllSpaces() {
+  return queryOptions({
+    queryKey: ["admin", "spaces"],
+    queryFn: () => httpClient.get("api/v1/spaces/all").json<Space[]>(),
+  })
+}
+
 /** Fetches space export data */
 export function exportSpace(spaceSlug: string, includeData: boolean) {
   return queryOptions({

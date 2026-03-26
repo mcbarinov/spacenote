@@ -192,7 +192,7 @@ def _validate_user_value(field: SpaceField, value: FieldValueType, space: Space)
     if not isinstance(value, str):
         raise ValidationError(f"Filter value for user field '{field.name}' must be a username string or '$me'")
 
-    if value not in space.members:
+    if not space.has_member(value):
         raise ValidationError(f"User '{value}' is not a member of this space")
 
     return value

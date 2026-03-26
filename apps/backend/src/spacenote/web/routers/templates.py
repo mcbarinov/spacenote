@@ -39,16 +39,16 @@ Empty content removes the template.
 @router.put(
     "/spaces/{slug}/templates/{key}",
     summary="Set space template",
-    description="Set a Liquid template for the space. Admin only.\n" + TEMPLATE_KEYS_DOC,
+    description="Set a Liquid template for the space. Requires 'all' permission in the space.\n" + TEMPLATE_KEYS_DOC,
     operation_id="setSpaceTemplate",
     responses={
         200: {"description": "Template set successfully"},
         400: {"model": ErrorResponse, "description": "Invalid template key"},
         401: {"model": ErrorResponse, "description": "Not authenticated"},
-        403: {"model": ErrorResponse, "description": "Admin privileges required"},
+        403: {"model": ErrorResponse, "description": "Space management permission required"},
         404: {"model": ErrorResponse, "description": "Space not found"},
     },
 )
 async def set_space_template(slug: str, key: str, request: SetTemplateRequest, app: AppDep, auth_token: AuthTokenDep) -> Space:
-    """Set or remove template for space (admin only). Empty content removes the template."""
+    """Set or remove template for space (space admin only). Empty content removes the template."""
     return await app.set_space_template(auth_token, slug, key, request.content)

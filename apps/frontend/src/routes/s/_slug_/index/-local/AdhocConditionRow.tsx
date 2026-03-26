@@ -79,7 +79,7 @@ export function AdhocConditionRow({ condition, space, onChange, onRemove, fieldO
       }
 
       case "user": {
-        const members = ["$me", ...space.members]
+        const members = ["$me", ...space.members.map((m) => m.username)]
         return (
           <Select
             placeholder="Value"

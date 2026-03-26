@@ -5,6 +5,7 @@ from pydantic import Field
 from spacenote.core.modules.attachment.models import AttachmentMeta
 from spacenote.core.modules.field.models import FieldValueType, SpaceField
 from spacenote.core.modules.filter.models import Filter
+from spacenote.core.modules.space.models import Member
 from spacenote.core.modules.telegram.models import TelegramSettings
 from spacenote.core.schema import OpenAPIModel
 
@@ -15,7 +16,7 @@ class SpaceExport(OpenAPIModel):
     slug: str = Field(..., description="Space identifier")
     title: str = Field(..., description="Space title")
     description: str = Field(..., description="Space description")
-    members: list[str] = Field(..., description="List of member usernames")
+    members: list[Member] = Field(..., description="Space members with permissions")
     fields: list[SpaceField] = Field(..., description="Field definitions")
     filters: list[Filter] = Field(..., description="Filter definitions")
     default_filter: str = Field(..., description="Default filter name")

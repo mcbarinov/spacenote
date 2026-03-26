@@ -11,34 +11,35 @@
 import { Route as rootRouteImport } from './routes/root.layout'
 import { Route as loginDotpageRouteImport } from './routes/login.page'
 import { Route as authDotlayoutRouteImport } from './routes/auth.layout'
-import { Route as adminDotlayoutRouteImport } from './routes/admin.layout'
-import { Route as indexPageRouteImport } from './routes/index/page'
+import { Route as spacesLayoutRouteImport } from './routes/spaces/layout'
+import { Route as adminLayoutRouteImport } from './routes/admin/layout'
+import { Route as indexDotpageRouteImport } from './routes/index.page'
+import { Route as adminUsersIndexDotpageRouteImport } from './routes/admin/users/index.page'
 import { Route as sSlugNewDotpageRouteImport } from './routes/s/_slug_/new.page'
-import { Route as adminUsersIndexPageRouteImport } from './routes/admin/users/index/page'
+import { Route as spacesNewDotpageRouteImport } from './routes/spaces/new.page'
+import { Route as spacesImportDotpageRouteImport } from './routes/spaces/import.page'
+import { Route as adminTempSpaceAccessDotpageRouteImport } from './routes/admin/temp-space-access.page'
 import { Route as adminPendingAttachmentsPageRouteImport } from './routes/admin/pending-attachments/page'
 import { Route as sSlugIndexPageRouteImport } from './routes/s/_slug_/index/page'
 import { Route as sSlugAttachmentsIndexDotpageRouteImport } from './routes/s/_slug_/attachments/index.page'
 import { Route as sSlugAttachmentsNewDotpageRouteImport } from './routes/s/_slug_/attachments/new.page'
-import { Route as sSlug_noteNumberEditPageRouteImport } from './routes/s/_slug_/_noteNumber_/edit/page'
+import { Route as sSlug_noteNumberEditDotpageRouteImport } from './routes/s/_slug_/_noteNumber_/edit.page'
+import { Route as spacesSlugTemplatesPageRouteImport } from './routes/spaces/_slug_/templates/page'
+import { Route as spacesSlugSettingsPageRouteImport } from './routes/spaces/_slug_/settings/page'
+import { Route as spacesSlugMembersDotpageRouteImport } from './routes/spaces/_slug_/members.page'
+import { Route as spacesSlugExportDotpageRouteImport } from './routes/spaces/_slug_/export.page'
 import { Route as adminUsersNewDotpageRouteImport } from './routes/admin/users/new.page'
-import { Route as adminTelegramTasksPageRouteImport } from './routes/admin/telegram/tasks/page'
-import { Route as adminTelegramMirrorsPageRouteImport } from './routes/admin/telegram/mirrors/page'
-import { Route as adminSpacesNewDotpageRouteImport } from './routes/admin/spaces/new.page'
-import { Route as adminSpacesImportDotpageRouteImport } from './routes/admin/spaces/import.page'
+import { Route as adminTelegramTasksDotpageRouteImport } from './routes/admin/telegram/tasks.page'
+import { Route as adminTelegramMirrorsDotpageRouteImport } from './routes/admin/telegram/mirrors.page'
 import { Route as sSlug_noteNumberIndexPageRouteImport } from './routes/s/_slug_/_noteNumber_/index/page'
-import { Route as adminSpacesIndexPageRouteImport } from './routes/admin/spaces/index/page'
 import { Route as sSlug_noteNumberAttachmentsIndexDotpageRouteImport } from './routes/s/_slug_/_noteNumber_/attachments/index.page'
+import { Route as spacesSlugFiltersIndexDotpageRouteImport } from './routes/spaces/_slug_/filters/index.page'
+import { Route as spacesSlugFieldsIndexDotpageRouteImport } from './routes/spaces/_slug_/fields/index.page'
 import { Route as sSlug_noteNumberAttachmentsNewDotpageRouteImport } from './routes/s/_slug_/_noteNumber_/attachments/new.page'
-import { Route as adminSpacesSlugTemplatesPageRouteImport } from './routes/admin/spaces/_slug_/templates/page'
-import { Route as adminSpacesSlugSettingsPageRouteImport } from './routes/admin/spaces/_slug_/settings/page'
-import { Route as adminSpacesSlugMembersDotpageRouteImport } from './routes/admin/spaces/_slug_/members.page'
-import { Route as adminSpacesSlugExportDotpageRouteImport } from './routes/admin/spaces/_slug_/export.page'
-import { Route as adminSpacesSlugFiltersNewDotpageRouteImport } from './routes/admin/spaces/_slug_/filters/new.page'
-import { Route as adminSpacesSlugFieldsNewDotpageRouteImport } from './routes/admin/spaces/_slug_/fields/new.page'
-import { Route as adminSpacesSlugFiltersIndexPageRouteImport } from './routes/admin/spaces/_slug_/filters/index/page'
-import { Route as adminSpacesSlugFieldsIndexPageRouteImport } from './routes/admin/spaces/_slug_/fields/index/page'
-import { Route as adminSpacesSlugFiltersFilterNameEditDotpageRouteImport } from './routes/admin/spaces/_slug_/filters/_filterName_/edit.page'
-import { Route as adminSpacesSlugFieldsFieldNameEditDotpageRouteImport } from './routes/admin/spaces/_slug_/fields/_fieldName_/edit.page'
+import { Route as spacesSlugFiltersNewDotpageRouteImport } from './routes/spaces/_slug_/filters/new.page'
+import { Route as spacesSlugFieldsNewDotpageRouteImport } from './routes/spaces/_slug_/fields/new.page'
+import { Route as spacesSlugFiltersFilterNameEditDotpageRouteImport } from './routes/spaces/_slug_/filters/_filterName_/edit.page'
+import { Route as spacesSlugFieldsFieldNameEditDotpageRouteImport } from './routes/spaces/_slug_/fields/_fieldName_/edit.page'
 
 const loginDotpageRoute = loginDotpageRouteImport.update({
   id: '/login',
@@ -49,30 +50,50 @@ const authDotlayoutRoute = authDotlayoutRouteImport.update({
   id: '/_auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const adminDotlayoutRoute = adminDotlayoutRouteImport.update({
+const spacesLayoutRoute = spacesLayoutRouteImport.update({
+  id: '/_spaces',
+  getParentRoute: () => authDotlayoutRoute,
+} as any)
+const adminLayoutRoute = adminLayoutRouteImport.update({
   id: '/_admin',
   getParentRoute: () => authDotlayoutRoute,
 } as any)
-const indexPageRoute = indexPageRouteImport.update({
+const indexDotpageRoute = indexDotpageRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => authDotlayoutRoute,
+} as any)
+const adminUsersIndexDotpageRoute = adminUsersIndexDotpageRouteImport.update({
+  id: '/admin/users',
+  path: '/admin/users',
+  getParentRoute: () => adminLayoutRoute,
 } as any)
 const sSlugNewDotpageRoute = sSlugNewDotpageRouteImport.update({
   id: '/s/$slug/new',
   path: '/s/$slug/new',
   getParentRoute: () => authDotlayoutRoute,
 } as any)
-const adminUsersIndexPageRoute = adminUsersIndexPageRouteImport.update({
-  id: '/admin/users',
-  path: '/admin/users',
-  getParentRoute: () => adminDotlayoutRoute,
+const spacesNewDotpageRoute = spacesNewDotpageRouteImport.update({
+  id: '/spaces/new',
+  path: '/spaces/new',
+  getParentRoute: () => spacesLayoutRoute,
 } as any)
+const spacesImportDotpageRoute = spacesImportDotpageRouteImport.update({
+  id: '/spaces/import',
+  path: '/spaces/import',
+  getParentRoute: () => spacesLayoutRoute,
+} as any)
+const adminTempSpaceAccessDotpageRoute =
+  adminTempSpaceAccessDotpageRouteImport.update({
+    id: '/admin/temp-space-access',
+    path: '/admin/temp-space-access',
+    getParentRoute: () => adminLayoutRoute,
+  } as any)
 const adminPendingAttachmentsPageRoute =
   adminPendingAttachmentsPageRouteImport.update({
     id: '/admin/pending-attachments',
     path: '/admin/pending-attachments',
-    getParentRoute: () => adminDotlayoutRoute,
+    getParentRoute: () => adminLayoutRoute,
   } as any)
 const sSlugIndexPageRoute = sSlugIndexPageRouteImport.update({
   id: '/s/$slug/',
@@ -91,38 +112,49 @@ const sSlugAttachmentsNewDotpageRoute =
     path: '/s/$slug/attachments/new',
     getParentRoute: () => authDotlayoutRoute,
   } as any)
-const sSlug_noteNumberEditPageRoute =
-  sSlug_noteNumberEditPageRouteImport.update({
+const sSlug_noteNumberEditDotpageRoute =
+  sSlug_noteNumberEditDotpageRouteImport.update({
     id: '/s/$slug/$noteNumber/edit',
     path: '/s/$slug/$noteNumber/edit',
     getParentRoute: () => authDotlayoutRoute,
   } as any)
+const spacesSlugTemplatesPageRoute = spacesSlugTemplatesPageRouteImport.update({
+  id: '/spaces/$slug/templates',
+  path: '/spaces/$slug/templates',
+  getParentRoute: () => spacesLayoutRoute,
+} as any)
+const spacesSlugSettingsPageRoute = spacesSlugSettingsPageRouteImport.update({
+  id: '/spaces/$slug/settings',
+  path: '/spaces/$slug/settings',
+  getParentRoute: () => spacesLayoutRoute,
+} as any)
+const spacesSlugMembersDotpageRoute =
+  spacesSlugMembersDotpageRouteImport.update({
+    id: '/spaces/$slug/members',
+    path: '/spaces/$slug/members',
+    getParentRoute: () => spacesLayoutRoute,
+  } as any)
+const spacesSlugExportDotpageRoute = spacesSlugExportDotpageRouteImport.update({
+  id: '/spaces/$slug/export',
+  path: '/spaces/$slug/export',
+  getParentRoute: () => spacesLayoutRoute,
+} as any)
 const adminUsersNewDotpageRoute = adminUsersNewDotpageRouteImport.update({
   id: '/admin/users/new',
   path: '/admin/users/new',
-  getParentRoute: () => adminDotlayoutRoute,
+  getParentRoute: () => adminLayoutRoute,
 } as any)
-const adminTelegramTasksPageRoute = adminTelegramTasksPageRouteImport.update({
-  id: '/admin/telegram/tasks',
-  path: '/admin/telegram/tasks',
-  getParentRoute: () => adminDotlayoutRoute,
-} as any)
-const adminTelegramMirrorsPageRoute =
-  adminTelegramMirrorsPageRouteImport.update({
+const adminTelegramTasksDotpageRoute =
+  adminTelegramTasksDotpageRouteImport.update({
+    id: '/admin/telegram/tasks',
+    path: '/admin/telegram/tasks',
+    getParentRoute: () => adminLayoutRoute,
+  } as any)
+const adminTelegramMirrorsDotpageRoute =
+  adminTelegramMirrorsDotpageRouteImport.update({
     id: '/admin/telegram/mirrors',
     path: '/admin/telegram/mirrors',
-    getParentRoute: () => adminDotlayoutRoute,
-  } as any)
-const adminSpacesNewDotpageRoute = adminSpacesNewDotpageRouteImport.update({
-  id: '/admin/spaces/new',
-  path: '/admin/spaces/new',
-  getParentRoute: () => adminDotlayoutRoute,
-} as any)
-const adminSpacesImportDotpageRoute =
-  adminSpacesImportDotpageRouteImport.update({
-    id: '/admin/spaces/import',
-    path: '/admin/spaces/import',
-    getParentRoute: () => adminDotlayoutRoute,
+    getParentRoute: () => adminLayoutRoute,
   } as any)
 const sSlug_noteNumberIndexPageRoute =
   sSlug_noteNumberIndexPageRouteImport.update({
@@ -130,16 +162,23 @@ const sSlug_noteNumberIndexPageRoute =
     path: '/s/$slug/$noteNumber/',
     getParentRoute: () => authDotlayoutRoute,
   } as any)
-const adminSpacesIndexPageRoute = adminSpacesIndexPageRouteImport.update({
-  id: '/admin/spaces/',
-  path: '/admin/spaces/',
-  getParentRoute: () => adminDotlayoutRoute,
-} as any)
 const sSlug_noteNumberAttachmentsIndexDotpageRoute =
   sSlug_noteNumberAttachmentsIndexDotpageRouteImport.update({
     id: '/s/$slug/$noteNumber/attachments/',
     path: '/s/$slug/$noteNumber/attachments/',
     getParentRoute: () => authDotlayoutRoute,
+  } as any)
+const spacesSlugFiltersIndexDotpageRoute =
+  spacesSlugFiltersIndexDotpageRouteImport.update({
+    id: '/spaces/$slug/filters/',
+    path: '/spaces/$slug/filters/',
+    getParentRoute: () => spacesLayoutRoute,
+  } as any)
+const spacesSlugFieldsIndexDotpageRoute =
+  spacesSlugFieldsIndexDotpageRouteImport.update({
+    id: '/spaces/$slug/fields/',
+    path: '/spaces/$slug/fields/',
+    getParentRoute: () => spacesLayoutRoute,
   } as any)
 const sSlug_noteNumberAttachmentsNewDotpageRoute =
   sSlug_noteNumberAttachmentsNewDotpageRouteImport.update({
@@ -147,159 +186,124 @@ const sSlug_noteNumberAttachmentsNewDotpageRoute =
     path: '/s/$slug/$noteNumber/attachments/new',
     getParentRoute: () => authDotlayoutRoute,
   } as any)
-const adminSpacesSlugTemplatesPageRoute =
-  adminSpacesSlugTemplatesPageRouteImport.update({
-    id: '/admin/spaces/$slug/templates',
-    path: '/admin/spaces/$slug/templates',
-    getParentRoute: () => adminDotlayoutRoute,
+const spacesSlugFiltersNewDotpageRoute =
+  spacesSlugFiltersNewDotpageRouteImport.update({
+    id: '/spaces/$slug/filters/new',
+    path: '/spaces/$slug/filters/new',
+    getParentRoute: () => spacesLayoutRoute,
   } as any)
-const adminSpacesSlugSettingsPageRoute =
-  adminSpacesSlugSettingsPageRouteImport.update({
-    id: '/admin/spaces/$slug/settings',
-    path: '/admin/spaces/$slug/settings',
-    getParentRoute: () => adminDotlayoutRoute,
+const spacesSlugFieldsNewDotpageRoute =
+  spacesSlugFieldsNewDotpageRouteImport.update({
+    id: '/spaces/$slug/fields/new',
+    path: '/spaces/$slug/fields/new',
+    getParentRoute: () => spacesLayoutRoute,
   } as any)
-const adminSpacesSlugMembersDotpageRoute =
-  adminSpacesSlugMembersDotpageRouteImport.update({
-    id: '/admin/spaces/$slug/members',
-    path: '/admin/spaces/$slug/members',
-    getParentRoute: () => adminDotlayoutRoute,
+const spacesSlugFiltersFilterNameEditDotpageRoute =
+  spacesSlugFiltersFilterNameEditDotpageRouteImport.update({
+    id: '/spaces/$slug/filters/$filterName/edit',
+    path: '/spaces/$slug/filters/$filterName/edit',
+    getParentRoute: () => spacesLayoutRoute,
   } as any)
-const adminSpacesSlugExportDotpageRoute =
-  adminSpacesSlugExportDotpageRouteImport.update({
-    id: '/admin/spaces/$slug/export',
-    path: '/admin/spaces/$slug/export',
-    getParentRoute: () => adminDotlayoutRoute,
-  } as any)
-const adminSpacesSlugFiltersNewDotpageRoute =
-  adminSpacesSlugFiltersNewDotpageRouteImport.update({
-    id: '/admin/spaces/$slug/filters/new',
-    path: '/admin/spaces/$slug/filters/new',
-    getParentRoute: () => adminDotlayoutRoute,
-  } as any)
-const adminSpacesSlugFieldsNewDotpageRoute =
-  adminSpacesSlugFieldsNewDotpageRouteImport.update({
-    id: '/admin/spaces/$slug/fields/new',
-    path: '/admin/spaces/$slug/fields/new',
-    getParentRoute: () => adminDotlayoutRoute,
-  } as any)
-const adminSpacesSlugFiltersIndexPageRoute =
-  adminSpacesSlugFiltersIndexPageRouteImport.update({
-    id: '/admin/spaces/$slug/filters/',
-    path: '/admin/spaces/$slug/filters/',
-    getParentRoute: () => adminDotlayoutRoute,
-  } as any)
-const adminSpacesSlugFieldsIndexPageRoute =
-  adminSpacesSlugFieldsIndexPageRouteImport.update({
-    id: '/admin/spaces/$slug/fields/',
-    path: '/admin/spaces/$slug/fields/',
-    getParentRoute: () => adminDotlayoutRoute,
-  } as any)
-const adminSpacesSlugFiltersFilterNameEditDotpageRoute =
-  adminSpacesSlugFiltersFilterNameEditDotpageRouteImport.update({
-    id: '/admin/spaces/$slug/filters/$filterName/edit',
-    path: '/admin/spaces/$slug/filters/$filterName/edit',
-    getParentRoute: () => adminDotlayoutRoute,
-  } as any)
-const adminSpacesSlugFieldsFieldNameEditDotpageRoute =
-  adminSpacesSlugFieldsFieldNameEditDotpageRouteImport.update({
-    id: '/admin/spaces/$slug/fields/$fieldName/edit',
-    path: '/admin/spaces/$slug/fields/$fieldName/edit',
-    getParentRoute: () => adminDotlayoutRoute,
+const spacesSlugFieldsFieldNameEditDotpageRoute =
+  spacesSlugFieldsFieldNameEditDotpageRouteImport.update({
+    id: '/spaces/$slug/fields/$fieldName/edit',
+    path: '/spaces/$slug/fields/$fieldName/edit',
+    getParentRoute: () => spacesLayoutRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof indexPageRoute
+  '/': typeof indexDotpageRoute
   '/login': typeof loginDotpageRoute
   '/s/$slug/': typeof sSlugIndexPageRoute
   '/admin/pending-attachments': typeof adminPendingAttachmentsPageRoute
-  '/admin/users': typeof adminUsersIndexPageRoute
+  '/admin/temp-space-access': typeof adminTempSpaceAccessDotpageRoute
+  '/spaces/import': typeof spacesImportDotpageRoute
+  '/spaces/new': typeof spacesNewDotpageRoute
   '/s/$slug/new': typeof sSlugNewDotpageRoute
-  '/admin/spaces/': typeof adminSpacesIndexPageRoute
+  '/admin/users': typeof adminUsersIndexDotpageRoute
   '/s/$slug/$noteNumber/': typeof sSlug_noteNumberIndexPageRoute
-  '/admin/spaces/import': typeof adminSpacesImportDotpageRoute
-  '/admin/spaces/new': typeof adminSpacesNewDotpageRoute
-  '/admin/telegram/mirrors': typeof adminTelegramMirrorsPageRoute
-  '/admin/telegram/tasks': typeof adminTelegramTasksPageRoute
+  '/admin/telegram/mirrors': typeof adminTelegramMirrorsDotpageRoute
+  '/admin/telegram/tasks': typeof adminTelegramTasksDotpageRoute
   '/admin/users/new': typeof adminUsersNewDotpageRoute
-  '/s/$slug/$noteNumber/edit': typeof sSlug_noteNumberEditPageRoute
+  '/spaces/$slug/export': typeof spacesSlugExportDotpageRoute
+  '/spaces/$slug/members': typeof spacesSlugMembersDotpageRoute
+  '/spaces/$slug/settings': typeof spacesSlugSettingsPageRoute
+  '/spaces/$slug/templates': typeof spacesSlugTemplatesPageRoute
+  '/s/$slug/$noteNumber/edit': typeof sSlug_noteNumberEditDotpageRoute
   '/s/$slug/attachments/new': typeof sSlugAttachmentsNewDotpageRoute
   '/s/$slug/attachments/': typeof sSlugAttachmentsIndexDotpageRoute
-  '/admin/spaces/$slug/export': typeof adminSpacesSlugExportDotpageRoute
-  '/admin/spaces/$slug/members': typeof adminSpacesSlugMembersDotpageRoute
-  '/admin/spaces/$slug/settings': typeof adminSpacesSlugSettingsPageRoute
-  '/admin/spaces/$slug/templates': typeof adminSpacesSlugTemplatesPageRoute
+  '/spaces/$slug/fields/new': typeof spacesSlugFieldsNewDotpageRoute
+  '/spaces/$slug/filters/new': typeof spacesSlugFiltersNewDotpageRoute
   '/s/$slug/$noteNumber/attachments/new': typeof sSlug_noteNumberAttachmentsNewDotpageRoute
+  '/spaces/$slug/fields/': typeof spacesSlugFieldsIndexDotpageRoute
+  '/spaces/$slug/filters/': typeof spacesSlugFiltersIndexDotpageRoute
   '/s/$slug/$noteNumber/attachments/': typeof sSlug_noteNumberAttachmentsIndexDotpageRoute
-  '/admin/spaces/$slug/fields/': typeof adminSpacesSlugFieldsIndexPageRoute
-  '/admin/spaces/$slug/filters/': typeof adminSpacesSlugFiltersIndexPageRoute
-  '/admin/spaces/$slug/fields/new': typeof adminSpacesSlugFieldsNewDotpageRoute
-  '/admin/spaces/$slug/filters/new': typeof adminSpacesSlugFiltersNewDotpageRoute
-  '/admin/spaces/$slug/fields/$fieldName/edit': typeof adminSpacesSlugFieldsFieldNameEditDotpageRoute
-  '/admin/spaces/$slug/filters/$filterName/edit': typeof adminSpacesSlugFiltersFilterNameEditDotpageRoute
+  '/spaces/$slug/fields/$fieldName/edit': typeof spacesSlugFieldsFieldNameEditDotpageRoute
+  '/spaces/$slug/filters/$filterName/edit': typeof spacesSlugFiltersFilterNameEditDotpageRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof loginDotpageRoute
-  '/': typeof indexPageRoute
+  '/': typeof indexDotpageRoute
   '/s/$slug': typeof sSlugIndexPageRoute
   '/admin/pending-attachments': typeof adminPendingAttachmentsPageRoute
-  '/admin/users': typeof adminUsersIndexPageRoute
+  '/admin/temp-space-access': typeof adminTempSpaceAccessDotpageRoute
+  '/spaces/import': typeof spacesImportDotpageRoute
+  '/spaces/new': typeof spacesNewDotpageRoute
   '/s/$slug/new': typeof sSlugNewDotpageRoute
-  '/admin/spaces': typeof adminSpacesIndexPageRoute
+  '/admin/users': typeof adminUsersIndexDotpageRoute
   '/s/$slug/$noteNumber': typeof sSlug_noteNumberIndexPageRoute
-  '/admin/spaces/import': typeof adminSpacesImportDotpageRoute
-  '/admin/spaces/new': typeof adminSpacesNewDotpageRoute
-  '/admin/telegram/mirrors': typeof adminTelegramMirrorsPageRoute
-  '/admin/telegram/tasks': typeof adminTelegramTasksPageRoute
+  '/admin/telegram/mirrors': typeof adminTelegramMirrorsDotpageRoute
+  '/admin/telegram/tasks': typeof adminTelegramTasksDotpageRoute
   '/admin/users/new': typeof adminUsersNewDotpageRoute
-  '/s/$slug/$noteNumber/edit': typeof sSlug_noteNumberEditPageRoute
+  '/spaces/$slug/export': typeof spacesSlugExportDotpageRoute
+  '/spaces/$slug/members': typeof spacesSlugMembersDotpageRoute
+  '/spaces/$slug/settings': typeof spacesSlugSettingsPageRoute
+  '/spaces/$slug/templates': typeof spacesSlugTemplatesPageRoute
+  '/s/$slug/$noteNumber/edit': typeof sSlug_noteNumberEditDotpageRoute
   '/s/$slug/attachments/new': typeof sSlugAttachmentsNewDotpageRoute
   '/s/$slug/attachments': typeof sSlugAttachmentsIndexDotpageRoute
-  '/admin/spaces/$slug/export': typeof adminSpacesSlugExportDotpageRoute
-  '/admin/spaces/$slug/members': typeof adminSpacesSlugMembersDotpageRoute
-  '/admin/spaces/$slug/settings': typeof adminSpacesSlugSettingsPageRoute
-  '/admin/spaces/$slug/templates': typeof adminSpacesSlugTemplatesPageRoute
+  '/spaces/$slug/fields/new': typeof spacesSlugFieldsNewDotpageRoute
+  '/spaces/$slug/filters/new': typeof spacesSlugFiltersNewDotpageRoute
   '/s/$slug/$noteNumber/attachments/new': typeof sSlug_noteNumberAttachmentsNewDotpageRoute
+  '/spaces/$slug/fields': typeof spacesSlugFieldsIndexDotpageRoute
+  '/spaces/$slug/filters': typeof spacesSlugFiltersIndexDotpageRoute
   '/s/$slug/$noteNumber/attachments': typeof sSlug_noteNumberAttachmentsIndexDotpageRoute
-  '/admin/spaces/$slug/fields': typeof adminSpacesSlugFieldsIndexPageRoute
-  '/admin/spaces/$slug/filters': typeof adminSpacesSlugFiltersIndexPageRoute
-  '/admin/spaces/$slug/fields/new': typeof adminSpacesSlugFieldsNewDotpageRoute
-  '/admin/spaces/$slug/filters/new': typeof adminSpacesSlugFiltersNewDotpageRoute
-  '/admin/spaces/$slug/fields/$fieldName/edit': typeof adminSpacesSlugFieldsFieldNameEditDotpageRoute
-  '/admin/spaces/$slug/filters/$filterName/edit': typeof adminSpacesSlugFiltersFilterNameEditDotpageRoute
+  '/spaces/$slug/fields/$fieldName/edit': typeof spacesSlugFieldsFieldNameEditDotpageRoute
+  '/spaces/$slug/filters/$filterName/edit': typeof spacesSlugFiltersFilterNameEditDotpageRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_auth': typeof authDotlayoutRouteWithChildren
   '/login': typeof loginDotpageRoute
-  '/_auth/': typeof indexPageRoute
-  '/_auth/_admin': typeof adminDotlayoutRouteWithChildren
+  '/_auth/': typeof indexDotpageRoute
+  '/_auth/_admin': typeof adminLayoutRouteWithChildren
+  '/_auth/_spaces': typeof spacesLayoutRouteWithChildren
   '/_auth/s/$slug/': typeof sSlugIndexPageRoute
   '/_auth/_admin/admin/pending-attachments': typeof adminPendingAttachmentsPageRoute
-  '/_auth/_admin/admin/users': typeof adminUsersIndexPageRoute
+  '/_auth/_admin/admin/temp-space-access': typeof adminTempSpaceAccessDotpageRoute
+  '/_auth/_spaces/spaces/import': typeof spacesImportDotpageRoute
+  '/_auth/_spaces/spaces/new': typeof spacesNewDotpageRoute
   '/_auth/s/$slug/new': typeof sSlugNewDotpageRoute
-  '/_auth/_admin/admin/spaces/': typeof adminSpacesIndexPageRoute
+  '/_auth/_admin/admin/users': typeof adminUsersIndexDotpageRoute
   '/_auth/s/$slug/$noteNumber/': typeof sSlug_noteNumberIndexPageRoute
-  '/_auth/_admin/admin/spaces/import': typeof adminSpacesImportDotpageRoute
-  '/_auth/_admin/admin/spaces/new': typeof adminSpacesNewDotpageRoute
-  '/_auth/_admin/admin/telegram/mirrors': typeof adminTelegramMirrorsPageRoute
-  '/_auth/_admin/admin/telegram/tasks': typeof adminTelegramTasksPageRoute
+  '/_auth/_admin/admin/telegram/mirrors': typeof adminTelegramMirrorsDotpageRoute
+  '/_auth/_admin/admin/telegram/tasks': typeof adminTelegramTasksDotpageRoute
   '/_auth/_admin/admin/users/new': typeof adminUsersNewDotpageRoute
-  '/_auth/s/$slug/$noteNumber/edit': typeof sSlug_noteNumberEditPageRoute
+  '/_auth/_spaces/spaces/$slug/export': typeof spacesSlugExportDotpageRoute
+  '/_auth/_spaces/spaces/$slug/members': typeof spacesSlugMembersDotpageRoute
+  '/_auth/_spaces/spaces/$slug/settings': typeof spacesSlugSettingsPageRoute
+  '/_auth/_spaces/spaces/$slug/templates': typeof spacesSlugTemplatesPageRoute
+  '/_auth/s/$slug/$noteNumber/edit': typeof sSlug_noteNumberEditDotpageRoute
   '/_auth/s/$slug/attachments/new': typeof sSlugAttachmentsNewDotpageRoute
   '/_auth/s/$slug/attachments/': typeof sSlugAttachmentsIndexDotpageRoute
-  '/_auth/_admin/admin/spaces/$slug/export': typeof adminSpacesSlugExportDotpageRoute
-  '/_auth/_admin/admin/spaces/$slug/members': typeof adminSpacesSlugMembersDotpageRoute
-  '/_auth/_admin/admin/spaces/$slug/settings': typeof adminSpacesSlugSettingsPageRoute
-  '/_auth/_admin/admin/spaces/$slug/templates': typeof adminSpacesSlugTemplatesPageRoute
+  '/_auth/_spaces/spaces/$slug/fields/new': typeof spacesSlugFieldsNewDotpageRoute
+  '/_auth/_spaces/spaces/$slug/filters/new': typeof spacesSlugFiltersNewDotpageRoute
   '/_auth/s/$slug/$noteNumber/attachments/new': typeof sSlug_noteNumberAttachmentsNewDotpageRoute
+  '/_auth/_spaces/spaces/$slug/fields/': typeof spacesSlugFieldsIndexDotpageRoute
+  '/_auth/_spaces/spaces/$slug/filters/': typeof spacesSlugFiltersIndexDotpageRoute
   '/_auth/s/$slug/$noteNumber/attachments/': typeof sSlug_noteNumberAttachmentsIndexDotpageRoute
-  '/_auth/_admin/admin/spaces/$slug/fields/': typeof adminSpacesSlugFieldsIndexPageRoute
-  '/_auth/_admin/admin/spaces/$slug/filters/': typeof adminSpacesSlugFiltersIndexPageRoute
-  '/_auth/_admin/admin/spaces/$slug/fields/new': typeof adminSpacesSlugFieldsNewDotpageRoute
-  '/_auth/_admin/admin/spaces/$slug/filters/new': typeof adminSpacesSlugFiltersNewDotpageRoute
-  '/_auth/_admin/admin/spaces/$slug/fields/$fieldName/edit': typeof adminSpacesSlugFieldsFieldNameEditDotpageRoute
-  '/_auth/_admin/admin/spaces/$slug/filters/$filterName/edit': typeof adminSpacesSlugFiltersFilterNameEditDotpageRoute
+  '/_auth/_spaces/spaces/$slug/fields/$fieldName/edit': typeof spacesSlugFieldsFieldNameEditDotpageRoute
+  '/_auth/_spaces/spaces/$slug/filters/$filterName/edit': typeof spacesSlugFiltersFilterNameEditDotpageRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -308,92 +312,93 @@ export interface FileRouteTypes {
     | '/login'
     | '/s/$slug/'
     | '/admin/pending-attachments'
-    | '/admin/users'
+    | '/admin/temp-space-access'
+    | '/spaces/import'
+    | '/spaces/new'
     | '/s/$slug/new'
-    | '/admin/spaces/'
+    | '/admin/users'
     | '/s/$slug/$noteNumber/'
-    | '/admin/spaces/import'
-    | '/admin/spaces/new'
     | '/admin/telegram/mirrors'
     | '/admin/telegram/tasks'
     | '/admin/users/new'
+    | '/spaces/$slug/export'
+    | '/spaces/$slug/members'
+    | '/spaces/$slug/settings'
+    | '/spaces/$slug/templates'
     | '/s/$slug/$noteNumber/edit'
     | '/s/$slug/attachments/new'
     | '/s/$slug/attachments/'
-    | '/admin/spaces/$slug/export'
-    | '/admin/spaces/$slug/members'
-    | '/admin/spaces/$slug/settings'
-    | '/admin/spaces/$slug/templates'
+    | '/spaces/$slug/fields/new'
+    | '/spaces/$slug/filters/new'
     | '/s/$slug/$noteNumber/attachments/new'
+    | '/spaces/$slug/fields/'
+    | '/spaces/$slug/filters/'
     | '/s/$slug/$noteNumber/attachments/'
-    | '/admin/spaces/$slug/fields/'
-    | '/admin/spaces/$slug/filters/'
-    | '/admin/spaces/$slug/fields/new'
-    | '/admin/spaces/$slug/filters/new'
-    | '/admin/spaces/$slug/fields/$fieldName/edit'
-    | '/admin/spaces/$slug/filters/$filterName/edit'
+    | '/spaces/$slug/fields/$fieldName/edit'
+    | '/spaces/$slug/filters/$filterName/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
     | '/'
     | '/s/$slug'
     | '/admin/pending-attachments'
-    | '/admin/users'
+    | '/admin/temp-space-access'
+    | '/spaces/import'
+    | '/spaces/new'
     | '/s/$slug/new'
-    | '/admin/spaces'
+    | '/admin/users'
     | '/s/$slug/$noteNumber'
-    | '/admin/spaces/import'
-    | '/admin/spaces/new'
     | '/admin/telegram/mirrors'
     | '/admin/telegram/tasks'
     | '/admin/users/new'
+    | '/spaces/$slug/export'
+    | '/spaces/$slug/members'
+    | '/spaces/$slug/settings'
+    | '/spaces/$slug/templates'
     | '/s/$slug/$noteNumber/edit'
     | '/s/$slug/attachments/new'
     | '/s/$slug/attachments'
-    | '/admin/spaces/$slug/export'
-    | '/admin/spaces/$slug/members'
-    | '/admin/spaces/$slug/settings'
-    | '/admin/spaces/$slug/templates'
+    | '/spaces/$slug/fields/new'
+    | '/spaces/$slug/filters/new'
     | '/s/$slug/$noteNumber/attachments/new'
+    | '/spaces/$slug/fields'
+    | '/spaces/$slug/filters'
     | '/s/$slug/$noteNumber/attachments'
-    | '/admin/spaces/$slug/fields'
-    | '/admin/spaces/$slug/filters'
-    | '/admin/spaces/$slug/fields/new'
-    | '/admin/spaces/$slug/filters/new'
-    | '/admin/spaces/$slug/fields/$fieldName/edit'
-    | '/admin/spaces/$slug/filters/$filterName/edit'
+    | '/spaces/$slug/fields/$fieldName/edit'
+    | '/spaces/$slug/filters/$filterName/edit'
   id:
     | '__root__'
     | '/_auth'
     | '/login'
     | '/_auth/'
     | '/_auth/_admin'
+    | '/_auth/_spaces'
     | '/_auth/s/$slug/'
     | '/_auth/_admin/admin/pending-attachments'
-    | '/_auth/_admin/admin/users'
+    | '/_auth/_admin/admin/temp-space-access'
+    | '/_auth/_spaces/spaces/import'
+    | '/_auth/_spaces/spaces/new'
     | '/_auth/s/$slug/new'
-    | '/_auth/_admin/admin/spaces/'
+    | '/_auth/_admin/admin/users'
     | '/_auth/s/$slug/$noteNumber/'
-    | '/_auth/_admin/admin/spaces/import'
-    | '/_auth/_admin/admin/spaces/new'
     | '/_auth/_admin/admin/telegram/mirrors'
     | '/_auth/_admin/admin/telegram/tasks'
     | '/_auth/_admin/admin/users/new'
+    | '/_auth/_spaces/spaces/$slug/export'
+    | '/_auth/_spaces/spaces/$slug/members'
+    | '/_auth/_spaces/spaces/$slug/settings'
+    | '/_auth/_spaces/spaces/$slug/templates'
     | '/_auth/s/$slug/$noteNumber/edit'
     | '/_auth/s/$slug/attachments/new'
     | '/_auth/s/$slug/attachments/'
-    | '/_auth/_admin/admin/spaces/$slug/export'
-    | '/_auth/_admin/admin/spaces/$slug/members'
-    | '/_auth/_admin/admin/spaces/$slug/settings'
-    | '/_auth/_admin/admin/spaces/$slug/templates'
+    | '/_auth/_spaces/spaces/$slug/fields/new'
+    | '/_auth/_spaces/spaces/$slug/filters/new'
     | '/_auth/s/$slug/$noteNumber/attachments/new'
+    | '/_auth/_spaces/spaces/$slug/fields/'
+    | '/_auth/_spaces/spaces/$slug/filters/'
     | '/_auth/s/$slug/$noteNumber/attachments/'
-    | '/_auth/_admin/admin/spaces/$slug/fields/'
-    | '/_auth/_admin/admin/spaces/$slug/filters/'
-    | '/_auth/_admin/admin/spaces/$slug/fields/new'
-    | '/_auth/_admin/admin/spaces/$slug/filters/new'
-    | '/_auth/_admin/admin/spaces/$slug/fields/$fieldName/edit'
-    | '/_auth/_admin/admin/spaces/$slug/filters/$filterName/edit'
+    | '/_auth/_spaces/spaces/$slug/fields/$fieldName/edit'
+    | '/_auth/_spaces/spaces/$slug/filters/$filterName/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -417,19 +422,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authDotlayoutRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_auth/_spaces': {
+      id: '/_auth/_spaces'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof spacesLayoutRouteImport
+      parentRoute: typeof authDotlayoutRoute
+    }
     '/_auth/_admin': {
       id: '/_auth/_admin'
       path: ''
       fullPath: '/'
-      preLoaderRoute: typeof adminDotlayoutRouteImport
+      preLoaderRoute: typeof adminLayoutRouteImport
       parentRoute: typeof authDotlayoutRoute
     }
     '/_auth/': {
       id: '/_auth/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof indexPageRouteImport
+      preLoaderRoute: typeof indexDotpageRouteImport
       parentRoute: typeof authDotlayoutRoute
+    }
+    '/_auth/_admin/admin/users': {
+      id: '/_auth/_admin/admin/users'
+      path: '/admin/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof adminUsersIndexDotpageRouteImport
+      parentRoute: typeof adminLayoutRoute
     }
     '/_auth/s/$slug/new': {
       id: '/_auth/s/$slug/new'
@@ -438,19 +457,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof sSlugNewDotpageRouteImport
       parentRoute: typeof authDotlayoutRoute
     }
-    '/_auth/_admin/admin/users': {
-      id: '/_auth/_admin/admin/users'
-      path: '/admin/users'
-      fullPath: '/admin/users'
-      preLoaderRoute: typeof adminUsersIndexPageRouteImport
-      parentRoute: typeof adminDotlayoutRoute
+    '/_auth/_spaces/spaces/new': {
+      id: '/_auth/_spaces/spaces/new'
+      path: '/spaces/new'
+      fullPath: '/spaces/new'
+      preLoaderRoute: typeof spacesNewDotpageRouteImport
+      parentRoute: typeof spacesLayoutRoute
+    }
+    '/_auth/_spaces/spaces/import': {
+      id: '/_auth/_spaces/spaces/import'
+      path: '/spaces/import'
+      fullPath: '/spaces/import'
+      preLoaderRoute: typeof spacesImportDotpageRouteImport
+      parentRoute: typeof spacesLayoutRoute
+    }
+    '/_auth/_admin/admin/temp-space-access': {
+      id: '/_auth/_admin/admin/temp-space-access'
+      path: '/admin/temp-space-access'
+      fullPath: '/admin/temp-space-access'
+      preLoaderRoute: typeof adminTempSpaceAccessDotpageRouteImport
+      parentRoute: typeof adminLayoutRoute
     }
     '/_auth/_admin/admin/pending-attachments': {
       id: '/_auth/_admin/admin/pending-attachments'
       path: '/admin/pending-attachments'
       fullPath: '/admin/pending-attachments'
       preLoaderRoute: typeof adminPendingAttachmentsPageRouteImport
-      parentRoute: typeof adminDotlayoutRoute
+      parentRoute: typeof adminLayoutRoute
     }
     '/_auth/s/$slug/': {
       id: '/_auth/s/$slug/'
@@ -477,43 +510,57 @@ declare module '@tanstack/react-router' {
       id: '/_auth/s/$slug/$noteNumber/edit'
       path: '/s/$slug/$noteNumber/edit'
       fullPath: '/s/$slug/$noteNumber/edit'
-      preLoaderRoute: typeof sSlug_noteNumberEditPageRouteImport
+      preLoaderRoute: typeof sSlug_noteNumberEditDotpageRouteImport
       parentRoute: typeof authDotlayoutRoute
+    }
+    '/_auth/_spaces/spaces/$slug/templates': {
+      id: '/_auth/_spaces/spaces/$slug/templates'
+      path: '/spaces/$slug/templates'
+      fullPath: '/spaces/$slug/templates'
+      preLoaderRoute: typeof spacesSlugTemplatesPageRouteImport
+      parentRoute: typeof spacesLayoutRoute
+    }
+    '/_auth/_spaces/spaces/$slug/settings': {
+      id: '/_auth/_spaces/spaces/$slug/settings'
+      path: '/spaces/$slug/settings'
+      fullPath: '/spaces/$slug/settings'
+      preLoaderRoute: typeof spacesSlugSettingsPageRouteImport
+      parentRoute: typeof spacesLayoutRoute
+    }
+    '/_auth/_spaces/spaces/$slug/members': {
+      id: '/_auth/_spaces/spaces/$slug/members'
+      path: '/spaces/$slug/members'
+      fullPath: '/spaces/$slug/members'
+      preLoaderRoute: typeof spacesSlugMembersDotpageRouteImport
+      parentRoute: typeof spacesLayoutRoute
+    }
+    '/_auth/_spaces/spaces/$slug/export': {
+      id: '/_auth/_spaces/spaces/$slug/export'
+      path: '/spaces/$slug/export'
+      fullPath: '/spaces/$slug/export'
+      preLoaderRoute: typeof spacesSlugExportDotpageRouteImport
+      parentRoute: typeof spacesLayoutRoute
     }
     '/_auth/_admin/admin/users/new': {
       id: '/_auth/_admin/admin/users/new'
       path: '/admin/users/new'
       fullPath: '/admin/users/new'
       preLoaderRoute: typeof adminUsersNewDotpageRouteImport
-      parentRoute: typeof adminDotlayoutRoute
+      parentRoute: typeof adminLayoutRoute
     }
     '/_auth/_admin/admin/telegram/tasks': {
       id: '/_auth/_admin/admin/telegram/tasks'
       path: '/admin/telegram/tasks'
       fullPath: '/admin/telegram/tasks'
-      preLoaderRoute: typeof adminTelegramTasksPageRouteImport
-      parentRoute: typeof adminDotlayoutRoute
+      preLoaderRoute: typeof adminTelegramTasksDotpageRouteImport
+      parentRoute: typeof adminLayoutRoute
     }
     '/_auth/_admin/admin/telegram/mirrors': {
       id: '/_auth/_admin/admin/telegram/mirrors'
       path: '/admin/telegram/mirrors'
       fullPath: '/admin/telegram/mirrors'
-      preLoaderRoute: typeof adminTelegramMirrorsPageRouteImport
-      parentRoute: typeof adminDotlayoutRoute
-    }
-    '/_auth/_admin/admin/spaces/new': {
-      id: '/_auth/_admin/admin/spaces/new'
-      path: '/admin/spaces/new'
-      fullPath: '/admin/spaces/new'
-      preLoaderRoute: typeof adminSpacesNewDotpageRouteImport
-      parentRoute: typeof adminDotlayoutRoute
-    }
-    '/_auth/_admin/admin/spaces/import': {
-      id: '/_auth/_admin/admin/spaces/import'
-      path: '/admin/spaces/import'
-      fullPath: '/admin/spaces/import'
-      preLoaderRoute: typeof adminSpacesImportDotpageRouteImport
-      parentRoute: typeof adminDotlayoutRoute
+      preLoaderRoute: typeof adminTelegramMirrorsDotpageRouteImport
+      parentRoute: typeof adminLayoutRoute
     }
     '/_auth/s/$slug/$noteNumber/': {
       id: '/_auth/s/$slug/$noteNumber/'
@@ -522,19 +569,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof sSlug_noteNumberIndexPageRouteImport
       parentRoute: typeof authDotlayoutRoute
     }
-    '/_auth/_admin/admin/spaces/': {
-      id: '/_auth/_admin/admin/spaces/'
-      path: '/admin/spaces'
-      fullPath: '/admin/spaces/'
-      preLoaderRoute: typeof adminSpacesIndexPageRouteImport
-      parentRoute: typeof adminDotlayoutRoute
-    }
     '/_auth/s/$slug/$noteNumber/attachments/': {
       id: '/_auth/s/$slug/$noteNumber/attachments/'
       path: '/s/$slug/$noteNumber/attachments'
       fullPath: '/s/$slug/$noteNumber/attachments/'
       preLoaderRoute: typeof sSlug_noteNumberAttachmentsIndexDotpageRouteImport
       parentRoute: typeof authDotlayoutRoute
+    }
+    '/_auth/_spaces/spaces/$slug/filters/': {
+      id: '/_auth/_spaces/spaces/$slug/filters/'
+      path: '/spaces/$slug/filters'
+      fullPath: '/spaces/$slug/filters/'
+      preLoaderRoute: typeof spacesSlugFiltersIndexDotpageRouteImport
+      parentRoute: typeof spacesLayoutRoute
+    }
+    '/_auth/_spaces/spaces/$slug/fields/': {
+      id: '/_auth/_spaces/spaces/$slug/fields/'
+      path: '/spaces/$slug/fields'
+      fullPath: '/spaces/$slug/fields/'
+      preLoaderRoute: typeof spacesSlugFieldsIndexDotpageRouteImport
+      parentRoute: typeof spacesLayoutRoute
     }
     '/_auth/s/$slug/$noteNumber/attachments/new': {
       id: '/_auth/s/$slug/$noteNumber/attachments/new'
@@ -543,134 +597,103 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof sSlug_noteNumberAttachmentsNewDotpageRouteImport
       parentRoute: typeof authDotlayoutRoute
     }
-    '/_auth/_admin/admin/spaces/$slug/templates': {
-      id: '/_auth/_admin/admin/spaces/$slug/templates'
-      path: '/admin/spaces/$slug/templates'
-      fullPath: '/admin/spaces/$slug/templates'
-      preLoaderRoute: typeof adminSpacesSlugTemplatesPageRouteImport
-      parentRoute: typeof adminDotlayoutRoute
+    '/_auth/_spaces/spaces/$slug/filters/new': {
+      id: '/_auth/_spaces/spaces/$slug/filters/new'
+      path: '/spaces/$slug/filters/new'
+      fullPath: '/spaces/$slug/filters/new'
+      preLoaderRoute: typeof spacesSlugFiltersNewDotpageRouteImport
+      parentRoute: typeof spacesLayoutRoute
     }
-    '/_auth/_admin/admin/spaces/$slug/settings': {
-      id: '/_auth/_admin/admin/spaces/$slug/settings'
-      path: '/admin/spaces/$slug/settings'
-      fullPath: '/admin/spaces/$slug/settings'
-      preLoaderRoute: typeof adminSpacesSlugSettingsPageRouteImport
-      parentRoute: typeof adminDotlayoutRoute
+    '/_auth/_spaces/spaces/$slug/fields/new': {
+      id: '/_auth/_spaces/spaces/$slug/fields/new'
+      path: '/spaces/$slug/fields/new'
+      fullPath: '/spaces/$slug/fields/new'
+      preLoaderRoute: typeof spacesSlugFieldsNewDotpageRouteImport
+      parentRoute: typeof spacesLayoutRoute
     }
-    '/_auth/_admin/admin/spaces/$slug/members': {
-      id: '/_auth/_admin/admin/spaces/$slug/members'
-      path: '/admin/spaces/$slug/members'
-      fullPath: '/admin/spaces/$slug/members'
-      preLoaderRoute: typeof adminSpacesSlugMembersDotpageRouteImport
-      parentRoute: typeof adminDotlayoutRoute
+    '/_auth/_spaces/spaces/$slug/filters/$filterName/edit': {
+      id: '/_auth/_spaces/spaces/$slug/filters/$filterName/edit'
+      path: '/spaces/$slug/filters/$filterName/edit'
+      fullPath: '/spaces/$slug/filters/$filterName/edit'
+      preLoaderRoute: typeof spacesSlugFiltersFilterNameEditDotpageRouteImport
+      parentRoute: typeof spacesLayoutRoute
     }
-    '/_auth/_admin/admin/spaces/$slug/export': {
-      id: '/_auth/_admin/admin/spaces/$slug/export'
-      path: '/admin/spaces/$slug/export'
-      fullPath: '/admin/spaces/$slug/export'
-      preLoaderRoute: typeof adminSpacesSlugExportDotpageRouteImport
-      parentRoute: typeof adminDotlayoutRoute
-    }
-    '/_auth/_admin/admin/spaces/$slug/filters/new': {
-      id: '/_auth/_admin/admin/spaces/$slug/filters/new'
-      path: '/admin/spaces/$slug/filters/new'
-      fullPath: '/admin/spaces/$slug/filters/new'
-      preLoaderRoute: typeof adminSpacesSlugFiltersNewDotpageRouteImport
-      parentRoute: typeof adminDotlayoutRoute
-    }
-    '/_auth/_admin/admin/spaces/$slug/fields/new': {
-      id: '/_auth/_admin/admin/spaces/$slug/fields/new'
-      path: '/admin/spaces/$slug/fields/new'
-      fullPath: '/admin/spaces/$slug/fields/new'
-      preLoaderRoute: typeof adminSpacesSlugFieldsNewDotpageRouteImport
-      parentRoute: typeof adminDotlayoutRoute
-    }
-    '/_auth/_admin/admin/spaces/$slug/filters/': {
-      id: '/_auth/_admin/admin/spaces/$slug/filters/'
-      path: '/admin/spaces/$slug/filters'
-      fullPath: '/admin/spaces/$slug/filters/'
-      preLoaderRoute: typeof adminSpacesSlugFiltersIndexPageRouteImport
-      parentRoute: typeof adminDotlayoutRoute
-    }
-    '/_auth/_admin/admin/spaces/$slug/fields/': {
-      id: '/_auth/_admin/admin/spaces/$slug/fields/'
-      path: '/admin/spaces/$slug/fields'
-      fullPath: '/admin/spaces/$slug/fields/'
-      preLoaderRoute: typeof adminSpacesSlugFieldsIndexPageRouteImport
-      parentRoute: typeof adminDotlayoutRoute
-    }
-    '/_auth/_admin/admin/spaces/$slug/filters/$filterName/edit': {
-      id: '/_auth/_admin/admin/spaces/$slug/filters/$filterName/edit'
-      path: '/admin/spaces/$slug/filters/$filterName/edit'
-      fullPath: '/admin/spaces/$slug/filters/$filterName/edit'
-      preLoaderRoute: typeof adminSpacesSlugFiltersFilterNameEditDotpageRouteImport
-      parentRoute: typeof adminDotlayoutRoute
-    }
-    '/_auth/_admin/admin/spaces/$slug/fields/$fieldName/edit': {
-      id: '/_auth/_admin/admin/spaces/$slug/fields/$fieldName/edit'
-      path: '/admin/spaces/$slug/fields/$fieldName/edit'
-      fullPath: '/admin/spaces/$slug/fields/$fieldName/edit'
-      preLoaderRoute: typeof adminSpacesSlugFieldsFieldNameEditDotpageRouteImport
-      parentRoute: typeof adminDotlayoutRoute
+    '/_auth/_spaces/spaces/$slug/fields/$fieldName/edit': {
+      id: '/_auth/_spaces/spaces/$slug/fields/$fieldName/edit'
+      path: '/spaces/$slug/fields/$fieldName/edit'
+      fullPath: '/spaces/$slug/fields/$fieldName/edit'
+      preLoaderRoute: typeof spacesSlugFieldsFieldNameEditDotpageRouteImport
+      parentRoute: typeof spacesLayoutRoute
     }
   }
 }
 
-interface adminDotlayoutRouteChildren {
+interface adminLayoutRouteChildren {
   adminPendingAttachmentsPageRoute: typeof adminPendingAttachmentsPageRoute
-  adminUsersIndexPageRoute: typeof adminUsersIndexPageRoute
-  adminSpacesIndexPageRoute: typeof adminSpacesIndexPageRoute
-  adminSpacesImportDotpageRoute: typeof adminSpacesImportDotpageRoute
-  adminSpacesNewDotpageRoute: typeof adminSpacesNewDotpageRoute
-  adminTelegramMirrorsPageRoute: typeof adminTelegramMirrorsPageRoute
-  adminTelegramTasksPageRoute: typeof adminTelegramTasksPageRoute
+  adminTempSpaceAccessDotpageRoute: typeof adminTempSpaceAccessDotpageRoute
+  adminUsersIndexDotpageRoute: typeof adminUsersIndexDotpageRoute
+  adminTelegramMirrorsDotpageRoute: typeof adminTelegramMirrorsDotpageRoute
+  adminTelegramTasksDotpageRoute: typeof adminTelegramTasksDotpageRoute
   adminUsersNewDotpageRoute: typeof adminUsersNewDotpageRoute
-  adminSpacesSlugExportDotpageRoute: typeof adminSpacesSlugExportDotpageRoute
-  adminSpacesSlugMembersDotpageRoute: typeof adminSpacesSlugMembersDotpageRoute
-  adminSpacesSlugSettingsPageRoute: typeof adminSpacesSlugSettingsPageRoute
-  adminSpacesSlugTemplatesPageRoute: typeof adminSpacesSlugTemplatesPageRoute
-  adminSpacesSlugFieldsIndexPageRoute: typeof adminSpacesSlugFieldsIndexPageRoute
-  adminSpacesSlugFiltersIndexPageRoute: typeof adminSpacesSlugFiltersIndexPageRoute
-  adminSpacesSlugFieldsNewDotpageRoute: typeof adminSpacesSlugFieldsNewDotpageRoute
-  adminSpacesSlugFiltersNewDotpageRoute: typeof adminSpacesSlugFiltersNewDotpageRoute
-  adminSpacesSlugFieldsFieldNameEditDotpageRoute: typeof adminSpacesSlugFieldsFieldNameEditDotpageRoute
-  adminSpacesSlugFiltersFilterNameEditDotpageRoute: typeof adminSpacesSlugFiltersFilterNameEditDotpageRoute
 }
 
-const adminDotlayoutRouteChildren: adminDotlayoutRouteChildren = {
+const adminLayoutRouteChildren: adminLayoutRouteChildren = {
   adminPendingAttachmentsPageRoute: adminPendingAttachmentsPageRoute,
-  adminUsersIndexPageRoute: adminUsersIndexPageRoute,
-  adminSpacesIndexPageRoute: adminSpacesIndexPageRoute,
-  adminSpacesImportDotpageRoute: adminSpacesImportDotpageRoute,
-  adminSpacesNewDotpageRoute: adminSpacesNewDotpageRoute,
-  adminTelegramMirrorsPageRoute: adminTelegramMirrorsPageRoute,
-  adminTelegramTasksPageRoute: adminTelegramTasksPageRoute,
+  adminTempSpaceAccessDotpageRoute: adminTempSpaceAccessDotpageRoute,
+  adminUsersIndexDotpageRoute: adminUsersIndexDotpageRoute,
+  adminTelegramMirrorsDotpageRoute: adminTelegramMirrorsDotpageRoute,
+  adminTelegramTasksDotpageRoute: adminTelegramTasksDotpageRoute,
   adminUsersNewDotpageRoute: adminUsersNewDotpageRoute,
-  adminSpacesSlugExportDotpageRoute: adminSpacesSlugExportDotpageRoute,
-  adminSpacesSlugMembersDotpageRoute: adminSpacesSlugMembersDotpageRoute,
-  adminSpacesSlugSettingsPageRoute: adminSpacesSlugSettingsPageRoute,
-  adminSpacesSlugTemplatesPageRoute: adminSpacesSlugTemplatesPageRoute,
-  adminSpacesSlugFieldsIndexPageRoute: adminSpacesSlugFieldsIndexPageRoute,
-  adminSpacesSlugFiltersIndexPageRoute: adminSpacesSlugFiltersIndexPageRoute,
-  adminSpacesSlugFieldsNewDotpageRoute: adminSpacesSlugFieldsNewDotpageRoute,
-  adminSpacesSlugFiltersNewDotpageRoute: adminSpacesSlugFiltersNewDotpageRoute,
-  adminSpacesSlugFieldsFieldNameEditDotpageRoute:
-    adminSpacesSlugFieldsFieldNameEditDotpageRoute,
-  adminSpacesSlugFiltersFilterNameEditDotpageRoute:
-    adminSpacesSlugFiltersFilterNameEditDotpageRoute,
 }
 
-const adminDotlayoutRouteWithChildren = adminDotlayoutRoute._addFileChildren(
-  adminDotlayoutRouteChildren,
+const adminLayoutRouteWithChildren = adminLayoutRoute._addFileChildren(
+  adminLayoutRouteChildren,
+)
+
+interface spacesLayoutRouteChildren {
+  spacesImportDotpageRoute: typeof spacesImportDotpageRoute
+  spacesNewDotpageRoute: typeof spacesNewDotpageRoute
+  spacesSlugExportDotpageRoute: typeof spacesSlugExportDotpageRoute
+  spacesSlugMembersDotpageRoute: typeof spacesSlugMembersDotpageRoute
+  spacesSlugSettingsPageRoute: typeof spacesSlugSettingsPageRoute
+  spacesSlugTemplatesPageRoute: typeof spacesSlugTemplatesPageRoute
+  spacesSlugFieldsNewDotpageRoute: typeof spacesSlugFieldsNewDotpageRoute
+  spacesSlugFiltersNewDotpageRoute: typeof spacesSlugFiltersNewDotpageRoute
+  spacesSlugFieldsIndexDotpageRoute: typeof spacesSlugFieldsIndexDotpageRoute
+  spacesSlugFiltersIndexDotpageRoute: typeof spacesSlugFiltersIndexDotpageRoute
+  spacesSlugFieldsFieldNameEditDotpageRoute: typeof spacesSlugFieldsFieldNameEditDotpageRoute
+  spacesSlugFiltersFilterNameEditDotpageRoute: typeof spacesSlugFiltersFilterNameEditDotpageRoute
+}
+
+const spacesLayoutRouteChildren: spacesLayoutRouteChildren = {
+  spacesImportDotpageRoute: spacesImportDotpageRoute,
+  spacesNewDotpageRoute: spacesNewDotpageRoute,
+  spacesSlugExportDotpageRoute: spacesSlugExportDotpageRoute,
+  spacesSlugMembersDotpageRoute: spacesSlugMembersDotpageRoute,
+  spacesSlugSettingsPageRoute: spacesSlugSettingsPageRoute,
+  spacesSlugTemplatesPageRoute: spacesSlugTemplatesPageRoute,
+  spacesSlugFieldsNewDotpageRoute: spacesSlugFieldsNewDotpageRoute,
+  spacesSlugFiltersNewDotpageRoute: spacesSlugFiltersNewDotpageRoute,
+  spacesSlugFieldsIndexDotpageRoute: spacesSlugFieldsIndexDotpageRoute,
+  spacesSlugFiltersIndexDotpageRoute: spacesSlugFiltersIndexDotpageRoute,
+  spacesSlugFieldsFieldNameEditDotpageRoute:
+    spacesSlugFieldsFieldNameEditDotpageRoute,
+  spacesSlugFiltersFilterNameEditDotpageRoute:
+    spacesSlugFiltersFilterNameEditDotpageRoute,
+}
+
+const spacesLayoutRouteWithChildren = spacesLayoutRoute._addFileChildren(
+  spacesLayoutRouteChildren,
 )
 
 interface authDotlayoutRouteChildren {
-  indexPageRoute: typeof indexPageRoute
-  adminDotlayoutRoute: typeof adminDotlayoutRouteWithChildren
+  indexDotpageRoute: typeof indexDotpageRoute
+  adminLayoutRoute: typeof adminLayoutRouteWithChildren
+  spacesLayoutRoute: typeof spacesLayoutRouteWithChildren
   sSlugIndexPageRoute: typeof sSlugIndexPageRoute
   sSlugNewDotpageRoute: typeof sSlugNewDotpageRoute
   sSlug_noteNumberIndexPageRoute: typeof sSlug_noteNumberIndexPageRoute
-  sSlug_noteNumberEditPageRoute: typeof sSlug_noteNumberEditPageRoute
+  sSlug_noteNumberEditDotpageRoute: typeof sSlug_noteNumberEditDotpageRoute
   sSlugAttachmentsNewDotpageRoute: typeof sSlugAttachmentsNewDotpageRoute
   sSlugAttachmentsIndexDotpageRoute: typeof sSlugAttachmentsIndexDotpageRoute
   sSlug_noteNumberAttachmentsNewDotpageRoute: typeof sSlug_noteNumberAttachmentsNewDotpageRoute
@@ -678,12 +701,13 @@ interface authDotlayoutRouteChildren {
 }
 
 const authDotlayoutRouteChildren: authDotlayoutRouteChildren = {
-  indexPageRoute: indexPageRoute,
-  adminDotlayoutRoute: adminDotlayoutRouteWithChildren,
+  indexDotpageRoute: indexDotpageRoute,
+  adminLayoutRoute: adminLayoutRouteWithChildren,
+  spacesLayoutRoute: spacesLayoutRouteWithChildren,
   sSlugIndexPageRoute: sSlugIndexPageRoute,
   sSlugNewDotpageRoute: sSlugNewDotpageRoute,
   sSlug_noteNumberIndexPageRoute: sSlug_noteNumberIndexPageRoute,
-  sSlug_noteNumberEditPageRoute: sSlug_noteNumberEditPageRoute,
+  sSlug_noteNumberEditDotpageRoute: sSlug_noteNumberEditDotpageRoute,
   sSlugAttachmentsNewDotpageRoute: sSlugAttachmentsNewDotpageRoute,
   sSlugAttachmentsIndexDotpageRoute: sSlugAttachmentsIndexDotpageRoute,
   sSlug_noteNumberAttachmentsNewDotpageRoute:

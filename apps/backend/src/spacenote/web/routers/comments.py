@@ -67,14 +67,14 @@ async def get_comment(space_slug: str, note_number: int, number: int, app: AppDe
 @router.post(
     "/spaces/{space_slug}/notes/{note_number}/comments",
     summary="Create new comment",
-    description="Create a new comment on a note. Only space members can comment.",
+    description="Create a new comment on a note. Requires 'create_comment' permission.",
     operation_id="createComment",
     status_code=201,
     responses={
         201: {"description": "Comment created successfully"},
         400: {"model": ErrorResponse, "description": "Invalid parent comment"},
         401: {"model": ErrorResponse, "description": "Not authenticated"},
-        403: {"model": ErrorResponse, "description": "Not a member of this space"},
+        403: {"model": ErrorResponse, "description": "Requires 'create_comment' permission"},
         404: {"model": ErrorResponse, "description": "Space or note not found"},
     },
 )
@@ -107,13 +107,13 @@ async def update_comment(
 @router.delete(
     "/spaces/{space_slug}/notes/{note_number}/comments/{number}",
     summary="Delete comment",
-    description="Delete a comment. Only the comment author can delete. Replies are orphaned.",
+    description="Delete a comment. Requires 'create_comment' permission and comment authorship. Replies are orphaned.",
     operation_id="deleteComment",
     status_code=204,
     responses={
         204: {"description": "Comment deleted successfully"},
         401: {"model": ErrorResponse, "description": "Not authenticated"},
-        403: {"model": ErrorResponse, "description": "Not the comment author"},
+        403: {"model": ErrorResponse, "description": "Requires 'create_comment' permission and comment authorship"},
         404: {"model": ErrorResponse, "description": "Space, note, or comment not found"},
     },
 )

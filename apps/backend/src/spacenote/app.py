@@ -14,7 +14,7 @@ from spacenote.core.modules.filter.models import Filter
 from spacenote.core.modules.image.processor import WebpOptions
 from spacenote.core.modules.note.models import Note
 from spacenote.core.modules.session.models import AuthToken
-from spacenote.core.modules.space.models import Space
+from spacenote.core.modules.space.models import Member, Permission, Space
 from spacenote.core.modules.telegram.models import (
     TelegramMirror,
     TelegramSettings,
@@ -81,16 +81,22 @@ class App:
         users = self._core.services.user.list_all_users()
         return [UserView.from_domain(user) for user in users]
 
-    async def create_user(self, auth_token: AuthToken, username: str, password: str) -> UserView:
+    async def create_user(self, auth_token: AuthToken, username: str, password: str, *, is_admin: bool = False) -> UserView:
         """Create new user (admin only)."""
         await self._core.services.access.ensure_admin(auth_token)
-        user = await self._core.services.user.create_user(username, password)
+        user = await self._core.services.user.create_user(username, password, is_admin=is_admin)
         return UserView.from_domain(user)
 
     async def delete_user(self, auth_token: AuthToken, username: str) -> None:
         """Delete user (admin only)."""
         await self._core.services.access.ensure_admin(auth_token)
         await self._core.services.user.delete_user(username)
+
+    async def set_admin(self, auth_token: AuthToken, username: str, is_admin: bool) -> UserView:
+        """Set user admin status (admin only)."""
+        await self._core.services.access.ensure_admin(auth_token)
+        user = await self._core.services.user.set_admin(username, is_admin)
+        return UserView.from_domain(user)
 
     async def set_password(self, auth_token: AuthToken, username: str, new_password: str) -> None:
         """Set user password (admin only)."""
@@ -100,82 +106,100 @@ class App:
     # --- Spaces ---
 
     async def list_spaces(self, auth_token: AuthToken) -> list[Space]:
-        """List spaces - all for admin, only member spaces for users."""
+        """List spaces where the user is a member."""
         user = await self._core.services.access.ensure_authenticated(auth_token)
-
-        if user.username == "admin":
-            return self._core.services.space.list_all_spaces()
         return self._core.services.space.list_user_spaces(user.username)
 
     async def create_space(
-        self, auth_token: AuthToken, slug: str, title: str, description: str, members: list[str], source_space: str | None = None
+        self,
+        auth_token: AuthToken,
+        slug: str,
+        title: str,
+        description: str,
+        members: list[Member],
+        source_space: str | None = None,
     ) -> Space:
-        """Create new space (admin only)."""
-        await self._core.services.access.ensure_admin(auth_token)
+        """Create new space (any authenticated user)."""
+        await self._core.services.access.ensure_authenticated(auth_token)
         return await self._core.services.space.create_space(slug, title, description, members, source_space)
 
-    async def update_space_title(self, auth_token: AuthToken, slug: str, title: str) -> Space:
-        """Update space title (admin only)."""
+    async def list_all_spaces(self, auth_token: AuthToken) -> list[Space]:
+        """List all spaces (admin only)."""
         await self._core.services.access.ensure_admin(auth_token)
+        return self._core.services.space.list_all_spaces()
+
+    async def admin_join_space(self, auth_token: AuthToken, slug: str) -> Space:
+        """System admin adds themselves to a space with 'all' permission."""
+        user = await self._core.services.access.ensure_admin(auth_token)
+        return await self._core.services.space.add_member(slug, user.username, [Permission.ALL])
+
+    async def admin_leave_space(self, auth_token: AuthToken, slug: str) -> Space:
+        """System admin removes themselves from a space."""
+        user = await self._core.services.access.ensure_admin(auth_token)
+        return await self._core.services.space.remove_member(slug, user.username)
+
+    async def update_space_title(self, auth_token: AuthToken, slug: str, title: str) -> Space:
+        """Update space title (space admin only)."""
+        await self._core.services.access.ensure_space_admin(auth_token, slug)
         return await self._core.services.space.update_title(slug, title)
 
     async def update_space_description(self, auth_token: AuthToken, slug: str, description: str) -> Space:
-        """Update space description (admin only)."""
-        await self._core.services.access.ensure_admin(auth_token)
+        """Update space description (space admin only)."""
+        await self._core.services.access.ensure_space_admin(auth_token, slug)
         return await self._core.services.space.update_description(slug, description)
 
-    async def update_space_members(self, auth_token: AuthToken, slug: str, members: list[str]) -> Space:
-        """Update space members (admin only)."""
-        await self._core.services.access.ensure_admin(auth_token)
+    async def update_space_members(self, auth_token: AuthToken, slug: str, members: list[Member]) -> Space:
+        """Update space members (space admin only)."""
+        await self._core.services.access.ensure_space_admin(auth_token, slug)
         return await self._core.services.space.update_members(slug, members)
 
     async def update_hidden_fields_on_create(self, auth_token: AuthToken, slug: str, field_names: list[str]) -> Space:
-        """Update hidden fields on create (admin only)."""
-        await self._core.services.access.ensure_admin(auth_token)
+        """Update hidden fields on create (space admin only)."""
+        await self._core.services.access.ensure_space_admin(auth_token, slug)
         return await self._core.services.space.update_hidden_fields_on_create(slug, field_names)
 
     async def update_editable_fields_on_comment(self, auth_token: AuthToken, slug: str, field_names: list[str]) -> Space:
-        """Update editable fields on comment (admin only)."""
-        await self._core.services.access.ensure_admin(auth_token)
+        """Update editable fields on comment (space admin only)."""
+        await self._core.services.access.ensure_space_admin(auth_token, slug)
         return await self._core.services.space.update_editable_fields_on_comment(slug, field_names)
 
     async def update_default_filter(self, auth_token: AuthToken, slug: str, default_filter: str) -> Space:
-        """Update space default filter (admin only)."""
-        await self._core.services.access.ensure_admin(auth_token)
+        """Update space default filter (space admin only)."""
+        await self._core.services.access.ensure_space_admin(auth_token, slug)
         return await self._core.services.space.update_default_filter(slug, default_filter)
 
     async def update_can_transfer_to(self, auth_token: AuthToken, slug: str, slugs: list[str]) -> Space:
-        """Update spaces where notes can be transferred to (admin only)."""
-        await self._core.services.access.ensure_admin(auth_token)
+        """Update spaces where notes can be transferred to (space admin only)."""
+        await self._core.services.access.ensure_space_admin(auth_token, slug)
         return await self._core.services.space.update_can_transfer_to(slug, slugs)
 
     async def rename_space_slug(self, auth_token: AuthToken, slug: str, new_slug: str) -> Space:
-        """Rename space slug (admin only)."""
-        await self._core.services.access.ensure_admin(auth_token)
+        """Rename space slug (space admin only)."""
+        await self._core.services.access.ensure_space_admin(auth_token, slug)
         return await self._core.services.space.rename_slug(slug, new_slug)
 
     async def delete_space(self, auth_token: AuthToken, slug: str) -> None:
-        """Delete space (admin only)."""
-        await self._core.services.access.ensure_admin(auth_token)
+        """Delete space (space admin only)."""
+        await self._core.services.access.ensure_space_admin(auth_token, slug)
         await self._core.services.space.delete_space(slug)
 
     # --- Templates ---
 
     async def set_space_template(self, auth_token: AuthToken, slug: str, key: str, content: str) -> Space:
-        """Set or remove a template (admin only). Empty content removes the template."""
-        await self._core.services.access.ensure_admin(auth_token)
+        """Set or remove a template (space admin only). Empty content removes the template."""
+        await self._core.services.access.ensure_space_admin(auth_token, slug)
         return await self._core.services.template.set_template(slug, key, content)
 
     # --- Fields ---
 
     async def add_field(self, auth_token: AuthToken, slug: str, field: SpaceField) -> SpaceField:
-        """Add field to space (admin only). Returns validated field."""
-        await self._core.services.access.ensure_admin(auth_token)
+        """Add field to space (space admin only). Returns validated field."""
+        await self._core.services.access.ensure_space_admin(auth_token, slug)
         return await self._core.services.field.add_field(slug, field)
 
     async def remove_field(self, auth_token: AuthToken, slug: str, field_name: str) -> None:
-        """Remove field from space (admin only)."""
-        await self._core.services.access.ensure_admin(auth_token)
+        """Remove field from space (space admin only)."""
+        await self._core.services.access.ensure_space_admin(auth_token, slug)
         await self._core.services.field.remove_field(slug, field_name)
 
     async def update_field(
@@ -187,32 +211,32 @@ class App:
         options: dict[str, Any],
         default: FieldValueType,
     ) -> SpaceField:
-        """Update field in space (admin only). Returns validated field."""
-        await self._core.services.access.ensure_admin(auth_token)
+        """Update field in space (space admin only). Returns validated field."""
+        await self._core.services.access.ensure_space_admin(auth_token, slug)
         return await self._core.services.field.update_field(slug, field_name, required, options, default)
 
     # --- Filters ---
 
     async def add_filter(self, auth_token: AuthToken, slug: str, filter: Filter) -> Filter:
-        """Add filter to space (admin only). Returns validated filter."""
-        await self._core.services.access.ensure_admin(auth_token)
+        """Add filter to space (space admin only). Returns validated filter."""
+        await self._core.services.access.ensure_space_admin(auth_token, slug)
         return await self._core.services.filter.add_filter(slug, filter)
 
     async def remove_filter(self, auth_token: AuthToken, slug: str, filter_name: str) -> None:
-        """Remove filter from space (admin only)."""
-        await self._core.services.access.ensure_admin(auth_token)
+        """Remove filter from space (space admin only)."""
+        await self._core.services.access.ensure_space_admin(auth_token, slug)
         await self._core.services.filter.remove_filter(slug, filter_name)
 
     async def update_filter(self, auth_token: AuthToken, slug: str, filter_name: str, new_filter: Filter) -> Filter:
-        """Update filter in space (admin only). Returns validated filter."""
-        await self._core.services.access.ensure_admin(auth_token)
+        """Update filter in space (space admin only). Returns validated filter."""
+        await self._core.services.access.ensure_space_admin(auth_token, slug)
         return await self._core.services.filter.update_filter(slug, filter_name, new_filter)
 
     # --- Telegram ---
 
     async def update_space_telegram(self, auth_token: AuthToken, slug: str, telegram: TelegramSettings | None) -> Space:
-        """Update space telegram settings (admin only)."""
-        await self._core.services.access.ensure_admin(auth_token)
+        """Update space telegram settings (space admin only)."""
+        await self._core.services.access.ensure_space_admin(auth_token, slug)
         return await self._core.services.telegram.update_settings(slug, telegram)
 
     async def list_telegram_tasks(
@@ -256,29 +280,29 @@ class App:
         limit: int = 50,
         offset: int = 0,
     ) -> PaginationResult[Note]:
-        """List paginated notes in space (members and admin)."""
-        user = await self._core.services.access.ensure_space_reader(auth_token, space_slug)
+        """List paginated notes in space (members only)."""
+        user = await self._core.services.access.ensure_space_permission(auth_token, space_slug)
         return await self._core.services.note.list_notes(space_slug, user.username, filter_name, adhoc_query, limit, offset)
 
     async def get_note(self, auth_token: AuthToken, space_slug: str, number: int) -> Note:
-        """Get specific note by number (members and admin)."""
-        await self._core.services.access.ensure_space_reader(auth_token, space_slug)
+        """Get specific note by number (members only)."""
+        await self._core.services.access.ensure_space_permission(auth_token, space_slug)
         return await self._core.services.note.get_note(space_slug, number)
 
     async def create_note(self, auth_token: AuthToken, space_slug: str, raw_fields: dict[str, str]) -> Note:
-        """Create note with custom fields (members only)."""
-        user = await self._core.services.access.ensure_space_member(auth_token, space_slug)
+        """Create note with custom fields (requires create_note permission)."""
+        user = await self._core.services.access.ensure_space_permission(auth_token, space_slug, Permission.CREATE_NOTE)
         return await self._core.services.note.create_note(space_slug, user.username, raw_fields)
 
     async def update_note(self, auth_token: AuthToken, space_slug: str, number: int, raw_fields: dict[str, str]) -> Note:
-        """Update specific note fields (partial update, members only)."""
-        user = await self._core.services.access.ensure_space_member(auth_token, space_slug)
+        """Update specific note fields (requires create_note permission)."""
+        user = await self._core.services.access.ensure_space_permission(auth_token, space_slug, Permission.CREATE_NOTE)
         note, _ = await self._core.services.note.update_note_fields(space_slug, number, raw_fields, user.username)
         return note
 
     async def transfer_note(self, auth_token: AuthToken, space_slug: str, number: int, target_space: str) -> Note:
-        """Transfer note to another space (source space members only)."""
-        await self._core.services.access.ensure_space_member(auth_token, space_slug)
+        """Transfer note to another space (requires create_note permission)."""
+        await self._core.services.access.ensure_space_permission(auth_token, space_slug, Permission.CREATE_NOTE)
         return await self._core.services.note.transfer_note(space_slug, number, target_space)
 
     # --- Comments ---
@@ -286,13 +310,13 @@ class App:
     async def list_comments(
         self, auth_token: AuthToken, space_slug: str, note_number: int, limit: int = 50, offset: int = 0
     ) -> PaginationResult[Comment]:
-        """List paginated comments for a note (members and admin)."""
-        await self._core.services.access.ensure_space_reader(auth_token, space_slug)
+        """List paginated comments for a note (members only)."""
+        await self._core.services.access.ensure_space_permission(auth_token, space_slug)
         return await self._core.services.comment.list_comments(space_slug, note_number, limit, offset)
 
     async def get_comment(self, auth_token: AuthToken, space_slug: str, note_number: int, number: int) -> Comment:
-        """Get specific comment (members and admin)."""
-        await self._core.services.access.ensure_space_reader(auth_token, space_slug)
+        """Get specific comment (members only)."""
+        await self._core.services.access.ensure_space_permission(auth_token, space_slug)
         return await self._core.services.comment.get_comment(space_slug, note_number, number)
 
     async def create_comment(
@@ -304,8 +328,8 @@ class App:
         parent_number: int | None = None,
         raw_fields: dict[str, str] | None = None,
     ) -> Comment:
-        """Create comment on a note, optionally updating fields (members only)."""
-        user = await self._core.services.access.ensure_space_member(auth_token, space_slug)
+        """Create comment on a note, optionally updating fields (requires create_comment permission)."""
+        user = await self._core.services.access.ensure_space_permission(auth_token, space_slug, Permission.CREATE_COMMENT)
         return await self._core.services.comment.create_comment(
             space_slug, note_number, user.username, content, parent_number, raw_fields
         )
@@ -318,7 +342,8 @@ class App:
         return await self._core.services.comment.update_comment(space_slug, note_number, number, content)
 
     async def delete_comment(self, auth_token: AuthToken, space_slug: str, note_number: int, number: int) -> None:
-        """Delete comment (author only)."""
+        """Delete comment (requires create_comment permission and authorship)."""
+        await self._core.services.access.ensure_space_permission(auth_token, space_slug, Permission.CREATE_COMMENT)
         await self._core.services.access.ensure_comment_author(auth_token, space_slug, note_number, number)
         await self._core.services.comment.delete_comment(space_slug, note_number, number)
 
@@ -346,8 +371,8 @@ class App:
     async def upload_space_attachment(
         self, auth_token: AuthToken, space_slug: str, filename: str, content: bytes, mime_type: str
     ) -> Attachment:
-        """Upload attachment to space (members only)."""
-        user = await self._core.services.access.ensure_space_member(auth_token, space_slug)
+        """Upload attachment to space (requires create_note permission)."""
+        user = await self._core.services.access.ensure_space_permission(auth_token, space_slug, Permission.CREATE_NOTE)
         return await self._core.services.attachment.create_attachment(
             space_slug, None, user.username, filename, content, mime_type
         )
@@ -355,20 +380,20 @@ class App:
     async def upload_note_attachment(
         self, auth_token: AuthToken, space_slug: str, note_number: int, filename: str, content: bytes, mime_type: str
     ) -> Attachment:
-        """Upload attachment to note (members only)."""
-        user = await self._core.services.access.ensure_space_member(auth_token, space_slug)
+        """Upload attachment to note (requires create_note permission)."""
+        user = await self._core.services.access.ensure_space_permission(auth_token, space_slug, Permission.CREATE_NOTE)
         return await self._core.services.attachment.create_attachment(
             space_slug, note_number, user.username, filename, content, mime_type
         )
 
     async def list_space_attachments(self, auth_token: AuthToken, space_slug: str) -> list[Attachment]:
-        """List space-level attachments (members and admin)."""
-        await self._core.services.access.ensure_space_reader(auth_token, space_slug)
+        """List space-level attachments (members only)."""
+        await self._core.services.access.ensure_space_permission(auth_token, space_slug)
         return await self._core.services.attachment.list_space_attachments(space_slug)
 
     async def list_note_attachments(self, auth_token: AuthToken, space_slug: str, note_number: int) -> list[Attachment]:
-        """List note attachments (members and admin)."""
-        await self._core.services.access.ensure_space_reader(auth_token, space_slug)
+        """List note attachments (members only)."""
+        await self._core.services.access.ensure_space_permission(auth_token, space_slug)
         return await self._core.services.attachment.list_note_attachments(space_slug, note_number)
 
     async def download_pending_attachment(self, auth_token: AuthToken, number: int) -> tuple[PendingAttachment, bytes]:
@@ -378,8 +403,8 @@ class App:
         return pending, content
 
     async def download_space_attachment(self, auth_token: AuthToken, space_slug: str, number: int) -> tuple[Attachment, bytes]:
-        """Download space attachment (members and admin)."""
-        await self._core.services.access.ensure_space_reader(auth_token, space_slug)
+        """Download space attachment (members only)."""
+        await self._core.services.access.ensure_space_permission(auth_token, space_slug)
         attachment = await self._core.services.attachment.get_attachment(space_slug, None, number)
         content = attachment_storage.read_attachment_file(self._core.config.attachments_path, space_slug, None, number)
         return attachment, content
@@ -387,8 +412,8 @@ class App:
     async def download_note_attachment(
         self, auth_token: AuthToken, space_slug: str, note_number: int, number: int
     ) -> tuple[Attachment, bytes]:
-        """Download note attachment (members and admin)."""
-        await self._core.services.access.ensure_space_reader(auth_token, space_slug)
+        """Download note attachment (members only)."""
+        await self._core.services.access.ensure_space_permission(auth_token, space_slug)
         attachment = await self._core.services.attachment.get_attachment(space_slug, note_number, number)
         content = attachment_storage.read_attachment_file(self._core.config.attachments_path, space_slug, note_number, number)
         return attachment, content
@@ -407,19 +432,19 @@ class App:
         if space_slug is None:
             await self._core.services.access.ensure_pending_attachment_owner_or_admin(auth_token, attachment_number)
         else:
-            await self._core.services.access.ensure_space_reader(auth_token, space_slug)
+            await self._core.services.access.ensure_space_permission(auth_token, space_slug)
         return await self._core.services.image.get_attachment_as_webp(space_slug, note_number, attachment_number, options)
 
     async def get_image_path(self, auth_token: AuthToken, space_slug: str, note_number: int, field_name: str) -> Path:
-        """Get path to pre-generated WebP image (members and admin)."""
-        await self._core.services.access.ensure_space_reader(auth_token, space_slug)
+        """Get path to pre-generated WebP image (members only)."""
+        await self._core.services.access.ensure_space_permission(auth_token, space_slug)
         return await self._core.services.image.get_image_path(space_slug, note_number, field_name)
 
     # --- Export/Import ---
 
     async def export_space(self, auth_token: AuthToken, space_slug: str, include_data: bool) -> ExportData:
-        """Export space configuration and optionally all data (admin only)."""
-        await self._core.services.access.ensure_admin(auth_token)
+        """Export space configuration and optionally all data (space admin only)."""
+        await self._core.services.access.ensure_space_admin(auth_token, space_slug)
         return await self._core.services.export.export_space(space_slug, include_data)
 
     async def import_space(self, auth_token: AuthToken, data: ExportData) -> Space:

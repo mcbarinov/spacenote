@@ -73,13 +73,13 @@ async def delete_pending_attachment(number: int, app: AppDep, auth_token: AuthTo
 @router.post(
     "/spaces/{space_slug}/attachments",
     summary="Upload space attachment",
-    description="Upload a file directly to space (e.g. AI context documents).",
+    description="Upload a file directly to space (e.g. AI context documents). Requires 'create_note' permission.",
     operation_id="uploadSpaceAttachment",
     status_code=201,
     responses={
         201: {"description": "File uploaded successfully"},
         401: {"model": ErrorResponse, "description": "Not authenticated"},
-        403: {"model": ErrorResponse, "description": "Not a member of this space"},
+        403: {"model": ErrorResponse, "description": "Requires 'create_note' permission"},
         404: {"model": ErrorResponse, "description": "Space not found"},
     },
 )
@@ -97,13 +97,13 @@ async def upload_space_attachment(space_slug: str, file: UploadFile, app: AppDep
 @router.post(
     "/spaces/{space_slug}/notes/{note_number}/attachments",
     summary="Upload note attachment",
-    description="Upload a file directly to a note.",
+    description="Upload a file directly to a note. Requires 'create_note' permission.",
     operation_id="uploadNoteAttachment",
     status_code=201,
     responses={
         201: {"description": "File uploaded successfully"},
         401: {"model": ErrorResponse, "description": "Not authenticated"},
-        403: {"model": ErrorResponse, "description": "Not a member of this space"},
+        403: {"model": ErrorResponse, "description": "Requires 'create_note' permission"},
         404: {"model": ErrorResponse, "description": "Space or note not found"},
     },
 )

@@ -75,3 +75,24 @@ def setup_logging(debug: bool) -> None:
         logger_factory=structlog.stdlib.LoggerFactory(),
         cache_logger_on_first_use=True,
     )
+
+    # Route uvicorn logs through structlog so they match the app format
+    formatter = structlog.stdlib.ProcessorFormatter(
+        processors=[
+            structlog.stdlib.ProcessorFormatter.remove_processors_meta,
+            structlog.dev.ConsoleRenderer() if debug else structlog.processors.JSONRenderer(),
+        ],
+        foreign_pre_chain=[
+            structlog.stdlib.add_log_level,
+            structlog.stdlib.add_logger_name,
+            structlog.processors.TimeStamper(fmt="iso"),
+        ],
+    )
+
+    handler = logging.StreamHandler()
+    handler.setFormatter(formatter)
+
+    for logger_name in ("uvicorn", "uvicorn.error", "uvicorn.access"):
+        uv_logger = logging.getLogger(logger_name)
+        uv_logger.handlers = [handler]
+        uv_logger.propagate = False

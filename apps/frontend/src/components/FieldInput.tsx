@@ -158,6 +158,7 @@ export function FieldInput({ field, value, onChange, error, spaceMembers, onImag
     case "datetime": {
       const opts = field.options as DatetimeFieldOptions
       // Value can be a Date (from form state) or string (from API) — coerce to Date for pickers
+      // eslint-disable-next-line react-x/purity -- deterministic: parses a fixed ISO string, not Date()
       const dateValue = value instanceof Date ? value : value ? new Date(asString(value)) : null
 
       if (opts.kind === "date") {

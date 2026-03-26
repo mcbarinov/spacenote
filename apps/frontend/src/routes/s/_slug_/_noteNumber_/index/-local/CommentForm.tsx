@@ -94,7 +94,7 @@ export function CommentForm({ space, note }: CommentFormProps) {
     for (const [key, value] of Object.entries(newFieldValues)) {
       form.setFieldValue(key, value)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- only re-sync when server data changes
+    // eslint-disable-next-line react-x/exhaustive-deps, react-hooks/exhaustive-deps -- only re-sync when server data changes
   }, [note.fields])
 
   const hasComment = form.values.content.trim() !== ""

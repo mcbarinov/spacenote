@@ -11,7 +11,7 @@ interface Props {
 /** Options (values, value_maps) and default for select field type */
 export function SelectFieldConfig({ form }: Props) {
   const { selectValues, valueMaps } = form.values
-  const prevSelectValuesRef = useRef<string[]>(selectValues)
+  const prevSelectValuesRef = useRef(selectValues)
 
   // Sync valueMaps keys when selectValues change
   useEffect(() => {

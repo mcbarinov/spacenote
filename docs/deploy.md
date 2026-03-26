@@ -3,19 +3,19 @@
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────────┐
-│                    Internet                         │
-└─────────────────────┬───────────────────────────────┘
-                      │ :80/:443
-┌─────────────────────▼───────────────────────────────┐
-│                    Caddy                            │
-│              (reverse proxy + SSL)                  │
-└──────┬──────────────┬──────────────────┬────────────┘
-       │ /api/*       │ /admin/*         │ /*
-┌──────▼──────┐ ┌─────▼──────┐ ┌─────────▼─────────┐
-│   Backend   │ │   Admin    │ │       Web         │
-│  (FastAPI)  │ │  (serve)   │ │     (serve)       │
-└──────┬──────┘ └────────────┘ └───────────────────┘
+┌─────────────────────────────────────────┐
+│                Internet                 │
+└───────────────────┬─────────────────────┘
+                    │ :80/:443
+┌───────────────────▼─────────────────────┐
+│                 Caddy                   │
+│           (reverse proxy + SSL)         │
+└──────┬────────────────────────┬─────────┘
+       │ /api/*                 │ /*
+┌──────▼──────┐      ┌─────────▼─────────┐
+│   Backend   │      │     Frontend      │
+│  (FastAPI)  │      │     (serve)       │
+└──────┬──────┘      └───────────────────┘
        │
 ┌──────▼──────┐
 │   MongoDB   │
@@ -73,7 +73,8 @@ curl -O https://raw.githubusercontent.com/mcbarinov/spacenote/main/deploy/.env.e
 mv .env.example .env
 
 # Create data directories with correct permissions
-mkdir -p ./data/attachments ./data/images
+mkdir -p ./data/db ./data/attachments ./data/images ./data/caddy/data ./data/caddy/config
+chown -R 998:998 ./data/db
 chown -R 1000:1000 ./data/attachments ./data/images
 
 # Edit .env with your settings
@@ -104,14 +105,12 @@ just docker-push
 
 # Or push specific service
 just docker-push-backend
-just docker-push-web
-just docker-push-admin
+just docker-push-frontend
 
 # Build locally for testing (native arch, loads into local Docker)
 just docker-build
 just docker-build-backend
-just docker-build-web
-just docker-build-admin
+just docker-build-frontend
 ```
 
 ### Deploy / Update (server)
@@ -131,8 +130,7 @@ docker compose logs -f
 
 | Path | Service |
 |------|---------|
-| `https://domain.com/` | Web app |
-| `https://domain.com/admin/` | Admin panel |
+| `https://domain.com/` | Frontend (user + admin) |
 | `https://domain.com/api/` | Backend API |
 
 Caddy handles SSL certificates automatically via Let's Encrypt.
@@ -148,8 +146,7 @@ just docker-local-down
 ```
 
 Local URLs (via Caddy at port 8080):
-- Web: http://localhost:8080
-- Admin: http://localhost:8080/admin/
+- Frontend: http://localhost:8080
 - API: http://localhost:8080/api/
 - MongoDB: localhost:27017 (direct access)
 
@@ -159,11 +156,12 @@ All data stored in bind mounts under `./data/`:
 
 ```
 data/
-├── mongodb/        # Database files (created by MongoDB container)
+├── db/             # MongoDB data files
 ├── attachments/    # User uploads (uid 1000)
 ├── images/         # Processed images (uid 1000)
-├── caddy-data/     # SSL certificates
-└── caddy-config/   # Caddy config
+└── caddy/
+    ├── data/       # SSL certificates
+    └── config/     # Caddy config
 ```
 
 **Note:** `attachments/` and `images/` must be owned by uid 1000 (backend user).
@@ -171,12 +169,28 @@ data/
 ## Backup
 
 ```bash
-# Full backup
 cd /opt/spacenote
-tar -czf backup-$(date +%Y%m%d).tar.gz ./data/
 
-# Restore
-tar -xzf backup-20250101.tar.gz
+# Database backup (consistent snapshot via mongodump)
+docker exec spacenote-mongodb mongodump \
+  -u "$MONGODB_ROOT_USERNAME" -p "$MONGODB_ROOT_PASSWORD" \
+  --authenticationDatabase admin --db spacenote \
+  --archive --gzip > backup-db-$(date +%Y%m%d).gz
+
+# Files backup (attachments + images)
+tar -czf backup-files-$(date +%Y%m%d).tar.gz ./data/attachments ./data/images
+```
+
+Restore:
+```bash
+# Database
+docker exec -i spacenote-mongodb mongorestore \
+  -u "$MONGODB_ROOT_USERNAME" -p "$MONGODB_ROOT_PASSWORD" \
+  --authenticationDatabase admin --db spacenote --drop \
+  --archive --gzip < backup-db-20250101.gz
+
+# Files
+tar -xzf backup-files-20250101.tar.gz
 ```
 
 ## Common Commands
@@ -229,7 +243,7 @@ docker compose logs mongodb
 
 # If "Permission denied" on /data/db/journal - reset MongoDB data
 docker compose down
-sudo rm -rf ./data/mongodb
+sudo rm -rf ./data/db
 docker compose up -d
 ```
 

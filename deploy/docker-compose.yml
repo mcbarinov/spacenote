@@ -16,8 +16,8 @@ services:
       DOMAIN: ${DOMAIN}
       EMAIL: ${EMAIL:-}
     volumes:
-      - ./data/caddy-data:/data
-      - ./data/caddy-config:/config
+      - ./data/caddy/data:/data
+      - ./data/caddy/config:/config
     entrypoint: /bin/sh
     command: >
       -c "echo '
@@ -60,7 +60,7 @@ services:
       MONGODB_INITDB_ROOT_PASSWORD: ${MONGODB_ROOT_PASSWORD}
       MONGODB_INITDB_DATABASE: spacenote
     volumes:
-      - ./data/mongodb:/data:z
+      - ./data/db:/data/db:z
     networks:
       - spacenote-network
     healthcheck:

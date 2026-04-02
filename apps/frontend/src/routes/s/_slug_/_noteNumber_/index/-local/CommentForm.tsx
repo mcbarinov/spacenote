@@ -127,7 +127,7 @@ export function CommentForm({ space, note }: CommentFormProps) {
         <Textarea placeholder="Write a comment..." minRows={2} {...form.getInputProps("content")} />
 
         {hasEditableFields && (
-          <Collapse in={fieldsOpen}>
+          <Collapse expanded={fieldsOpen}>
             <Stack gap="sm" mb="sm">
               {editableFields.map((field) => (
                 <FieldInput

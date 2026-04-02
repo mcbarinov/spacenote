@@ -61,7 +61,6 @@ export function ValueInput({ field, operator, value, onChange, spaceMembers }: V
     }
 
     case "datetime": {
-      // eslint-disable-next-line react-x/purity -- deterministic: parses a fixed ISO string, not Date()
       const dateValue = value instanceof Date ? value : typeof value === "string" && value ? new Date(value) : null
       return (
         <DateTimePicker

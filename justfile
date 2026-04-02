@@ -160,7 +160,7 @@ colima-restart:
     set -euo pipefail
 
     echo "Stopping Colima..."
-    colima stop 2>/dev/null || true
+    colima stop --force 2>/dev/null || true
 
     echo "Starting Colima with 8 CPUs, 16GB RAM..."
     colima start --cpu 8 --memory 16 --disk 100

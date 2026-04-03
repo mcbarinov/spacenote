@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router"
-import { ActionIcon, Badge, Code, Group, Paper, Stack, Table, Text } from "@mantine/core"
+import { ActionIcon, Code, Group, Paper, Stack, Table, Text } from "@mantine/core"
 import { notifications } from "@mantine/notifications"
 import { IconPencil } from "@tabler/icons-react"
 import { api } from "@/api"
@@ -42,11 +42,7 @@ function FieldsTable({ spaceSlug, fields }: { spaceSlug: string; fields: SpaceFi
           {fields.map((field) => (
             <Table.Tr key={field.name}>
               <Table.Td>{field.name}</Table.Td>
-              <Table.Td>
-                <Badge variant="light" size="sm">
-                  {field.type}
-                </Badge>
-              </Table.Td>
+              <Table.Td>{field.type}</Table.Td>
               <Table.Td>{field.required ? "Yes" : "No"}</Table.Td>
               <Table.Td>
                 <Code>{field.default !== null ? JSON.stringify(field.default) : "-"}</Code>

@@ -42,3 +42,13 @@ export function getInheritedTemplateKeys(parentSpace: Space, childSpace: Space):
   }
   return result
 }
+
+/** Get hidden_fields_on_create inherited from parent. */
+export function getInheritedHiddenFieldsOnCreate(parentSpace: Space): Set<string> {
+  return new Set(parentSpace.hidden_fields_on_create)
+}
+
+/** Get editable_fields_on_comment inherited from parent. */
+export function getInheritedEditableFieldsOnComment(parentSpace: Space): Set<string> {
+  return new Set(parentSpace.editable_fields_on_comment)
+}

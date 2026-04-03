@@ -348,11 +348,19 @@ class SpaceService(Service):
         # Templates: merge by key, child overrides parent on same key
         merged_templates = {**parent.templates, **space.templates}
 
+        # hidden_fields_on_create: union of parent and child lists (deduplicated, parent order first)
+        merged_hidden = list(dict.fromkeys(parent.hidden_fields_on_create + space.hidden_fields_on_create))
+
+        # editable_fields_on_comment: union of parent and child lists
+        merged_editable = list(dict.fromkeys(parent.editable_fields_on_comment + space.editable_fields_on_comment))
+
         return space.model_copy(
             update={
                 "fields": merged_fields,
                 "filters": merged_filters,
                 "templates": merged_templates,
+                "hidden_fields_on_create": merged_hidden,
+                "editable_fields_on_comment": merged_editable,
             }
         )
 

@@ -32,14 +32,25 @@ multiple spaces share the same structure (e.g., a family of 5 with one shared ta
 - `source_space` and `parent` are mutually exclusive in create
 - Cannot delete a space that has children
 
-**Inherited (merged: parent first, then child appended):**
-- **Fields** — child can only add new fields, name collisions with parent are forbidden
-- **Filters** — child can add new and override parent's by name (same name = child wins)
-- **Templates** — child can add new and override parent's by key (same key = child wins)
+**Inheritance rules per field:**
 
-**Not inherited (per-space):**
-- Members, timezone, telegram settings, notes, `hidden_fields_on_create`,
-  `editable_fields_on_comment`, `default_filter`, `can_transfer_to`
+| Field | Strategy | Details |
+|-------|----------|---------|
+| `slug` | Identity | Unique identifier, not inherited |
+| `parent` | Structural | Parent reference, not inherited |
+| `title` | Per-space | Each space has its own title |
+| `description` | Per-space | Each space has its own description |
+| `members` | Per-space | Each space has its own members and permissions |
+| `fields` | **Merge (append)** | Parent fields first, then child's own fields appended. Name collisions forbidden |
+| `filters` | **Merge (override by name)** | Parent filters first; child can override by same name (child wins) |
+| `templates` | **Merge (override by key)** | Parent templates as base; child can override by same key (child wins) |
+| `default_filter` | Per-space | Each space picks its own default filter |
+| `hidden_fields_on_create` | **Merge (union)** | Union of parent + child lists. Child cannot "unhide" a field hidden by parent |
+| `editable_fields_on_comment` | **Merge (union)** | Union of parent + child lists. Child cannot remove a permission set by parent |
+| `can_transfer_to` | Per-space | Schema compatibility depends on each space's full field set |
+| `telegram` | Per-space | Each space has its own Telegram integration |
+| `timezone` | Per-space | Each space has its own timezone |
+| `created_at` | Metadata | Not inherited |
 
 **Implementation:**
 - MongoDB stores only the space's own config (`_space_documents` cache)

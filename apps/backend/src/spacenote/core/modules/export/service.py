@@ -25,11 +25,12 @@ class ExportService(Service):
     """Handles space data export and import."""
 
     async def export_space(self, space_slug: str, include_data: bool) -> ExportData:
-        """Export space configuration and optionally all data."""
-        space = self.core.services.space.get_space(space_slug)
+        """Export space configuration and optionally all data (own config, not resolved)."""
+        space = self.core.services.space.get_space_document(space_slug)
 
         space_export = SpaceExport(
             slug=space.slug,
+            parent=space.parent,
             title=space.title,
             description=space.description,
             members=space.members,
@@ -125,6 +126,7 @@ class ExportService(Service):
         # Convert and create space
         space_model = Space(
             slug=data.space.slug,
+            parent=data.space.parent,
             title=data.space.title,
             description=data.space.description,
             members=data.space.members,

@@ -21,6 +21,7 @@ const createSpaceSchema = z.object({
   title: z.string().min(1, { message: "Title is required" }).max(100, { message: "Title must be at most 100 characters" }),
   description: z.string().max(1000, { message: "Description must be at most 1000 characters" }).optional(),
   source_space: z.string().optional(),
+  parent: z.string().optional(),
   members: z.array(z.string()),
 })
 
@@ -37,6 +38,7 @@ function CreateSpacePage() {
       title: "",
       description: "",
       source_space: "",
+      parent: "",
       members: [] as string[],
     },
     validate: zod4Resolver(createSpaceSchema),
@@ -47,6 +49,7 @@ function CreateSpacePage() {
       ...values,
       members: values.members.map((username) => ({ username, permissions: ["all"] })),
       source_space: values.source_space || null,
+      parent: values.parent || null,
     }
     createSpaceMutation.mutate(data, {
       onSuccess: () => {
@@ -59,9 +62,11 @@ function CreateSpacePage() {
     })
   })
 
-  // Admins manage system, not content — they cannot be space members
-  const userOptions = users.filter((user) => user.username !== "admin").map((user) => user.username)
+  const userOptions = users.map((user) => user.username)
   const spaceOptions = spaces.map((space) => ({ value: space.slug, label: `${space.title} (${space.slug})` }))
+  const parentOptions = spaces.filter((s) => !s.parent).map((s) => ({ value: s.slug, label: `${s.title} (${s.slug})` }))
+  const hasParent = !!form.values.parent
+  const hasSourceSpace = !!form.values.source_space
 
   return (
     <Stack gap="md">
@@ -88,12 +93,23 @@ function CreateSpacePage() {
               {...form.getInputProps("description")}
             />
             <Select
+              label="Parent Space"
+              description="Inherit fields, filters, and templates from a parent space"
+              placeholder="None"
+              data={parentOptions}
+              clearable
+              searchable
+              disabled={hasSourceSpace}
+              {...form.getInputProps("parent")}
+            />
+            <Select
               label="Source Space"
               description="Copy fields, filters, templates, and timezone from an existing space"
               placeholder="None"
               data={spaceOptions}
               clearable
               searchable
+              disabled={hasParent}
               {...form.getInputProps("source_space")}
             />
             <MultiSelect

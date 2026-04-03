@@ -20,6 +20,40 @@ A container that groups related notes. Each space represents a project or domain
 - Timezone (IANA format, default: `UTC`) — used for `$now` in `local`/`date` datetime fields
 - Up to 100 spaces per deployment
 
+### 1.1.1 Space Inheritance (Parent-Child)
+
+A space can reference a parent space via `parent` field (set at creation time, immutable after).
+Child space inherits fields, filters, and templates from parent, eliminating duplication when
+multiple spaces share the same structure (e.g., a family of 5 with one shared task tracker + 5 personal ones).
+
+**Constraints:**
+- One level only — parent must not be a child itself (no grandchildren)
+- `parent` is set at creation time and cannot be changed later
+- `source_space` and `parent` are mutually exclusive in create
+- Cannot delete a space that has children
+
+**Inherited (merged: parent first, then child appended):**
+- **Fields** — child can only add new fields, name collisions with parent are forbidden
+- **Filters** — child can add new and override parent's by name (same name = child wins)
+- **Templates** — child can add new and override parent's by key (same key = child wins)
+
+**Not inherited (per-space):**
+- Members, timezone, telegram settings, notes, `hidden_fields_on_create`,
+  `editable_fields_on_comment`, `default_filter`, `can_transfer_to`
+
+**Implementation:**
+- MongoDB stores only the space's own config (`_space_documents` cache)
+- Resolved (merged) config is computed in memory (`_resolved_spaces` cache)
+- `get_space()` returns resolved view — all downstream code works unchanged
+- `get_space_document()` returns raw DB document — used for mutations and export
+- When parent changes, all children's resolved caches are rebuilt automatically
+
+**Mutation rules for child spaces:**
+- Can add/remove/update only own fields, filters, templates
+- Attempting to modify inherited items returns "inherited from parent" error
+- Adding a filter with the same name as parent's creates an override (not an error)
+- Child space is created with no own filters — inherits parent's filters including "all"
+
 ### 1.2 Note
 
 Basic content unit within a space:
@@ -140,9 +174,10 @@ API endpoints and URLs use these natural keys (e.g., `/api/v1/spaces/task-tracke
 Users and spaces are cached in memory due to small system limits:
 
 - Backend: `dict[str, User]` and `dict[str, Space]` loaded on startup
+- Spaces use two-layer cache: `_space_documents` (raw MongoDB data) and `_resolved_spaces` (with parent inheritance merged). All reads use resolved cache.
 - Frontend: TanStack Query cache, preloaded in auth layout
 - Reads served from cache without database/API queries
-- Cache refreshed after mutations
+- Cache refreshed after mutations; parent space changes trigger rebuild of all children's resolved caches
 
 ### 3.3 Image Storage
 

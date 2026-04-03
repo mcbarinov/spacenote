@@ -17,46 +17,72 @@ logger = structlog.get_logger(__name__)
 
 
 class SpaceService(Service):
-    """Manages spaces with in-memory cache."""
+    """Manages spaces with in-memory cache and parent-child inheritance."""
 
     def __init__(self) -> None:
-        self._spaces: dict[str, Space] = {}
+        # Raw documents from MongoDB — each space's own config without inheritance applied.
+        self._space_documents: dict[str, Space] = {}
+        # Resolved view — parent fields/filters/templates merged into child spaces.
+        # All read operations use this cache; mutations use _space_documents for ownership checks.
+        self._resolved_spaces: dict[str, Space] = {}
 
     @cached_property
     def _collection(self) -> AsyncCollection[dict[str, Any]]:
         return self.database.get_collection(Collection.SPACES)
 
+    # --- Read ---
+
     def get_space(self, slug: str) -> Space:
-        """Get space by slug from cache."""
-        if slug not in self._spaces:
+        """Get resolved space by slug (with inherited fields/filters/templates merged in)."""
+        if slug not in self._resolved_spaces:
             raise NotFoundError(f"Space '{slug}' not found")
-        return self._spaces[slug]
+        return self._resolved_spaces[slug]
+
+    def get_space_document(self, slug: str) -> Space:
+        """Get space as stored in MongoDB, without inheritance applied."""
+        if slug not in self._space_documents:
+            raise NotFoundError(f"Space '{slug}' not found")
+        return self._space_documents[slug]
 
     def has_space(self, slug: str) -> bool:
         """Check if space exists by slug."""
-        return slug in self._spaces
+        return slug in self._space_documents
 
     def list_all_spaces(self) -> list[Space]:
-        """List all spaces from cache."""
-        return list(self._spaces.values())
+        """List all spaces from cache (resolved)."""
+        return list(self._resolved_spaces.values())
 
     def list_user_spaces(self, username: str) -> list[Space]:
-        """List spaces where user is a member."""
-        return [space for space in self._spaces.values() if space.has_member(username)]
+        """List resolved spaces where user is a member."""
+        return [space for space in self._resolved_spaces.values() if space.has_member(username)]
+
+    # --- Create ---
 
     async def create_space(
-        self, slug: str, title: str, description: str, members: list[Member], source_space: str | None = None
+        self,
+        slug: str,
+        title: str,
+        description: str,
+        members: list[Member],
+        source_space: str | None = None,
+        parent: str | None = None,
     ) -> Space:
-        """Create new space, optionally copying configuration from a source space."""
+        """Create new space, optionally copying configuration from a source space or setting a parent."""
         if self.has_space(slug):
             raise ValidationError(f"Space '{slug}' already exists")
 
         self._validate_members(members)
 
+        if source_space is not None and parent is not None:
+            raise ValidationError("Cannot use both 'source_space' and 'parent'")
+
+        if parent is not None:
+            self._validate_parent(parent)
+
         if source_space is not None:
             if not self.has_space(source_space):
                 raise ValidationError(f"Source space '{source_space}' not found")
-            source = self.get_space(source_space)
+            source = self.get_space_document(source_space)
             space = Space(
                 slug=slug,
                 title=title,
@@ -71,8 +97,23 @@ class SpaceService(Service):
                 can_transfer_to=source.can_transfer_to,
                 timezone=source.timezone,
             )
+        elif parent is not None:
+            # Child space: no own filters — inherits parent's filters including "all"
+            space = Space(
+                slug=slug,
+                parent=parent,
+                title=title,
+                description=description,
+                members=members,
+            )
         else:
-            space = Space(slug=slug, title=title, description=description, members=members, filters=[create_default_all_filter()])
+            space = Space(
+                slug=slug,
+                title=title,
+                description=description,
+                members=members,
+                filters=[create_default_all_filter()],
+            )
 
         await self._collection.insert_one(space.to_mongo())
         return await self.update_space_cache(slug)
@@ -84,12 +125,17 @@ class SpaceService(Service):
 
         self._validate_members(space.members)
 
-        # Ensure 'all' filter exists
-        if not any(f.name == ALL_FILTER_NAME for f in space.filters):
+        if space.parent is not None:
+            self._validate_parent(space.parent)
+
+        # Ensure 'all' filter exists (skip for child spaces — they inherit it from parent)
+        if space.parent is None and not any(f.name == ALL_FILTER_NAME for f in space.filters):
             space.filters.insert(0, create_default_all_filter())
 
         await self._collection.insert_one(space.to_mongo())
         return await self.update_space_cache(space.slug)
+
+    # --- Update ---
 
     async def update_title(self, slug: str, title: str) -> Space:
         """Update space title."""
@@ -200,11 +246,42 @@ class SpaceService(Service):
 
         await self._collection.update_one({"slug": old_slug}, {"$set": {"slug": new_slug}})
 
+        # Update parent references in child spaces
+        await self._collection.update_many({"parent": old_slug}, {"$set": {"parent": new_slug}})
+
         attachment_storage.rename_space_dir(self.core.config.attachments_path, old_slug, new_slug)
         image_storage.rename_space_dir(self.core.config.images_path, old_slug, new_slug)
 
-        del self._spaces[old_slug]
-        return await self.update_space_cache(new_slug)
+        del self._space_documents[old_slug]
+        self._resolved_spaces.pop(old_slug, None)
+
+        # Reload all caches since children's parent references changed
+        await self.update_all_spaces_cache()
+        return self.get_space(new_slug)
+
+    # --- Delete ---
+
+    async def delete_space(self, slug: str) -> None:
+        """Delete a space and all related data."""
+        if not self.has_space(slug):
+            raise NotFoundError(f"Space '{slug}' not found")
+
+        children = self.get_child_slugs(slug)
+        if children:
+            raise ValidationError(f"Cannot delete space '{slug}': it is parent of {children}")
+
+        await self.core.services.telegram.delete_telegram_tasks_by_space(slug)
+        await self.core.services.telegram.delete_telegram_mirrors_by_space(slug)
+        await self.core.services.attachment.delete_attachments_by_space(slug)
+        self.core.services.image.delete_images_by_space(slug)
+        await self.core.services.comment.delete_comments_by_space(slug)
+        await self.core.services.note.delete_notes_by_space(slug)
+        await self.core.services.counter.delete_counters_by_space(slug)
+        await self._collection.delete_one({"slug": slug})
+        del self._space_documents[slug]
+        self._resolved_spaces.pop(slug, None)
+
+    # --- Low-level ---
 
     async def update_space_document(
         self, slug: str, update: dict[str, Any], array_filters: list[dict[str, Any]] | None = None
@@ -220,20 +297,7 @@ class SpaceService(Service):
         await self._collection.update_one({"slug": slug}, update, array_filters=array_filters)
         return await self.update_space_cache(slug)
 
-    async def delete_space(self, slug: str) -> None:
-        """Delete a space and all related data."""
-        if not self.has_space(slug):
-            raise NotFoundError(f"Space '{slug}' not found")
-
-        await self.core.services.telegram.delete_telegram_tasks_by_space(slug)
-        await self.core.services.telegram.delete_telegram_mirrors_by_space(slug)
-        await self.core.services.attachment.delete_attachments_by_space(slug)
-        self.core.services.image.delete_images_by_space(slug)
-        await self.core.services.comment.delete_comments_by_space(slug)
-        await self.core.services.note.delete_notes_by_space(slug)
-        await self.core.services.counter.delete_counters_by_space(slug)
-        await self._collection.delete_one({"slug": slug})
-        del self._spaces[slug]
+    # --- Validation ---
 
     def _validate_members(self, members: list[Member]) -> None:
         """Validate that all members exist in user cache."""
@@ -241,21 +305,85 @@ class SpaceService(Service):
             if not self.core.services.user.has_user(member.username):
                 raise ValidationError(f"User '{member.username}' not found")
 
+    def _validate_parent(self, parent_slug: str) -> None:
+        """Validate that parent space exists and is not itself a child."""
+        if not self.has_space(parent_slug):
+            raise ValidationError(f"Parent space '{parent_slug}' not found")
+        parent_space = self.get_space_document(parent_slug)
+        if parent_space.parent is not None:
+            raise ValidationError(f"Space '{parent_slug}' is already a child space and cannot be used as parent")
+
+    # --- Inheritance ---
+
+    def get_child_slugs(self, parent_slug: str) -> list[str]:
+        """Get slugs of all spaces that have the given space as parent."""
+        return [slug for slug, space in self._space_documents.items() if space.parent == parent_slug]
+
+    def _resolve_space(self, space: Space) -> Space:
+        """Compute resolved space by merging parent's fields/filters/templates into child."""
+        if space.parent is None:
+            return space
+
+        parent = self._space_documents.get(space.parent)
+        if parent is None:
+            return space
+
+        # Fields: parent fields first, then child's own fields appended at the end.
+        # Child cannot override parent fields — name collisions are forbidden by validation.
+        merged_fields = list(parent.fields) + list(space.fields)
+
+        # Filters: merge parent and child filters by name.
+        # If child has a filter with the same name as parent's — child's version wins (override).
+        # Order: parent filters first (replaced by child override if exists), then child-only filters.
+        child_filters = {f.name: f for f in space.filters}
+        merged_filters = []
+        seen_names: set[str] = set()
+        for f in parent.filters:
+            # Use child's override if it exists, otherwise keep parent's version
+            merged_filters.append(child_filters.get(f.name, f))
+            seen_names.add(f.name)
+        # Append child-only filters (not overriding any parent filter)
+        merged_filters.extend(f for f in space.filters if f.name not in seen_names)
+
+        # Templates: merge by key, child overrides parent on same key
+        merged_templates = {**parent.templates, **space.templates}
+
+        return space.model_copy(
+            update={
+                "fields": merged_fields,
+                "filters": merged_filters,
+                "templates": merged_templates,
+            }
+        )
+
+    def _rebuild_resolved_cache(self) -> None:
+        """Rebuild all resolved spaces from raw cache."""
+        self._resolved_spaces = {slug: self._resolve_space(space) for slug, space in self._space_documents.items()}
+
+    # --- Cache ---
+
     async def update_all_spaces_cache(self) -> None:
         """Reload all spaces cache from database."""
         spaces = await Space.list_cursor(self._collection.find())
-        self._spaces = {space.slug: space for space in spaces}
+        self._space_documents = {space.slug: space for space in spaces}
+        self._rebuild_resolved_cache()
 
     async def update_space_cache(self, slug: str) -> Space:
-        """Reload a specific space cache from database."""
+        """Reload a specific space cache from database and rebuild resolved cache."""
         space = await self._collection.find_one({"slug": slug})
         if space is None:
             raise NotFoundError(f"Space '{slug}' not found")
-        self._spaces[slug] = Space.model_validate(space)
-        return self._spaces[slug]
+        self._space_documents[slug] = Space.model_validate(space)
+        self._resolved_spaces[slug] = self._resolve_space(self._space_documents[slug])
+        # If this space is a parent, its children inherit from it —
+        # rebuild their resolved caches so they pick up the changes.
+        if self._space_documents[slug].parent is None:
+            for child_slug in self.get_child_slugs(slug):
+                self._resolved_spaces[child_slug] = self._resolve_space(self._space_documents[child_slug])
+        return self._resolved_spaces[slug]
 
     async def on_start(self) -> None:
         """Initialize indexes and cache."""
         await self._collection.create_index([("slug", 1)], unique=True)
         await self.update_all_spaces_cache()
-        logger.debug("space_service_started", space_count=len(self._spaces))
+        logger.debug("space_service_started", space_count=len(self._space_documents))

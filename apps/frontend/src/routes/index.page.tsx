@@ -89,6 +89,11 @@ function SpaceCard({ space }: { space: Space }) {
           <Text size="xs" c="dimmed" mb={4}>
             <SpaceSlug slug={space.slug} />
           </Text>
+          {space.parent && (
+            <Text size="xs" c="dimmed">
+              ↳ child of {space.parent}
+            </Text>
+          )}
           <Title order={3} mb="xs">
             {space.title}
           </Title>

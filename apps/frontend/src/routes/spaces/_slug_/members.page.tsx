@@ -35,7 +35,7 @@ function SpaceMembersPage() {
   const [newMember, setNewMember] = useState<string | null>(null)
 
   const memberUsernames = new Set(form.getValues().members.map((m) => m.username))
-  const availableUsers = users.filter((u) => u.username !== "admin" && !memberUsernames.has(u.username)).map((u) => u.username)
+  const availableUsers = users.filter((u) => !memberUsernames.has(u.username)).map((u) => u.username)
 
   const handleAdd = () => {
     if (!newMember) return

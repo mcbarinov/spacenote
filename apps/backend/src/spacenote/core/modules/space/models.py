@@ -38,6 +38,7 @@ class Space(MongoModel):
         pattern=SLUG_RE.pattern,
         description="URL-friendly unique identifier for the space (lowercase, hyphens, alphanumeric)",
     )
+    parent: str | None = Field(default=None, description="Parent space slug. Child inherits fields, filters, templates.")
     title: str = Field(..., min_length=1, max_length=100, description="Space title")
     description: str = Field(default="", max_length=1000, description="Space description")
     members: list[Member] = Field(default_factory=list, description="Space members with permissions")

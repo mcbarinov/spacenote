@@ -1,7 +1,8 @@
-import { Paper, Stack, Tabs } from "@mantine/core"
+import { Badge, Paper, Stack, Tabs } from "@mantine/core"
 import "@/styles/templates.css"
 import { PageHeader } from "@/components/PageHeader"
 import { SpaceTabs } from "@/routes/spaces/-shared/SpaceTabs"
+import { getInheritedTemplateKeys, useParentSpace } from "@/routes/spaces/-shared/inheritance"
 import { api } from "@/api"
 import { createFileRoute } from "@tanstack/react-router"
 import { NoteDetailReactTemplate } from "./-local/NoteDetailReactTemplate"
@@ -15,10 +16,22 @@ export const Route = createFileRoute("/_auth/_spaces/spaces/$slug/templates")({
   component: TemplatesPage,
 })
 
+/** Badge indicating a template is inherited from parent */
+function InheritedBadge({ templateKey, inheritedKeys }: { templateKey: string; inheritedKeys: Set<string> }) {
+  if (!inheritedKeys.has(templateKey)) return null
+  return (
+    <Badge size="xs" variant="light" color="gray">
+      inherited
+    </Badge>
+  )
+}
+
 /** Templates editor page with tabs: Note Title, Web, Web React, Telegram */
 function TemplatesPage() {
   const { slug } = Route.useParams()
   const space = api.cache.useSpace(slug)
+  const parentSpace = useParentSpace(space)
+  const inheritedKeys = parentSpace ? getInheritedTemplateKeys(parentSpace, space) : new Set<string>()
 
   return (
     <Stack gap="md">
@@ -36,6 +49,7 @@ function TemplatesPage() {
           </Tabs.List>
 
           <Tabs.Panel value="title" pt="md">
+            <InheritedBadge templateKey="note:title" inheritedKeys={inheritedKeys} />
             <NoteTitleTemplate spaceSlug={slug} currentContent={space.templates["note:title"] ?? ""} />
           </Tabs.Panel>
 
@@ -46,6 +60,7 @@ function TemplatesPage() {
                 <Tabs.Tab value="list">Note List</Tabs.Tab>
               </Tabs.List>
               <Tabs.Panel value="detail" pt="md">
+                <InheritedBadge templateKey="web:note:detail" inheritedKeys={inheritedKeys} />
                 <NoteDetailTemplate spaceSlug={slug} currentContent={space.templates["web:note:detail"] ?? ""} />
               </Tabs.Panel>
               <Tabs.Panel value="list" pt="md">
@@ -61,6 +76,7 @@ function TemplatesPage() {
                 <Tabs.Tab value="list">Note List</Tabs.Tab>
               </Tabs.List>
               <Tabs.Panel value="detail" pt="md">
+                <InheritedBadge templateKey="web_react:note:detail" inheritedKeys={inheritedKeys} />
                 <NoteDetailReactTemplate spaceSlug={slug} currentContent={space.templates["web_react:note:detail"] ?? ""} />
               </Tabs.Panel>
               <Tabs.Panel value="list" pt="md">

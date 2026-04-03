@@ -17,9 +17,13 @@ class FilterService(Service):
 
     async def add_filter(self, slug: str, filter: Filter) -> Filter:
         """Add a filter to a space."""
+        # Resolved space for validation (has full field list including inherited)
         space = self.core.services.space.get_space(slug)
+        space_doc = self.core.services.space.get_space_document(slug)
 
-        if any(f.name == filter.name for f in space.filters):
+        # Only check own filters for duplicates — adding a filter with the same name
+        # as a parent's filter is allowed (creates an override in the resolved view)
+        if any(f.name == filter.name for f in space_doc.filters):
             raise ValidationError(f"Filter '{filter.name}' already exists in space")
 
         validated_filter = validate_filter(space, filter)
@@ -29,24 +33,29 @@ class FilterService(Service):
         return validated_filter
 
     async def remove_filter(self, slug: str, filter_name: str) -> None:
-        """Remove a filter from a space."""
+        """Remove a filter from a space. Only own filters can be removed."""
         if filter_name == ALL_FILTER_NAME:
             raise ValidationError(f"Cannot delete the '{ALL_FILTER_NAME}' filter")
 
-        space = self.core.services.space.get_space(slug)
+        space_doc = self.core.services.space.get_space_document(slug)
 
-        if not any(f.name == filter_name for f in space.filters):
+        # Only own filters can be removed — inherited filters live in the parent space
+        if not any(f.name == filter_name for f in space_doc.filters):
+            # Filter not in own config — check if it exists in resolved (inherited from parent)
+            resolved = self.core.services.space.get_space(slug)
+            if any(f.name == filter_name for f in resolved.filters):
+                raise ValidationError(f"Filter '{filter_name}' is inherited from parent and cannot be removed")
             raise NotFoundError(f"Filter '{filter_name}' not found in space")
 
         await self.core.services.space.update_space_document(slug, {"$pull": {"filters": {"name": filter_name}}})
 
         # Reset default_filter to "all" if deleting the current default
-        if space.default_filter == filter_name:
+        if space_doc.default_filter == filter_name:
             await self.core.services.space.update_space_document(slug, {"$set": {"default_filter": ALL_FILTER_NAME}})
 
-        # Remove associated template if it exists
+        # Remove associated template if it exists (only own templates)
         template_key = f"web:note:list:{filter_name}"
-        if template_key in space.templates:
+        if template_key in space_doc.templates:
             await self.core.services.space.update_space_document(
                 slug,
                 {"$unset": {f"templates.{template_key}": ""}},
@@ -55,10 +64,15 @@ class FilterService(Service):
         logger.debug("filter_removed_from_space", space_slug=slug, filter_name=filter_name)
 
     async def update_filter(self, slug: str, filter_name: str, new_filter: Filter) -> Filter:
-        """Update a filter in a space."""
+        """Update a filter in a space. Only own filters can be updated."""
         space = self.core.services.space.get_space(slug)
+        space_doc = self.core.services.space.get_space_document(slug)
 
-        if not space.get_filter(filter_name):
+        # Only own filters can be updated — inherited filters must be changed in the parent space
+        if not any(f.name == filter_name for f in space_doc.filters):
+            # Filter not in own config — check if it exists in resolved (inherited from parent)
+            if space.get_filter(filter_name):
+                raise ValidationError(f"Filter '{filter_name}' is inherited from parent and cannot be updated")
             raise NotFoundError(f"Filter '{filter_name}' not found in space")
 
         if filter_name == ALL_FILTER_NAME:
@@ -69,7 +83,7 @@ class FilterService(Service):
 
         validated_filter = validate_filter(space, new_filter)
 
-        if validated_filter.name != filter_name and space.get_filter(validated_filter.name):
+        if validated_filter.name != filter_name and any(f.name == validated_filter.name for f in space_doc.filters):
             raise ValidationError(f"Filter '{validated_filter.name}' already exists in space")
 
         await self.core.services.space.update_space_document(
@@ -82,7 +96,7 @@ class FilterService(Service):
         if validated_filter.name != filter_name:
             old_key = f"web:note:list:{filter_name}"
             new_key = f"web:note:list:{validated_filter.name}"
-            if old_key in space.templates:
+            if old_key in space_doc.templates:
                 await self.core.services.space.update_space_document(
                     slug,
                     {"$rename": {f"templates.{old_key}": f"templates.{new_key}"}},
@@ -94,14 +108,7 @@ class FilterService(Service):
     def build_query(
         self, space_slug: str, filter_name: str, current_user: str, adhoc_query: str | None = None
     ) -> tuple[dict[str, Any], list[tuple[str, int]]]:
-        """Build MongoDB query and sort spec for a filter.
-
-        Args:
-            space_slug: Space identifier
-            filter_name: Saved filter name to use
-            current_user: Current user for $me resolution
-            adhoc_query: Optional adhoc query string to combine with filter conditions
-        """
+        """Build MongoDB query and sort spec for a filter."""
         space = self.core.services.space.get_space(space_slug)
         filter_def = space.get_filter(filter_name)
         if not filter_def:

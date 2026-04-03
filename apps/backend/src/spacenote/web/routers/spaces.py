@@ -17,6 +17,7 @@ class CreateSpaceRequest(BaseModel):
     description: str = Field(default="", max_length=1000, description="Space description")
     members: list[Member] = Field(default_factory=list, description="Space members with permissions")
     source_space: str | None = Field(default=None, description="Source space slug to copy configuration from")
+    parent: str | None = Field(default=None, description="Parent space slug for inheritance")
 
 
 class UpdateTitleRequest(BaseModel):
@@ -147,7 +148,13 @@ async def admin_leave_space(slug: str, app: AppDep, auth_token: AuthTokenDep) ->
 async def create_space(create_data: CreateSpaceRequest, app: AppDep, auth_token: AuthTokenDep) -> Space:
     """Create new space (any authenticated user)."""
     return await app.create_space(
-        auth_token, create_data.slug, create_data.title, create_data.description, create_data.members, create_data.source_space
+        auth_token,
+        create_data.slug,
+        create_data.title,
+        create_data.description,
+        create_data.members,
+        create_data.source_space,
+        create_data.parent,
     )
 
 

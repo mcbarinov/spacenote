@@ -1285,6 +1285,11 @@ export type components = {
              * @description Source space slug to copy configuration from
              */
             source_space?: string | null;
+            /**
+             * Parent
+             * @description Parent space slug for inheritance
+             */
+            parent?: string | null;
         };
         /**
          * CreateUserRequest
@@ -1905,6 +1910,11 @@ export type components = {
              */
             slug: string;
             /**
+             * Parent
+             * @description Parent space slug. Child inherits fields, filters, templates.
+             */
+            parent: string | null;
+            /**
              * Title
              * @description Space title
              */
@@ -1982,6 +1992,11 @@ export type components = {
              * @description Space identifier
              */
             slug: string;
+            /**
+             * Parent
+             * @description Parent space slug for inheritance
+             */
+            parent: string | null;
             /**
              * Title
              * @description Space title

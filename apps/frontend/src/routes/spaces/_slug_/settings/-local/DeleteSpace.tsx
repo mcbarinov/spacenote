@@ -4,6 +4,7 @@ import { notifications } from "@mantine/notifications"
 import { useNavigate } from "@tanstack/react-router"
 import { api } from "@/api"
 import type { Space } from "@/types"
+import { useChildSpaces } from "@/routes/spaces/-shared/inheritance"
 
 interface DeleteSpaceProps {
   space: Space
@@ -13,15 +14,24 @@ interface DeleteSpaceProps {
 export function DeleteSpace({ space }: DeleteSpaceProps) {
   const navigate = useNavigate()
   const deleteMutation = api.mutations.useDeleteSpace()
+  const children = useChildSpaces(space)
+  const hasChildren = children.length > 0
 
   return (
     <Paper withBorder p="md">
       <Stack gap="md">
         <Title order={3}>Danger Zone</Title>
-        <Text c="dimmed">Once you delete a space, there is no going back. Please be certain.</Text>
+        {hasChildren ? (
+          <Text c="dimmed">
+            Cannot delete: this space is the parent of {children.map((c) => c.slug).join(", ")}. Delete the child spaces first.
+          </Text>
+        ) : (
+          <Text c="dimmed">Once you delete a space, there is no going back. Please be certain.</Text>
+        )}
         <Group justify="flex-end">
           <Button
             color="red"
+            disabled={hasChildren}
             onClick={() => {
               modals.openConfirmModal({
                 title: "Delete Space",

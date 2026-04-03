@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router"
-import { ActionIcon, Code, Group, Paper, Stack, Table, Text } from "@mantine/core"
+import { ActionIcon, Badge, Code, Group, Paper, Stack, Table, Text } from "@mantine/core"
 import { notifications } from "@mantine/notifications"
 import { IconPencil } from "@tabler/icons-react"
 import { api } from "@/api"
@@ -7,6 +7,7 @@ import { DeleteButton } from "@/components/DeleteButton"
 import { LinkButton } from "@/components/LinkButton"
 import { PageHeader } from "@/components/PageHeader"
 import { SpaceTabs } from "@/routes/spaces/-shared/SpaceTabs"
+import { getInheritedFilterNames, useParentSpace } from "@/routes/spaces/-shared/inheritance"
 import type { Filter } from "@/types"
 
 export const Route = createFileRoute("/_auth/_spaces/spaces/$slug/filters/")({
@@ -14,7 +15,15 @@ export const Route = createFileRoute("/_auth/_spaces/spaces/$slug/filters/")({
 })
 
 /** Table displaying space filters with delete action */
-function FiltersTable({ spaceSlug, filters }: { spaceSlug: string; filters: Filter[] }) {
+function FiltersTable({
+  spaceSlug,
+  filters,
+  inheritedNames,
+}: {
+  spaceSlug: string
+  filters: Filter[]
+  inheritedNames: Set<string>
+}) {
   const deleteFilterMutation = api.mutations.useDeleteFilter(spaceSlug)
 
   if (filters.length === 0) {
@@ -38,49 +47,67 @@ function FiltersTable({ spaceSlug, filters }: { spaceSlug: string; filters: Filt
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
-          {filters.map((filter) => (
-            <Table.Tr key={filter.name}>
-              <Table.Td>{filter.name}</Table.Td>
-              <Table.Td>
-                <Code>{filter.default_columns.join(", ") || "-"}</Code>
-              </Table.Td>
-              <Table.Td>
-                {filter.conditions.map((c) => (
-                  <div key={`${c.field}-${c.operator}-${JSON.stringify(c.value)}`}>
-                    <Code>
-                      {c.field} {c.operator} {JSON.stringify(c.value)}
-                    </Code>
-                  </div>
-                ))}
-              </Table.Td>
-              <Table.Td style={{ whiteSpace: "nowrap" }}>
-                <Code>{filter.sort.join(", ")}</Code>
-              </Table.Td>
-              <Table.Td>
-                <Group gap="xs" wrap="nowrap">
-                  <Link to="/spaces/$slug/filters/$filterName/edit" params={{ slug: spaceSlug, filterName: filter.name }}>
-                    <ActionIcon variant="subtle">
-                      <IconPencil size={16} />
-                    </ActionIcon>
-                  </Link>
-                  <DeleteButton
-                    title="Delete Filter"
-                    message={`Are you sure you want to delete filter "${filter.name}"?`}
-                    onConfirm={() => {
-                      deleteFilterMutation.mutate(filter.name, {
-                        onSuccess: () => {
-                          notifications.show({
-                            message: "Filter deleted successfully",
-                            color: "green",
+          {filters.map((filter) => {
+            const inherited = inheritedNames.has(filter.name)
+            return (
+              <Table.Tr key={filter.name} style={inherited ? { opacity: 0.7 } : undefined}>
+                <Table.Td>
+                  <Group gap="xs">
+                    {filter.name}
+                    {inherited && (
+                      <Badge size="xs" variant="light" color="gray">
+                        inherited
+                      </Badge>
+                    )}
+                  </Group>
+                </Table.Td>
+                <Table.Td>
+                  <Code>{filter.default_columns.join(", ") || "-"}</Code>
+                </Table.Td>
+                <Table.Td>
+                  {filter.conditions.map((c) => (
+                    <div key={`${c.field}-${c.operator}-${JSON.stringify(c.value)}`}>
+                      <Code>
+                        {c.field} {c.operator} {JSON.stringify(c.value)}
+                      </Code>
+                    </div>
+                  ))}
+                </Table.Td>
+                <Table.Td style={{ whiteSpace: "nowrap" }}>
+                  <Code>{filter.sort.join(", ")}</Code>
+                </Table.Td>
+                <Table.Td>
+                  {inherited ? (
+                    <Text size="xs" c="dimmed">
+                      from parent
+                    </Text>
+                  ) : (
+                    <Group gap="xs" wrap="nowrap">
+                      <Link to="/spaces/$slug/filters/$filterName/edit" params={{ slug: spaceSlug, filterName: filter.name }}>
+                        <ActionIcon variant="subtle">
+                          <IconPencil size={16} />
+                        </ActionIcon>
+                      </Link>
+                      <DeleteButton
+                        title="Delete Filter"
+                        message={`Are you sure you want to delete filter "${filter.name}"?`}
+                        onConfirm={() => {
+                          deleteFilterMutation.mutate(filter.name, {
+                            onSuccess: () => {
+                              notifications.show({
+                                message: "Filter deleted successfully",
+                                color: "green",
+                              })
+                            },
                           })
-                        },
-                      })
-                    }}
-                  />
-                </Group>
-              </Table.Td>
-            </Table.Tr>
-          ))}
+                        }}
+                      />
+                    </Group>
+                  )}
+                </Table.Td>
+              </Table.Tr>
+            )
+          })}
         </Table.Tbody>
       </Table>
     </Paper>
@@ -91,6 +118,8 @@ function FiltersTable({ spaceSlug, filters }: { spaceSlug: string; filters: Filt
 function FiltersPage() {
   const { slug } = Route.useParams()
   const space = api.cache.useSpace(slug)
+  const parentSpace = useParentSpace(space)
+  const inheritedNames = parentSpace ? getInheritedFilterNames(parentSpace, space) : new Set<string>()
 
   return (
     <Stack gap="md">
@@ -105,7 +134,7 @@ function FiltersPage() {
           </>
         }
       />
-      <FiltersTable spaceSlug={slug} filters={space.filters} />
+      <FiltersTable spaceSlug={slug} filters={space.filters} inheritedNames={inheritedNames} />
     </Stack>
   )
 }

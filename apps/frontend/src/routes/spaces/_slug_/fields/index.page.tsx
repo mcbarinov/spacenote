@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router"
-import { ActionIcon, Code, Group, Paper, Stack, Table, Text } from "@mantine/core"
+import { ActionIcon, Badge, Code, Group, Paper, Stack, Table, Text } from "@mantine/core"
 import { notifications } from "@mantine/notifications"
 import { IconPencil } from "@tabler/icons-react"
 import { api } from "@/api"
@@ -7,6 +7,7 @@ import { DeleteButton } from "@/components/DeleteButton"
 import { LinkButton } from "@/components/LinkButton"
 import { PageHeader } from "@/components/PageHeader"
 import { SpaceTabs } from "@/routes/spaces/-shared/SpaceTabs"
+import { getInheritedFieldNames, useParentSpace } from "@/routes/spaces/-shared/inheritance"
 import type { SpaceField } from "@/types"
 
 export const Route = createFileRoute("/_auth/_spaces/spaces/$slug/fields/")({
@@ -14,7 +15,15 @@ export const Route = createFileRoute("/_auth/_spaces/spaces/$slug/fields/")({
 })
 
 /** Table displaying space fields with delete action */
-function FieldsTable({ spaceSlug, fields }: { spaceSlug: string; fields: SpaceField[] }) {
+function FieldsTable({
+  spaceSlug,
+  fields,
+  inheritedNames,
+}: {
+  spaceSlug: string
+  fields: SpaceField[]
+  inheritedNames: Set<string>
+}) {
   const deleteFieldMutation = api.mutations.useDeleteField(spaceSlug)
 
   if (fields.length === 0) {
@@ -39,44 +48,62 @@ function FieldsTable({ spaceSlug, fields }: { spaceSlug: string; fields: SpaceFi
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
-          {fields.map((field) => (
-            <Table.Tr key={field.name}>
-              <Table.Td>{field.name}</Table.Td>
-              <Table.Td>{field.type}</Table.Td>
-              <Table.Td>{field.required ? "Yes" : "No"}</Table.Td>
-              <Table.Td>
-                <Code>{field.default !== null ? JSON.stringify(field.default) : "-"}</Code>
-              </Table.Td>
-              <Table.Td>
-                <Code style={{ maxWidth: 400, wordBreak: "break-all", whiteSpace: "pre-wrap" }}>
-                  {Object.keys(field.options).length > 0 ? JSON.stringify(field.options) : "-"}
-                </Code>
-              </Table.Td>
-              <Table.Td>
-                <Group gap="xs" wrap="nowrap">
-                  <Link to="/spaces/$slug/fields/$fieldName/edit" params={{ slug: spaceSlug, fieldName: field.name }}>
-                    <ActionIcon variant="subtle">
-                      <IconPencil size={16} />
-                    </ActionIcon>
-                  </Link>
-                  <DeleteButton
-                    title="Delete Field"
-                    message={`Are you sure you want to delete field "${field.name}"?`}
-                    onConfirm={() => {
-                      deleteFieldMutation.mutate(field.name, {
-                        onSuccess: () => {
-                          notifications.show({
-                            message: "Field deleted successfully",
-                            color: "green",
+          {fields.map((field) => {
+            const inherited = inheritedNames.has(field.name)
+            return (
+              <Table.Tr key={field.name} style={inherited ? { opacity: 0.7 } : undefined}>
+                <Table.Td>
+                  <Group gap="xs">
+                    {field.name}
+                    {inherited && (
+                      <Badge size="xs" variant="light" color="gray">
+                        inherited
+                      </Badge>
+                    )}
+                  </Group>
+                </Table.Td>
+                <Table.Td>{field.type}</Table.Td>
+                <Table.Td>{field.required ? "Yes" : "No"}</Table.Td>
+                <Table.Td>
+                  <Code>{field.default !== null ? JSON.stringify(field.default) : "-"}</Code>
+                </Table.Td>
+                <Table.Td>
+                  <Code style={{ maxWidth: 400, wordBreak: "break-all", whiteSpace: "pre-wrap" }}>
+                    {Object.keys(field.options).length > 0 ? JSON.stringify(field.options) : "-"}
+                  </Code>
+                </Table.Td>
+                <Table.Td>
+                  {inherited ? (
+                    <Text size="xs" c="dimmed">
+                      from parent
+                    </Text>
+                  ) : (
+                    <Group gap="xs" wrap="nowrap">
+                      <Link to="/spaces/$slug/fields/$fieldName/edit" params={{ slug: spaceSlug, fieldName: field.name }}>
+                        <ActionIcon variant="subtle">
+                          <IconPencil size={16} />
+                        </ActionIcon>
+                      </Link>
+                      <DeleteButton
+                        title="Delete Field"
+                        message={`Are you sure you want to delete field "${field.name}"?`}
+                        onConfirm={() => {
+                          deleteFieldMutation.mutate(field.name, {
+                            onSuccess: () => {
+                              notifications.show({
+                                message: "Field deleted successfully",
+                                color: "green",
+                              })
+                            },
                           })
-                        },
-                      })
-                    }}
-                  />
-                </Group>
-              </Table.Td>
-            </Table.Tr>
-          ))}
+                        }}
+                      />
+                    </Group>
+                  )}
+                </Table.Td>
+              </Table.Tr>
+            )
+          })}
         </Table.Tbody>
       </Table>
     </Paper>
@@ -87,6 +114,8 @@ function FieldsTable({ spaceSlug, fields }: { spaceSlug: string; fields: SpaceFi
 function FieldsPage() {
   const { slug } = Route.useParams()
   const space = api.cache.useSpace(slug)
+  const parentSpace = useParentSpace(space)
+  const inheritedNames = parentSpace ? getInheritedFieldNames(parentSpace) : new Set<string>()
 
   return (
     <Stack gap="md">
@@ -101,7 +130,7 @@ function FieldsPage() {
           </>
         }
       />
-      <FieldsTable spaceSlug={slug} fields={space.fields} />
+      <FieldsTable spaceSlug={slug} fields={space.fields} inheritedNames={inheritedNames} />
     </Stack>
   )
 }

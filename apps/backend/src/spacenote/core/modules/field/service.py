@@ -18,10 +18,19 @@ class FieldService(Service):
 
     async def add_field(self, slug: str, field: SpaceField) -> SpaceField:
         """Add a field to a space. Returns the validated field."""
+        # Resolved space has own + inherited fields — one check catches both own and parent collisions
         space = self.core.services.space.get_space(slug)
+        space_doc = self.core.services.space.get_space_document(slug)
 
         if any(f.name == field.name for f in space.fields):
             raise ValidationError(f"Field '{field.name}' already exists in space")
+
+        # If this is a parent space, also ensure no child already has a field with this name
+        if space_doc.parent is None:
+            for child_slug in self.core.services.space.get_child_slugs(slug):
+                child = self.core.services.space.get_space_document(child_slug)
+                if any(f.name == field.name for f in child.fields):
+                    raise ValidationError(f"Field '{field.name}' already exists in child space '{child_slug}'")
 
         validator_class = VALIDATORS.get(field.type)
         if not validator_class:
@@ -34,10 +43,14 @@ class FieldService(Service):
         return validated_field
 
     async def remove_field(self, slug: str, field_name: str) -> None:
-        """Remove a field from a space."""
-        space = self.core.services.space.get_space(slug)
+        """Remove a field from a space. Only own fields can be removed, not inherited ones."""
+        space_doc = self.core.services.space.get_space_document(slug)
 
-        if not any(f.name == field_name for f in space.fields):
+        if not any(f.name == field_name for f in space_doc.fields):
+            # Field not found in own config — check if it exists in resolved (inherited from parent)
+            resolved = self.core.services.space.get_space(slug)
+            if any(f.name == field_name for f in resolved.fields):
+                raise ValidationError(f"Field '{field_name}' is inherited from parent and cannot be removed")
             raise NotFoundError(f"Field '{field_name}' not found in space")
 
         await self.core.services.space.update_space_document(slug, {"$pull": {"fields": {"name": field_name}}})
@@ -52,11 +65,17 @@ class FieldService(Service):
         default: FieldValueType,
     ) -> SpaceField:
         """Update a field in a space. Only required, options, and default can be changed."""
+        # Resolved space for validator context, own space to check field ownership
         space = self.core.services.space.get_space(slug)
+        space_doc = self.core.services.space.get_space_document(slug)
 
-        # Check field exists
-        existing_field = space.get_field(field_name)
+        # Only own fields can be updated — inherited fields must be changed in the parent space
+        existing_field = next((f for f in space_doc.fields if f.name == field_name), None)
         if not existing_field:
+            # Field not in own config — check if it exists in resolved (inherited from parent)
+            resolved_field = space.get_field(field_name)
+            if resolved_field:
+                raise ValidationError(f"Field '{field_name}' is inherited from parent and cannot be updated")
             raise NotFoundError(f"Field '{field_name}' not found in space")
 
         # Create updated field preserving name and type

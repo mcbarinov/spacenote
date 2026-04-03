@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/PageHeader"
 import { SpaceTabs } from "../../-shared/SpaceTabs"
 import { DeleteSpace } from "./-local/DeleteSpace"
 import { EditSlug } from "./-local/EditSlug"
+import { ParentInfo } from "./-local/ParentInfo"
 import { EditDefaultFilter } from "./-local/EditDefaultFilter"
 import { EditDescription } from "./-local/EditDescription"
 import { EditEditableFieldsOnComment } from "./-local/EditEditableFieldsOnComment"
@@ -28,6 +29,7 @@ function SettingsPage() {
         breadcrumbs={[{ label: "Spaces", to: "/" }, { label: `◈ ${space.slug}` }, { label: "Settings" }]}
         topActions={<SpaceTabs space={space} />}
       />
+      <ParentInfo space={space} />
       <EditTitle space={space} />
       <EditDescription space={space} />
       <EditDefaultFilter space={space} />

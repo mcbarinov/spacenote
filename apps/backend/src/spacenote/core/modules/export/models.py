@@ -14,6 +14,7 @@ class SpaceExport(OpenAPIModel):
     """Space configuration for export."""
 
     slug: str = Field(..., description="Space identifier")
+    parent: str | None = Field(default=None, description="Parent space slug for inheritance")
     title: str = Field(..., description="Space title")
     description: str = Field(..., description="Space description")
     members: list[Member] = Field(..., description="Space members with permissions")

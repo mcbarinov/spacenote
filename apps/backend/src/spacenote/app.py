@@ -118,10 +118,11 @@ class App:
         description: str,
         members: list[Member],
         source_space: str | None = None,
+        parent: str | None = None,
     ) -> Space:
         """Create new space (any authenticated user)."""
         await self._core.services.access.ensure_authenticated(auth_token)
-        return await self._core.services.space.create_space(slug, title, description, members, source_space)
+        return await self._core.services.space.create_space(slug, title, description, members, source_space, parent)
 
     async def list_all_spaces(self, auth_token: AuthToken) -> list[Space]:
         """List all spaces (admin only)."""

@@ -28,8 +28,14 @@ ARG GIT_COMMIT_HASH=unknown
 ARG GIT_COMMIT_DATE=unknown
 ARG BUILD_TIME=unknown
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
+# Install curl and mongodump (mongodb-database-tools)
+# Using ubuntu2404 build — static Go binaries, works on Debian too
+RUN apt-get update && apt-get install -y --no-install-recommends curl \
+    && ARCH=$(dpkg --print-architecture) \
+    && if [ "$ARCH" = "amd64" ]; then MONGO_ARCH="x86_64"; else MONGO_ARCH="arm64"; fi \
+    && curl -fsSL "https://fastdl.mongodb.org/tools/db/mongodb-database-tools-ubuntu2404-${MONGO_ARCH}-100.12.0.deb" -o /tmp/mongo-tools.deb \
+    && dpkg -i /tmp/mongo-tools.deb \
+    && rm /tmp/mongo-tools.deb \
     && rm -rf /var/lib/apt/lists/*
 
 RUN useradd -m -u 1000 -s /bin/bash appuser

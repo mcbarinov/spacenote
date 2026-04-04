@@ -44,6 +44,7 @@ export const routes = rootRoute("root.layout.tsx", [
       route("/admin/telegram/tasks", "admin/telegram/tasks.page.tsx"),
       route("/admin/telegram/mirrors", "admin/telegram/mirrors.page.tsx"),
       route("/admin/pending-attachments", "admin/pending-attachments/page.tsx"),
+      route("/admin/backups", "admin/backups.page.tsx"),
     ]),
   ]),
 ])

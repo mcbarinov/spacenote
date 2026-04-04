@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from dotenv import load_dotenv
 from pydantic import Field, field_validator
@@ -21,6 +22,7 @@ class Config(BaseSettings):
     cors_origins: list[str] = Field(description="CORS allowed origins")
     attachments_path: str = Field(description="Attachment storage path")
     images_path: str = Field(description="Image storage path")
+    backups_path: Path = Field(description="Backup storage path")
     telegram_bot_token: str | None = Field(default=None, description="Telegram bot token")
     max_upload_size: int = Field(default=DEFAULT_MAX_UPLOAD_SIZE, description="Max file upload size in bytes")
 

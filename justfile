@@ -138,9 +138,10 @@ docker-push-frontend:
         -t ghcr.io/{{GHCR_USER}}/spacenote-frontend:latest \
         --push apps/frontend
 
-# Start local Docker Compose stack
+# Start local Docker Compose stack (http://localhost:8080)
 [group("docker")]
 docker-local:
+    @echo "Starting local stack at http://localhost:8080"
     cd deploy && docker compose -f docker-compose.local.yml up --build
 
 # Stop local Docker Compose stack

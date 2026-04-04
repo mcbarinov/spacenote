@@ -13,6 +13,7 @@ from pymongo.asynchronous.database import AsyncDatabase
 from spacenote.config import Config
 from spacenote.core.modules.access.service import AccessService
 from spacenote.core.modules.attachment.service import AttachmentService
+from spacenote.core.modules.backup.service import BackupService
 from spacenote.core.modules.comment.service import CommentService
 from spacenote.core.modules.counter.service import CounterService
 from spacenote.core.modules.export.service import ExportService
@@ -34,6 +35,7 @@ class ServiceRegistry:
     user: UserService
     session: SessionService
     access: AccessService
+    backup: BackupService
     space: SpaceService
     field: FieldService
     filter: FilterService
@@ -51,6 +53,7 @@ class ServiceRegistry:
         self.user = UserService()
         self.session = SessionService()
         self.access = AccessService()
+        self.backup = BackupService()
         self.space = SpaceService()
         self.field = FieldService()
         self.filter = FilterService()

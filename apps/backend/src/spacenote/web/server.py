@@ -15,6 +15,7 @@ from spacenote.web.middlewares import MaxBodySizeMiddleware
 from spacenote.web.openapi import set_custom_openapi
 from spacenote.web.routers.attachments import router as attachments_router
 from spacenote.web.routers.auth import router as auth_router
+from spacenote.web.routers.backups import router as backups_router
 from spacenote.web.routers.comments import router as comments_router
 from spacenote.web.routers.exports import router as exports_router
 from spacenote.web.routers.fields import router as fields_router
@@ -76,6 +77,7 @@ def create_fastapi_app(app_instance: App, config: Config) -> FastAPI:
     # Register routers
     app.include_router(attachments_router, prefix="/api/v1")
     app.include_router(auth_router, prefix="/api/v1")
+    app.include_router(backups_router, prefix="/api/v1")
     app.include_router(comments_router, prefix="/api/v1")
     app.include_router(exports_router, prefix="/api/v1")
     app.include_router(fields_router, prefix="/api/v1")

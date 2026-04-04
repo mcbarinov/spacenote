@@ -3,6 +3,7 @@ import { httpClient } from "./httpClient"
 import { cleanParams } from "@/utils/format"
 import type {
   Attachment,
+  BackupInfo,
   CommentsList,
   ExportData,
   Note,
@@ -142,5 +143,13 @@ export function listPendingAttachments(params?: { limit?: number; offset?: numbe
     queryKey: ["pending-attachments", params],
     queryFn: () =>
       httpClient.get("api/v1/attachments/pending", { searchParams: cleanParams(params) }).json<PendingAttachmentsList>(),
+  })
+}
+
+/** Fetches all database backups (admin only) */
+export function listBackups() {
+  return queryOptions({
+    queryKey: ["admin", "backups"],
+    queryFn: () => httpClient.get("api/v1/backups").json<BackupInfo[]>(),
   })
 }

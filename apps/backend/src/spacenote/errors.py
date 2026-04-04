@@ -40,3 +40,7 @@ class ImageProcessingError(UserError):
 
     def __init__(self, message: str = "Image is still processing") -> None:
         super().__init__(message)
+
+
+class BackupError(UserError):
+    """Raised when a backup operation fails."""

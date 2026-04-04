@@ -8,6 +8,7 @@ import {
   IconPaperclip,
   IconPlus,
   IconLayout,
+  IconDatabaseExport,
 } from "@tabler/icons-react"
 import { Link, useNavigate } from "@tanstack/react-router"
 import { api } from "@/api"
@@ -59,6 +60,9 @@ export function Header() {
                 </Menu.Item>
                 <Menu.Item component={Link} to="/admin/pending-attachments" leftSection={<IconPaperclip size={16} />}>
                   Pending Attachments
+                </Menu.Item>
+                <Menu.Item component={Link} to="/admin/backups" leftSection={<IconDatabaseExport size={16} />}>
+                  Backups
                 </Menu.Item>
               </>
             )}

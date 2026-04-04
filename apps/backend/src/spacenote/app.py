@@ -7,6 +7,7 @@ from spacenote.config import Config
 from spacenote.core.core import Core
 from spacenote.core.modules.attachment import storage as attachment_storage
 from spacenote.core.modules.attachment.models import Attachment, PendingAttachment
+from spacenote.core.modules.backup.models import BackupInfo
 from spacenote.core.modules.comment.models import Comment
 from spacenote.core.modules.export.models import ExportData
 from spacenote.core.modules.field.models import FieldValueType, SpaceField
@@ -452,3 +453,25 @@ class App:
         """Import space from export data (admin only)."""
         await self._core.services.access.ensure_admin(auth_token)
         return await self._core.services.export.import_space(data)
+
+    # --- Backups ---
+
+    async def create_backup(self, auth_token: AuthToken) -> BackupInfo:
+        """Create database backup (admin only)."""
+        await self._core.services.access.ensure_admin(auth_token)
+        return await self._core.services.backup.create_backup()
+
+    async def list_backups(self, auth_token: AuthToken) -> list[BackupInfo]:
+        """List existing backups (admin only)."""
+        await self._core.services.access.ensure_admin(auth_token)
+        return self._core.services.backup.list_backups()
+
+    async def get_backup_path(self, auth_token: AuthToken, filename: str) -> Path:
+        """Get path to backup file for download (admin only)."""
+        await self._core.services.access.ensure_admin(auth_token)
+        return self._core.services.backup.get_backup_path(filename)
+
+    async def delete_backup(self, auth_token: AuthToken, filename: str) -> None:
+        """Delete a backup file (admin only)."""
+        await self._core.services.access.ensure_admin(auth_token)
+        self._core.services.backup.delete_backup(filename)

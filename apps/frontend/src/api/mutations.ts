@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { httpClient } from "./httpClient"
 import type {
   Attachment,
+  BackupInfo,
   Comment,
   CreateCommentRequest,
   CreateNoteRequest,
@@ -414,6 +415,28 @@ export function useDeletePendingAttachment() {
     mutationFn: (number: number) => httpClient.delete(`api/v1/attachments/pending/${number}`),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["pending-attachments"] })
+    },
+  })
+}
+
+/** Creates a database backup (admin only) */
+export function useCreateBackup() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: () => httpClient.post("api/v1/backups").json<BackupInfo>(),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["admin", "backups"] })
+    },
+  })
+}
+
+/** Deletes a database backup (admin only) */
+export function useDeleteBackup() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (filename: string) => httpClient.delete(`api/v1/backups/${filename}`),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["admin", "backups"] })
     },
   })
 }

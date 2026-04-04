@@ -212,7 +212,7 @@ IMAGE fields store references to attachments and trigger WebP generation:
 
 - On note create/update: pending attachment → permanent attachment
 - Background task converts to WebP with optional resize (`max_width`)
-- Storage: `{images_path}/{space_slug}/{note_number}/{attachment_number}`
+- Storage: `{data_dir}/images/{space_slug}/{note_number}/{attachment_number}`
 - Originals preserved in attachment storage, processed WebP served via API
 
 ### Templates

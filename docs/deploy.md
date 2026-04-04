@@ -73,9 +73,8 @@ curl -O https://raw.githubusercontent.com/mcbarinov/spacenote/main/deploy/.env.e
 mv .env.example .env
 
 # Create data directories with correct permissions
-mkdir -p ./data/db ./data/attachments ./data/images ./data/caddy/data ./data/caddy/config
-chown -R 998:998 ./data/db
-chown -R 1000:1000 ./data/attachments ./data/images
+mkdir -p ./data/db ./data/app ./data/caddy/data ./data/caddy/config
+chown -R 1000:1000 ./data/app
 
 # Edit .env with your settings
 nano .env
@@ -156,15 +155,14 @@ All data stored in bind mounts under `./data/`:
 
 ```
 data/
+├── app/            # Backend data (uid 1000): attachments, images, backups
 ├── db/             # MongoDB data files
-├── attachments/    # User uploads (uid 1000)
-├── images/         # Processed images (uid 1000)
 └── caddy/
     ├── data/       # SSL certificates
     └── config/     # Caddy config
 ```
 
-**Note:** `attachments/` and `images/` must be owned by uid 1000 (backend user).
+**Note:** `app/` must be owned by uid 1000 (backend user): `chown -R 1000:1000 ./data/app`
 
 ## Backup
 
@@ -178,7 +176,7 @@ docker exec spacenote-mongodb mongodump \
   --archive --gzip > backup-db-$(date +%Y%m%d).gz
 
 # Files backup (attachments + images)
-tar -czf backup-files-$(date +%Y%m%d).tar.gz ./data/attachments ./data/images
+tar -czf backup-files-$(date +%Y%m%d).tar.gz ./data/app
 ```
 
 Restore:
@@ -189,7 +187,7 @@ docker exec -i spacenote-mongodb mongorestore \
   --authenticationDatabase admin --db spacenote --drop \
   --archive --gzip < backup-db-20250101.gz
 
-# Files
+# Files (extracts ./data/app/)
 tar -xzf backup-files-20250101.tar.gz
 ```
 
@@ -247,10 +245,9 @@ sudo rm -rf ./data/db
 docker compose up -d
 ```
 
-**Backend permission errors (attachments/images):**
+**Backend permission errors (attachments/images/backups):**
 ```bash
-# Backend runs as uid 1000
-sudo mkdir -p ./data/attachments ./data/images
-sudo chown -R 1000:1000 ./data/attachments ./data/images
+# Backend runs as uid 1000, all app data lives in ./data/app
+sudo chown -R 1000:1000 ./data/app
 docker compose restart backend
 ```

@@ -32,7 +32,7 @@ All endpoints admin-only, prefix `/api/v1`:
 
 | Variable | Description |
 |----------|-------------|
-| `SPACENOTE_BACKUPS_PATH` | Backup storage directory (required) |
+| `SPACENOTE_DATA_DIR` | Root data directory; backups stored in `{data_dir}/backups/` |
 
 ## Requirements
 

@@ -15,14 +15,13 @@ All configuration uses the `SPACENOTE_` prefix. See `.env.example` for reference
 
 **Required:**
 - `SPACENOTE_DATABASE_URL` - MongoDB connection string (e.g., `mongodb://localhost:27017/spacenote`)
+- `SPACENOTE_DATA_DIR` - Root data directory for attachments, images, and backups
 
 **Optional:**
 - `SPACENOTE_HOST` - Server host (default: `0.0.0.0`)
 - `SPACENOTE_PORT` - Server port (default: `3100`)
 - `SPACENOTE_DEBUG` - Debug mode (default: `false`)
 - `SPACENOTE_CORS_ORIGINS` - CORS allowed origins (default: `["http://localhost:3000"]`)
-- `SPACENOTE_ATTACHMENTS_PATH` - Attachment storage path (default: `./data/attachments`)
-- `SPACENOTE_IMAGES_PATH` - Processed image storage path (default: `./data/images`)
 
 ## Project Structure
 

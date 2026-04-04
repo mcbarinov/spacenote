@@ -20,11 +20,24 @@ class Config(BaseSettings):
     port: int = Field(description="Server port")
     debug: bool = Field(default=False, description="Debug mode")
     cors_origins: list[str] = Field(description="CORS allowed origins")
-    attachments_path: str = Field(description="Attachment storage path")
-    images_path: str = Field(description="Image storage path")
-    backups_path: Path = Field(description="Backup storage path")
+    data_dir: Path = Field(description="Root data directory for all app storage")
     telegram_bot_token: str | None = Field(default=None, description="Telegram bot token")
     max_upload_size: int = Field(default=DEFAULT_MAX_UPLOAD_SIZE, description="Max file upload size in bytes")
+
+    @property
+    def attachments_path(self) -> Path:
+        """Uploaded note/space attachment files: {data_dir}/attachments/{space}/{note}/{number}"""
+        return self.data_dir / "attachments"
+
+    @property
+    def images_path(self) -> Path:
+        """Generated WebP previews of image attachments: {data_dir}/images/{space}/{note}/{number}"""
+        return self.data_dir / "images"
+
+    @property
+    def backups_path(self) -> Path:
+        """mongodump archives: {data_dir}/backups/spacenote-backup-{timestamp}.archive.gz"""
+        return self.data_dir / "backups"
 
     @field_validator("max_upload_size", mode="before")
     @classmethod

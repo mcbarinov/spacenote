@@ -191,6 +191,45 @@ docker exec -i spacenote-mongodb mongorestore \
 tar -xzf backup-files-20250101.tar.gz
 ```
 
+## Migration to Another Server
+
+**On the old server:**
+
+```bash
+cd /opt/spacenote
+
+# 1. Create DB dump (save into data/app/ so rsync picks it up)
+docker exec spacenote-mongodb mongodump \
+  -u "$MONGODB_ROOT_USERNAME" -p "$MONGODB_ROOT_PASSWORD" \
+  --authenticationDatabase admin --db spacenote \
+  --archive --gzip > data/app/backup-db.gz
+```
+
+**On the new server:**
+
+```bash
+# 1. Follow "One-time Setup" section above (install Docker, create dirs, configure .env)
+
+# 2. Copy data from the old server (attachments, images + DB dump)
+rsync -avz old-server:/opt/spacenote/data/app/ /opt/spacenote/data/app/
+
+# 3. Fix permissions
+chown -R 1000:1000 /opt/spacenote/data/app
+
+# 4. Start services
+cd /opt/spacenote
+docker compose up -d --pull always
+
+# 5. Restore database
+docker exec -i spacenote-mongodb mongorestore \
+  -u "$MONGODB_ROOT_USERNAME" -p "$MONGODB_ROOT_PASSWORD" \
+  --authenticationDatabase admin --db spacenote --drop \
+  --archive --gzip < data/app/backup-db.gz
+
+# 6. Clean up the dump
+rm data/app/backup-db.gz
+```
+
 ## Common Commands
 
 ```bash

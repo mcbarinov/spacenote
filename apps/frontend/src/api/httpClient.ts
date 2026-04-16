@@ -3,12 +3,12 @@ import { AppError } from "@/errors/AppError"
 
 /** Configured ky instance for API requests */
 export const httpClient = ky.create({
-  prefixUrl: "/",
+  prefix: "/",
   retry: 0,
   credentials: "include",
   hooks: {
     afterResponse: [
-      async (_request, _options, response) => {
+      async ({ response }) => {
         if (!response.ok) {
           // Shape non-OK responses into AppError with best-effort message extraction
           const code = AppError.codeFromStatus(response.status)

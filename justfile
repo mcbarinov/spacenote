@@ -9,6 +9,8 @@ lint:
     @just frontend-lint
     @echo "=== backend ==="
     @just backend-lint
+    @echo "=== deploy ==="
+    @just deploy-lint
 
 outdated: backend-outdated frontend-outdated
 
@@ -90,6 +92,14 @@ agent-backend-dev:
     SPACENOTE_DOTENV_PATH={{justfile_directory()}}/.env \
     SPACENOTE_PORT=${SPACENOTE_PORT_AGENT} \
     uv run --directory apps/backend python -m watchfiles "python -m spacenote.main" src
+
+
+# === Deploy ===
+
+# Lint deploy shell scripts with shellcheck
+[group("deploy")]
+deploy-lint:
+    shellcheck deploy/spacenote.sh
 
 
 # === Docker Commands ===

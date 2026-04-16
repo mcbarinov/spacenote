@@ -53,6 +53,7 @@ services:
     image: ${MONGODB_IMAGE:-mongodb/mongodb-community-server:8.0.12-ubi9}
     container_name: spacenote-mongodb
     restart: unless-stopped
+    user: "1000:1000"
     ports:
       - "127.0.0.1:27017:27017"
     environment:

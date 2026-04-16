@@ -1,292 +1,137 @@
 # Deployment Guide
 
+## Quick Start
+
+```bash
+# Install the CLI
+curl -fsSL https://raw.githubusercontent.com/mcbarinov/spacenote/main/deploy/spacenote.sh | sudo bash
+
+# Install SpaceNote (interactive: asks for domain, email, etc.)
+spacenote install
+```
+
+## CLI Commands
+
+| Command | Description |
+|---------|-------------|
+| `spacenote install` | Install SpaceNote on a fresh server |
+| `spacenote update` | Pull latest images and restart |
+| `spacenote status` | Show service status and health |
+| `spacenote logs [service]` | Follow container logs |
+| `spacenote version` | Show CLI and image versions |
+| `spacenote mongo-shell` | Open MongoDB shell |
+| `spacenote fix-permissions` | Restore ownership of `data/` dirs to uid 1000 |
+| `spacenote dump` | Create portable archive (DB + files) in `backups/` |
+| `spacenote restore <path>` | Restore deployment from an archive (destructive) |
+| `spacenote self-update` | Update the CLI script |
+| `spacenote help` | Show help |
+
 ## Architecture
 
 ```
-┌─────────────────────────────────────────┐
-│                Internet                 │
-└───────────────────┬─────────────────────┘
-                    │ :80/:443
-┌───────────────────▼─────────────────────┐
-│                 Caddy                   │
-│           (reverse proxy + SSL)         │
-└──────┬────────────────────────┬─────────┘
-       │ /api/*                 │ /*
-┌──────▼──────┐      ┌─────────▼─────────┐
-│   Backend   │      │     Frontend      │
-│  (FastAPI)  │      │     (serve)       │
-└──────┬──────┘      └───────────────────┘
-       │
-┌──────▼──────┐
-│   MongoDB   │
-└─────────────┘
+Internet → Caddy (:80/:443, auto-SSL) → /api/* → Backend (FastAPI, uid 1000)
+                                      → /*     → Frontend (serve)
+                                                 Backend → MongoDB (uid 1000)
 ```
 
-**Key decisions:**
-- **Caddy**: Auto-SSL via Let's Encrypt, simple config
-- **GHCR**: Free container registry for public repos
-- **Multi-stage builds**: Smaller images, BuildKit caching
-- **Relative API paths**: Frontend uses `/api` path, Caddy routes to backend
-- **Non-root**: Backend runs as uid 1000 for security
-
-## Workflow
-
-1. **Dev machine**: `just docker-push` (builds linux/amd64 images and pushes to GHCR)
-2. **Server**: `docker compose up -d --pull always`
+- **Caddy** terminates TLS via Let's Encrypt and reverse-proxies by path
+- **Backend & MongoDB** run as uid 1000 (non-root)
+- Images are pulled from GHCR: `ghcr.io/mcbarinov/spacenote-{backend,frontend}`
 
 ## Prerequisites
 
-**Dev machine:**
-- Docker
-- just (command runner)
+**Dev machine:** Docker, just (command runner)
+**Server:** Linux with Docker, 2GB+ RAM, 10GB+ disk, a domain name
 
-**Server:**
-- Ubuntu 24.04 LTS (or similar)
-- Docker Engine
-- 2GB+ RAM, 10GB+ disk
+## Build & Push (dev machine)
 
-## One-time Setup
-
-### 1. GHCR Login (dev machine)
-
+One-time login:
 ```bash
-# Create a Personal Access Token at https://github.com/settings/tokens
-# with 'write:packages' scope
-
+# Create a PAT at https://github.com/settings/tokens with write:packages
 docker login ghcr.io -u YOUR_GITHUB_USERNAME
-# Enter your PAT as password
 ```
 
-### 2. Server Setup
-
+Build & push:
 ```bash
-# Install Docker
-curl -fsSL https://get.docker.com | sh
-
-# Create app directory
-mkdir -p /opt/spacenote
-cd /opt/spacenote
-
-# Download docker-compose.yml and .env
-curl -O https://raw.githubusercontent.com/mcbarinov/spacenote/main/deploy/docker-compose.yml
-curl -O https://raw.githubusercontent.com/mcbarinov/spacenote/main/deploy/.env.example
-mv .env.example .env
-
-# Create data directories with correct permissions
-mkdir -p ./data/db ./data/app ./data/caddy/data ./data/caddy/config
-chown -R 1000:1000 ./data/app
-
-# Edit .env with your settings
-nano .env
+just docker-push              # both services, linux/amd64 → GHCR
+just docker-push-backend      # backend only
+just docker-push-frontend     # frontend only
 ```
 
-### 3. Configure .env
-
-```bash
-# Required
-DOMAIN=your-domain.com
-EMAIL=admin@your-domain.com
-MONGODB_ROOT_USERNAME=root
-MONGODB_ROOT_PASSWORD=<generate with: openssl rand -hex 32>
-
-# Optional
-TELEGRAM_BOT_TOKEN=
-DEBUG=false
-```
-
-## Deployment Workflow
-
-### Build & Push (dev machine)
-
-```bash
-# Build and push all images to GHCR (linux/amd64)
-just docker-push
-
-# Or push specific service
-just docker-push-backend
-just docker-push-frontend
-
-# Build locally for testing (native arch, loads into local Docker)
-just docker-build
-just docker-build-backend
-just docker-build-frontend
-```
-
-### Deploy / Update (server)
-
-```bash
-cd /opt/spacenote
-
-# Pull and restart
-docker compose up -d --pull always
-
-# Check status
-docker compose ps
-docker compose logs -f
-```
-
-## URL Structure (Production)
+## URLs
 
 | Path | Service |
 |------|---------|
-| `https://domain.com/` | Frontend (user + admin) |
-| `https://domain.com/api/` | Backend API |
+| `https://domain.com/` | Frontend |
+| `https://domain.com/api/` | Backend |
 
-Caddy handles SSL certificates automatically via Let's Encrypt.
+## Data Directory
 
-## Local Development with Docker
+```
+/opt/spacenote/
+├── .env                  # configuration (generated by `spacenote install`)
+├── docker-compose.yml    # downloaded from GitHub
+├── data/
+│   ├── app/              # uid 1000 — attachments, images, logs
+│   ├── db/               # uid 1000 — MongoDB
+│   └── caddy/            # root — SSL certs, config
+└── backups/              # `spacenote dump` archives
+```
+
+Both `data/app/` and `data/db/` must be owned by uid 1000. The MongoDB container's uid is pinned to 1000 via `user: "1000:1000"` in `docker-compose.yml` (overriding the image's default uid 998). Run `spacenote fix-permissions` if files end up root-owned.
+
+## Backup & Restore
 
 ```bash
-# Start local stack (builds + runs)
-just docker-local
-
-# Stop
-just docker-local-down
+spacenote dump                    # → /opt/spacenote/backups/spacenote-YYYYMMDD-HHMMSS.tar.gz
+spacenote restore <archive>       # destructive: replaces DB + data/app/
 ```
 
-Local URLs (via Caddy at port 8080):
-- Frontend: http://localhost:8080
-- API: http://localhost:8080/api/
-- MongoDB: localhost:27017 (direct access)
-
-## Data Persistence
-
-All data stored in bind mounts under `./data/`:
-
-```
-data/
-├── app/            # Backend data (uid 1000): attachments, images, backups
-├── db/             # MongoDB data files
-└── caddy/
-    ├── data/       # SSL certificates
-    └── config/     # Caddy config
-```
-
-**Note:** `app/` must be owned by uid 1000 (backend user): `chown -R 1000:1000 ./data/app`
-
-## Backup
-
-```bash
-cd /opt/spacenote
-
-# Database backup (consistent snapshot via mongodump)
-docker exec spacenote-mongodb mongodump \
-  -u "$MONGODB_ROOT_USERNAME" -p "$MONGODB_ROOT_PASSWORD" \
-  --authenticationDatabase admin --db spacenote \
-  --archive --gzip > backup-db-$(date +%Y%m%d).gz
-
-# Files backup (attachments + images)
-tar -czf backup-files-$(date +%Y%m%d).tar.gz ./data/app
-```
-
-Restore:
-```bash
-# Database
-docker exec -i spacenote-mongodb mongorestore \
-  -u "$MONGODB_ROOT_USERNAME" -p "$MONGODB_ROOT_PASSWORD" \
-  --authenticationDatabase admin --db spacenote --drop \
-  --archive --gzip < backup-db-20250101.gz
-
-# Files (extracts ./data/app/)
-tar -xzf backup-files-20250101.tar.gz
-```
+Archive contains DB dump + `data/app/`. It does NOT include `.env`, `docker-compose.yml`, or SSL certs — the server keeps its own config.
 
 ## Migration to Another Server
 
-**On the old server:**
-
 ```bash
-cd /opt/spacenote
+# 1. On old server
+ssh root@old-server
+spacenote dump
 
-# 1. Create DB dump (save into data/app/ so rsync picks it up)
-docker exec spacenote-mongodb mongodump \
-  -u "$MONGODB_ROOT_USERNAME" -p "$MONGODB_ROOT_PASSWORD" \
-  --authenticationDatabase admin --db spacenote \
-  --archive --gzip > data/app/backup-db.gz
+# 2. From your workstation — agent forwarding, no keys on servers
+ssh -A root@new-server \
+    "scp root@old-server:/opt/spacenote/backups/spacenote-*.tar.gz /opt/spacenote/backups/"
+
+# 3. On new server (spacenote install must already have been run)
+ssh root@new-server
+spacenote restore /opt/spacenote/backups/spacenote-<timestamp>.tar.gz
 ```
 
-**On the new server:**
+Agent forwarding requires your SSH key in `ssh-agent` (on macOS — automatic with `UseKeychain yes`; on Linux — `ssh-add ~/.ssh/id_ed25519`). To make `-A` default for a host, add `ForwardAgent yes` under `Host new-server` in `~/.ssh/config`.
+
+## Local Development
 
 ```bash
-# 1. Follow "One-time Setup" section above (install Docker, create dirs, configure .env)
-
-# 2. Copy data from the old server (attachments, images + DB dump)
-rsync -avz old-server:/opt/spacenote/data/app/ /opt/spacenote/data/app/
-
-# 3. Fix permissions
-chown -R 1000:1000 /opt/spacenote/data/app
-
-# 4. Start services
-cd /opt/spacenote
-docker compose up -d --pull always
-
-# 5. Restore database
-docker exec -i spacenote-mongodb mongorestore \
-  -u "$MONGODB_ROOT_USERNAME" -p "$MONGODB_ROOT_PASSWORD" \
-  --authenticationDatabase admin --db spacenote --drop \
-  --archive --gzip < data/app/backup-db.gz
-
-# 6. Clean up the dump
-rm data/app/backup-db.gz
+just docker-local         # full stack at http://localhost:8080
+just docker-local-down
 ```
 
-## Common Commands
-
-```bash
-# View logs
-docker compose logs -f
-docker compose logs -f backend
-
-# Restart service
-docker compose restart backend
-
-# Shell into container
-docker exec -it spacenote-backend bash
-
-# MongoDB shell
-docker exec -it spacenote-mongodb mongosh -u root -p
-
-# Check health
-curl https://your-domain.com/api/health
-```
-
-## MongoDB Shell Access
-
-**Local:**
-```bash
-mongosh spacenote
-```
-
-**Production (Docker):**
-```bash
-docker exec -it spacenote-mongodb mongosh -u root -p --authenticationDatabase admin spacenote
-```
+Local URLs: frontend at `http://localhost:8080`, API at `http://localhost:8080/api/`, MongoDB at `localhost:27017`.
 
 ## Troubleshooting
 
+**MongoDB fails with "Permission denied" on `/data/db/journal`:**
+```bash
+spacenote fix-permissions
+docker compose -f /opt/spacenote/docker-compose.yml restart mongodb
+```
+
+**Backend can't read attachments/images:**
+```bash
+spacenote fix-permissions
+docker compose -f /opt/spacenote/docker-compose.yml restart backend
+```
+
 **SSL certificate issues:**
 ```bash
-# Check Caddy logs
-docker compose logs caddy
-
-# Force certificate renewal
-docker compose restart caddy
-```
-
-**MongoDB fails to start:**
-```bash
-# Check logs
-docker compose logs mongodb
-
-# If "Permission denied" on /data/db/journal - reset MongoDB data
-docker compose down
-sudo rm -rf ./data/db
-docker compose up -d
-```
-
-**Backend permission errors (attachments/images/backups):**
-```bash
-# Backend runs as uid 1000, all app data lives in ./data/app
-sudo chown -R 1000:1000 ./data/app
-docker compose restart backend
+spacenote logs caddy
+docker compose -f /opt/spacenote/docker-compose.yml restart caddy
 ```

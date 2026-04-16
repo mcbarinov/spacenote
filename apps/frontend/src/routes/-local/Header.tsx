@@ -9,6 +9,7 @@ import {
   IconPlus,
   IconLayout,
   IconDatabaseExport,
+  IconFileText,
 } from "@tabler/icons-react"
 import { Link, useNavigate } from "@tanstack/react-router"
 import { api } from "@/api"
@@ -63,6 +64,9 @@ export function Header() {
                 </Menu.Item>
                 <Menu.Item component={Link} to="/admin/backups" leftSection={<IconDatabaseExport size={16} />}>
                   Backups
+                </Menu.Item>
+                <Menu.Item component={Link} to="/admin/error-log" leftSection={<IconFileText size={16} />}>
+                  Error Log
                 </Menu.Item>
               </>
             )}

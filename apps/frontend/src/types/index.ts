@@ -2,6 +2,7 @@ import type { components } from "./openapi.gen"
 
 export type User = components["schemas"]["UserView"]
 export type BackupInfo = components["schemas"]["BackupInfo"]
+export type ErrorLog = components["schemas"]["ErrorLog"]
 export type Space = components["schemas"]["Space"]
 export type LoginRequest = components["schemas"]["LoginRequest"]
 export type LoginResponse = components["schemas"]["LoginResponse"]

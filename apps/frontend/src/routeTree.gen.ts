@@ -20,6 +20,7 @@ import { Route as spacesNewDotpageRouteImport } from './routes/spaces/new.page'
 import { Route as spacesImportDotpageRouteImport } from './routes/spaces/import.page'
 import { Route as adminTempSpaceAccessDotpageRouteImport } from './routes/admin/temp-space-access.page'
 import { Route as adminPendingAttachmentsPageRouteImport } from './routes/admin/pending-attachments/page'
+import { Route as adminErrorLogDotpageRouteImport } from './routes/admin/error-log.page'
 import { Route as adminBackupsDotpageRouteImport } from './routes/admin/backups.page'
 import { Route as sSlugIndexPageRouteImport } from './routes/s/_slug_/index/page'
 import { Route as sSlugAttachmentsIndexDotpageRouteImport } from './routes/s/_slug_/attachments/index.page'
@@ -96,6 +97,11 @@ const adminPendingAttachmentsPageRoute =
     path: '/admin/pending-attachments',
     getParentRoute: () => adminLayoutRoute,
   } as any)
+const adminErrorLogDotpageRoute = adminErrorLogDotpageRouteImport.update({
+  id: '/admin/error-log',
+  path: '/admin/error-log',
+  getParentRoute: () => adminLayoutRoute,
+} as any)
 const adminBackupsDotpageRoute = adminBackupsDotpageRouteImport.update({
   id: '/admin/backups',
   path: '/admin/backups',
@@ -222,6 +228,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof loginDotpageRoute
   '/s/$slug/': typeof sSlugIndexPageRoute
   '/admin/backups': typeof adminBackupsDotpageRoute
+  '/admin/error-log': typeof adminErrorLogDotpageRoute
   '/admin/pending-attachments': typeof adminPendingAttachmentsPageRoute
   '/admin/temp-space-access': typeof adminTempSpaceAccessDotpageRoute
   '/spaces/import': typeof spacesImportDotpageRoute
@@ -253,6 +260,7 @@ export interface FileRoutesByTo {
   '/': typeof indexDotpageRoute
   '/s/$slug': typeof sSlugIndexPageRoute
   '/admin/backups': typeof adminBackupsDotpageRoute
+  '/admin/error-log': typeof adminErrorLogDotpageRoute
   '/admin/pending-attachments': typeof adminPendingAttachmentsPageRoute
   '/admin/temp-space-access': typeof adminTempSpaceAccessDotpageRoute
   '/spaces/import': typeof spacesImportDotpageRoute
@@ -288,6 +296,7 @@ export interface FileRoutesById {
   '/_auth/_spaces': typeof spacesLayoutRouteWithChildren
   '/_auth/s/$slug/': typeof sSlugIndexPageRoute
   '/_auth/_admin/admin/backups': typeof adminBackupsDotpageRoute
+  '/_auth/_admin/admin/error-log': typeof adminErrorLogDotpageRoute
   '/_auth/_admin/admin/pending-attachments': typeof adminPendingAttachmentsPageRoute
   '/_auth/_admin/admin/temp-space-access': typeof adminTempSpaceAccessDotpageRoute
   '/_auth/_spaces/spaces/import': typeof spacesImportDotpageRoute
@@ -321,6 +330,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/s/$slug/'
     | '/admin/backups'
+    | '/admin/error-log'
     | '/admin/pending-attachments'
     | '/admin/temp-space-access'
     | '/spaces/import'
@@ -352,6 +362,7 @@ export interface FileRouteTypes {
     | '/'
     | '/s/$slug'
     | '/admin/backups'
+    | '/admin/error-log'
     | '/admin/pending-attachments'
     | '/admin/temp-space-access'
     | '/spaces/import'
@@ -386,6 +397,7 @@ export interface FileRouteTypes {
     | '/_auth/_spaces'
     | '/_auth/s/$slug/'
     | '/_auth/_admin/admin/backups'
+    | '/_auth/_admin/admin/error-log'
     | '/_auth/_admin/admin/pending-attachments'
     | '/_auth/_admin/admin/temp-space-access'
     | '/_auth/_spaces/spaces/import'
@@ -495,6 +507,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/pending-attachments'
       fullPath: '/admin/pending-attachments'
       preLoaderRoute: typeof adminPendingAttachmentsPageRouteImport
+      parentRoute: typeof adminLayoutRoute
+    }
+    '/_auth/_admin/admin/error-log': {
+      id: '/_auth/_admin/admin/error-log'
+      path: '/admin/error-log'
+      fullPath: '/admin/error-log'
+      preLoaderRoute: typeof adminErrorLogDotpageRouteImport
       parentRoute: typeof adminLayoutRoute
     }
     '/_auth/_admin/admin/backups': {
@@ -649,6 +668,7 @@ declare module '@tanstack/react-router' {
 
 interface adminLayoutRouteChildren {
   adminBackupsDotpageRoute: typeof adminBackupsDotpageRoute
+  adminErrorLogDotpageRoute: typeof adminErrorLogDotpageRoute
   adminPendingAttachmentsPageRoute: typeof adminPendingAttachmentsPageRoute
   adminTempSpaceAccessDotpageRoute: typeof adminTempSpaceAccessDotpageRoute
   adminUsersIndexDotpageRoute: typeof adminUsersIndexDotpageRoute
@@ -659,6 +679,7 @@ interface adminLayoutRouteChildren {
 
 const adminLayoutRouteChildren: adminLayoutRouteChildren = {
   adminBackupsDotpageRoute: adminBackupsDotpageRoute,
+  adminErrorLogDotpageRoute: adminErrorLogDotpageRoute,
   adminPendingAttachmentsPageRoute: adminPendingAttachmentsPageRoute,
   adminTempSpaceAccessDotpageRoute: adminTempSpaceAccessDotpageRoute,
   adminUsersIndexDotpageRoute: adminUsersIndexDotpageRoute,

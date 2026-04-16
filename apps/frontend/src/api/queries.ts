@@ -4,6 +4,7 @@ import { cleanParams } from "@/utils/format"
 import type {
   Attachment,
   BackupInfo,
+  ErrorLog,
   CommentsList,
   ExportData,
   Note,
@@ -151,5 +152,13 @@ export function listBackups() {
   return queryOptions({
     queryKey: ["admin", "backups"],
     queryFn: () => httpClient.get("api/v1/backups").json<BackupInfo[]>(),
+  })
+}
+
+/** Fetches error log (admin only) */
+export function getErrorLog() {
+  return queryOptions({
+    queryKey: ["admin", "error-log"],
+    queryFn: () => httpClient.get("api/v1/admin/error-log").json<ErrorLog>(),
   })
 }

@@ -444,6 +444,26 @@ export type paths = {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/error-log": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get error log
+         * @description Read current error log file content (admin only).
+         */
+        get: operations["getErrorLog"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/spaces/{space_slug}/notes": {
         parameters: {
             query?: never;
@@ -1411,6 +1431,27 @@ export type components = {
              * @enum {string}
              */
             kind: "utc" | "local" | "date";
+        };
+        /**
+         * ErrorLog
+         * @description Error log file content and metadata.
+         */
+        ErrorLog: {
+            /**
+             * Content
+             * @description Log file text content
+             */
+            content: string;
+            /**
+             * Size
+             * @description File size in bytes
+             */
+            size: number;
+            /**
+             * Modified At
+             * @description Last modification timestamp (UTC)
+             */
+            modified_at: string | null;
         };
         /**
          * ErrorResponse
@@ -4291,6 +4332,44 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    getErrorLog: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Error log content */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorLog"];
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description System admin privileges required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
         };

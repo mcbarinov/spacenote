@@ -8,7 +8,7 @@ from spacenote.web.runner import run_server
 
 def main() -> None:
     config = Config()
-    setup_logging(config.debug)
+    setup_logging(config.debug, config.logs_path)
     app = App(config)
     run_server(app, config)
 

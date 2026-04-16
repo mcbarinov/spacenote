@@ -39,6 +39,11 @@ class Config(BaseSettings):
         """mongodump archives: {data_dir}/backups/spacenote-backup-{timestamp}.archive.gz"""
         return self.data_dir / "backups"
 
+    @property
+    def logs_path(self) -> Path:
+        """Application log files: {data_dir}/logs/error.log"""
+        return self.data_dir / "logs"
+
     @field_validator("max_upload_size", mode="before")
     @classmethod
     def parse_max_upload_size(cls, v: object) -> object:

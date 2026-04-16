@@ -1,5 +1,7 @@
 import asyncio
 import logging
+from logging.handlers import RotatingFileHandler
+from pathlib import Path
 
 import structlog
 
@@ -33,14 +35,52 @@ class _AsgiExceptionFilter(logging.Filter):
         return True
 
 
-def setup_logging(debug: bool) -> None:
+def setup_logging(debug: bool, logs_path: Path | None = None) -> None:
     log_level = logging.DEBUG if debug else logging.INFO
 
-    logging.basicConfig(
-        level=log_level,
-        format="%(message)s",
+    # Shared pre-chain for processing foreign (non-structlog) log records
+    foreign_pre_chain: list[structlog.types.Processor] = [
+        structlog.stdlib.add_log_level,
+        structlog.stdlib.add_logger_name,
+        structlog.processors.TimeStamper(fmt="iso"),
+    ]
+
+    # Structlog processors — end with wrap_for_formatter so each handler renders independently
+    structlog.configure(
+        processors=[
+            structlog.stdlib.filter_by_level,
+            structlog.stdlib.add_logger_name,
+            structlog.stdlib.add_log_level,
+            structlog.stdlib.PositionalArgumentsFormatter(),
+            structlog.processors.TimeStamper(fmt="iso"),
+            structlog.processors.StackInfoRenderer(),
+            structlog.processors.format_exc_info,
+            structlog.processors.UnicodeDecoder(),
+            structlog.stdlib.ProcessorFormatter.wrap_for_formatter,
+        ],
+        context_class=dict,
+        logger_factory=structlog.stdlib.LoggerFactory(),
+        cache_logger_on_first_use=True,
     )
 
+    # Console handler for stdout
+    console_renderer = structlog.dev.ConsoleRenderer() if debug else structlog.processors.JSONRenderer()
+    console_formatter = structlog.stdlib.ProcessorFormatter(
+        processors=[
+            structlog.stdlib.ProcessorFormatter.remove_processors_meta,
+            console_renderer,
+        ],
+        foreign_pre_chain=foreign_pre_chain,
+    )
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(console_formatter)
+
+    # Configure root logger
+    root_logger = logging.getLogger()
+    root_logger.setLevel(log_level)
+    root_logger.handlers = [console_handler]
+
+    # Suppress noisy loggers
     uvicorn_error = logging.getLogger("uvicorn.error")
     uvicorn_error.addFilter(_ShutdownNoiseFilter())
     uvicorn_error.addFilter(_AsgiExceptionFilter())
@@ -53,46 +93,27 @@ def setup_logging(debug: bool) -> None:
     logging.getLogger("httpx").setLevel(logging.WARNING)
     logging.getLogger("PIL").setLevel(logging.WARNING)
 
-    processors: list[structlog.types.Processor] = [
-        structlog.stdlib.filter_by_level,
-        structlog.stdlib.add_logger_name,
-        structlog.stdlib.add_log_level,
-        structlog.stdlib.PositionalArgumentsFormatter(),
-        structlog.processors.TimeStamper(fmt="iso"),
-        structlog.processors.StackInfoRenderer(),
-        structlog.processors.format_exc_info,
-        structlog.processors.UnicodeDecoder(),
-    ]
-
-    if debug:
-        processors.append(structlog.dev.ConsoleRenderer())
-    else:
-        processors.append(structlog.processors.JSONRenderer())
-
-    structlog.configure(
-        processors=processors,
-        context_class=dict,
-        logger_factory=structlog.stdlib.LoggerFactory(),
-        cache_logger_on_first_use=True,
-    )
-
     # Route uvicorn logs through structlog so they match the app format
-    formatter = structlog.stdlib.ProcessorFormatter(
-        processors=[
-            structlog.stdlib.ProcessorFormatter.remove_processors_meta,
-            structlog.dev.ConsoleRenderer() if debug else structlog.processors.JSONRenderer(),
-        ],
-        foreign_pre_chain=[
-            structlog.stdlib.add_log_level,
-            structlog.stdlib.add_logger_name,
-            structlog.processors.TimeStamper(fmt="iso"),
-        ],
-    )
-
-    handler = logging.StreamHandler()
-    handler.setFormatter(formatter)
-
     for logger_name in ("uvicorn", "uvicorn.error", "uvicorn.access"):
         uv_logger = logging.getLogger(logger_name)
-        uv_logger.handlers = [handler]
+        uv_logger.handlers = [console_handler]
         uv_logger.propagate = False
+
+    # File handler for WARNING/ERROR logs (no ANSI, always JSON)
+    if logs_path is not None:
+        logs_path.mkdir(parents=True, exist_ok=True)
+        file_handler = RotatingFileHandler(
+            logs_path / "error.log",
+            maxBytes=3 * 1024 * 1024,
+            backupCount=5,
+        )
+        file_handler.setLevel(logging.WARNING)
+        file_formatter = structlog.stdlib.ProcessorFormatter(
+            processors=[
+                structlog.stdlib.ProcessorFormatter.remove_processors_meta,
+                structlog.processors.JSONRenderer(),
+            ],
+            foreign_pre_chain=foreign_pre_chain,
+        )
+        file_handler.setFormatter(file_formatter)
+        root_logger.addHandler(file_handler)

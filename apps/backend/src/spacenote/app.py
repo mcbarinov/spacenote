@@ -13,6 +13,7 @@ from spacenote.core.modules.export.models import ExportData
 from spacenote.core.modules.field.models import FieldValueType, SpaceField
 from spacenote.core.modules.filter.models import Filter
 from spacenote.core.modules.image.processor import WebpOptions
+from spacenote.core.modules.log.models import ErrorLog
 from spacenote.core.modules.note.models import Note
 from spacenote.core.modules.session.models import AuthToken
 from spacenote.core.modules.space.models import Member, Permission, Space
@@ -475,3 +476,10 @@ class App:
         """Delete a backup file (admin only)."""
         await self._core.services.access.ensure_admin(auth_token)
         self._core.services.backup.delete_backup(filename)
+
+    # --- Logs ---
+
+    async def get_error_log(self, auth_token: AuthToken) -> ErrorLog:
+        """Read current error log file content (admin only)."""
+        await self._core.services.access.ensure_admin(auth_token)
+        return self._core.services.log.get_error_log()

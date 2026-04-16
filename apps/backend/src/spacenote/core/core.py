@@ -20,6 +20,7 @@ from spacenote.core.modules.export.service import ExportService
 from spacenote.core.modules.field.service import FieldService
 from spacenote.core.modules.filter.service import FilterService
 from spacenote.core.modules.image.service import ImageService
+from spacenote.core.modules.log.service import LogService
 from spacenote.core.modules.note.service import NoteService
 from spacenote.core.modules.session.service import SessionService
 from spacenote.core.modules.space.service import SpaceService
@@ -44,6 +45,7 @@ class ServiceRegistry:
     comment: CommentService
     attachment: AttachmentService
     image: ImageService
+    log: LogService
     export: ExportService
     template: TemplateService
     telegram: TelegramService
@@ -62,6 +64,7 @@ class ServiceRegistry:
         self.comment = CommentService()
         self.attachment = AttachmentService()
         self.image = ImageService()
+        self.log = LogService()
         self.export = ExportService()
         self.template = TemplateService()
         self.telegram = TelegramService()

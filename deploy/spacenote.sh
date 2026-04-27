@@ -16,12 +16,13 @@
 #   ├── .env                 — configuration (generated during install)
 #   └── data/
 #       ├── db/              — MongoDB data files
+#       ├── configdb/        — MongoDB config DB (unused for standalone, mounted to suppress anonymous volumes)
 #       ├── app/             — backend data: attachments, images, logs (owned by uid 1000)
 #       └── caddy/           — SSL certificates and Caddy config
 #
 set -euo pipefail
 
-SPACENOTE_VERSION="0.0.2"
+SPACENOTE_VERSION="0.0.4"
 SPACENOTE_DIR="/opt/spacenote"
 GITHUB_RAW="https://raw.githubusercontent.com/mcbarinov/spacenote/main/deploy"
 
@@ -145,10 +146,13 @@ EOF
     echo ".env created."
 
     # Step 4: Data directories
-    #   db/     — MongoDB data (uid 1000 — pinned via `user:` in docker-compose.yml)
-    #   app/    — backend uploads, images, logs (uid 1000 — backend container user)
-    #   caddy/  — SSL certs (managed by Caddy / Let's Encrypt, runs as root)
-    mkdir -p data/{db,app,caddy/data,caddy/config}
+    #   db/         — MongoDB data (uid 1000 — pinned via `user:` in docker-compose.yml)
+    #   configdb/   — MongoDB config DB (unused for standalone mongod, but the image
+    #                 declares it as VOLUME — bind-mount it explicitly so Docker
+    #                 doesn't create a fresh anonymous volume on every recreation)
+    #   app/        — backend uploads, images, logs (uid 1000 — backend container user)
+    #   caddy/      — SSL certs (managed by Caddy / Let's Encrypt, runs as root)
+    mkdir -p data/{db,configdb,app,caddy/data,caddy/config}
     cmd_fix_permissions
 
     # Step 5: Start
@@ -172,7 +176,7 @@ EOF
 cmd_fix_permissions() {
     require_root
     require_spacenote
-    chown -R 1000:1000 "$SPACENOTE_DIR/data/app" "$SPACENOTE_DIR/data/db"
+    chown -R 1000:1000 "$SPACENOTE_DIR/data/app" "$SPACENOTE_DIR/data/db" "$SPACENOTE_DIR/data/configdb"
     echo "Permissions fixed."
 }
 
@@ -310,7 +314,7 @@ cmd_restore() {
     mv "$staging/app" "$SPACENOTE_DIR/data/app"
 
     echo "Fixing permissions..."
-    chown -R 1000:1000 "$SPACENOTE_DIR/data/app" "$SPACENOTE_DIR/data/db"
+    chown -R 1000:1000 "$SPACENOTE_DIR/data/app" "$SPACENOTE_DIR/data/db" "$SPACENOTE_DIR/data/configdb"
 
     echo "Restoring database..."
     docker exec -i -e MONGO_USER="$user" -e MONGO_PASS="$pass" spacenote-mongodb \
@@ -336,6 +340,55 @@ cmd_update() {
     echo "Restarting services..."
     dc up -d
     echo "Update complete."
+}
+
+# Symmetric counterpart to `cmd_install`. Removes everything the installer
+# created: containers, network, project images, and the entire /opt/spacenote/
+# tree (data, .env, docker-compose.yml, backups). Keeps Docker engine and the
+# CLI binary at /usr/local/bin/spacenote so `spacenote install` runs immediately
+# after.
+#
+# Recovery flow: copy /opt/spacenote/.env aside first if you want to preserve
+# domain / credentials / telegram token, then `uninstall` + `install`.
+cmd_uninstall() {
+    require_root
+    require_docker
+    require_spacenote
+
+    local domain
+    domain=$(env_get "DOMAIN")
+
+    echo "This will PERMANENTLY DESTROY the SpaceNote deployment for ${domain}:"
+    echo "  - All spacenote-* containers and the spacenote-network"
+    echo "  - Cached spacenote-backend / spacenote-frontend images"
+    echo "  - The entire ${SPACENOTE_DIR}/ directory:"
+    echo "      .env, docker-compose.yml, data/{db,configdb,app,caddy}, backups/"
+    echo
+    echo "Will be kept: Docker engine, /usr/local/bin/spacenote (the CLI itself),"
+    echo "and shared images (mongodb, caddy)."
+    echo
+    confirm "Uninstall ${domain}?" || { echo "Aborted."; exit 0; }
+
+    echo
+    echo "Stopping and removing containers..."
+    # --volumes: also drop anonymous volumes attached to the containers
+    # (MongoDB's image declares /data/configdb as VOLUME — without -v it leaks
+    # an anonymous volume on every container recreation).
+    dc down --volumes --remove-orphans 2>/dev/null || true
+
+    echo "Removing project images..."
+    docker image rm -f \
+        ghcr.io/mcbarinov/spacenote-backend:latest \
+        ghcr.io/mcbarinov/spacenote-frontend:latest \
+        2>/dev/null || true
+
+    echo "Removing ${SPACENOTE_DIR}..."
+    rm -rf "$SPACENOTE_DIR"
+
+    echo
+    echo "Uninstall complete."
+    echo "Run 'spacenote install' for a fresh deployment."
+    echo "(To also remove the CLI itself: sudo rm /usr/local/bin/spacenote)"
 }
 
 # Show container status and backend health check.
@@ -420,6 +473,7 @@ Usage: spacenote <command> [args]
 
 Commands:
   install           Install SpaceNote on a fresh server
+  uninstall         Remove the deployment (containers, images, /opt/spacenote/) — destructive
   update            Pull latest images and restart services
   status            Show service status and health
   logs [svc]        Follow container logs (optional: backend, frontend, mongodb, caddy)
@@ -457,6 +511,7 @@ fi
 
 case "${1:-}" in
     install)      cmd_install ;;
+    uninstall)    cmd_uninstall ;;
     update)       cmd_update ;;
     status)       cmd_status ;;
     logs)         shift; cmd_logs "$@" ;;

@@ -11,6 +11,17 @@
 # Normally invoked via `just push-dump <host>` (which loads .env).
 set -euo pipefail
 
+# macOS BSD tar otherwise embeds AppleDouble files (._foo) and PAX xattr records
+# (LIBARCHIVE.xattr.com.apple.provenance, etc.) that pollute the archive and
+# produce noisy "Ignoring unknown extended header" warnings on the server's GNU tar.
+# COPYFILE_DISABLE suppresses ._foo files; --no-xattrs (BSD tar / libarchive only,
+# skipped on Linux GNU tar) suppresses the PAX xattr records.
+export COPYFILE_DISABLE=1
+TAR_FLAGS=""
+if tar --no-xattrs --version >/dev/null 2>&1; then
+    TAR_FLAGS="--no-xattrs"
+fi
+
 host="${1:?host required (e.g. root@notes.example.com)}"
 
 : "${SPACENOTE_DATABASE_URL:?not set in environment}"
@@ -63,7 +74,8 @@ echo "==> Copying data dir (excluding backups/, logs/)..."
 mkdir -p "$staging/app"
 # Use rsync-style copy via tar to avoid cp's awkward handling of "everything except".
 # This streams contents of $SPACENOTE_DATA_DIR into $staging/app/, skipping transient dirs.
-tar -C "$SPACENOTE_DATA_DIR" --exclude=backups --exclude=logs -cf - . | tar -C "$staging/app" -xf -
+# shellcheck disable=SC2086  # $TAR_FLAGS is intentionally word-split (single flag or empty)
+tar $TAR_FLAGS -C "$SPACENOTE_DATA_DIR" --exclude=backups --exclude=logs -cf - . | tar $TAR_FLAGS -C "$staging/app" -xf -
 
 cat > "$staging/manifest.txt" <<EOF
 timestamp=${timestamp}
@@ -74,13 +86,14 @@ EOF
 
 archive="$staging/spacenote-push-${timestamp}.tar.gz"
 echo "==> Creating archive..."
-tar -czf "$archive" -C "$staging" db.archive.gz app manifest.txt
+# shellcheck disable=SC2086
+tar $TAR_FLAGS -czf "$archive" -C "$staging" db.archive.gz app manifest.txt
 
 size=$(du -h "$archive" | cut -f1)
 echo "    $archive ($size)"
 
 echo "==> Uploading to $host:$remote_path..."
-scp -q "$archive" "$host:$remote_path"
+scp "$archive" "$host:$remote_path"
 
 echo "==> Restoring on $host..."
 # shellcheck disable=SC2029  # $remote_path expands client-side intentionally

@@ -15,6 +15,7 @@ spacenote install
 | Command | Description |
 |---------|-------------|
 | `spacenote install` | Install SpaceNote on a fresh server |
+| `spacenote uninstall` | Remove the deployment (containers, images, `/opt/spacenote/`) — destructive |
 | `spacenote update` | Pull latest images and restart |
 | `spacenote status` | Show service status and health |
 | `spacenote logs [service]` | Follow container logs |
@@ -103,6 +104,20 @@ just push-dump root@notes.example.com
 ```
 
 The script prompts for `agree` before doing anything destructive. Skips local `backups/` and `logs/` from the data dir. Local DB must be named `spacenote` (server's restore hardcodes `--db spacenote`).
+
+## Uninstall / reinstall
+
+When the stack is broken beyond repair (corrupted DB after a failed restore, etc.), wipe and start over:
+
+```bash
+# Optional — preserve credentials/domain across the cycle
+sudo cp /opt/spacenote/.env ~/spacenote.env.backup
+
+sudo spacenote uninstall      # removes containers, project images, and /opt/spacenote/ entirely
+sudo spacenote install        # fresh interactive setup
+```
+
+`uninstall` keeps Docker engine itself, third-party images (mongodb, caddy), and the `/usr/local/bin/spacenote` CLI binary. SSL certs are wiped — Caddy re-requests from Let's Encrypt on first start of the new install (within standard rate limits).
 
 ## Migration to Another Server
 

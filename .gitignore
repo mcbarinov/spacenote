@@ -28,8 +28,7 @@ __pycache__/
 coverage/
 *.log
 
-# Temporary workspace for notes and experiments
-/tmp/
+tmp/
 
 # Environment variables and secrets
 .env

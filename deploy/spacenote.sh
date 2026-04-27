@@ -221,6 +221,7 @@ cmd_dump() {
 timestamp=${timestamp}
 source_domain=${domain}
 cli_version=${SPACENOTE_VERSION}
+db_name=spacenote
 EOF
 
     echo "Creating archive..."

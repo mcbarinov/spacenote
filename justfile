@@ -9,8 +9,8 @@ lint:
     @just frontend-lint
     @echo "=== backend ==="
     @just backend-lint
-    @echo "=== deploy ==="
-    @just deploy-lint
+    @echo "=== shell ==="
+    @just shell-lint
 
 outdated: backend-outdated frontend-outdated
 
@@ -94,12 +94,37 @@ agent-backend-dev:
     uv run --directory apps/backend python -m watchfiles "python -m spacenote.main" src
 
 
-# === Deploy ===
+# === Shell ===
 
-# Lint deploy shell scripts with shellcheck
-[group("deploy")]
-deploy-lint:
-    shellcheck deploy/spacenote.sh
+# Lint shell scripts in deploy/ and scripts/ with shellcheck
+[group("shell")]
+shell-lint:
+    shellcheck deploy/*.sh scripts/*.sh
+
+
+# === Dump ===
+
+# Pull a fresh dump from a SpaceNote production server.
+# Runs `spacenote dump` remotely and downloads the archive to <dest>/.
+# Aborts if <dest> exists and is not empty — inspect or remove it manually
+# first so we never overwrite an unprocessed dump.
+# Requires passwordless sudo on the remote host (or root login).
+#
+# Usage: just pull-dump root@notes.example.com
+#        just pull-dump root@notes.example.com ~/backups/spacenote
+[group("dump")]
+pull-dump host dest="/tmp/spacenote-dumps":
+    ./scripts/pull-dump.sh "{{host}}" "{{dest}}"
+
+# Restore the local dev environment from a dump archive created by `spacenote dump`.
+# DESTRUCTIVE: drops the local Mongo database and replaces $SPACENOTE_DATA_DIR.
+# Reads SPACENOTE_DATABASE_URL and SPACENOTE_DATA_DIR from .env.
+# Stop the backend (`just backend-dev`) before running.
+#
+# Usage: just restore-from-dump /tmp/spacenote-dumps/spacenote-20260427-120000.tar.gz
+[group("dump")]
+restore-from-dump path:
+    ./scripts/restore-from-dump.sh "{{path}}"
 
 
 # === Docker Commands ===

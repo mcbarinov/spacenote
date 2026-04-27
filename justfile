@@ -126,6 +126,16 @@ pull-dump host dest="/tmp/spacenote-dumps":
 restore-from-dump path:
     ./scripts/restore-from-dump.sh "{{path}}"
 
+# Push the local dev environment to a production server.
+# DESTRUCTIVE on the target: drops the remote Mongo database and replaces data/app/.
+# Reads SPACENOTE_DATABASE_URL and SPACENOTE_DATA_DIR from .env.
+# Requires CLI v0.0.2+ on the target — run `sudo spacenote self-update` there once.
+#
+# Usage: just push-dump root@notes.example.com
+[group("dump")]
+push-dump host:
+    ./scripts/push-dump.sh "{{host}}"
+
 
 # === Docker Commands ===
 

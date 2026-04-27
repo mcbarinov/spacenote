@@ -21,7 +21,7 @@
 #
 set -euo pipefail
 
-SPACENOTE_VERSION="0.0.1"
+SPACENOTE_VERSION="0.0.2"
 SPACENOTE_DIR="/opt/spacenote"
 GITHUB_RAW="https://raw.githubusercontent.com/mcbarinov/spacenote/main/deploy"
 
@@ -235,12 +235,26 @@ EOF
 # Restore a deployment from an archive created by `spacenote dump`.
 # DESTRUCTIVE — replaces current database and data/app/.
 # Keeps existing .env and SSL certs (target server's own config).
+# Pass --yes to skip the interactive confirmation (used by remote pushes).
 cmd_restore() {
     require_docker
     require_spacenote
 
-    local archive="${1:-}"
-    [[ -n "$archive" ]] || die "Usage: spacenote restore <archive.tar.gz>"
+    local archive="" assume_yes=0
+    for arg in "$@"; do
+        case "$arg" in
+            --yes|-y) assume_yes=1 ;;
+            -*)       die "Unknown option: $arg" ;;
+            *)
+                if [[ -z "$archive" ]]; then
+                    archive="$arg"
+                else
+                    die "Unexpected argument: $arg"
+                fi
+                ;;
+        esac
+    done
+    [[ -n "$archive" ]] || die "Usage: spacenote restore [--yes] <archive.tar.gz>"
     [[ -f "$archive" ]] || die "Archive not found: $archive"
 
     # Validate archive contents before touching anything
@@ -264,7 +278,11 @@ cmd_restore() {
     echo "Source domain: $source_domain"
     echo
     echo "This will REPLACE all current data (database + data/app/)."
-    confirm "Continue?" || { echo "Aborted."; exit 0; }
+    if [[ $assume_yes -eq 1 ]]; then
+        echo "Proceeding (--yes)."
+    else
+        confirm "Continue?" || { echo "Aborted."; exit 0; }
+    fi
 
     local user pass
     user=$(env_get "MONGODB_ROOT_USERNAME")
@@ -409,7 +427,7 @@ Commands:
   mongo-shell       Open MongoDB shell
   fix-permissions   Restore ownership of data/ dirs (after manual file edits)
   dump              Create portable archive of DB + data/app/ in backups/
-  restore <path>    Restore deployment from an archive (destructive)
+  restore [--yes] <path>    Restore deployment from an archive (destructive)
   self-update       Update this CLI script from GitHub
   help              Show this help
 

@@ -83,11 +83,26 @@ Both `data/app/` and `data/db/` must be owned by uid 1000. The MongoDB container
 ## Backup & Restore
 
 ```bash
-spacenote dump                    # → /opt/spacenote/backups/spacenote-YYYYMMDD-HHMMSS.tar.gz
-spacenote restore <archive>       # destructive: replaces DB + data/app/
+spacenote dump                            # → /opt/spacenote/backups/spacenote-YYYYMMDD-HHMMSS.tar.gz
+spacenote restore <archive>               # destructive: replaces DB + data/app/
+spacenote restore --yes <archive>         # same, no interactive prompt (used by remote pushes)
 ```
 
 Archive contains DB dump + `data/app/`. It does NOT include `.env`, `docker-compose.yml`, or SSL certs — the server keeps its own config.
+
+### Push local dev → server
+
+`just push-dump <host>` builds an archive from the local Mongo + `$SPACENOTE_DATA_DIR` and runs `spacenote restore --yes` on the target. **Destructive on the target.**
+
+```bash
+# One-time on the target server (needs CLI v0.0.2+ for --yes)
+ssh root@notes.example.com "sudo spacenote self-update"
+
+# From your workstation
+just push-dump root@notes.example.com
+```
+
+The script prompts for `agree` before doing anything destructive. Skips local `backups/` and `logs/` from the data dir. Local DB must be named `spacenote` (server's restore hardcodes `--db spacenote`).
 
 ## Migration to Another Server
 

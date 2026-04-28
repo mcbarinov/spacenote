@@ -33,6 +33,13 @@ from telegram.error import RetryAfter, TelegramError
 
 logger = structlog.get_logger(__name__)
 
+# Mirror tasks must publish to Telegram in strict per-space FIFO order. See B003 in docs/behavior.md.
+MIRROR_TASK_TYPES: tuple[TelegramTaskType, ...] = (
+    TelegramTaskType.MIRROR_CREATE,
+    TelegramTaskType.MIRROR_UPDATE,
+    TelegramTaskType.MIRROR_DELETE,
+)
+
 
 class TelegramService(Service):
     """Manages Telegram integrations for spaces."""
@@ -59,7 +66,7 @@ class TelegramService(Service):
         """Create indexes and start worker if token configured."""
         # Tasks indexes
         await self._tasks_collection.create_index([("space_slug", 1), ("number", 1)], unique=True)
-        await self._tasks_collection.create_index([("status", 1), ("created_at", 1)])
+        await self._tasks_collection.create_index([("status", 1), ("created_at", 1), ("number", 1)])
         # Mirrors index
         await self._mirrors_collection.create_index([("space_slug", 1), ("note_number", 1)], unique=True)
 
@@ -260,10 +267,23 @@ class TelegramService(Service):
             await asyncio.sleep(1)  # Rate limit: max 1 msg/sec to avoid Telegram limits
 
     async def _fetch_pending_task(self) -> TelegramTask | None:
-        """Get oldest pending task."""
-        doc = await self._tasks_collection.find_one({"status": "pending"}, sort=[("created_at", 1)])
-        if doc:
-            return TelegramTask.model_validate(doc)
+        """Get oldest pending task, respecting per-space mirror ordering (see B003).
+
+        Mirror tasks are skipped while their space has any failed mirror task —
+        prevents out-of-order publishing in the Telegram channel.
+        """
+        blocked = set(
+            await self._tasks_collection.distinct(
+                "space_slug",
+                {"status": "failed", "task_type": {"$in": [t.value for t in MIRROR_TASK_TYPES]}},
+            )
+        )
+        async with self._tasks_collection.find({"status": "pending"}).sort([("created_at", 1), ("number", 1)]) as cursor:
+            async for doc in cursor:
+                task = TelegramTask.model_validate(doc)
+                if task.task_type in MIRROR_TASK_TYPES and task.space_slug in blocked:
+                    continue
+                return task
         return None
 
     async def _process_task(self, task: TelegramTask) -> None:

@@ -74,3 +74,15 @@ If `?view` is NOT specified (first match wins):
 **Validation**:
 - Template save: `{# photo: field_name #}` must reference existing IMAGE field in space schema
 - Task processing: If photo field is empty/null → mark task as `failed`
+
+---
+
+## B003: Telegram Mirror Strict Ordering
+
+**Constraint**: Telegram channel post order is fixed at send time and cannot be changed retroactively.
+
+**Invariant**: Mirror tasks (`mirror_create`, `mirror_update`, `mirror_delete`) of one space are processed in strict FIFO order. Task N+1 must never publish before N succeeds.
+
+**Per-space blocking**: If any mirror task of a space is `failed`, all pending mirror tasks of that space are frozen until the operator clears or repairs the failure. Activity tasks (`activity_*`) are not affected.
+
+**Worker fetch**: Skip pending mirror tasks whose `space_slug` is in the set of spaces with at least one failed mirror task. Sort by `(created_at, number)` — `number` is the per-space tie-breaker for tasks enqueued in the same millisecond.

@@ -195,21 +195,30 @@ docker-build-frontend:
 docker-push:
     just docker-push-backend & just docker-push-frontend & wait
 
+# Cache layers persisted to GHCR under :buildcache so they survive local Colima
+# state loss; mode=max caches builder-stage layers (multi-stage). Requires the
+# 'builder' buildx instance from `just colima-restart`.
 # Build and push backend image to GHCR
 [group("docker")]
 docker-push-backend:
     docker buildx build --platform linux/amd64 \
+        --builder builder \
         --build-arg GIT_COMMIT_HASH=$(git rev-parse HEAD) \
         -f apps/backend/Dockerfile \
         -t ghcr.io/{{GHCR_USER}}/spacenote-backend:latest \
+        --cache-to type=registry,ref=ghcr.io/{{GHCR_USER}}/spacenote-backend:buildcache,mode=max \
+        --cache-from type=registry,ref=ghcr.io/{{GHCR_USER}}/spacenote-backend:buildcache \
         --push apps/backend
 
 # Build and push frontend image to GHCR
 [group("docker")]
 docker-push-frontend:
     docker buildx build --platform linux/amd64 \
+        --builder builder \
         --build-arg GIT_COMMIT_HASH=$(git rev-parse HEAD) \
         -t ghcr.io/{{GHCR_USER}}/spacenote-frontend:latest \
+        --cache-to type=registry,ref=ghcr.io/{{GHCR_USER}}/spacenote-frontend:buildcache,mode=max \
+        --cache-from type=registry,ref=ghcr.io/{{GHCR_USER}}/spacenote-frontend:buildcache \
         --push apps/frontend
 
 # Start local Docker Compose stack (http://localhost:8080)
@@ -228,6 +237,10 @@ docker-local-down:
 docker-prune:
     docker builder prune -f
 
+# VM is native aarch64 (Apple Silicon) under Apple Virtualization framework.
+# --vz-rosetta registers Rosetta as the binfmt_misc handler inside the VM, so
+# `docker buildx build --platform linux/amd64` runs amd64 binaries via Rosetta
+# at near-native speed instead of through QEMU emulation.
 # Restart Colima with proper resources and setup buildx
 [group("docker")]
 colima-restart:
@@ -237,8 +250,8 @@ colima-restart:
     echo "Stopping Colima..."
     colima stop --force 2>/dev/null || true
 
-    echo "Starting Colima with 8 CPUs, 16GB RAM..."
-    colima start --cpu 8 --memory 16 --disk 100
+    echo "Starting Colima (vz + Rosetta, 8 CPUs, 16GB RAM)..."
+    colima start --vm-type=vz --vz-rosetta --cpu 8 --memory 16 --disk 100
 
     echo "Setting up Docker buildx..."
     docker buildx rm builder 2>/dev/null || true

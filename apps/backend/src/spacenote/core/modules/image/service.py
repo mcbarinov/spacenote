@@ -1,4 +1,5 @@
 import asyncio
+from collections.abc import Coroutine
 from pathlib import Path
 from typing import Any
 
@@ -17,21 +18,17 @@ logger = structlog.get_logger(__name__)
 class ImageService(Service):
     """Handles IMAGE field processing and WebP generation."""
 
-    def __init__(self) -> None:
-        self._background_tasks: set[asyncio.Task[Any]] = set()
-
     async def on_start(self) -> None:
         """Initialize PIL and ensure images directory exists."""
         init_pil()
         image_storage.ensure_images_dir(self.core.config.images_path)
 
-    async def on_stop(self) -> None:
-        """Wait for pending image generation tasks to complete."""
-        if self._background_tasks:
-            await asyncio.gather(*self._background_tasks, return_exceptions=True)
-
     async def process_image_fields(self, space_slug: str, note_number: int, image_fields: dict[str, int]) -> dict[str, int]:
-        """Process IMAGE fields: finalize pending attachments and schedule WebP generation.
+        """Process IMAGE fields: finalize pending attachments and generate WebP synchronously.
+
+        WebP must exist on disk before this returns — callers (e.g. note creation) rely on it
+        for downstream operations like Telegram mirror enqueue. A conversion failure raises
+        and aborts the calling request.
 
         Args:
             image_fields: dict of field_name -> pending_number (only IMAGE fields with values)
@@ -41,6 +38,7 @@ class ImageService(Service):
         space = self.core.services.space.get_space(space_slug)
         field_options = {f.name: f.options for f in space.fields if f.type == FieldType.IMAGE}
         result: dict[str, int] = {}
+        coroutines: list[Coroutine[Any, Any, None]] = []
 
         for field_name, pending_number in image_fields.items():
             attachment = await self.core.services.attachment.finalize_pending(pending_number, space_slug, note_number)
@@ -48,34 +46,21 @@ class ImageService(Service):
 
             options = field_options.get(field_name)
             max_width = options.max_width if isinstance(options, ImageFieldOptions) else None
-            self._schedule_image_generation(space_slug, note_number, attachment.number, max_width)
+            coroutines.append(self._generate_image(space_slug, note_number, attachment.number, max_width))
+
+        if coroutines:
+            await asyncio.gather(*coroutines)
 
         return result
 
-    def _schedule_image_generation(
-        self, space_slug: str, note_number: int, attachment_number: int, max_width: int | None
-    ) -> None:
-        """Schedule background task for WebP image generation."""
-        task = asyncio.create_task(self._generate_image(space_slug, note_number, attachment_number, max_width))
-        self._background_tasks.add(task)
-        task.add_done_callback(self._background_tasks.discard)
-
     async def _generate_image(self, space_slug: str, note_number: int, attachment_number: int, max_width: int | None) -> None:
-        """Generate WebP image in background."""
-        try:
-            source_path = attachment_storage.get_attachment_file_path(
-                self.core.config.attachments_path, space_slug, note_number, attachment_number
-            )
-
-            webp_content = await create_webp_image(source_path, max_width)
-
-            image_storage.write_image(self.core.config.images_path, space_slug, note_number, attachment_number, webp_content)
-
-            logger.info("image_generated", space_slug=space_slug, note_number=note_number, attachment_number=attachment_number)
-        except Exception:
-            logger.exception(
-                "image_generation_failed", space_slug=space_slug, note_number=note_number, attachment_number=attachment_number
-            )
+        """Generate WebP image. Raises on failure — caller must handle."""
+        source_path = attachment_storage.get_attachment_file_path(
+            self.core.config.attachments_path, space_slug, note_number, attachment_number
+        )
+        webp_content = await create_webp_image(source_path, max_width)
+        image_storage.write_image(self.core.config.images_path, space_slug, note_number, attachment_number, webp_content)
+        logger.info("image_generated", space_slug=space_slug, note_number=note_number, attachment_number=attachment_number)
 
     async def get_attachment_as_webp(
         self, space_slug: str | None, note_number: int | None, attachment_number: int, options: WebpOptions

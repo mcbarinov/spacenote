@@ -25,9 +25,10 @@ import type {
   UpdateEditableFieldsOnCommentRequest,
   UpdateFieldRequest,
   UpdateHiddenFieldsOnCreateRequest,
+  EnableMirrorRequest,
+  SetActivityChannelRequest,
   UpdateMembersRequest,
   UpdateNoteRequest,
-  UpdateTelegramRequest,
   UpdateTitleRequest,
   User,
 } from "@/types"
@@ -258,13 +259,40 @@ export function useUpdateSpaceCanTransferTo(slug: string) {
   })
 }
 
-/** Updates space telegram settings */
-export function useUpdateSpaceTelegram(slug: string) {
+/** Sets or clears the space activity channel. Independent from mirror lifecycle. */
+export function useSetActivityChannel(slug: string) {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (data: UpdateTelegramRequest) => httpClient.patch(`api/v1/spaces/${slug}/telegram`, { json: data }).json<Space>(),
+    mutationFn: (data: SetActivityChannelRequest) =>
+      httpClient.put(`api/v1/spaces/${slug}/telegram/activity`, { json: data }).json<Space>(),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["spaces"] })
+    },
+  })
+}
+
+/** Enables mirror on a channel. Idempotent for the same channel. Triggers backfill on first enable.
+ *  Mirror channel cannot be changed once set — to switch channels, disable first. See B004. */
+export function useEnableMirror(slug: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (data: EnableMirrorRequest) =>
+      httpClient.post(`api/v1/spaces/${slug}/telegram/mirror`, { json: data }).json<Space>(),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["spaces"] })
+    },
+  })
+}
+
+/** Disables mirror: wipes all mirror_* tasks and TelegramMirror records for this space.
+ *  The Telegram channel itself is not modified. Idempotent. See B004. */
+export function useDisableMirror(slug: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: () => httpClient.delete(`api/v1/spaces/${slug}/telegram/mirror`).json<Space>(),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["spaces"] })
+      await queryClient.invalidateQueries({ queryKey: ["telegram"] })
     },
   })
 }

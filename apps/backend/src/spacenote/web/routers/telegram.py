@@ -6,7 +6,6 @@ from pydantic import BaseModel
 from spacenote.core.modules.space.models import Space
 from spacenote.core.modules.telegram.models import (
     TelegramMirror,
-    TelegramSettings,
     TelegramTask,
     TelegramTaskStatus,
     TelegramTaskType,
@@ -18,30 +17,76 @@ from spacenote.web.openapi import ErrorResponse
 router = APIRouter(tags=["telegram"])
 
 
-class UpdateTelegramRequest(BaseModel):
-    """Space telegram settings update request."""
+class SetActivityChannelRequest(BaseModel):
+    """Activity channel update request. `channel: null` clears it."""
 
-    telegram: TelegramSettings | None = None
+    channel: str | None = None
 
 
-@router.patch(
-    "/spaces/{space_slug}/telegram",
-    summary="Update space telegram settings",
-    description="Update telegram integration settings for the space. Requires 'all' permission in the space.",
-    operation_id="updateSpaceTelegram",
+class EnableMirrorRequest(BaseModel):
+    """Enable mirror request. The channel where all current and future notes will be mirrored."""
+
+    channel: str
+
+
+@router.put(
+    "/spaces/{space_slug}/telegram/activity",
+    summary="Set space activity channel",
+    description="Set or clear the Telegram activity channel for the space. Requires 'all' permission.",
+    operation_id="setActivityChannel",
     responses={
-        200: {"description": "Space telegram settings updated successfully"},
+        200: {"description": "Activity channel updated"},
         400: {"model": ErrorResponse, "description": "Invalid request"},
         401: {"model": ErrorResponse, "description": "Not authenticated"},
         403: {"model": ErrorResponse, "description": "Space management permission required"},
         404: {"model": ErrorResponse, "description": "Space not found"},
     },
 )
-async def update_space_telegram(
-    space_slug: str, update_data: UpdateTelegramRequest, app: AppDep, auth_token: AuthTokenDep
-) -> Space:
-    """Update space telegram settings (space admin only)."""
-    return await app.update_space_telegram(auth_token, space_slug, update_data.telegram)
+async def set_activity_channel(space_slug: str, body: SetActivityChannelRequest, app: AppDep, auth_token: AuthTokenDep) -> Space:
+    """Set or clear the activity channel."""
+    return await app.set_activity_channel(auth_token, space_slug, body.channel)
+
+
+@router.post(
+    "/spaces/{space_slug}/telegram/mirror",
+    summary="Enable space mirror channel",
+    description=(
+        "Enable mirroring on the given channel. Idempotent for the same channel. Rejects with 400 if mirror is "
+        "already enabled on a different channel — disable first. On first enable, schedules MIRROR_CREATE for every "
+        "existing note (B003 FIFO order). See B004 in docs/behavior.md."
+    ),
+    operation_id="enableMirror",
+    responses={
+        200: {"description": "Mirror enabled (or already on the same channel)"},
+        400: {"model": ErrorResponse, "description": "Mirror already enabled on a different channel"},
+        401: {"model": ErrorResponse, "description": "Not authenticated"},
+        403: {"model": ErrorResponse, "description": "Space management permission required"},
+        404: {"model": ErrorResponse, "description": "Space not found"},
+    },
+)
+async def enable_mirror(space_slug: str, body: EnableMirrorRequest, app: AppDep, auth_token: AuthTokenDep) -> Space:
+    """Enable the mirror channel."""
+    return await app.enable_mirror(auth_token, space_slug, body.channel)
+
+
+@router.delete(
+    "/spaces/{space_slug}/telegram/mirror",
+    summary="Disable space mirror channel",
+    description=(
+        "Disable mirroring. Wipes all mirror_* tasks and TelegramMirror records for the space. The Telegram channel "
+        "itself is not modified. Idempotent. See B004 in docs/behavior.md."
+    ),
+    operation_id="disableMirror",
+    responses={
+        200: {"description": "Mirror disabled (or already disabled)"},
+        401: {"model": ErrorResponse, "description": "Not authenticated"},
+        403: {"model": ErrorResponse, "description": "Space management permission required"},
+        404: {"model": ErrorResponse, "description": "Space not found"},
+    },
+)
+async def disable_mirror(space_slug: str, app: AppDep, auth_token: AuthTokenDep) -> Space:
+    """Disable the mirror channel."""
+    return await app.disable_mirror(auth_token, space_slug)
 
 
 @router.get(

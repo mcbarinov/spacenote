@@ -28,7 +28,8 @@ export type UpdateDefaultFilterRequest = components["schemas"]["UpdateDefaultFil
 export type UpdateHiddenFieldsOnCreateRequest = components["schemas"]["UpdateHiddenFieldsOnCreateRequest"]
 export type UpdateEditableFieldsOnCommentRequest = components["schemas"]["UpdateEditableFieldsOnCommentRequest"]
 export type UpdateCanTransferToRequest = components["schemas"]["UpdateCanTransferToRequest"]
-export type UpdateTelegramRequest = components["schemas"]["UpdateTelegramRequest"]
+export type SetActivityChannelRequest = components["schemas"]["SetActivityChannelRequest"]
+export type EnableMirrorRequest = components["schemas"]["EnableMirrorRequest"]
 export type SetTemplateRequest = components["schemas"]["SetTemplateRequest"]
 
 export type Note = components["schemas"]["Note"]

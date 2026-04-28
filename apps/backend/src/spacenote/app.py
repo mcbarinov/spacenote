@@ -19,7 +19,6 @@ from spacenote.core.modules.session.models import AuthToken
 from spacenote.core.modules.space.models import Member, Permission, Space
 from spacenote.core.modules.telegram.models import (
     TelegramMirror,
-    TelegramSettings,
     TelegramTask,
     TelegramTaskStatus,
     TelegramTaskType,
@@ -237,10 +236,20 @@ class App:
 
     # --- Telegram ---
 
-    async def update_space_telegram(self, auth_token: AuthToken, slug: str, telegram: TelegramSettings | None) -> Space:
-        """Update space telegram settings (space admin only)."""
+    async def set_activity_channel(self, auth_token: AuthToken, slug: str, channel: str | None) -> Space:
+        """Set or clear the activity channel (space admin only)."""
         await self._core.services.access.ensure_space_admin(auth_token, slug)
-        return await self._core.services.telegram.update_settings(slug, telegram)
+        return await self._core.services.telegram.set_activity_channel(slug, channel)
+
+    async def enable_mirror(self, auth_token: AuthToken, slug: str, channel: str) -> Space:
+        """Enable mirror on the given channel (space admin only). See B004."""
+        await self._core.services.access.ensure_space_admin(auth_token, slug)
+        return await self._core.services.telegram.enable_mirror(slug, channel)
+
+    async def disable_mirror(self, auth_token: AuthToken, slug: str) -> Space:
+        """Disable mirror and wipe DB-side mirror state (space admin only). See B004."""
+        await self._core.services.access.ensure_space_admin(auth_token, slug)
+        return await self._core.services.telegram.disable_mirror(slug)
 
     async def list_telegram_tasks(
         self,

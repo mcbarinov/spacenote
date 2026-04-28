@@ -820,7 +820,27 @@ export type paths = {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/spaces/{space_slug}/telegram": {
+    "/api/v1/spaces/{space_slug}/telegram/activity": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Set space activity channel
+         * @description Set or clear the Telegram activity channel for the space. Requires 'all' permission.
+         */
+        put: operations["setActivityChannel"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/spaces/{space_slug}/telegram/mirror": {
         parameters: {
             query?: never;
             header?: never;
@@ -829,15 +849,19 @@ export type paths = {
         };
         get?: never;
         put?: never;
-        post?: never;
-        delete?: never;
+        /**
+         * Enable space mirror channel
+         * @description Enable mirroring on the given channel. Idempotent for the same channel. Rejects with 400 if mirror is already enabled on a different channel — disable first. On first enable, schedules MIRROR_CREATE for every existing note (B003 FIFO order). See B004 in docs/behavior.md.
+         */
+        post: operations["enableMirror"];
+        /**
+         * Disable space mirror channel
+         * @description Disable mirroring. Wipes all mirror_* tasks and TelegramMirror records for the space. The Telegram channel itself is not modified. Idempotent. See B004 in docs/behavior.md.
+         */
+        delete: operations["disableMirror"];
         options?: never;
         head?: never;
-        /**
-         * Update space telegram settings
-         * @description Update telegram integration settings for the space. Requires 'all' permission in the space.
-         */
-        patch: operations["updateSpaceTelegram"];
+        patch?: never;
         trace?: never;
     };
     "/api/v1/telegram/tasks": {
@@ -1433,6 +1457,14 @@ export type components = {
             kind: "utc" | "local" | "date";
         };
         /**
+         * EnableMirrorRequest
+         * @description Enable mirror request. The channel where all current and future notes will be mirrored.
+         */
+        EnableMirrorRequest: {
+            /** Channel */
+            channel: string;
+        };
+        /**
          * ErrorLog
          * @description Error log file content and metadata.
          */
@@ -1994,6 +2026,14 @@ export type components = {
             } | null;
         };
         /**
+         * SetActivityChannelRequest
+         * @description Activity channel update request. `channel: null` clears it.
+         */
+        SetActivityChannelRequest: {
+            /** Channel */
+            channel?: string | null;
+        };
+        /**
          * SetAdminRequest
          * @description Set admin status request.
          */
@@ -2526,13 +2566,6 @@ export type components = {
             raw_fields: {
                 [key: string]: string;
             };
-        };
-        /**
-         * UpdateTelegramRequest
-         * @description Space telegram settings update request.
-         */
-        UpdateTelegramRequest: {
-            telegram?: components["schemas"]["TelegramSettings"] | null;
         };
         /**
          * UpdateTitleRequest
@@ -5651,7 +5684,7 @@ export interface operations {
             };
         };
     };
-    updateSpaceTelegram: {
+    setActivityChannel: {
         parameters: {
             query?: never;
             header?: never;
@@ -5662,11 +5695,11 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["UpdateTelegramRequest"];
+                "application/json": components["schemas"]["SetActivityChannelRequest"];
             };
         };
         responses: {
-            /** @description Space telegram settings updated successfully */
+            /** @description Activity channel updated */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -5682,6 +5715,135 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Space management permission required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Space not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    enableMirror: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                space_slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EnableMirrorRequest"];
+            };
+        };
+        responses: {
+            /** @description Mirror enabled (or already on the same channel) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Space"];
+                };
+            };
+            /** @description Mirror already enabled on a different channel */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Space management permission required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Space not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    disableMirror: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                space_slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Mirror disabled (or already disabled) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Space"];
                 };
             };
             /** @description Not authenticated */

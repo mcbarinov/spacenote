@@ -27,7 +27,7 @@ from spacenote.core.modules.telegram.models import (
 from spacenote.core.modules.telegram.utils import parse_photo_directive
 from spacenote.core.pagination import PaginationResult
 from spacenote.core.service import Service
-from spacenote.errors import NotFoundError
+from spacenote.errors import NotFoundError, ValidationError
 from spacenote.utils import now
 from telegram.error import RetryAfter, TelegramError
 
@@ -82,11 +82,94 @@ class TelegramService(Service):
             with contextlib.suppress(asyncio.CancelledError):
                 await self._worker_task
 
-    async def update_settings(self, slug: str, telegram: TelegramSettings | None) -> Space:
-        """Update space telegram settings."""
-        self.core.services.space.get_space(slug)
-        value = telegram.model_dump() if telegram else None
+    async def set_activity_channel(self, slug: str, channel: str | None) -> Space:
+        """Set or clear the activity channel. Independent from mirror; no validation beyond presence."""
+        space = self.core.services.space.get_space(slug)
+        new_settings = TelegramSettings(
+            activity_channel=channel,
+            mirror_channel=space.telegram.mirror_channel if space.telegram else None,
+        )
+        return await self._save_settings(slug, new_settings)
+
+    async def enable_mirror(self, slug: str, channel: str) -> Space:
+        """Enable mirror on a channel. Idempotent for same channel; rejects re-enable on different channel.
+
+        See B004 in docs/behavior.md for lifecycle rules.
+        """
+        if not channel:
+            raise ValidationError("mirror_channel must be a non-empty string")
+
+        space = self.core.services.space.get_space(slug)
+        current = space.telegram.mirror_channel if space.telegram else None
+
+        if current == channel:
+            return space  # idempotent: same channel already configured
+        if current is not None:
+            raise ValidationError("mirror_channel cannot be changed once set; disable mirror first")
+
+        new_settings = TelegramSettings(
+            activity_channel=space.telegram.activity_channel if space.telegram else None,
+            mirror_channel=channel,
+        )
+        updated = await self._save_settings(slug, new_settings)
+        await self._backfill_mirror(slug)
+        return updated
+
+    async def disable_mirror(self, slug: str) -> Space:
+        """Disable mirror: wipe mirror_* tasks and TelegramMirror records, then save settings.
+
+        Idempotent if mirror is already disabled. Telegram channel itself is not modified.
+        See B004 in docs/behavior.md.
+        """
+        space = self.core.services.space.get_space(slug)
+        current = space.telegram.mirror_channel if space.telegram else None
+        if current is None:
+            return space  # idempotent: already disabled
+
+        await self._wipe_mirror_state(slug)
+        new_settings = TelegramSettings(
+            activity_channel=space.telegram.activity_channel if space.telegram else None,
+            mirror_channel=None,
+        )
+        return await self._save_settings(slug, new_settings)
+
+    async def _save_settings(self, slug: str, telegram: TelegramSettings) -> Space:
+        """Persist a TelegramSettings value. Stores None when both fields are empty to keep documents tidy."""
+        if telegram.activity_channel is None and telegram.mirror_channel is None:
+            value: dict[str, Any] | None = None
+        else:
+            value = telegram.model_dump()
         return await self.core.services.space.update_space_document(slug, {"$set": {"telegram": value}})
+
+    async def _backfill_mirror(self, space_slug: str) -> None:
+        """Enqueue MIRROR_CREATE for every existing note in the space, in number ASC order.
+
+        Called by enable_mirror after the new mirror_channel is saved so that
+        _enqueue_mirror_task reads it from the resolved space cache.
+        """
+        notes = await self.core.services.note.list_all_notes(space_slug)
+        for note in notes:
+            await self.notify_mirror_create(note)
+        logger.info("telegram_mirror_backfill_enqueued", space_slug=space_slug, count=len(notes))
+
+    async def _wipe_mirror_state(self, space_slug: str) -> None:
+        """Delete all mirror_* tasks and TelegramMirror records for a space.
+
+        Called by disable_mirror. Activity tasks are not touched.
+        """
+        tasks_result = await self._tasks_collection.delete_many(
+            {
+                "space_slug": space_slug,
+                "task_type": {"$in": [t.value for t in MIRROR_TASK_TYPES]},
+            }
+        )
+        mirrors_result = await self._mirrors_collection.delete_many({"space_slug": space_slug})
+        logger.info(
+            "telegram_mirror_state_wiped",
+            space_slug=space_slug,
+            tasks_deleted=tasks_result.deleted_count,
+            mirrors_deleted=mirrors_result.deleted_count,
+        )
 
     async def get_telegram_task(self, space_slug: str, number: int) -> TelegramTask:
         """Get telegram task by natural key."""
@@ -287,7 +370,25 @@ class TelegramService(Service):
         return None
 
     async def _process_task(self, task: TelegramTask) -> None:
-        """Process single task: dispatch to activity or mirror handler."""
+        """Process single task: dispatch to activity or mirror handler.
+
+        Mirror tasks abort silently if the space's mirror_channel is no longer set or
+        points to a different channel — closes the in-flight race with disable/wipe
+        (the corresponding rows are already removed from _tasks_collection).
+        """
+        if task.task_type in MIRROR_TASK_TYPES:
+            space = self.core.services.space.get_space(task.space_slug)
+            current_channel = space.telegram.mirror_channel if space.telegram else None
+            if current_channel != task.channel_id:
+                logger.debug(
+                    "telegram_mirror_task_aborted_channel_mismatch",
+                    space_slug=task.space_slug,
+                    number=task.number,
+                    task_channel=task.channel_id,
+                    current_channel=current_channel,
+                )
+                return
+
         if task.task_type == TelegramTaskType.MIRROR_DELETE:
             await self._process_mirror_delete_task(task)
         elif task.task_type in (TelegramTaskType.MIRROR_CREATE, TelegramTaskType.MIRROR_UPDATE):

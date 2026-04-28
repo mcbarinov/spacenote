@@ -86,3 +86,38 @@ If `?view` is NOT specified (first match wins):
 **Per-space blocking**: If any mirror task of a space is `failed`, all pending mirror tasks of that space are frozen until the operator clears or repairs the failure. Activity tasks (`activity_*`) are not affected.
 
 **Worker fetch**: Skip pending mirror tasks whose `space_slug` is in the set of spaces with at least one failed mirror task. Sort by `(created_at, number)` — `number` is the per-space tie-breaker for tasks enqueued in the same millisecond.
+
+---
+
+## B004: Telegram Mirror Channel Lifecycle
+
+**Invariant**: While `TelegramSettings.mirror_channel` is set, the channel mirrors **all** notes of the space starting from note #1. Partial or split-channel mirrors are not legal states. Activity and mirror are configured via independent endpoints.
+
+**API surface**:
+
+| Method | Path | Purpose |
+|---|---|---|
+| `PUT` | `/api/v1/spaces/{slug}/telegram/activity` | Set or clear `activity_channel`. Free-form, no preconditions |
+| `POST` | `/api/v1/spaces/{slug}/telegram/mirror` | Enable mirror on the given channel |
+| `DELETE` | `/api/v1/spaces/{slug}/telegram/mirror` | Disable mirror and wipe DB-side mirror state |
+
+**Mirror enable** (`POST /telegram/mirror`, body `{ channel: string }`) — handled by `TelegramService.enable_mirror`:
+
+| Current state | Behavior |
+|---|---|
+| `mirror_channel == channel` | No-op (idempotent) |
+| `mirror_channel is None` | Save settings, then enqueue `MIRROR_CREATE` for every note in `number` ASC order (backfill happens even on empty spaces — just enqueues nothing) |
+| `mirror_channel != channel` (different non-None) | `ValidationError`; client must disable first |
+
+**Mirror disable** (`DELETE /telegram/mirror`) — handled by `TelegramService.disable_mirror`:
+
+| Current state | Behavior |
+|---|---|
+| `mirror_channel is None` | No-op (idempotent) |
+| `mirror_channel is set` | Wipe `TelegramTask` rows where `task_type ∈ mirror_*` for the space + delete all `TelegramMirror` rows for the space, then save settings with `mirror_channel = null`. The Telegram channel itself is not modified — orphaned posts remain there |
+
+**Activity channel is independent**: `set_activity_channel` only touches `activity_channel`. Activity tasks (`activity_*`) are never wiped by mirror lifecycle changes.
+
+**In-flight worker race**: A `mirror_*` task may be picked up by the worker after disable started a wipe. Before processing any `mirror_*` task, the worker compares `task.channel_id` against the current `space.telegram.mirror_channel` — if it does not match (including the case where mirror is now disabled), the task is aborted without an API call.
+
+**Re-enable**: After disable, the space has no DB record of past mirroring. If mirror is later enabled again (even on the same channel), backfill creates fresh posts; previously orphaned posts in the channel are not touched and not tracked.

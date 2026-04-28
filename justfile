@@ -137,6 +137,35 @@ push-dump host:
     ./scripts/push-dump.sh "{{host}}"
 
 
+# === Database access ===
+
+# Open an SSH tunnel to a SpaceNote production MongoDB.
+# Reads MongoDB credentials from /opt/spacenote/.env on the remote (requires passwordless sudo or root login).
+# Maps remote 127.0.0.1:27017 -> local 127.0.0.1:27018 (27018 to avoid clashing with the local dev MongoDB).
+# Keep the terminal open while you work; Ctrl-C closes the tunnel.
+#
+# Usage: just db-tunnel root@notes.example.com
+[group("db")]
+db-tunnel host:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    creds=$(ssh "{{host}}" "sudo grep -E '^MONGODB_ROOT_(USERNAME|PASSWORD)=' /opt/spacenote/.env")
+    user=$(echo "$creds" | grep '^MONGODB_ROOT_USERNAME=' | cut -d= -f2-)
+    pass=$(echo "$creds" | grep '^MONGODB_ROOT_PASSWORD=' | cut -d= -f2-)
+    [[ -n "$user" && -n "$pass" ]] || { echo "Error: cannot read MongoDB credentials from {{host}}:/opt/spacenote/.env"; exit 1; }
+    uri="mongodb://${user}:${pass}@localhost:27018/spacenote?authSource=admin"
+    echo
+    echo "MongoDB tunnel: localhost:27018 -> {{host}}:27017"
+    echo "  $ ssh -N -L 27018:127.0.0.1:27017 {{host}}"
+    echo
+    echo "Connection URI (use in mongosh / Compass / any MongoDB driver):"
+    echo "  $uri"
+    echo
+    echo "Press Ctrl-C to close the tunnel."
+    echo
+    ssh -N -L 27018:127.0.0.1:27017 "{{host}}"
+
+
 # === Docker Commands ===
 
 # Build all images locally (native arch)

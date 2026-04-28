@@ -41,11 +41,11 @@ createRoot(rootElement, {
   },
 }).render(
   <StrictMode>
-    <MantineProvider defaultColorScheme="light">
-      <DatesProvider settings={{ firstDayOfWeek: 1 }}>
-        <ModalsProvider>
-          <Notifications />
-          <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClient}>
+      <MantineProvider defaultColorScheme="light">
+        <DatesProvider settings={{ firstDayOfWeek: 1 }}>
+          <ModalsProvider>
+            <Notifications />
             <RouterProvider router={router} />
             <TanStackDevtools
               plugins={[
@@ -53,9 +53,9 @@ createRoot(rootElement, {
                 { name: "TanStack Router", render: <TanStackRouterDevtoolsPanel router={router} />, defaultOpen: false },
               ]}
             />
-          </QueryClientProvider>
-        </ModalsProvider>
-      </DatesProvider>
-    </MantineProvider>
+          </ModalsProvider>
+        </DatesProvider>
+      </MantineProvider>
+    </QueryClientProvider>
   </StrictMode>
 )

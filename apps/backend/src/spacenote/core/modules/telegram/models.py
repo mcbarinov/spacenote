@@ -58,9 +58,23 @@ class TelegramTask(MongoModel):
     attempted_at: datetime | None = Field(default=None, description="Last API call time")
 
     retries: int = Field(default=0, description="Number of retry attempts")
-    error: str | None = Field(default=None, description="Last error message")
+    error: str | None = Field(default=None, description="Last error message (str(exception))")
+    error_class: str | None = Field(default=None, description="Exception class name (BadRequest, Forbidden, NetworkError, ...)")
     request_log: dict[str, Any] | None = Field(default=None, description="Parameters sent to Telegram API")
     response_log: dict[str, Any] | None = Field(default=None, description="Response from Telegram API")
+
+
+class TelegramTestResult(OpenAPIModel):
+    """Result of a bot → channel connectivity probe. Always returned with HTTP 200; check `success`."""
+
+    success: bool = Field(..., description="True if get_chat and send_message both succeeded")
+    chat_id: str = Field(..., description="Echo of the input channel id / username")
+    bot_username: str | None = Field(default=None, description="Bot's @username (from get_me); null only if get_me failed")
+    chat_title: str | None = Field(default=None, description="Channel title from get_chat; null on failure")
+    message_id: int | None = Field(default=None, description="Message id of the test message; null on failure")
+    method: str | None = Field(default=None, description="Telegram API method that failed: 'getChat' | 'sendMessage'")
+    error_class: str | None = Field(default=None, description="Exception class name (BadRequest, Forbidden, ...) on failure")
+    error: str | None = Field(default=None, description="Error description from Telegram on failure")
 
 
 class TelegramMirror(MongoModel):

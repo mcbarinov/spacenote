@@ -1,7 +1,17 @@
 from pathlib import Path
 
 import telegram
-from telegram import InputMediaPhoto, Message
+from telegram import ChatFullInfo, InputMediaPhoto, Message, User
+
+
+async def get_me(bot: telegram.Bot) -> User:
+    """Return the authenticated bot account."""
+    return await bot.get_me()
+
+
+async def get_chat(bot: telegram.Bot, chat_id: str) -> ChatFullInfo:
+    """Resolve a chat by id/username. Raises TelegramError if the bot cannot see it."""
+    return await bot.get_chat(chat_id=chat_id)
 
 
 async def send_message(bot: telegram.Bot, chat_id: str, text: str) -> Message:

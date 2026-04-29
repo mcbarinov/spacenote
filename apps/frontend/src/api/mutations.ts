@@ -27,6 +27,8 @@ import type {
   UpdateHiddenFieldsOnCreateRequest,
   EnableMirrorRequest,
   SetActivityChannelRequest,
+  TelegramTestResult,
+  TestChannelRequest,
   UpdateMembersRequest,
   UpdateNoteRequest,
   UpdateTitleRequest,
@@ -294,6 +296,15 @@ export function useDisableMirror(slug: string) {
       await queryClient.invalidateQueries({ queryKey: ["spaces"] })
       await queryClient.invalidateQueries({ queryKey: ["telegram"] })
     },
+  })
+}
+
+/** Probes bot → channel connectivity by sending a test message that the channel admin will delete manually.
+ *  No DB writes, no cache invalidation — pure pre-flight check. */
+export function useTestTelegramChannel(slug: string) {
+  return useMutation({
+    mutationFn: (data: TestChannelRequest) =>
+      httpClient.post(`api/v1/spaces/${slug}/telegram/test-channel`, { json: data }).json<TelegramTestResult>(),
   })
 }
 

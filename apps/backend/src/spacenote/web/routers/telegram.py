@@ -9,6 +9,7 @@ from spacenote.core.modules.telegram.models import (
     TelegramTask,
     TelegramTaskStatus,
     TelegramTaskType,
+    TelegramTestResult,
 )
 from spacenote.core.pagination import PaginationResult
 from spacenote.web.deps import AppDep, AuthTokenDep
@@ -25,6 +26,13 @@ class SetActivityChannelRequest(BaseModel):
 
 class EnableMirrorRequest(BaseModel):
     """Enable mirror request. The channel where all current and future notes will be mirrored."""
+
+    channel: str
+
+
+class TestChannelRequest(BaseModel):
+    """Connectivity test request. Channel is supplied explicitly (not read from settings) so it
+    can be probed before being saved as activity/mirror channel."""
 
     channel: str
 
@@ -87,6 +95,31 @@ async def enable_mirror(space_slug: str, body: EnableMirrorRequest, app: AppDep,
 async def disable_mirror(space_slug: str, app: AppDep, auth_token: AuthTokenDep) -> Space:
     """Disable the mirror channel."""
     return await app.disable_mirror(auth_token, space_slug)
+
+
+@router.post(
+    "/spaces/{space_slug}/telegram/test-channel",
+    summary="Probe bot connectivity to a channel",
+    description=(
+        "Sends a real test message from the configured bot to the given channel and returns a structured "
+        "result. Used as a pre-flight check before enabling activity/mirror. Always returns 200 on auth/"
+        "permission success — check `success` field. The test message is NOT auto-deleted; the channel admin "
+        "deletes it manually in Telegram. Requires 'all' permission."
+    ),
+    operation_id="testTelegramChannel",
+    responses={
+        200: {"description": "Connectivity probe result (success or structured failure)"},
+        400: {"model": ErrorResponse, "description": "Invalid request"},
+        401: {"model": ErrorResponse, "description": "Not authenticated"},
+        403: {"model": ErrorResponse, "description": "Space management permission required"},
+        404: {"model": ErrorResponse, "description": "Space not found"},
+    },
+)
+async def test_telegram_channel(
+    space_slug: str, body: TestChannelRequest, app: AppDep, auth_token: AuthTokenDep
+) -> TelegramTestResult:
+    """Probe bot → channel connectivity by sending a test message."""
+    return await app.test_telegram_channel(auth_token, space_slug, body.channel)
 
 
 @router.get(

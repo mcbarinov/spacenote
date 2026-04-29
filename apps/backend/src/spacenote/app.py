@@ -22,6 +22,7 @@ from spacenote.core.modules.telegram.models import (
     TelegramTask,
     TelegramTaskStatus,
     TelegramTaskType,
+    TelegramTestResult,
 )
 from spacenote.core.modules.user.models import UserView
 from spacenote.core.pagination import PaginationResult
@@ -250,6 +251,11 @@ class App:
         """Disable mirror and wipe DB-side mirror state (space admin only). See B004."""
         await self._core.services.access.ensure_space_admin(auth_token, slug)
         return await self._core.services.telegram.disable_mirror(slug)
+
+    async def test_telegram_channel(self, auth_token: AuthToken, slug: str, channel: str) -> TelegramTestResult:
+        """Probe bot connectivity to a channel (space admin only). Sends a real test message."""
+        await self._core.services.access.ensure_space_admin(auth_token, slug)
+        return await self._core.services.telegram.test_channel(slug, channel)
 
     async def list_telegram_tasks(
         self,

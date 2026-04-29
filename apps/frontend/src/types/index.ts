@@ -30,6 +30,8 @@ export type UpdateEditableFieldsOnCommentRequest = components["schemas"]["Update
 export type UpdateCanTransferToRequest = components["schemas"]["UpdateCanTransferToRequest"]
 export type SetActivityChannelRequest = components["schemas"]["SetActivityChannelRequest"]
 export type EnableMirrorRequest = components["schemas"]["EnableMirrorRequest"]
+export type TestChannelRequest = components["schemas"]["TestChannelRequest"]
+export type TelegramTestResult = components["schemas"]["TelegramTestResult"]
 export type SetTemplateRequest = components["schemas"]["SetTemplateRequest"]
 
 export type Note = components["schemas"]["Note"]

@@ -7,7 +7,7 @@ import { useState } from "react"
 import { z } from "zod"
 import { api } from "@/api"
 import { ErrorMessage } from "@/components/ErrorMessage"
-import type { Space } from "@/types"
+import type { Space, TelegramTestResult } from "@/types"
 
 interface EditTelegramProps {
   space: Space
@@ -25,6 +25,93 @@ export function EditTelegram({ space }: EditTelegramProps) {
       <ActivityChannel space={space} />
       <MirrorChannel space={space} />
     </Stack>
+  )
+}
+
+/** Opens a modal with the connectivity test result. Success: shows bot username, chat title, and test message id
+ *  with a reminder to delete it manually. Failure: surfaces the failed API method, exception class, and Telegram
+ *  description, plus targeted hints for the most common causes. */
+function openTestResultModal(result: TelegramTestResult): void {
+  if (result.success) {
+    modals.open({
+      title: <Text fw={600}>Telegram connectivity OK</Text>,
+      children: (
+        <Stack gap="sm">
+          <Text size="sm">
+            Bot <Code>@{result.bot_username}</Code> posted to <Code>{result.chat_title ?? result.chat_id}</Code>.
+          </Text>
+          <Text size="sm">
+            Test message id: <Code>{result.message_id}</Code>
+          </Text>
+          <Alert color="yellow" variant="light">
+            The test message was NOT auto-deleted. Open the channel in Telegram and delete it manually.
+          </Alert>
+        </Stack>
+      ),
+    })
+    return
+  }
+  modals.open({
+    title: (
+      <Text fw={600} c="red">
+        Telegram connectivity failed
+      </Text>
+    ),
+    children: (
+      <Stack gap="sm">
+        <Text size="sm">
+          API call <Code>{result.method}</Code> failed: <Code>{result.error_class}</Code>
+        </Text>
+        <Code block>{result.error}</Code>
+        <Text size="sm" c="dimmed">
+          Bot tested: <Code>@{result.bot_username ?? "unknown"}</Code> / chat: <Code>{result.chat_id}</Code>
+        </Text>
+        <Alert color="orange" variant="light" title="Common causes">
+          <List size="sm" spacing={2}>
+            <List.Item>
+              Bot <Code>@{result.bot_username ?? "?"}</Code> is not an admin of the channel — add it with Post Messages
+              permission.
+            </List.Item>
+            <List.Item>
+              Channel id is wrong — for private channels it must start with <Code>-100</Code>.
+            </List.Item>
+            <List.Item>SPACENOTE_TELEGRAM_BOT_TOKEN points to a different bot than the one added to the channel.</List.Item>
+          </List>
+        </Alert>
+      </Stack>
+    ),
+  })
+}
+
+interface TestChannelButtonProps {
+  slug: string
+  channel: string
+}
+
+/** Test button — disabled when channel is empty. On click, calls the probe and opens the result modal. */
+function TestChannelButton({ slug, channel }: TestChannelButtonProps) {
+  const mutation = api.mutations.useTestTelegramChannel(slug)
+  const handleClick = () => {
+    mutation.mutate(
+      { channel },
+      {
+        onSuccess: (result) => {
+          openTestResultModal(result)
+        },
+        onError: (error) => {
+          notifications.show({
+            color: "red",
+            title: "Test failed",
+            message: error instanceof Error ? error.message : "Unknown error",
+          })
+        },
+      }
+    )
+  }
+  return (
+    <Button variant="default" onClick={handleClick} loading={mutation.isPending} disabled={!channel}>
+      Test
+    </Button>
   )
 }
 
@@ -59,6 +146,7 @@ function ActivityChannel({ space }: EditTelegramProps) {
           />
           {mutation.error && <ErrorMessage error={mutation.error} />}
           <Group justify="flex-end">
+            <TestChannelButton slug={space.slug} channel={form.values.channel} />
             <Button type="submit" loading={mutation.isPending}>
               Save
             </Button>
@@ -138,6 +226,7 @@ function MirrorDisabled({ space }: EditTelegramProps) {
         />
         {mutation.error && <ErrorMessage error={mutation.error} />}
         <Group justify="flex-end">
+          <TestChannelButton slug={space.slug} channel={form.values.channel} />
           <Button type="submit" loading={mutation.isPending}>
             Enable Mirror
           </Button>
@@ -178,6 +267,7 @@ function MirrorEnabled({ space }: EditTelegramProps) {
         from the database — Telegram posts in the channel itself are not deleted.
       </Text>
       <Group justify="flex-end">
+        <TestChannelButton slug={space.slug} channel={channel} />
         <Button color="red" onClick={openDisableConfirm}>
           Disable Mirror
         </Button>

@@ -1,5 +1,6 @@
 import asyncio
 import contextlib
+import html
 from functools import cached_property
 from pathlib import Path
 from typing import Any
@@ -23,6 +24,7 @@ from spacenote.core.modules.telegram.models import (
     TelegramTask,
     TelegramTaskStatus,
     TelegramTaskType,
+    TelegramTestResult,
 )
 from spacenote.core.modules.telegram.utils import parse_photo_directive
 from spacenote.core.pagination import PaginationResult
@@ -39,6 +41,20 @@ MIRROR_TASK_TYPES: tuple[TelegramTaskType, ...] = (
     TelegramTaskType.MIRROR_UPDATE,
     TelegramTaskType.MIRROR_DELETE,
 )
+
+
+class _TelegramSendError(Exception):
+    """Internal: a TelegramError raised by an API call where we already built request_log.
+
+    Carries `request_log` so the worker error handler can persist it on the failed task without
+    rebuilding it (the helpers know which API method was attempted). RetryAfter is never wrapped —
+    it propagates as-is for outer rate-limit handling.
+    """
+
+    def __init__(self, original: TelegramError, request_log: dict[str, Any]) -> None:
+        super().__init__(str(original))
+        self.original = original  # underlying python-telegram-bot exception
+        self.request_log = request_log  # parameters of the failed API call
 
 
 class TelegramService(Service):
@@ -114,6 +130,54 @@ class TelegramService(Service):
         updated = await self._save_settings(slug, new_settings)
         await self._backfill_mirror(slug)
         return updated
+
+    async def test_channel(self, slug: str, channel: str) -> TelegramTestResult:
+        """Probe whether the configured bot can reach `channel`.
+
+        Calls get_me + get_chat + send_message. Does NOT write to the DB. The test message
+        stays in Telegram — the operator deletes it manually after seeing the result. Used
+        as a pre-flight check from space settings UI before enabling activity/mirror.
+        """
+        if not channel:
+            raise ValidationError("channel must be a non-empty string")
+        space = self.core.services.space.get_space(slug)  # validates space exists
+
+        bot_user = await telegram_bot.get_me(self.bot)
+        bot_username = bot_user.username
+
+        try:
+            chat = await telegram_bot.get_chat(self.bot, channel)
+        except TelegramError as e:
+            return TelegramTestResult(
+                success=False,
+                chat_id=channel,
+                bot_username=bot_username,
+                method="getChat",
+                error_class=type(e).__name__,
+                error=str(e),
+            )
+
+        text = f"\U0001f916 SpaceNote connectivity test from <b>{html.escape(space.title)}</b>. You can delete this message."
+        try:
+            message = await telegram_bot.send_message(self.bot, channel, text)
+        except TelegramError as e:
+            return TelegramTestResult(
+                success=False,
+                chat_id=channel,
+                bot_username=bot_username,
+                chat_title=chat.title,
+                method="sendMessage",
+                error_class=type(e).__name__,
+                error=str(e),
+            )
+
+        return TelegramTestResult(
+            success=True,
+            chat_id=channel,
+            bot_username=bot_username,
+            chat_title=chat.title,
+            message_id=message.message_id,
+        )
 
     async def disable_mirror(self, slug: str) -> Space:
         """Disable mirror: wipe mirror_* tasks and TelegramMirror records, then save settings.
@@ -345,7 +409,7 @@ class TelegramService(Service):
             except Exception as e:
                 logger.exception("telegram_worker_unhandled_error", task_id=task.id, error=str(e))
                 with contextlib.suppress(Exception):
-                    await self._mark_failed(task, f"Worker error: {e}")
+                    await self._mark_failed(task, f"Worker error: {e}", error_class=type(e).__name__)
 
             await asyncio.sleep(1)  # Rate limit: max 1 msg/sec to avoid Telegram limits
 
@@ -418,10 +482,10 @@ class TelegramService(Service):
             logger.warning("telegram_rate_limit", retry_after=retry_seconds)
             await asyncio.sleep(retry_seconds)
         except TelegramError as e:
-            await self._handle_error(task, e)
+            await self._handle_error(task, e, request_log)
         except Exception as e:
             logger.exception("telegram_task_unhandled_error", task_type=task.task_type, error=str(e))
-            await self._mark_failed(task, f"Unhandled error: {e}")
+            await self._mark_failed(task, f"Unhandled error: {e}", request_log=request_log, error_class=type(e).__name__)
 
     async def _process_mirror_task(self, task: TelegramTask) -> None:
         """Process mirror task: create or update Telegram message and track in mirrors collection."""
@@ -439,13 +503,13 @@ class TelegramService(Service):
             note = task.payload["note"]
             attachment_number = note.get("fields", {}).get(photo_field)
             if attachment_number is None:
-                await self._mark_failed(task, f"Photo field '{photo_field}' is empty")
+                await self._mark_failed(task, f"Photo field '{photo_field}' is empty", error_class="MissingPhotoField")
                 return
             photo_path = image_storage.get_image_path(
                 self.core.config.images_path, note["space_slug"], note["number"], attachment_number
             )
             if not photo_path.exists():
-                await self._mark_failed(task, f"Image not found for field '{photo_field}'")
+                await self._mark_failed(task, f"Image not found for field '{photo_field}'", error_class="MissingImageFile")
                 return
         else:
             message_format = MessageFormat.TEXT
@@ -463,16 +527,20 @@ class TelegramService(Service):
             retry_seconds = e.retry_after if isinstance(e.retry_after, int) else e.retry_after.total_seconds()
             logger.warning("telegram_rate_limit", retry_after=retry_seconds)
             await asyncio.sleep(retry_seconds)
-        except TelegramError as e:
-            await self._handle_error(task, e)
+        except _TelegramSendError as wrapper:
+            await self._handle_error(task, wrapper.original, wrapper.request_log)
         except Exception as e:
             logger.exception("telegram_task_unhandled_error", task_type=task.task_type, error=str(e))
-            await self._mark_failed(task, f"Unhandled error: {e}")
+            await self._mark_failed(task, f"Unhandled error: {e}", error_class=type(e).__name__)
 
     async def _mirror_create(
         self, task: TelegramTask, text: str, message_format: MessageFormat, photo_path: Path | None
     ) -> tuple[dict[str, Any], dict[str, Any]]:
-        """Send new mirror message and create mirror record. Returns (request_log, response_log)."""
+        """Send new mirror message and create mirror record. Returns (request_log, response_log).
+
+        Wraps non-RetryAfter TelegramError into _TelegramSendError so the worker error handler
+        can persist `request_log` on the failed task.
+        """
         if message_format == MessageFormat.PHOTO and photo_path:
             request_log: dict[str, Any] = {
                 "method": "sendPhoto",
@@ -481,10 +549,20 @@ class TelegramService(Service):
                 "photo_path": str(photo_path),
                 "parse_mode": "HTML",
             }
-            message = await telegram_bot.send_photo(self.bot, task.channel_id, photo_path, text)
+            try:
+                message = await telegram_bot.send_photo(self.bot, task.channel_id, photo_path, text)
+            except RetryAfter:
+                raise
+            except TelegramError as e:
+                raise _TelegramSendError(e, request_log) from e
         else:
             request_log = {"method": "sendMessage", "chat_id": task.channel_id, "text": text, "parse_mode": "HTML"}
-            message = await telegram_bot.send_message(self.bot, task.channel_id, text)
+            try:
+                message = await telegram_bot.send_message(self.bot, task.channel_id, text)
+            except RetryAfter:
+                raise
+            except TelegramError as e:
+                raise _TelegramSendError(e, request_log) from e
 
         response_log = message.to_dict()
 
@@ -508,37 +586,41 @@ class TelegramService(Service):
         doc = await self._mirrors_collection.find_one({"space_slug": task.space_slug, "note_number": task.note_number})
         if doc:
             mirror = TelegramMirror.model_validate(doc)
+            if mirror.message_format == MessageFormat.PHOTO and photo_path:
+                request_log: dict[str, Any] = {
+                    "method": "editMessageMedia",
+                    "chat_id": task.channel_id,
+                    "message_id": mirror.message_id,
+                    "caption": text,
+                    "photo_path": str(photo_path),
+                }
+                edit_call = telegram_bot.edit_photo(self.bot, task.channel_id, mirror.message_id, photo_path, text)
+            else:
+                request_log = {
+                    "method": "editMessageText",
+                    "chat_id": task.channel_id,
+                    "message_id": mirror.message_id,
+                    "text": text,
+                    "parse_mode": "HTML",
+                }
+                edit_call = telegram_bot.edit_message(self.bot, task.channel_id, mirror.message_id, text)
             try:
-                if mirror.message_format == MessageFormat.PHOTO and photo_path:
-                    request_log: dict[str, Any] = {
-                        "method": "editMessageMedia",
-                        "chat_id": task.channel_id,
-                        "message_id": mirror.message_id,
-                        "caption": text,
-                        "photo_path": str(photo_path),
-                    }
-                    result = await telegram_bot.edit_photo(self.bot, task.channel_id, mirror.message_id, photo_path, text)
-                else:
-                    request_log = {
-                        "method": "editMessageText",
-                        "chat_id": task.channel_id,
-                        "message_id": mirror.message_id,
-                        "text": text,
-                        "parse_mode": "HTML",
-                    }
-                    result = await telegram_bot.edit_message(self.bot, task.channel_id, mirror.message_id, text)
-                response_log: dict[str, Any] = result.to_dict() if isinstance(result, telegram.Message) else {"unchanged": True}
-                await self._mirrors_collection.update_one(
-                    {"space_slug": task.space_slug, "note_number": task.note_number},
-                    {"$set": {"updated_at": now()}},
-                )
-                logger.debug("telegram_mirror_updated", space_slug=task.space_slug, note_number=task.note_number)
+                result = await edit_call
+            except RetryAfter:
+                raise
             except TelegramError as e:
                 if "message to edit not found" in str(e).lower() or "message can't be edited" in str(e).lower():
+                    # Mirror message was deleted in Telegram; recreate from scratch.
                     logger.warning("telegram_mirror_message_gone", space_slug=task.space_slug, note_number=task.note_number)
                     await self._mirrors_collection.delete_one({"space_slug": task.space_slug, "note_number": task.note_number})
                     return await self._mirror_create(task, text, mirror.message_format, photo_path)
-                raise
+                raise _TelegramSendError(e, request_log) from e
+            response_log: dict[str, Any] = result.to_dict() if isinstance(result, telegram.Message) else {"unchanged": True}
+            await self._mirrors_collection.update_one(
+                {"space_slug": task.space_slug, "note_number": task.note_number},
+                {"$set": {"updated_at": now()}},
+            )
+            logger.debug("telegram_mirror_updated", space_slug=task.space_slug, note_number=task.note_number)
             return request_log, response_log
         # No existing mirror, determine format from current template
         message_format = MessageFormat.PHOTO if photo_path else MessageFormat.TEXT
@@ -562,23 +644,46 @@ class TelegramService(Service):
                 await self._update_task(task, {"$set": {"status": "completed", "request_log": request_log}})
                 logger.debug("telegram_mirror_already_deleted", space_slug=task.space_slug, note_number=task.note_number)
             else:
-                await self._handle_error(task, e)
+                await self._handle_error(task, e, request_log)
         except Exception as e:
             logger.exception("telegram_task_unhandled_error", task_type=task.task_type, error=str(e))
-            await self._mark_failed(task, f"Unhandled error: {e}")
+            await self._mark_failed(task, f"Unhandled error: {e}", request_log=request_log, error_class=type(e).__name__)
 
-    async def _handle_error(self, task: TelegramTask, error: Exception) -> None:
-        """Handle task error with retry logic."""
+    async def _handle_error(self, task: TelegramTask, error: Exception, request_log: dict[str, Any] | None = None) -> None:
+        """Handle task error with retry logic.
+
+        Persists structured diagnostics: error message, exception class name, and the request_log
+        of the failed API call (when known) so the operator can see what was actually sent.
+        """
+        error_class = type(error).__name__
         if task.retries >= 3:
-            await self._mark_failed(task, str(error))
-            logger.error("telegram_task_failed", task_type=task.task_type, error=str(error))
+            await self._mark_failed(task, str(error), request_log=request_log, error_class=error_class)
+            logger.error("telegram_task_failed", task_type=task.task_type, error=str(error), error_class=error_class)
         else:
-            await self._update_task(task, {"$set": {"status": "pending", "error": str(error)}, "$inc": {"retries": 1}})
-            logger.warning("telegram_task_retry", task_type=task.task_type, retries=task.retries + 1, error=str(error))
+            update_set: dict[str, Any] = {"status": "pending", "error": str(error), "error_class": error_class}
+            if request_log is not None:
+                update_set["request_log"] = request_log
+            await self._update_task(task, {"$set": update_set, "$inc": {"retries": 1}})
+            logger.warning(
+                "telegram_task_retry",
+                task_type=task.task_type,
+                retries=task.retries + 1,
+                error=str(error),
+                error_class=error_class,
+            )
 
-    async def _mark_failed(self, task: TelegramTask, error: str) -> None:
-        """Mark task as failed."""
-        await self._update_task(task, {"$set": {"status": "failed", "error": error}})
+    async def _mark_failed(
+        self,
+        task: TelegramTask,
+        error: str,
+        request_log: dict[str, Any] | None = None,
+        error_class: str | None = None,
+    ) -> None:
+        """Mark task as failed with full diagnostics."""
+        update_set: dict[str, Any] = {"status": "failed", "error": error, "error_class": error_class}
+        if request_log is not None:
+            update_set["request_log"] = request_log
+        await self._update_task(task, {"$set": update_set})
 
     async def _update_task(self, task: TelegramTask, update: dict[str, Any]) -> None:
         """Update task by natural key."""

@@ -864,6 +864,26 @@ export type paths = {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/spaces/{space_slug}/telegram/test-channel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Probe bot connectivity to a channel
+         * @description Sends a real test message from the configured bot to the given channel and returns a structured result. Used as a pre-flight check before enabling activity/mirror. Always returns 200 on auth/permission success — check `success` field. The test message is NOT auto-deleted; the channel admin deletes it manually in Telegram. Requires 'all' permission.
+         */
+        post: operations["testTelegramChannel"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/telegram/tasks": {
         parameters: {
             query?: never;
@@ -2395,9 +2415,14 @@ export type components = {
             retries: number;
             /**
              * Error
-             * @description Last error message
+             * @description Last error message (str(exception))
              */
             error: string | null;
+            /**
+             * Error Class
+             * @description Exception class name (BadRequest, Forbidden, NetworkError, ...)
+             */
+            error_class: string | null;
             /**
              * Request Log
              * @description Parameters sent to Telegram API
@@ -2427,6 +2452,61 @@ export type components = {
          * @enum {string}
          */
         TelegramTaskType: "activity_note_created" | "activity_note_updated" | "activity_comment_created" | "mirror_create" | "mirror_update" | "mirror_delete";
+        /**
+         * TelegramTestResult
+         * @description Result of a bot → channel connectivity probe. Always returned with HTTP 200; check `success`.
+         */
+        TelegramTestResult: {
+            /**
+             * Success
+             * @description True if get_chat and send_message both succeeded
+             */
+            success: boolean;
+            /**
+             * Chat Id
+             * @description Echo of the input channel id / username
+             */
+            chat_id: string;
+            /**
+             * Bot Username
+             * @description Bot's @username (from get_me); null only if get_me failed
+             */
+            bot_username: string | null;
+            /**
+             * Chat Title
+             * @description Channel title from get_chat; null on failure
+             */
+            chat_title: string | null;
+            /**
+             * Message Id
+             * @description Message id of the test message; null on failure
+             */
+            message_id: number | null;
+            /**
+             * Method
+             * @description Telegram API method that failed: 'getChat' | 'sendMessage'
+             */
+            method: string | null;
+            /**
+             * Error Class
+             * @description Exception class name (BadRequest, Forbidden, ...) on failure
+             */
+            error_class: string | null;
+            /**
+             * Error
+             * @description Error description from Telegram on failure
+             */
+            error: string | null;
+        };
+        /**
+         * TestChannelRequest
+         * @description Connectivity test request. Channel is supplied explicitly (not read from settings) so it
+         *     can be probed before being saved as activity/mirror channel.
+         */
+        TestChannelRequest: {
+            /** Channel */
+            channel: string;
+        };
         /**
          * TransferNoteRequest
          * @description Request to transfer a note to another space.
@@ -5844,6 +5924,77 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Space"];
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Space management permission required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Space not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    testTelegramChannel: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                space_slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TestChannelRequest"];
+            };
+        };
+        responses: {
+            /** @description Connectivity probe result (success or structured failure) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TelegramTestResult"];
+                };
+            };
+            /** @description Invalid request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
             /** @description Not authenticated */

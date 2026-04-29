@@ -5,9 +5,9 @@ description = "Spacenote backend service"
 requires-python = ">=3.14"
 dependencies = [
     "bcrypt~=5.0.0",
-    "fastapi[standard]~=0.135.2",
-    "pymongo~=4.16.0",
-    "pydantic-settings~=2.13.1",
+    "fastapi[standard]~=0.136.1",
+    "pymongo~=4.17.0",
+    "pydantic-settings~=2.14.0",
     "python-dotenv~=1.2.2",
     "python-liquid~=2.1.0",
     "structlog~=25.5.0",
@@ -22,9 +22,9 @@ build-backend = "hatchling.build"
 
 [dependency-groups]
 dev = [
-    "ruff~=0.15.8",
-    "mypy~=1.20.0",
-    "pytest~=9.0.2",
+    "ruff~=0.15.12",
+    "mypy~=1.20.2",
+    "pytest~=9.0.3",
     "pytest-xdist~=3.8.0",
     "bandit~=1.9.4",
 ]

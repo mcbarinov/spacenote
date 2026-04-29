@@ -27,6 +27,7 @@ import type {
   UpdateHiddenFieldsOnCreateRequest,
   EnableMirrorRequest,
   SetActivityChannelRequest,
+  TelegramTask,
   TelegramTestResult,
   TestChannelRequest,
   UpdateMembersRequest,
@@ -305,6 +306,18 @@ export function useTestTelegramChannel(slug: string) {
   return useMutation({
     mutationFn: (data: TestChannelRequest) =>
       httpClient.post(`api/v1/spaces/${slug}/telegram/test-channel`, { json: data }).json<TelegramTestResult>(),
+  })
+}
+
+/** Resets a failed telegram task back to pending so the worker retries it. Admin only. */
+export function useResetTelegramTask() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ space_slug, number }: { space_slug: string; number: number }) =>
+      httpClient.post(`api/v1/spaces/${space_slug}/telegram/tasks/${number}/reset`).json<TelegramTask>(),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["telegram", "tasks"] })
+    },
   })
 }
 

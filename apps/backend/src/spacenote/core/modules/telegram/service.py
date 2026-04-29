@@ -242,6 +242,34 @@ class TelegramService(Service):
             raise NotFoundError(f"Telegram task {space_slug}#{number} not found")
         return TelegramTask.model_validate(doc)
 
+    async def reset_telegram_task(self, space_slug: str, number: int) -> TelegramTask:
+        """Reset a failed task back to pending so the worker retries it.
+
+        Only `failed` tasks can be reset — pending/completed are rejected. Resets retries to 0
+        and clears all diagnostics (error, error_class, request_log, response_log, attempted_at)
+        so the next attempt starts fresh. For mirror tasks this also unblocks B003 ordering for
+        the space (worker filters blocked spaces by failed mirror tasks).
+        """
+        task = await self.get_telegram_task(space_slug, number)
+        if task.status != TelegramTaskStatus.FAILED:
+            raise ValidationError(f"Only failed tasks can be reset; task {space_slug}#{number} is {task.status.value}")
+        await self._tasks_collection.update_one(
+            {"space_slug": space_slug, "number": number},
+            {
+                "$set": {
+                    "status": TelegramTaskStatus.PENDING.value,
+                    "retries": 0,
+                    "error": None,
+                    "error_class": None,
+                    "request_log": None,
+                    "response_log": None,
+                    "attempted_at": None,
+                }
+            },
+        )
+        logger.info("telegram_task_reset", space_slug=space_slug, number=number, task_type=task.task_type)
+        return await self.get_telegram_task(space_slug, number)
+
     async def list_telegram_tasks(
         self,
         space_slug: str | None = None,

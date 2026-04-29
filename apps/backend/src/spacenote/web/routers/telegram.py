@@ -161,6 +161,27 @@ async def get_telegram_task(space_slug: str, number: int, app: AppDep, auth_toke
     return await app.get_telegram_task(auth_token, space_slug, number)
 
 
+@router.post(
+    "/spaces/{space_slug}/telegram/tasks/{number}/reset",
+    summary="Reset a failed telegram task",
+    description=(
+        "Set a failed task back to pending so the worker retries it from scratch. Resets retries to 0 "
+        "and clears error/error_class/request_log/response_log/attempted_at. Only `failed` tasks can be "
+        "reset. For mirror tasks this also unblocks B003 ordering for the space. Admin only."
+    ),
+    operation_id="resetTelegramTask",
+    responses={
+        200: {"description": "Task reset to pending"},
+        400: {"model": ErrorResponse, "description": "Task is not in failed status"},
+        401: {"model": ErrorResponse, "description": "Not authenticated"},
+        403: {"model": ErrorResponse, "description": "Admin privileges required"},
+        404: {"model": ErrorResponse, "description": "Task not found"},
+    },
+)
+async def reset_telegram_task(space_slug: str, number: int, app: AppDep, auth_token: AuthTokenDep) -> TelegramTask:
+    return await app.reset_telegram_task(auth_token, space_slug, number)
+
+
 @router.get(
     "/telegram/mirrors",
     summary="List telegram mirrors",

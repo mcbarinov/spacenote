@@ -924,6 +924,26 @@ export type paths = {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/spaces/{space_slug}/telegram/tasks/{number}/reset": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Reset a failed telegram task
+         * @description Set a failed task back to pending so the worker retries it from scratch. Resets retries to 0 and clears error/error_class/request_log/response_log/attempted_at. Only `failed` tasks can be reset. For mirror tasks this also unblocks B003 ordering for the space. Admin only.
+         */
+        post: operations["resetTelegramTask"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/telegram/mirrors": {
         parameters: {
             query?: never;
@@ -6112,6 +6132,74 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TelegramTask"];
+                };
+            };
+            /** @description Not authenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Admin privileges required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Task not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    resetTelegramTask: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                space_slug: string;
+                number: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Task reset to pending */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TelegramTask"];
+                };
+            };
+            /** @description Task is not in failed status */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
             /** @description Not authenticated */

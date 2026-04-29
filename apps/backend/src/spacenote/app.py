@@ -275,6 +275,11 @@ class App:
         await self._core.services.access.ensure_admin(auth_token)
         return await self._core.services.telegram.get_telegram_task(space_slug, number)
 
+    async def reset_telegram_task(self, auth_token: AuthToken, space_slug: str, number: int) -> TelegramTask:
+        """Reset a failed telegram task back to pending (admin only)."""
+        await self._core.services.access.ensure_admin(auth_token)
+        return await self._core.services.telegram.reset_telegram_task(space_slug, number)
+
     async def list_telegram_mirrors(
         self, auth_token: AuthToken, space_slug: str | None = None, limit: int = 50, offset: int = 0
     ) -> PaginationResult[TelegramMirror]:

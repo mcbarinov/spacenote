@@ -1,6 +1,8 @@
 import { useState } from "react"
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
-import { Badge, Code, Group, Modal, Paper, Select, Stack, Table, Text } from "@mantine/core"
+import { Badge, Button, Code, Group, Modal, Paper, Select, Stack, Table, Text } from "@mantine/core"
+import { modals } from "@mantine/modals"
+import { notifications } from "@mantine/notifications"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { z } from "zod"
 import { api } from "@/api"
@@ -27,6 +29,53 @@ export const Route = createFileRoute("/_auth/_admin/admin/telegram/tasks")({
 
 const statusColors: Record<TelegramTaskStatus, string> = { completed: "green", pending: "yellow", failed: "red" }
 
+/** Reset button for a failed task — confirms, then resets status to pending so the worker retries it. */
+function ResetTaskButton({ task }: { task: TelegramTask }) {
+  const mutation = api.mutations.useResetTelegramTask()
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    modals.openConfirmModal({
+      title: "Reset task",
+      children: (
+        <Stack gap="xs">
+          <Text size="sm">
+            Reset failed task <Code>{`${task.space_slug}#${task.number}`}</Code> back to pending? The worker will retry it from
+            scratch (retries reset to 0, error/log fields cleared).
+          </Text>
+          {task.task_type.startsWith("mirror_") && (
+            <Text size="sm" c="dimmed">
+              For mirror tasks this also unblocks the per-space FIFO queue.
+            </Text>
+          )}
+        </Stack>
+      ),
+      labels: { confirm: "Reset", cancel: "Cancel" },
+      onConfirm: () => {
+        mutation.mutate(
+          { space_slug: task.space_slug, number: task.number },
+          {
+            onSuccess: () => {
+              notifications.show({ message: `Task ${task.space_slug}#${task.number} reset to pending`, color: "green" })
+            },
+            onError: (error) => {
+              notifications.show({
+                color: "red",
+                title: "Reset failed",
+                message: error instanceof Error ? error.message : "Unknown error",
+              })
+            },
+          }
+        )
+      },
+    })
+  }
+  return (
+    <Button size="xs" variant="default" onClick={handleClick} loading={mutation.isPending}>
+      Reset
+    </Button>
+  )
+}
+
 /** Table displaying telegram tasks with status, type, and details */
 function TelegramTasksTable({ tasks }: { tasks: TelegramTask[] }) {
   const [selectedTask, setSelectedTask] = useState<TelegramTask | null>(null)
@@ -52,6 +101,7 @@ function TelegramTasksTable({ tasks }: { tasks: TelegramTask[] }) {
               <Table.Th>Channel</Table.Th>
               <Table.Th>Created</Table.Th>
               <Table.Th>Error</Table.Th>
+              <Table.Th>Actions</Table.Th>
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
@@ -82,6 +132,7 @@ function TelegramTasksTable({ tasks }: { tasks: TelegramTask[] }) {
                     "-"
                   )}
                 </Table.Td>
+                <Table.Td>{task.status === "failed" ? <ResetTaskButton task={task} /> : null}</Table.Td>
               </Table.Tr>
             ))}
           </Table.Tbody>
